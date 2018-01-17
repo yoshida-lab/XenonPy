@@ -1,0 +1,19 @@
+name: XenonPy
+channels:
+- defaults
+- pytorch
+dependencies:
+- python=3.6
+- numpy=1.*
+- pandas
+- seaborn
+- urllib3
+- matplotlib=2.*
+- scikit-learn
+- scipy
+- pytorch
+- torchvision
+- pyyaml
+- pip:
+  - pymonad
+  - pymatgen

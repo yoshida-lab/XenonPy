@@ -1,0 +1,12 @@
+matplotlib~=2.1.1
+numpy~=1.13.3
+pandas~=0.22.0
+pymatgen
+PyMonad
+PyYAML
+scikit-learn~=0.19.1
+scipy~=1.0
+seaborn
+Sphinx
+sphinx-rtd-theme
+urllib3==1.22

@@ -6,6 +6,8 @@
 
 # What is XenonPy project
 
+[![Join the chat at https://gitter.im/yoshida-lab/XenonPy](https://badges.gitter.im/yoshida-lab/XenonPy.svg)](https://gitter.im/yoshida-lab/XenonPy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 **XenonPy** is a Python library which be designed for material development based on machine learning.
 
 This project focus on material informatics.

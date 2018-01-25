@@ -1,0 +1,4 @@
+include *.rst LICENSE.rst CHANGES.rst requirements*.txt
+recursive-include xenonpy *.py *.json *.yaml *.pkl.pd_ *.pkl.z
+recursive-exclude tests/*.*
+recursive-include licences *

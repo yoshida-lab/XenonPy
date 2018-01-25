@@ -1,0 +1,38 @@
+# we don't use travis python virtualenv
+language: python
+virtualenv:
+  system_site_packages: true
+
+dist: trusty  # use ubuntu 14.04lts
+sudo: false  #  runs each build in a container on a shared host via Docker
+
+# shallow clone
+git:
+  depth: 3
+
+# use non-interactive backendV
+env:
+  - PYTHON_VERSION=3.5 BACKEND=agg
+  - PYTHON_VERSION=3.6 BACKEND=agg
+
+before_install:
+  - mkdir -p ~/.xenonpy/dataset
+  - mkdir -p ~/.xenonpy/cached
+  - cp travis/*.pkl.pd_ ~/.xenonpy/dataset/
+  - ls ~/.xenonpy
+  - cp travis/matplotlibrc_${BACKEND} matplotlibrc
+  - if [ $BACKEND == "qtagg" ]; then
+    export DISPLAY=:99.0;
+    sh -e /etc/init.d/xvfb start;
+    sleep 3;
+    fi
+
+# install miniconda
+install:
+  - source travis/install.sh
+  - pip install -e .
+
+script:
+ - make unittest
+
+after_script: conda remove --name xenonpy --all

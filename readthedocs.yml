@@ -1,0 +1,8 @@
+conda:
+  file: environment_py36.yml
+
+build:
+  image: latest
+
+python:
+  version: 3.6

@@ -120,9 +120,9 @@ if __name__ == "__main__":
     # Project Url
     URL = "https://github.com/{0}/{1}".format(GITHUB_USERNAME, repository_name)
     # Use todays date as GitHub release tag
-    github_release_tag = str(date.today())
+    github_release_tag = 'v' + VERSION
     # Source code download url
-    DOWNLOAD_URL = "https://github.com/{0}/{1}/tarball/{2}".format(
+    DOWNLOAD_URL = "https://github.com/{0}/{1}/archive/{2}.tar.gz".format(
         GITHUB_USERNAME, repository_name, github_release_tag)
 
     try:

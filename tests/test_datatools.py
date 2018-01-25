@@ -36,6 +36,8 @@ def setup():
         rmtree(str(test['test_dir']))
     if (Path.home() / '.xenonpy/cached/travis').exists():
         rmtree(str(Path.home() / '.xenonpy/cached/travis'))
+    if (Path().expanduser() / 'test_user_data.pkl.z').exists():
+        remove(str(Path().expanduser() / 'test_user_data.pkl.z'))
     print('test over')
 
 
@@ -53,7 +55,8 @@ def test_loader(setup):
 def test_loader_url(setup):
     load = Loader()
     file = load(
-        'https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/travis/fetch_test.txt')
+        'https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/travis/fetch_test.txt'
+    )
     with open(str(file)) as f:
         assert f.readline() == 'Test xenonpy.utils.Loader._fetch_data'
 
@@ -86,7 +89,7 @@ def test_loader_return_saver(setup):
 
 def test_saver1(setup):
     saver = Saver(setup['user_dataset'])
-    ret = 'Dataset: {} with:'.format(setup['user_dataset'])
+    ret = '"{}" include:'.format(setup['user_dataset'])
     assert str(saver) == ret, 'no files'
 
 
@@ -152,6 +155,7 @@ def test_dump2(setup):
     path = path / (setup['user_dataset'] + '.pkl.z')
     dumped = jl.load(path)
     assert dumped['key1'] == list('qwer')
+
 
 def test_saver_delete1(setup):
     saver = Saver(setup['user_dataset'])

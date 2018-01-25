@@ -39,6 +39,8 @@ Contribution guidelines
 * Check codes with Pylint
 * Writing tests if possible
 
+Contract
+========
 
 * With issues_
 * With Gitter_

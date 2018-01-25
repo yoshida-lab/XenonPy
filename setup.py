@@ -60,8 +60,8 @@ if __name__ == "__main__":
     try:
         SHORT_DESCRIPTION = package.__short_description__  # GitHub Short Description
     except:
-        print(
-            "'__short_description__' not found in '%s.__init__.py'!" % PKG_NAME)
+        print("'__short_description__' not found in '%s.__init__.py'!" %
+              PKG_NAME)
         SHORT_DESCRIPTION = "No short description!"
 
     # Long description will be the body of content on PyPI page
@@ -95,13 +95,17 @@ if __name__ == "__main__":
         MAINTAINER_EMAIL = None
 
     PACKAGES, INCLUDE_PACKAGE_DATA, PACKAGE_DATA, PY_MODULES = (
-        None, None, None, None,
+        None,
+        None,
+        None,
+        None,
     )
 
     # It's a directory style package
     if os.path.exists(__file__[:-8] + PKG_NAME):
         # Include all sub packages in package directory
-        PACKAGES = find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"])
+        PACKAGES = find_packages(
+            exclude=["*.tests", "*.tests.*", "tests.*", "tests"])
 
         # Include everything in package directory
         INCLUDE_PACKAGE_DATA = True
@@ -109,10 +113,11 @@ if __name__ == "__main__":
             "": ["*.*"],
         }
 
-
     # It's a single script style package
     elif os.path.exists(__file__[:-8] + PKG_NAME + ".py"):
-        PY_MODULES = [PKG_NAME, ]
+        PY_MODULES = [
+            PKG_NAME,
+        ]
 
     # The project directory name is the GitHub repository name
     repository_name = package.__name__
@@ -171,14 +176,12 @@ if __name__ == "__main__":
         classifiers=CLASSIFIERS,
         platforms=PLATFORMS,
         license=LICENSE,
-        setup_requires=['pytest-runner'],
+        setup_requires=['pytest-runner'] + REQUIRES,
         install_requires=REQUIRES,
         tests_require=REQUIRES_TEST,
     )
-
 """
 Appendix
 --------
 classifiers: https://pypi.python.org/pypi?%3Aaction=list_classifiers
 """
-

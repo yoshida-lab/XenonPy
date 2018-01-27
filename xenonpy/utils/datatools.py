@@ -15,7 +15,7 @@ import pandas as pd
 import requests
 from sklearn.externals import joblib as jl
 
-from .. import __pkg_cfg_root__
+from .. import cfg_root
 from .. import _get_dataset_url
 
 
@@ -155,19 +155,19 @@ class Loader(object):
             'electron_density', 'sample_A', 'mp_structure'
         ]
         self.chunk_size = chunk_size
-        self.dataset_dir = Path().home() / __pkg_cfg_root__ / 'dataset'
-        self.user_data_dir = Path().home() / __pkg_cfg_root__ / 'userdata'
-        self.cached_dir = Path().home() / __pkg_cfg_root__ / 'cached'
+        self.dataset_dir = Path().home() / cfg_root / 'dataset'
+        self.user_data_dir = Path().home() / cfg_root / 'userdata'
+        self.cached_dir = Path().home() / cfg_root / 'cached'
 
-    def _fetch_data(self, url):
+    def _fetch_data(self, url, save_to=None):
         schemes = {'http', 'https'}
         scheme = urlparse(url).scheme
         if 'http' in scheme:
-            return self._http_data(url)
+            return self._http_data(url, save_to)
         else:
             raise ValueError("Only can access [{}] data but you send {}. :(".format(schemes, scheme))
 
-    def _http_data(self, url):
+    def _http_data(self, url, save_to=None):
         r = requests.get(url, stream=True)
         r.raise_for_status()
 
@@ -176,7 +176,7 @@ class Loader(object):
         else:
             filename = url.split('/')[-1]
 
-        save_to = str(self.cached_dir / filename)
+        save_to = str(self.cached_dir / filename) if not save_to else str(save_to)
         with open(save_to, 'wb') as f:
             for chunk in r.iter_content(chunk_size=self.chunk_size):
                 if chunk:  # filter out keep-alive new chunks
@@ -304,7 +304,7 @@ class Saver(object):
             The dir to save and load data
         """
         self.dataset = dataset
-        self._path = Path.home() / __pkg_cfg_root__ / 'userdata' / dataset
+        self._path = Path.home() / cfg_root / 'userdata' / dataset
         if not self._path.exists():
             self._path.mkdir(parents=True)
         self._files = None

@@ -3,7 +3,7 @@
 # license that can be found in the LICENSE file.
 
 __version__ = '0.1.0'
-__release__ = 'b6'
+__release__ = 'b7'
 __short_description__ = "material descriptor library"
 __license__ = "BSD (3-clause)"
 __author__ = "TsumiNa"
@@ -12,7 +12,9 @@ __maintainer__ = "TsumiNa"
 __maintainer_email__ = "liu.chang.1865@gmail.com"
 __github_username__ = "yoshida-lab"
 
-__pkg_cfg_root__ = '.' + __name__
+cfg_root = '.' + __name__
+
+dataset_ver = 'v0.1.0b6'
 
 
 def get_conf(key: str = None):
@@ -33,7 +35,7 @@ def get_conf(key: str = None):
     import yaml
     from pathlib import Path
     home = Path.home()
-    dir_ = home / __pkg_cfg_root__
+    dir_ = home / cfg_root
     cfg_file = dir_ / 'conf.yml'
     with open(cfg_file) as f:
         conf = yaml.load(f)
@@ -61,7 +63,7 @@ def _get_dataset_url(fname: str):
     return 'https://github.com/' + \
            __github_username__ + '/' + \
            __name__ + '/releases/download/' + \
-           __version__ + __release__ + '/' + \
+           dataset_ver + '/' + \
            fname + '.pkl'
 
 
@@ -80,7 +82,7 @@ def _init_cfg_file(force=False):
     from shutil import rmtree, copyfile
     from pathlib import Path
     home = Path.home()
-    dir_ = home / __pkg_cfg_root__
+    dir_ = home / cfg_root
     cfg_file = dir_ / 'conf.yml'
 
     dataset_dir = dir_ / 'dataset'
@@ -107,8 +109,8 @@ def _init_cfg_file(force=False):
 _init_cfg_file()
 
 from . import descriptor
-from . import model
 # from .pipeline import *
 # from .preprocess import *
 from . import utils
 from . import visualization
+from . import model

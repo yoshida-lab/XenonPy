@@ -54,7 +54,7 @@ class DescHeatmap(BaseEstimator):
         self.desc = pd.DataFrame(minmax_scale(desc_), index=desc.index, columns=desc.columns)
         return self
 
-    def draw(self, y):
+    def draw(self, y=None):
         ax = sb.clustermap(
             self.desc,
             cmap="RdBu",
@@ -64,15 +64,19 @@ class DescHeatmap(BaseEstimator):
             col_cluster=self.col_cluster,
             **self.kwargs)
         ax.cax.set_visible(False)
-        ax.ax_heatmap.set_position((0.1, 0.2, 0.84, 0.6))
         ax.ax_heatmap.yaxis.set_ticks_position('left')
         ax.ax_heatmap.yaxis.set_label_position('left')
-        ax.ax_col_dendrogram.set_position((0.1, 0.8, 0.83, 0.1))
 
-        ax = plt.axes([0.95, 0.2, 0.05, 0.6])
-        ax.plot(y.values, lw=4)
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.set_xlabel('{:s}\n(property)'.format(y.name), fontsize=20)
+        if y is None:
+            ax.ax_col_dendrogram.set_position((0.1, 0.8, 0.9, 0.1))
+            ax.ax_heatmap.set_position((0.1, 0.2, 0.9, 0.6))
+        else:
+            ax.ax_col_dendrogram.set_position((0.1, 0.8, 0.83, 0.1))
+            ax.ax_heatmap.set_position((0.1, 0.2, 0.84, 0.6))
+            ax = plt.axes([0.95, 0.2, 0.05, 0.6])
+            ax.plot(y.values, lw=4)
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.set_xlabel('{:s}\n(property)'.format(y.name), fontsize=20)
         if self.save:
             plt.savefig(**self.save)

@@ -9,7 +9,7 @@ with warnings.catch_warnings():
     try:
         import torch
     except ImportError:
-        warnings.warn("Can't fing pytorch, will not load Neorul Network modules.", RuntimeWarning)
+        warnings.warn("Can't fing pytorch, will not load neural network modules.", RuntimeWarning)
     else:
         from .base_model import *
         from .layer import *

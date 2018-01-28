@@ -17,6 +17,12 @@ dependencies:
 - scipy
 - pytorch
 - pyyaml
+- pytest
+- pytest-cov
+- pylint
+- sphinx
+- sphinx_rtd_theme
+- jupyter
 - pip:
   - pymonad
   - matminer

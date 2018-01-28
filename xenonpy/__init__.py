@@ -14,8 +14,6 @@ __github_username__ = "yoshida-lab"
 
 cfg_root = '.' + __name__
 
-dataset_ver = 'v0.1.0b6'
-
 
 def get_conf(key: str = None):
     """
@@ -59,12 +57,7 @@ def _get_dataset_url(fname: str):
     str
         binary file url.
     """
-
-    return 'https://github.com/' + \
-           __github_username__ + '/' + \
-           __name__ + '/releases/download/' + \
-           dataset_ver + '/' + \
-           fname + '.pkl'
+    return 'https://github.com/' + __github_username__ + '/dataset/releases/download/v0.1' + '/' + fname + '.pkl'
 
 
 def _init_cfg_file(force=False):
@@ -109,8 +102,8 @@ def _init_cfg_file(force=False):
 _init_cfg_file()
 
 from . import descriptor
+from . import model
 # from .pipeline import *
 # from .preprocess import *
 from . import utils
 from . import visualization
-from . import model

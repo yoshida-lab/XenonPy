@@ -8,8 +8,6 @@
 # from __future__ import print_function
 
 import os
-from datetime import date
-
 from setuptools import setup, find_packages
 
 # --- import your package ---
@@ -176,9 +174,8 @@ if __name__ == "__main__":
         classifiers=CLASSIFIERS,
         platforms=PLATFORMS,
         license=LICENSE,
-        setup_requires=['pytest-runner'] + REQUIRES,
-        install_requires=REQUIRES,
-        tests_require=REQUIRES_TEST,
+        setup_requires=REQUIRES,
+        install_requires=REQUIRES
     )
 """
 Appendix

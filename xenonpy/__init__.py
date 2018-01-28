@@ -3,7 +3,7 @@
 # license that can be found in the LICENSE file.
 
 __version__ = '0.1.0'
-__release__ = 'b7'
+__release__ = 'b8'
 __short_description__ = "material descriptor library"
 __license__ = "BSD (3-clause)"
 __author__ = "TsumiNa"

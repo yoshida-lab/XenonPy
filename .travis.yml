@@ -36,10 +36,10 @@ script:
  - make unittest
 
 after_script: conda remove --name xenonpy --all
-deploy:
-  provider: pypi
-  user: "tsumina"
-  password:
-    secure: L35FqByerbSDiyGyuzR5An7+OjNy3nSu33y9774ih927tlEKlOM8yYedMmrIvkYpHxDeHp8/MLdfWCRwL8VF2nlspJvP8Mqa+mpzLs/Dv9QU9lKmcc3xaqpaka/cI9+Dueev6M2fSLmEQuY8LQib7GsiIDKiOFfBrDnzf3/nfDwBe/f1m6itybsqXNWOLiFEyrRi3v6YQZC/QUfb0bHx0+5brLH0K250Z3jfDSwyGiuqT7JIMS8fEwium7Abu6Ge16FtOjINk1rZE1DpkNU3w34MTI+c5qCuHkXlUiOAyrMoeZZE0BmkVV6ed6sGk9WeZdgX27oKNww93QCeir0NGzt2N51aY9m0Klj9O9lKiv7BdGcoyafpmCJQknjPxdrntHVlg5KMuUhbmgQ17X1TKXm4tR7yZa4cY/U/oOX4d+flEyZalRMzIgaxj3xVUGVoNSjBL+ZVyuXj+jmUnNB7Bf2gYk8XvxNYi5tB3axqmpgtQdVP40MorqUHYkBojoVEwv45E2bNKw3dnIQomWhrP76VwQt7jdCXVEITvUmI7IUio3Ewhnkyx3O++KQjcwS53hF7JCmF5e7qhGB52IT0MBD7XpaIkHA3wTQkPmMwNP8GccBo5HHUc8p+1z4HcRi8OZPSw/3o5alw0C7nuwfUZiIHbfhG0mcSuk0lPbb5tfg=
-  on:
-    tags: true
+#deploy:
+#  provider: pypi
+#  user: "tsumina"
+#  password:
+#    secure: L35FqByerbSDiyGyuzR5An7+OjNy3nSu33y9774ih927tlEKlOM8yYedMmrIvkYpHxDeHp8/MLdfWCRwL8VF2nlspJvP8Mqa+mpzLs/Dv9QU9lKmcc3xaqpaka/cI9+Dueev6M2fSLmEQuY8LQib7GsiIDKiOFfBrDnzf3/nfDwBe/f1m6itybsqXNWOLiFEyrRi3v6YQZC/QUfb0bHx0+5brLH0K250Z3jfDSwyGiuqT7JIMS8fEwium7Abu6Ge16FtOjINk1rZE1DpkNU3w34MTI+c5qCuHkXlUiOAyrMoeZZE0BmkVV6ed6sGk9WeZdgX27oKNww93QCeir0NGzt2N51aY9m0Klj9O9lKiv7BdGcoyafpmCJQknjPxdrntHVlg5KMuUhbmgQ17X1TKXm4tR7yZa4cY/U/oOX4d+flEyZalRMzIgaxj3xVUGVoNSjBL+ZVyuXj+jmUnNB7Bf2gYk8XvxNYi5tB3axqmpgtQdVP40MorqUHYkBojoVEwv45E2bNKw3dnIQomWhrP76VwQt7jdCXVEITvUmI7IUio3Ewhnkyx3O++KQjcwS53hF7JCmF5e7qhGB52IT0MBD7XpaIkHA3wTQkPmMwNP8GccBo5HHUc8p+1z4HcRi8OZPSw/3o5alw0C7nuwfUZiIHbfhG0mcSuk0lPbb5tfg=
+#  on:
+#    tags: true

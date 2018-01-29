@@ -1,9 +1,21 @@
 from torch import save, load
-from torch.nn import Module
 
 
 class CheckPoint(object):
-    def __init__(self, model: Module, *extra_para_list):
+    """
+    Check point.
+    """
+
+    def __init__(self, model, *extra_para_list):
+        """
+
+        Parameters
+        ----------
+        model: torch.nn.Module
+            Something
+        extra_para_list: dict
+            Something
+        """
         self.snapshots = []
         self.check_nums = 0
         self._model = model

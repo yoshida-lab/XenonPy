@@ -11,5 +11,5 @@ with warnings.catch_warnings():
     except ImportError:
         warnings.warn("Can't fing pytorch, will not load neural network modules.", RuntimeWarning)
     else:
-        from .base_model import *
-        from .layer import *
+        from .base import *
+        from .random_model import *

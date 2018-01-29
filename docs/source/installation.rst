@@ -9,6 +9,7 @@ XenonPy use PyTorch_ as the NN engine backend because of it's flexibility and hi
 Since PyTorch has no common installation recipe beacuse it dependent on what your OS is and either use `CUDA <https://developer.nvidia.com/cuda-toolkit>`_.
 So unfortunately, you have to install PyTorch manually after the installation of XenonPy.
 
+
 Let we say:
 
 * :ref:`install_xenonpy` 
@@ -16,13 +17,11 @@ Let we say:
 
 .. note::
 
-    Installation on Unix-like system is actually quite simple. For windows the installation is relative triviality.
-    We highly recommend you to install `Visual C++ Build Tools <http://landinghub.visualstudio.com/visual-cpp-build-tools>`_ before you install other python packages.
+    When installation, some dependence which have C/Cython files need to be compiled.
+    On Unix-like system is actually quite simple only need you to install compile toolchain. For windows the installation is relative triviality.
+    Before you install python packages. First install `Visual C++ Build Tools <http://landinghub.visualstudio.com/visual-cpp-build-tools>`_.
+    Also you have to checked on **windows 8.1 / 10 SDK options** when install Visual C++ Build Tools.
 
-.. tip::
-
-    If you got ``fatal error C1083: Cannot open include file: 'basetsd.h': No such file or directory`` error when install via ``pip``.
-    Try checked windows 8.1 / 10 SDK options when install Visual C++ Build Tools.
 
 .. _install_xenonpy:
 
@@ -30,31 +29,11 @@ Step1: Install XenonPy
 =======================
 
 
-via anaconda (recommended)
---------------------------
-The easiest way to install XenonPy is using conda_. If you don't have conda_ follow the `official installation documents <https://conda.io/docs/user-guide/install/index.html>`_.
-
-We created a channel to build a collection of our materials science software,
-If you already have conda installed, XenonPy can be installed from the `yoshida-lab channel`_ using the following one line command:
-
-.. code-block:: bash
-
-   $ conda install --channel yoshida-lab xenonpy
-
-
-XenonPy is under active development, many new features are added regularly. To
-upgrade pymatgen to the latest version, use the following command:
-
-.. code-block:: bash
-
-   $ conda upgrade xenonpy
-
-
-
 via pip
 --------------------------
 
-If you don't/can't install conda_. A common way is to use pip_.
+A common way to install python packages is pip_.
+
 Simply run the command in a bash terminal:
 
 .. code-block:: bash

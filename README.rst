@@ -39,6 +39,12 @@ Contribution guidelines
 * Check codes with Pylint
 * Writing tests if possible
 
+
+Changes
+=======
+
+.. include: docs/source/CHANGES.rst
+
 Contract
 ========
 

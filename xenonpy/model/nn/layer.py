@@ -6,16 +6,16 @@ import torch.nn as nn
 
 
 class Layer1d(nn.Module):
-    def __init__(self, *,
-                 n_in: int,
-                 n_out: int,
+    def __init__(self, n_in: int, n_out: int, *,
                  p_drop: float = 0.0,
                  layer_func=nn.Linear,
                  act_func=nn.ReLU(),
-                 batch_normalize=False,
-                 momentum=0.1
+                 batch_normalize: bool = False,
+                 momentum: float = 0.1,
+                 lr: float = None
                  ):
         super().__init__()
+        self.lr = lr
         self.neuron = layer_func(n_in, n_out)
         self.batch_nor = None if not batch_normalize else nn.BatchNorm1d(n_out, momentum)
         self.act_func = None if not act_func else act_func
@@ -31,3 +31,15 @@ class Layer1d(nn.Module):
             _out = self.act_func(_out)
         return _out
 
+
+if __name__ == '__main__':
+    model = nn.Sequential(
+        nn.Linear(2, 3),
+        # nn.ReLU(),
+        nn.Linear(3, 2),
+        # nn.ReLU()
+    )
+
+    params_dict = dict(model.named_parameters())
+    for key, value in params_dict.items():
+        print("key:{}, value:{}".format(key, value))

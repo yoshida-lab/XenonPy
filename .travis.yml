@@ -18,7 +18,6 @@ env:
 before_install:
   - mkdir -p ~/.xenonpy/dataset
   - mkdir -p ~/.xenonpy/cached
-  - cp travis/*.pkl.pd_ ~/.xenonpy/dataset/
   - ls ~/.xenonpy
   - cp travis/matplotlibrc_${BACKEND} matplotlibrc
   - if [ $BACKEND == "qtagg" ]; then

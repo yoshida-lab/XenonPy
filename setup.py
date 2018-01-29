@@ -154,7 +154,6 @@ if __name__ == "__main__":
 
     # Read requirements.txt, ignore comments
     REQUIRES = get_requirements("requirements.txt")
-    REQUIRES_TEST = get_requirements("requirements_test.txt")
 
     setup(
         name=PKG_NAME,

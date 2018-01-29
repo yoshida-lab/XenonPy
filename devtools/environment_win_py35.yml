@@ -1,10 +1,10 @@
-name: xepy36
+name: xepy35
 channels:
 - defaults
 - peterjc123
 - matsci
 dependencies:
-- python=3.6
+- python=3.5
 - numpy
 - pandas
 - tqdm

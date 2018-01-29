@@ -2,11 +2,13 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-from pathlib import Path
+from itertools import product
 
 import numpy as np
 import torch as tc
 import torch.nn as nn
+from collections import namedtuple
+from pathlib import Path
 from sklearn.base import BaseEstimator, RegressorMixin
 from torch.autograd import Variable as V
 
@@ -18,17 +20,45 @@ from .layer import Layer1d
 
 
 class NNGenerator1d(object):
+    """
+    Generate random model from the supplied parameters.
+    """
     def __init__(self, n_features: int, n_predict: int, *,
                  n_neuron: [int],
                  p_drop: [float] = (0.0,),
                  layer_func: [] = (nn.Linear,),
                  act_func: [] = (nn.ReLU(),),
+                 lr: [float] = (None,),
                  batch_normalize: [bool] = (False,),
                  momentum: [float] = (0.1,)
                  ):
+        """
+
+        Parameters
+        ----------
+        n_features: int
+            Input dimension.
+        n_predict: int
+            Output dimension.
+        n_neuron: int-list
+            Number of neuron.
+        p_drop: float-list
+            Dropout rate.
+        layer_func: func-list
+            Layer functions. such like: :class:`torch.nn.Linear`.
+        act_func: func-list
+            Activation functions. such like: :class:``torch.nn.ReLU`.
+        lr: float-list
+            Learning rates.
+        batch_normalize: bool-list
+            Batch Normalization. such like: :class:`torch.nn.BatchNorm1d`.
+        momentum: float-list
+            The value used for the running_mean and running_var computation.
+        """
         self.n_in, self.n_out = n_features, n_predict
 
         # save parameters
+        self.lr = lr
         self.n_neuron = n_neuron
         self.p_drop = p_drop
         self.layer_func = layer_func
@@ -38,38 +68,50 @@ class NNGenerator1d(object):
 
         # prepare layer container
         # calculate layer's variety
-        self.layers = list()
-        self.layers_len = 0
-        self.__lay_vars()
+        self.layer_var = list(product(n_neuron, p_drop, layer_func, act_func, batch_normalize, momentum, lr))
 
-    def __lay_vars(self):
-        for n in self.n_neuron:
-            for p in self.p_drop:
-                for l in self.layer_func:
-                    for a in self.act_func:
-                        for b in self.batch_normalize:
-                            for m in self.momentum:
-                                layer = dict(n_in=0,
-                                             n_out=n,
-                                             p_drop=p,
-                                             layer_func=l,
-                                             act_func=a,
-                                             batch_normalize=b,
-                                             momentum=m)
-                                self.layers.append(layer)
-        self.layers_len = len(self.layers)
+    def __call__(self, hidden: int = 3, n_sample: int = 0, scheduler=None):
+        """
+        Generate sample model.
 
-    def __call__(self, hidden=3):
-        ids = np.random.randint(0, self.layers_len, hidden)
+        Parameters
+        ----------
+        hidden: int
+            Number of hidden layers.
+        n_sample: int
+            Number of model sample
+        scheduler:
+            A function be used to determining the layer properties from previous layer.
+
+                >>> # index: layer index in a model; pars: parameters of previous layer as dict.
+                >>> # include: n_neuron, p_drop, layer_func, act_func, lr, batch_normalize, momentum
+                >>> scheduler = lambda index, pars: pars
+
+        Returns
+        -------
+        ret: iterable
+            Samples as generator
+        """
+        layer_paras = namedtuple('LayerParas',
+                                 ['n_in',
+                                  'n_out',
+                                  'p_drop',
+                                  'layer_func',
+                                  'act_func',
+                                  'batch_normalize',
+                                  'momentum',
+                                  'lr']
+                                 )
+        layers_len = len(self.layer_var)
+        ids = np.random.randint(0, layers_len, hidden)
         layers = list()
 
         # set layers
-        self.layers[ids[0]]['n_in'] = self.n_in
         n_in = self.n_in
         for i in ids:
-            self.layers[i]['n_in'] = n_in
-            layers.append(Layer1d(**self.layers[i]))
-            n_in = self.layers[i]['n_out']
+            layer = (n_in,) + self.layer_var[i]
+            layers.append(Layer1d(**(layer_paras(*layer)._asdict())))
+            n_in = self.layer_var[i][0]
         out_layer = Layer1d(n_in=n_in, n_out=self.n_out, act_func=None)
         layers.append(out_layer)
 

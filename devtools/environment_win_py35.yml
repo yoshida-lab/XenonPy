@@ -21,6 +21,6 @@ dependencies:
 - sphinx_rtd_theme
 - jupyter
 - pip:
-  - pymatgen=2018.1.19
+  - pymatgen==2018.1.19
   - pymonad
   - matminer

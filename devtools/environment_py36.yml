@@ -2,14 +2,12 @@ name: xepy36
 channels:
 - defaults
 - pytorch
-- matsci
 dependencies:
 - python=3.6
 - numpy
 - pandas
 - tqdm
 - seaborn
-- pymatgen
 - requests
 - matplotlib
 - plotly
@@ -24,5 +22,6 @@ dependencies:
 - sphinx_rtd_theme
 - jupyter
 - pip:
+  - pymatgen=2018.1.19
   - pymonad
   - matminer

@@ -2,7 +2,6 @@ name: xepy35
 channels:
 - defaults
 - peterjc123
-- matsci
 dependencies:
 - python=3.5
 - numpy
@@ -10,7 +9,6 @@ dependencies:
 - tqdm
 - seaborn
 - requests
-- matplotlib
 - plotly
 - scikit-learn
 - scipy
@@ -23,6 +21,6 @@ dependencies:
 - sphinx_rtd_theme
 - jupyter
 - pip:
-  - pymatgen
+  - pymatgen=2018.1.19
   - pymonad
   - matminer

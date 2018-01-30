@@ -2,12 +2,12 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-from collections import namedtuple
 from itertools import product
-from random import sample
+from torch import nn
 
 import numpy as np
-from torch import nn
+from collections import namedtuple
+from random import sample
 
 from . import Layer1d
 
@@ -18,13 +18,13 @@ class Generator1d(object):
     """
 
     def __init__(self, n_features: int, n_predict: int, *,
-                 n_neuron: [int],
-                 p_drop: [float] = (0.0,),
-                 layer_func: [] = (nn.Linear,),
-                 act_func: [] = (nn.ReLU(),),
-                 lr: [float] = (None,),
-                 batch_normalize: [bool] = (False,),
-                 momentum: [float] = (0.1,)
+                 n_neuron,
+                 p_drop=(0.0,),
+                 layer_func=(nn.Linear,),
+                 act_func=(nn.ReLU(),),
+                 lr=(None,),
+                 batch_normalize=(False,),
+                 momentum=(0.1,)
                  ):
         """
 
@@ -34,19 +34,19 @@ class Generator1d(object):
             Input dimension.
         n_predict: int
             Output dimension.
-        n_neuron: int-list
+        n_neuron: [int]
             Number of neuron.
-        p_drop: float-list
+        p_drop: [float]
             Dropout rate.
-        layer_func: func-list
+        layer_func: [func]
             Layer functions. such like: :class:`torch.nn.Linear`.
-        act_func: func-list
-            Activation functions. such like: :class:``torch.nn.ReLU`.
-        lr: float-list
+        act_func: [func]
+            Activation functions. such like: :class:`torch.nn.ReLU`.
+        lr: [float]
             Learning rates.
-        batch_normalize: bool-list
+        batch_normalize: [bool]
             Batch Normalization. such like: :class:`torch.nn.BatchNorm1d`.
-        momentum: float-list
+        momentum: [float]
             The value used for the running_mean and running_var computation.
         """
         self.n_in, self.n_out = n_features, n_predict

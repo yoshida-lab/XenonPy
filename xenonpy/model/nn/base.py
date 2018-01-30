@@ -2,10 +2,9 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-from pathlib import Path
-
 import torch as tc
 import torch.nn as nn
+from pathlib import Path
 from sklearn.base import BaseEstimator, RegressorMixin
 from torch.autograd import Variable as Var
 
@@ -15,12 +14,12 @@ from .checkpoint import CheckPoint
 # from ...pipeline import combinator
 class Layer1d(nn.Module):
     def __init__(self, n_in: int, n_out: int, *,
-                 p_drop: float = 0.0,
+                 p_drop=0.0,
                  layer_func=nn.Linear,
                  act_func=nn.ReLU(),
-                 batch_normalize: bool = False,
-                 momentum: float = 0.1,
-                 lr: float = None
+                 batch_normalize=False,
+                 momentum=0.1,
+                 lr=1.0
                  ):
         super().__init__()
         self.lr = lr
@@ -45,12 +44,12 @@ class ModelRunner(BaseEstimator, RegressorMixin):
                  lr: float = 0.01,
                  loss_func=None,
                  optim=None,
-                 epochs: int = 2000,
-                 verbose: int = 0,
-                 ctx: str = 'cpu',
-                 checkstep: int = 100,
-                 check: tuple = ('epochs', 'loss'),
-                 save_to: str = ''
+                 epochs=2000,
+                 verbose=0,
+                 ctx='cpu',
+                 checkstep=100,
+                 check=('epochs', 'loss'),
+                 save_to=''
                  ):
         parent = Path(save_to)
         if not parent.exists():

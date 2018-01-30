@@ -4,10 +4,10 @@ xenonpy\.model\.nn package
 Submodules
 ----------
 
-xenonpy\.model\.nn\.base\_model module
---------------------------------------
+xenonpy\.model\.nn\.base module
+-------------------------------
 
-.. automodule:: xenonpy.model.nn.base_model
+.. automodule:: xenonpy.model.nn.base
     :members:
     :undoc-members:
     :show-inheritance:
@@ -20,10 +20,10 @@ xenonpy\.model\.nn\.checkpoint module
     :undoc-members:
     :show-inheritance:
 
-xenonpy\.model\.nn\.layer module
---------------------------------
+xenonpy\.model\.nn\.random\_model module
+----------------------------------------
 
-.. automodule:: xenonpy.model.nn.layer
+.. automodule:: xenonpy.model.nn.random_model
     :members:
     :undoc-members:
     :show-inheritance:

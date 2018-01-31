@@ -2,12 +2,12 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
+from collections import namedtuple
 from itertools import product
-from torch import nn
 
 import numpy as np
-from collections import namedtuple
-from random import sample
+from numpy.random import choice
+from torch import nn
 
 from . import Layer1d
 
@@ -64,7 +64,7 @@ class Generator1d(object):
         # calculate layer's variety
         self.layer_var = list(product(n_neuron, p_drop, layer_func, act_func, batch_normalize, momentum, lr))
 
-    def __call__(self, hidden: int, *, n_models: int = 0, scheduler=None):
+    def __call__(self, hidden: int, *, n_models: int = 0, scheduler=None, replace=False):
         """
         Generate sample model.
 
@@ -91,37 +91,47 @@ class Generator1d(object):
         layer_len = len(self.layer_var)
 
         if scheduler is None:
-            indices = list(product(np.arange(layer_len), repeat=hidden))
+            indices = list(product(range(layer_len), repeat=hidden))
             indices_len = layer_len ** hidden
 
-            if n_models == 0 or n_models >= indices_len:
+            if n_models == 0:
                 n_models = indices_len
+            if n_models > indices_len and not replace:
+                raise ValueError("larger sample than population({}) when 'replace=False'".format(indices_len))
 
             # sampling indices
-            samples = sample(indices, n_models)
+            samples = choice(range(indices_len), n_models, replace).tolist()
             while True:
                 try:
-                    ids = samples.pop()
+                    index_ = samples.pop()
+                    ids = indices[index_]
                 except IndexError:
                     raise StopIteration()
 
                 # set layers
                 layers = list()
                 n_in = self.n_in
+                sig = [n_in]
                 for i in ids:
                     layer_ = layer(*((n_in,) + self.layer_var[i]))._asdict()
                     layers.append(Layer1d(**layer_))
                     n_in = self.layer_var[i][0]
+                    sig.append(n_in)
+                sig.append(self.n_out)
                 out_layer = Layer1d(n_in=n_in, n_out=self.n_out, act_func=None)
                 layers.append(out_layer)
 
-                yield nn.Sequential(*layers)
+                model = nn.Sequential(*layers)
+                setattr(model, 'sig', '@' + '-'.join(map(str, sig)) + '@')
+                yield model
 
         else:
-            if n_models == 0 or n_models >= layer_len:
+            if n_models == 0:
                 n_models = layer_len
+            if n_models > layer_len and not replace:
+                raise ValueError("larger sample than population({}) when 'replace=False'".format(layer_len))
 
-            samples = sample(np.arange(layer_len).tolist(), n_models)
+            samples = choice(range(layer_len), n_models, replace).tolist()
 
             while True:
                 try:
@@ -131,8 +141,10 @@ class Generator1d(object):
 
                 layers = list()
                 n_in = self.n_in
+                sig = [n_in]
                 paras = self.layer_var[i]
                 layer_ = layer(*((n_in,) + paras))._asdict()
+
                 layers.append(Layer1d(**layer_))
                 n_in = layer_['n_out']
                 for n in np.arange(hidden - 1):
@@ -140,7 +152,11 @@ class Generator1d(object):
                     layer_['n_in'] = n_in
                     layers.append(Layer1d(**layer_))
                     n_in = layer_['n_out']
+                    sig.append(n_in)
+                sig.append(self.n_out)
                 out_layer = Layer1d(n_in=n_in, n_out=self.n_out, act_func=None)
                 layers.append(out_layer)
 
-                yield nn.Sequential(*layers)
+                model = nn.Sequential(*layers)
+                setattr(model, 'sig', '@' + '-'.join(map(str, sig)) + '@')
+                yield model

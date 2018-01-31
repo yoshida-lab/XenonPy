@@ -15,8 +15,8 @@ import pandas as pd
 import requests
 from sklearn.externals import joblib as jl
 
-from .. import cfg_root
 from .. import _get_dataset_url
+from .. import cfg_root
 
 
 class Loader(object):
@@ -456,8 +456,7 @@ class Saver(object):
         del self._files[data_name]
 
     def __repr__(self):
-        cont_ls = []
-        cont_ls.append('"{}" include:'.format(self.dataset))
+        cont_ls = ['"{}" include:'.format(self.dataset)]
 
         for k, v in self._files.items():
             cont_ls.append('"{}": {}'.format(k, len(v)))
@@ -467,8 +466,8 @@ class Saver(object):
     def __getitem__(self, item):
 
         # load file
-        def _load_file(files, item):
-            _files = files[item]
+        def _load_file(files, item_):
+            _files = files[item_]
             if not isinstance(_files, list):
                 return self._load_data(_files)
             return [self._load_data(f) for f in _files]

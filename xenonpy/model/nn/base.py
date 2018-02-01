@@ -10,8 +10,12 @@ import torch as tc
 import torch.nn as nn
 from pandas import DataFrame as df
 from sklearn.base import BaseEstimator, RegressorMixin
-from torch import save, load
+from sklearn.externals import joblib
 from torch.autograd import Variable as Var
+
+from .wrap import SL
+from ... import get_conf
+from ...utils.datatools import Saver
 
 
 class Checker(object):
@@ -19,7 +23,7 @@ class Checker(object):
     Check point.
     """
 
-    def __init__(self, name, *extra_para_list):
+    def __init__(self, name):
         """
 
         Parameters
@@ -30,51 +34,21 @@ class Checker(object):
             Something
         """
         self.name = name
-        self.snapshots = []
-        self.check_nums = 0
-        self._model = None
-        self.extra = dict()
-        self._extra_para_list = extra_para_list
-        for key in extra_para_list:
-            self.extra[key] = None
+        self.saver = Saver(name, absolute=True, backend=SL())
 
-    @property
-    def extra_para_list(self):
-        return self._extra_para_list
+    def __getitem__(self, item):
+        if isinstance(item, int):
+            return dict(model_state=self.saver['model_state', item],
+                        epochs=self.saver['epochs', item],
+                        y_pred=self.saver['y_pred', item],
+                        loss=self.saver['loss', item])
+        if isinstance(item, tuple):
+            return self.saver.__getitem__(item)
 
-    @property
-    def model(self):
-        return self._model
+        raise ValueError('except int or slice like [str, int]')
 
-    def __call__(self, **extra_paras):
-        for k in extra_paras.keys():
-            if k not in self.extra:
-                raise ValueError('"{}" not in the extra parameter list'.format(k))
-        for k in self._extra_para_list:
-            if k not in extra_paras:
-                raise ValueError('"{}" must be provide'.format(k))
-
-        extra_paras['state_dict'] = self.model.state_dict()
-        self.snapshots.append(extra_paras)
-        self.check_nums += 1
-
-    def save(self, snapshots, model: str = None):
-        saver = dict(extra_para_list=self._extra_para_list,
-                     check_nums=self.check_nums,
-                     snapshots=self.snapshots)
-        save(saver, snapshots)
-        if model:
-            save(self._model, model)
-
-    def read(self, file_name):
-        saver = load(file_name)
-        extra_para_list = saver['extra_para_list']
-        self._extra_para_list = extra_para_list
-        check_nums = saver['check_nums']
-        self.check_nums = check_nums
-        snapshots = saver['snapshots']
-        self.model.load_state_dict(snapshots[-1]['state_dict'])
-        return self
+    def __call__(self, **kwargs):
+        self.saver(**kwargs)
 
 
 class Layer1d(nn.Module):
@@ -114,7 +88,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
                  check_step=100,
                  ignore_except=True,
                  log_step=0,
-                 dump_path=None,
+                 cache_path=None,
                  verbose=True
                  ):
         """
@@ -126,7 +100,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         ctx: str
         check_step: int
         ignore_except: bool
-        dump_path: str
+        cache_path: str
         verbose: bool
             Print :class:`ModelRunner` environment.
         """
@@ -136,7 +110,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         self.ctx = ctx
         self.epochs = epochs
         self.log_step = log_step
-        self.dump_path = dump_path
+        self.cache_path = cache_path if cache_path else get_conf('usermodel')
         self.checker = None
         self.model = None
         self.loss_func = None
@@ -148,7 +122,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         if self.verbose:
             print('Runner environment:')
             print('Epochs: {}'.format(self.epochs))
-            print('Context: {}'.format(self.ctx))
+            print('Context: {}'.format(self.ctx.upper()))
             print('Ignore exception: {}'.format(self.ignore_except))
             print('Check step: {}'.format(self.check_step))
             print('Log step: {}\n'.format(self.log_step))
@@ -162,7 +136,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
             if not name:
                 datetime = dt.now().strftime('-%Y-%m-%d_%H-%M-%S_%f')
                 name = model.sig + datetime
-            self.checker = Checker(name)
+            self.checker = Checker(self.cache_path + '/' + name)
             self.model = model
             self.loss_func = loss_func
             self.optim = optim
@@ -204,7 +178,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         y = self._d2tv(y)
 
         # if use CUDA acc
-        if self.ctx == 'GPU'.lower():
+        if self.ctx.lower() == 'gpu':
             if tc.cuda.is_available():
                 self.model.cuda()
                 x = x.cuda()
@@ -223,14 +197,14 @@ class ModelRunner(BaseEstimator, RegressorMixin):
             scheduler = self.lr_scheduler(optim)
 
         # train
-        loss, pre_y = None, None
+        loss, y_pred = None, None
         try:
             print('=======start training=======')
             for t in range(self.epochs):
                 if scheduler and not isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
                     scheduler.step()
-                pre_y = self.model(x)
-                loss = self.loss_func(pre_y, y)
+                y_pred = self.model(x)
+                loss = self.loss_func(y_pred, y)
                 if scheduler and isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
                     scheduler.step(loss)
                 optim.zero_grad()
@@ -239,11 +213,11 @@ class ModelRunner(BaseEstimator, RegressorMixin):
 
                 if self.log_step and t % self.log_step == 0:
                     print('at step: {}, Loss={:.4f}'.format(t, loss.data[0]))
-                # if self.check_step > 0 and t % self.check_step == 0:
-                #     self.checker(model_state=self.model.state_dict(),
-                #                  epochs=t,
-                #                  pre_train_y=pre_y.cpu().data.numpy().flatten(),
-                #                  loss=loss.data[0])
+                if self.check_step > 0 and t % self.check_step == 0:
+                    self.checker(model_state=self.model.state_dict(),
+                                 epochs=t,
+                                 y_pred=y_pred.cpu().data.numpy(),
+                                 loss=loss.data[0])
 
             print('=======over training=======')
             print('Loss={:.4f}\n'.format(loss.data[0]))
@@ -254,10 +228,10 @@ class ModelRunner(BaseEstimator, RegressorMixin):
                 raise e
 
         # save last results
-        # self.checker(model_state=self.model.state_dict(),
-        #              epochs=self.epochs,
-        #              pre_train_y=pre_y,
-        #              loss=loss.data[0])
+        self.checker(model_state=self.model.state_dict(),
+                     epochs=self.epochs,
+                     y_pred=y_pred.cpu().data.numpy(),
+                     loss=loss.data[0])
         return self
 
     def predict(self, x):
@@ -265,7 +239,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         x = self._d2tv(x)
 
         # if use CUDA acc
-        if self.ctx == 'GPU'.lower():
+        if self.ctx.lower() == 'gpu':
             if tc.cuda.is_available():
                 self.model.cuda()
                 x = x.cuda()
@@ -281,6 +255,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
             return pre_y.cpu().data.numpy()
         return pre_y.data.numpy()
 
-
-    def save(self, fpath, **kwargs):
+    def dump(self, fpath, **kwargs):
+        val = dict(model=self.model, **kwargs)
+        joblib.dump(val, fpath + '.pkl.z')
         pass

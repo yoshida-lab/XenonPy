@@ -35,7 +35,7 @@ def get_conf(key: str = None):
     home = Path.home()
     dir_ = home / cfg_root
     cfg_file = dir_ / 'conf.yml'
-    with open(cfg_file) as f:
+    with open(str(cfg_file)) as f:
         conf = yaml.load(f)
     if not key:
         return conf
@@ -74,25 +74,23 @@ def _init_cfg_file(force=False):
     """
     from shutil import rmtree, copyfile
     from pathlib import Path
-    home = Path.home()
-    dir_ = home / cfg_root
-    cfg_file = dir_ / 'conf.yml'
+    root_dir = Path.home() / cfg_root
+    cfg_file = root_dir / 'conf.yml'
 
-    dataset_dir = dir_ / 'dataset'
-    userdata_dir = dir_ / 'userdata'
-    cached_dir = dir_ / 'cached'
+    dataset_dir = root_dir / 'dataset'
+    cached_dir = root_dir / 'cached'
+
+    userdata_dir = Path(get_conf('userdata')).expanduser()
+    usermodel_dir = Path(get_conf('usermodel')).expanduser()
 
     if force:
-        rmtree(str(dir_))
+        rmtree(str(root_dir))
 
-    if not dir_.is_dir():
-        # create config root dir
-        dir_.mkdir()
-
-        # create other dirs
-        dataset_dir.mkdir()
-        cached_dir.mkdir()
-        userdata_dir.mkdir()
+    # create dirs
+    dataset_dir.mkdir(parents=True, exist_ok=True)
+    cached_dir.mkdir(parents=True, exist_ok=True)
+    userdata_dir.mkdir(parents=True, exist_ok=True)
+    usermodel_dir.mkdir(parents=True, exist_ok=True)
 
     if not cfg_file.exists() or force:
         # copy default conf.yml to ~/.xenonpy

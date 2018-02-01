@@ -7,6 +7,12 @@ from functools import partial
 import torch as tc
 
 
+class SL(object):
+    def __init__(self):
+        self.load = tc.load
+        self.dump = tc.save
+
+
 class Optim(object):
     @staticmethod
     def SGD(*args, **kwargs):

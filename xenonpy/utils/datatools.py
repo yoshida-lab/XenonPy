@@ -13,10 +13,9 @@ from urllib.parse import urlparse
 
 import pandas as pd
 import requests
-from sklearn.externals import joblib as jl
+from sklearn.externals import joblib
 
-from .. import _get_dataset_url
-from .. import cfg_root
+from .. import _get_dataset_url, cfg_root, get_conf
 
 
 class Loader(object):
@@ -296,15 +295,25 @@ class Saver(object):
     See Also: :doc:`dataset`
     """
 
-    def __init__(self, dataset=None):
+    def __init__(self, dataset=None, absolute=False, backend=joblib):
         """
         Parameters
         ----------
         dataset: str
-            The dir to save and load data
+            Name of dataset. Usually this is dir name contains data.
+            If ``absolute`` is true, ``dataset`` must be a absolute dir path.
+        absolute: bool
+            True to use absolute dir path.
+        backend: python module
+            Module used for pickling metadata and objects. Default is joblib.
         """
-        self.dataset = dataset
-        self._path = Path.home() / cfg_root / 'userdata' / dataset
+        self.be = backend
+        if absolute:
+            self._path = Path(dataset).expanduser()
+            self.dataset = self._path.stem
+        else:
+            self._path = Path(get_conf('userdata')) / dataset
+            self.dataset = dataset
         if not self._path.exists():
             self._path.mkdir(parents=True)
         self._files = None
@@ -324,24 +333,19 @@ class Saver(object):
             # unnamed data
             self._files['temp_data'].append(f)
 
-        for v in self._files.values():
-            self._sort_files(v)
+        for fs in self._files.values():
+            if fs is not None:
+                fs.sort(key=lambda f: getmtime(str(f)))
 
-    @classmethod
-    def _sort_files(cls, files):
-        if files is not None:
-            files.sort(key=lambda f: getmtime(str(f)))
-
-    @classmethod
-    def _load_data(cls, file):
+    def _load_data(self, file):
         if file.suffix == '.pd_':
             return pd.read_pickle(str(file))
         else:
-            return jl.load(file)
+            return self.be.load(str(file))
 
     def _save_data(self, data, filename=None):
         uid = str(uuid.uuid1()).replace('-', '')
-        prefix = uid + '.' + filename if filename else uid
+        prefix = filename + '.' + uid if filename else uid
         if not self._path.exists():
             self._path.mkdir()
 
@@ -350,12 +354,12 @@ class Saver(object):
             pd.to_pickle(data, str(file))
         else:
             file = self._path / (prefix + '.pkl.z')
-            jl.dump(data, file)
+            self.be.dump(data, str(file))
 
         return file
 
     def dump(self, fpath: str, *,
-             fname: str = None,
+             rename: str = None,
              with_datetime: bool = True):
         """
         Dump last checked dataset to file.
@@ -364,8 +368,8 @@ class Saver(object):
         ----------
         fpath: str
             Where save to.
-        fname: str
-            File name. Omit to use dataset name.
+        rename: str
+            Rename pickle file. Omit to use dataset as name.
         with_datetime: bool
             Suffix file name with dumped time.
 
@@ -375,7 +379,7 @@ class Saver(object):
             File path.
         """
         ret = {k: self._load_data(v[-1]) for k, v in self._files.items()}
-        name = fname if fname else self.dataset
+        name = rename if rename else self.dataset
         if with_datetime:
             datetime = dt.now().strftime('-%Y-%m-%d_%H-%M-%S_%f')
         else:
@@ -384,7 +388,7 @@ class Saver(object):
         if not path_dir.exists():
             path_dir.mkdir(parents=True, exist_ok=True)
         path = path_dir / (name + datetime + '.pkl.z')
-        jl.dump(ret, path)
+        self.be.dump(ret, str(path))
 
         return str(path)
 

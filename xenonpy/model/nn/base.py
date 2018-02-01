@@ -3,11 +3,12 @@
 # license that can be found in the LICENSE file.
 
 from datetime import datetime as dt
-from functools import partial
 from warnings import warn
 
+import numpy as np
 import torch as tc
 import torch.nn as nn
+from pandas import DataFrame as df
 from sklearn.base import BaseEstimator, RegressorMixin
 from torch import save, load
 from torch.autograd import Variable as Var
@@ -113,7 +114,8 @@ class ModelRunner(BaseEstimator, RegressorMixin):
                  check_step=100,
                  ignore_except=True,
                  log_step=0,
-                 dump_path=None
+                 dump_path=None,
+                 verbose=True
                  ):
         """
 
@@ -124,7 +126,11 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         ctx: str
         check_step: int
         ignore_except: bool
+        dump_path: str
+        verbose: bool
+            Print :class:`ModelRunner` environment.
         """
+        self.verbose = verbose
         self.ignore_except = ignore_except
         self.check_step = check_step
         self.ctx = ctx
@@ -138,128 +144,8 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         self.lr = None
         self.lr_scheduler = None
 
-    @classmethod
-    def SGD(cls, *args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.SGD`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.SGD
-        """
-        return partial(tc.optim.SGD, *args, **kwargs)
-
-    @classmethod
-    def Adadelta(cls, *args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.Adadelta`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.Adadelta
-        """
-        return partial(tc.optim.Adadelta, *args, **kwargs)
-
-    @classmethod
-    def Adagrad(cls, *args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.Adagrad`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.Adagrad
-        """
-        return partial(tc.optim.Adagrad, *args, **kwargs)
-
-    @classmethod
-    def Adam(cls, *args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.Adam`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.Adam
-        """
-        return partial(tc.optim.Adam, *args, **kwargs)
-
-    @classmethod
-    def SparseAdam(cls, *args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.SparseAdam`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.SparseAdam
-        """
-        return partial(tc.optim.SparseAdam, *args, **kwargs)
-
-    @classmethod
-    def Adamax(cls, *args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.Adamax`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.Adamax
-        """
-        return partial(tc.optim.Adamax, *args, **kwargs)
-
-    @classmethod
-    def ASGD(cls, *args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.ASGD`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.ASGD
-        """
-        return partial(tc.optim.ASGD, *args, **kwargs)
-
-    @classmethod
-    def LBFGS(cls, *args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.LBFGS`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.LBFGS
-        """
-        return partial(tc.optim.LBFGS, *args, **kwargs)
-
-    @classmethod
-    def RMSprop(cls, *args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.RMSprop`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.RMSprop
-        """
-        return partial(tc.optim.RMSprop, *args, **kwargs)
-
-    @classmethod
-    def Rprop(cls, *args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.Rprop`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.Rprop
-        """
-        return partial(tc.optim.Rprop, *args, **kwargs)
-
-    @classmethod
-    def LambdaLR(cls, *args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.lr_scheduler.LambdaLR`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.lr_scheduler.LambdaLR
-        """
-        return partial(tc.optim.lr_scheduler.LambdaLR, *args, **kwargs)
-
-    @classmethod
-    def StepLR(cls, *args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.lr_scheduler.StepLR`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.lr_scheduler.StepLR
-        """
-        return partial(tc.optim.lr_scheduler.StepLR, *args, **kwargs)
-
-    @classmethod
-    def MultiStepLR(cls, *args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.lr_scheduler.MultiStepLR`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.lr_scheduler.MultiStepLR
-        """
-        return partial(tc.optim.lr_scheduler.MultiStepLR, *args, **kwargs)
-
-    @classmethod
-    def ExponentialLR(cls, *args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.lr_scheduler.ExponentialLR`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.lr_scheduler.ExponentialLR
-        """
-        return partial(tc.optim.lr_scheduler.ExponentialLR, *args, **kwargs)
-
-    @classmethod
-    def ReduceLROnPlateau(cls, *args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.lr_scheduler.ReduceLROnPlateau`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.lr_scheduler.ReduceLROnPlateau
-        """
-        return partial(tc.optim.lr_scheduler.ReduceLROnPlateau, *args, **kwargs)
-
     def __enter__(self):
-        if self.log_step:
+        if self.verbose:
             print('Runner environment:')
             print('Epochs: {}'.format(self.epochs))
             print('Context: {}'.format(self.ctx))
@@ -286,35 +172,47 @@ class ModelRunner(BaseEstimator, RegressorMixin):
             raise ValueError(
                 'Runner need a `torch.nn.Module` instance as first parameter but got {}'.format(type(model)))
 
+    @staticmethod
+    def _d2tv(data):
+        if isinstance(data, df):
+            data = tc.from_numpy(data.as_matrix()).type(tc.FloatTensor)
+        elif isinstance(data, np.ndarray):
+            data = tc.from_numpy(data).type(tc.FloatTensor)
+        else:
+            raise ValueError('need to be <numpy.ndarray> or <pandas.DataFrame> but got {}'.format(type(data)))
+        return Var(data, requires_grad=False)
+
     def fit(self, x, y=None):
         """
+        Fit Neural Network model
 
         Parameters
         ----------
-        x: numpy.ndarray or pandas.DataFrame
-            X train.
-        y: numpy.ndarray or pandas.DataFrame
-            y property.
+        x: ``numpy.ndarray`` or ``pandas.DataFrame``
+            Training data.
+        y: ``numpy.ndarray`` or ``pandas.DataFrame``
+            Target values.
+
         Returns
         -------
-
+        self:
+            returns an instance of self.
         """
 
         # transform to torch tensor
-        if not isinstance(x, Var):
-            x = Var(x, requires_grad=False)
-        _, col = x.size()
-        if not isinstance(y, Var):
-            y = Var(y, requires_grad=False)
+        x = self._d2tv(x)
+        y = self._d2tv(y)
 
         # if use CUDA acc
-        if self.ctx == 'GPU':
+        if self.ctx == 'GPU'.lower():
             if tc.cuda.is_available():
                 self.model.cuda()
                 x = x.cuda()
                 y = y.cuda()
             else:
                 warn('No cuda environment, use cpu fallback.', RuntimeWarning)
+        else:
+            self.model.cpu()
 
         # optimization
         optim = self.optim(self.model.parameters(), lr=self.lr)
@@ -327,11 +225,14 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         # train
         loss, pre_y = None, None
         try:
+            print('=======start training=======')
             for t in range(self.epochs):
-                if scheduler:
-                    scheduler.setup()
+                if scheduler and not isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
+                    scheduler.step()
                 pre_y = self.model(x)
                 loss = self.loss_func(pre_y, y)
+                if scheduler and isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
+                    scheduler.step(loss)
                 optim.zero_grad()
                 loss.backward()
                 optim.step()
@@ -344,8 +245,8 @@ class ModelRunner(BaseEstimator, RegressorMixin):
                 #                  pre_train_y=pre_y.cpu().data.numpy().flatten(),
                 #                  loss=loss.data[0])
 
-            print('Loss={:.4f}'.format(loss.data[0]))
-
+            print('=======over training=======')
+            print('Loss={:.4f}\n'.format(loss.data[0]))
         except Exception as e:
             if self.ignore_except:
                 pass
@@ -359,15 +260,27 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         #              loss=loss.data[0])
         return self
 
-    def predict(self, x, y=None):
-        if not isinstance(x, Var):
-            x = Var(x)
+    def predict(self, x):
+        # prepare x
+        x = self._d2tv(x)
+
+        # if use CUDA acc
+        if self.ctx == 'GPU'.lower():
+            if tc.cuda.is_available():
+                self.model.cuda()
+                x = x.cuda()
+            else:
+                warn('No cuda environment, use cpu fallback.', RuntimeWarning)
+        else:
+            self.model.cpu()
+
+        # prediction
         pre_y = self.model(x)
-        if y:
-            if not isinstance(y, Var):
-                y = Var(y)
-            print(self.loss_func(pre_y, y))
-        return pre_y
+
+        if self.ctx == 'GPU'.lower():
+            return pre_y.cpu().data.numpy()
+        return pre_y.data.numpy()
+
 
     def save(self, fpath, **kwargs):
         pass

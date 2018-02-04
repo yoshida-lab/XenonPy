@@ -5,11 +5,10 @@
 from collections import namedtuple
 from itertools import product
 
-import numpy as np
 from numpy.random import choice
 from torch import nn
 
-from . import Layer1d
+from .layer1 import Layer1d, Wrap
 
 
 class Generator1d(object):
@@ -20,11 +19,9 @@ class Generator1d(object):
     def __init__(self, n_features: int, n_predict: int, *,
                  n_neuron,
                  p_drop=(0.0,),
-                 layer_func=(nn.Linear,),
+                 layer_func=(Wrap.Linear(),),
                  act_func=(nn.ReLU(),),
-                 lr=(None,),
-                 batch_normalize=(False,),
-                 momentum=(0.1,)
+                 batch_normalize=(Wrap.BatchNorm1d(),)
                  ):
         """
 
@@ -52,17 +49,15 @@ class Generator1d(object):
         self.n_in, self.n_out = n_features, n_predict
 
         # save parameters
-        self.lr = lr
         self.n_neuron = n_neuron
         self.p_drop = p_drop
         self.layer_func = layer_func
         self.act_func = act_func
         self.batch_normalize = batch_normalize
-        self.momentum = momentum
 
         # prepare layer container
         # calculate layer's variety
-        self.layer_var = list(product(n_neuron, p_drop, layer_func, act_func, batch_normalize, momentum, lr))
+        self.layer_var = list(product(n_neuron, p_drop, layer_func, act_func, batch_normalize))
 
     def __call__(self, hidden: int, *, n_models: int = 0, scheduler=None, replace=False):
         """
@@ -86,7 +81,7 @@ class Generator1d(object):
         ret: iterable
             Samples as generator
         """
-        named_paras = ['n_in', 'n_out', 'p_drop', 'layer_func', 'act_func', 'batch_normalize', 'momentum', 'lr']
+        named_paras = ['n_in', 'n_out', 'p_drop', 'layer_func', 'act_func', 'batch_normalize']
         layer = namedtuple('LayerParas', named_paras)
         layer_len = len(self.layer_var)
 
@@ -118,11 +113,11 @@ class Generator1d(object):
                     n_in = self.layer_var[i][0]
                     sig.append(n_in)
                 sig.append(self.n_out)
-                out_layer = Layer1d(n_in=n_in, n_out=self.n_out, act_func=None)
+                out_layer = Layer1d(n_in=n_in, n_out=self.n_out, act_func=None, batch_normalize=None, p_drop=0)
                 layers.append(out_layer)
 
                 model = nn.Sequential(*layers)
-                setattr(model, 'sig', '@' + '-'.join(map(str, sig)) + '@')
+                setattr(model, 'sig', '-'.join(map(str, sig)))
                 yield model
 
         else:
@@ -147,16 +142,16 @@ class Generator1d(object):
 
                 layers.append(Layer1d(**layer_))
                 n_in = layer_['n_out']
-                for n in np.arange(hidden - 1):
+                for n in range(hidden - 1):
                     layer_ = scheduler(n + 1, layer_)
                     layer_['n_in'] = n_in
                     layers.append(Layer1d(**layer_))
                     n_in = layer_['n_out']
                     sig.append(n_in)
                 sig.append(self.n_out)
-                out_layer = Layer1d(n_in=n_in, n_out=self.n_out, act_func=None)
+                out_layer = Layer1d(n_in=n_in, n_out=self.n_out, act_func=None, batch_normalize=None, p_drop=0)
                 layers.append(out_layer)
 
                 model = nn.Sequential(*layers)
-                setattr(model, 'sig', '@' + '-'.join(map(str, sig)) + '@')
+                setattr(model, 'sig', '-'.join(map(str, sig)))
                 yield model

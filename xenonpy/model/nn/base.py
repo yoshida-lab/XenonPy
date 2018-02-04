@@ -2,7 +2,8 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-from datetime import datetime as dt
+from functools import partial
+from pathlib import Path
 from warnings import warn
 
 import numpy as np
@@ -13,9 +14,138 @@ from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.externals import joblib
 from torch.autograd import Variable as Var
 
-from .wrap import SL
 from ... import get_conf
 from ...utils.datatools import Saver
+
+
+class _SL(object):
+    def __init__(self):
+        self.load = tc.load
+        self.dump = tc.save
+
+
+class Optim(object):
+    @staticmethod
+    def SGD(*args, **kwargs):
+        """
+        Wrapper class for :class:`torch.optim.SGD`.
+        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.SGD
+        """
+        return partial(tc.optim.SGD, *args, **kwargs)
+
+    @staticmethod
+    def Adadelta(*args, **kwargs):
+        """
+        Wrapper class for :class:`torch.optim.Adadelta`.
+        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.Adadelta
+        """
+        return partial(tc.optim.Adadelta, *args, **kwargs)
+
+    @staticmethod
+    def Adagrad(*args, **kwargs):
+        """
+        Wrapper class for :class:`torch.optim.Adagrad`.
+        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.Adagrad
+        """
+        return partial(tc.optim.Adagrad, *args, **kwargs)
+
+    @staticmethod
+    def Adam(*args, **kwargs):
+        """
+        Wrapper class for :class:`torch.optim.Adam`.
+        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.Adam
+        """
+        return partial(tc.optim.Adam, *args, **kwargs)
+
+    @staticmethod
+    def SparseAdam(*args, **kwargs):
+        """
+        Wrapper class for :class:`torch.optim.SparseAdam`.
+        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.SparseAdam
+        """
+        return partial(tc.optim.SparseAdam, *args, **kwargs)
+
+    @staticmethod
+    def Adamax(*args, **kwargs):
+        """
+        Wrapper class for :class:`torch.optim.Adamax`.
+        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.Adamax
+        """
+        return partial(tc.optim.Adamax, *args, **kwargs)
+
+    @staticmethod
+    def ASGD(*args, **kwargs):
+        """
+        Wrapper class for :class:`torch.optim.ASGD`.
+        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.ASGD
+        """
+        return partial(tc.optim.ASGD, *args, **kwargs)
+
+    @staticmethod
+    def LBFGS(*args, **kwargs):
+        """
+        Wrapper class for :class:`torch.optim.LBFGS`.
+        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.LBFGS
+        """
+        return partial(tc.optim.LBFGS, *args, **kwargs)
+
+    @staticmethod
+    def RMSprop(*args, **kwargs):
+        """
+        Wrapper class for :class:`torch.optim.RMSprop`.
+        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.RMSprop
+        """
+        return partial(tc.optim.RMSprop, *args, **kwargs)
+
+    @staticmethod
+    def Rprop(*args, **kwargs):
+        """
+        Wrapper class for :class:`torch.optim.Rprop`.
+        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.Rprop
+        """
+        return partial(tc.optim.Rprop, *args, **kwargs)
+
+
+class LrScheduler(object):
+    @staticmethod
+    def LambdaLR(*args, **kwargs):
+        """
+        Wrapper class for :class:`torch.optim.lr_scheduler.LambdaLR`.
+        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.lr_scheduler.LambdaLR
+        """
+        return partial(tc.optim.lr_scheduler.LambdaLR, *args, **kwargs)
+
+    @staticmethod
+    def StepLR(*args, **kwargs):
+        """
+        Wrapper class for :class:`torch.optim.lr_scheduler.StepLR`.
+        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.lr_scheduler.StepLR
+        """
+        return partial(tc.optim.lr_scheduler.StepLR, *args, **kwargs)
+
+    @staticmethod
+    def MultiStepLR(*args, **kwargs):
+        """
+        Wrapper class for :class:`torch.optim.lr_scheduler.MultiStepLR`.
+        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.lr_scheduler.MultiStepLR
+        """
+        return partial(tc.optim.lr_scheduler.MultiStepLR, *args, **kwargs)
+
+    @staticmethod
+    def ExponentialLR(*args, **kwargs):
+        """
+        Wrapper class for :class:`torch.optim.lr_scheduler.ExponentialLR`.
+        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.lr_scheduler.ExponentialLR
+        """
+        return partial(tc.optim.lr_scheduler.ExponentialLR, *args, **kwargs)
+
+    @staticmethod
+    def ReduceLROnPlateau(*args, **kwargs):
+        """
+        Wrapper class for :class:`torch.optim.lr_scheduler.ReduceLROnPlateau`.
+        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.lr_scheduler.ReduceLROnPlateau
+        """
+        return partial(tc.optim.lr_scheduler.ReduceLROnPlateau, *args, **kwargs)
 
 
 class Checker(object):
@@ -23,7 +153,7 @@ class Checker(object):
     Check point.
     """
 
-    def __init__(self, name):
+    def __init__(self, fpath):
         """
 
         Parameters
@@ -33,8 +163,13 @@ class Checker(object):
         extra_para_list: dict
             Something
         """
-        self.name = name
-        self.saver = Saver(name, absolute=True, backend=SL())
+        i = 1
+        while Path(fpath + '@' + str(i)).expanduser().exists():
+            i += 1
+        fpath = fpath + '@' + str(i)
+        self.name = Path(fpath).stem
+        self.saver = Saver(fpath, absolute=True)
+        self.saver.pkl = _SL()
 
     def __getitem__(self, item):
         if isinstance(item, int):
@@ -51,33 +186,6 @@ class Checker(object):
         self.saver(**kwargs)
 
 
-class Layer1d(nn.Module):
-    def __init__(self, n_in: int, n_out: int, *,
-                 p_drop=0.0,
-                 layer_func=nn.Linear,
-                 act_func=nn.ReLU(),
-                 batch_normalize=False,
-                 momentum=0.1,
-                 lr=1.0
-                 ):
-        super().__init__()
-        self.lr = lr
-        self.neuron = layer_func(n_in, n_out)
-        self.batch_nor = None if not batch_normalize else nn.BatchNorm1d(n_out, momentum)
-        self.act_func = None if not act_func else act_func
-        self.dropout = None if p_drop == 0.0 else nn.Dropout(p_drop)
-
-    def forward(self, x):
-        _out = self.neuron(x)
-        if self.dropout:
-            _out = self.dropout(_out)
-        if self.batch_nor:
-            _out = self.batch_nor(_out)
-        if self.act_func:
-            _out = self.act_func(_out)
-        return _out
-
-
 class ModelRunner(BaseEstimator, RegressorMixin):
     """
     Run model.
@@ -88,7 +196,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
                  check_step=100,
                  ignore_except=True,
                  log_step=0,
-                 cache_path=None,
+                 execute_dir=None,
                  verbose=True
                  ):
         """
@@ -100,7 +208,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         ctx: str
         check_step: int
         ignore_except: bool
-        cache_path: str
+        execute_dir: str
         verbose: bool
             Print :class:`ModelRunner` environment.
         """
@@ -110,7 +218,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         self.ctx = ctx
         self.epochs = epochs
         self.log_step = log_step
-        self.cache_path = cache_path if cache_path else get_conf('usermodel')
+        self.execute_dir = execute_dir if execute_dir else get_conf('usermodel')
         self.checker = None
         self.model = None
         self.loss_func = None
@@ -121,6 +229,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
     def __enter__(self):
         if self.verbose:
             print('Runner environment:')
+            print('Running dir: {}'.format(self.execute_dir))
             print('Epochs: {}'.format(self.epochs))
             print('Context: {}'.format(self.ctx.upper()))
             print('Ignore exception: {}'.format(self.ignore_except))
@@ -129,14 +238,13 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
+        del self
 
     def __call__(self, model, name=None, *, loss_func=None, optim=None, lr=0.001, lr_scheduler=None):
         if isinstance(model, nn.Module):
             if not name:
-                datetime = dt.now().strftime('-%Y-%m-%d_%H-%M-%S_%f')
-                name = model.sig + datetime
-            self.checker = Checker(self.cache_path + '/' + name)
+                name = model.sig
+            self.checker = Checker(self.execute_dir + '/' + name)
             self.model = model
             self.loss_func = loss_func
             self.optim = optim
@@ -184,6 +292,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
                 x = x.cuda()
                 y = y.cuda()
             else:
+                self.ctx = 'CPU'
                 warn('No cuda environment, use cpu fallback.', RuntimeWarning)
         else:
             self.model.cpu()
@@ -244,18 +353,38 @@ class ModelRunner(BaseEstimator, RegressorMixin):
                 self.model.cuda()
                 x = x.cuda()
             else:
+                self.ctx = 'CPU'
                 warn('No cuda environment, use cpu fallback.', RuntimeWarning)
         else:
             self.model.cpu()
 
         # prediction
-        pre_y = self.model(x)
+        try:
+            pre_y = self.model(x)
 
-        if self.ctx == 'GPU'.lower():
-            return pre_y.cpu().data.numpy()
-        return pre_y.data.numpy()
+            if self.ctx.lower() == 'gpu':
+                return pre_y.cpu().data.numpy()
+            return pre_y.data.numpy()
+        except Exception as e:
+            if self.ignore_except:
+                pass
+            else:
+                raise e
+
+    def from_checkpoint(self, fname):
+        raise NotImplementedError('Not implemented')
 
     def dump(self, fpath, **kwargs):
+        """
+        Save model into pickled file with at ``fpath``.
+        Some additional description can be given from ``kwargs``.
+
+        Parameters
+        ----------
+        fpath: str
+            Path with name of pickle file.
+        kwargs: dict
+            Additional description
+        """
         val = dict(model=self.model, **kwargs)
-        joblib.dump(val, fpath + '.pkl.z')
-        pass
+        joblib.dump(val, fpath)

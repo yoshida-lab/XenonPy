@@ -13,4 +13,4 @@ with warnings.catch_warnings():
     else:
         from .base import *
         from .random_model import *
-        from .wrap import *
+        from .layer1 import *

@@ -75,26 +75,27 @@ def _init_cfg_file(force=False):
     from shutil import rmtree, copyfile
     from pathlib import Path
     root_dir = Path.home() / cfg_root
+    root_dir.mkdir(parents=True, exist_ok=True)
     cfg_file = root_dir / 'conf.yml'
 
-    dataset_dir = root_dir / 'dataset'
-    cached_dir = root_dir / 'cached'
-
-    userdata_dir = Path(get_conf('userdata')).expanduser()
-    usermodel_dir = Path(get_conf('usermodel')).expanduser()
+    # copy default conf.yml to ~/.xenonpy
+    if not cfg_file.exists() or force:
+        copyfile(str(Path(__file__).parent / 'conf.yml'), str(cfg_file))
 
     if force:
         rmtree(str(root_dir))
+
+    # init dirs
+    dataset_dir = root_dir / 'dataset'
+    cached_dir = root_dir / 'cached'
+    userdata_dir = Path(get_conf('userdata')).expanduser()
+    usermodel_dir = Path(get_conf('usermodel')).expanduser()
 
     # create dirs
     dataset_dir.mkdir(parents=True, exist_ok=True)
     cached_dir.mkdir(parents=True, exist_ok=True)
     userdata_dir.mkdir(parents=True, exist_ok=True)
     usermodel_dir.mkdir(parents=True, exist_ok=True)
-
-    if not cfg_file.exists() or force:
-        # copy default conf.yml to ~/.xenonpy
-        copyfile(str(Path(__file__).parent / 'conf.yml'), str(cfg_file))
 
 
 _init_cfg_file()

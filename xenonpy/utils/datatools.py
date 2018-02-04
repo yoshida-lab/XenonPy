@@ -2,10 +2,10 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-import uuid
+import re
 from collections import defaultdict
 from datetime import datetime as dt
-from os import remove
+from os import remove, getenv
 from os.path import getmtime
 from pathlib import Path
 from shutil import rmtree
@@ -149,14 +149,18 @@ class Loader(object):
         self.pass_word = password
         self.user_name = username
         self.api_key = api_key
-        self.datasets = [
+        self.dataset = [
             'elements', 'elements_completed', 'mp_inorganic',
             'electron_density', 'sample_A', 'mp_structure'
         ]
         self.chunk_size = chunk_size
         self.dataset_dir = Path().home() / cfg_root / 'dataset'
-        self.user_data_dir = Path().home() / cfg_root / 'userdata'
         self.cached_dir = Path().home() / cfg_root / 'cached'
+
+        if getenv('userdata'):
+            self.userdata_dir = Path(getenv('userdata')).expanduser()
+        else:
+            self.userdata_dir = Path(get_conf('userdata')).expanduser()
 
     def _fetch_data(self, url, save_to=None):
         schemes = {'http', 'https'}
@@ -202,7 +206,7 @@ class Loader(object):
         """
 
         # check dataset name
-        if dname in self.datasets:
+        if dname in self.dataset:
             dataset = self.dataset_dir / (dname + '.pkl.pd_')
 
             # check dataset exist
@@ -213,7 +217,7 @@ class Loader(object):
             return pd.read_pickle(str(dataset))
 
         elif '/' not in dname:
-            dataset = self.user_data_dir / dname
+            dataset = self.userdata_dir / dname
             if not dataset.is_dir():
                 raise FileNotFoundError(
                     'no user dataset under {}'.format(dataset))
@@ -295,7 +299,7 @@ class Saver(object):
     See Also: :doc:`dataset`
     """
 
-    def __init__(self, dataset=None, absolute=False, backend=joblib):
+    def __init__(self, dataset=None, absolute=False):
         """
         Parameters
         ----------
@@ -304,15 +308,17 @@ class Saver(object):
             If ``absolute`` is true, ``dataset`` must be a absolute dir path.
         absolute: bool
             True to use absolute dir path.
-        backend: python module
-            Module used for pickling metadata and objects. Default is joblib.
         """
-        self.be = backend
+        self.pkl = joblib
         if absolute:
             self._path = Path(dataset).expanduser()
             self.dataset = self._path.stem
         else:
-            self._path = Path(get_conf('userdata')) / dataset
+            if getenv('userdata'):
+                self._path = Path(getenv('userdata')).expanduser()
+            else:
+                self._path = Path(get_conf('userdata')).expanduser()
+            self._path = self._path / dataset
             self.dataset = dataset
         if not self._path.exists():
             self._path.mkdir(parents=True)
@@ -324,14 +330,9 @@ class Saver(object):
         files = [f for f in self._path.iterdir() if f.match('*.pkl.*')]
 
         for f in files:
-            # named data
-            if len(f.suffixes) == 3:
-                d_name = f.suffixes[0].lstrip('.')
-                self._files[d_name].append(f)
-                continue
-
-            # unnamed data
-            self._files['temp_data'].append(f)
+            # select data
+            fn = '.'.join(f.name.split('.')[:-3])
+            self._files[fn].append(f)
 
         for fs in self._files.values():
             if fs is not None:
@@ -341,20 +342,16 @@ class Saver(object):
         if file.suffix == '.pd_':
             return pd.read_pickle(str(file))
         else:
-            return self.be.load(str(file))
+            return self.pkl.load(str(file))
 
-    def _save_data(self, data, filename=None):
-        uid = str(uuid.uuid1()).replace('-', '')
-        prefix = filename + '.' + uid if filename else uid
-        if not self._path.exists():
-            self._path.mkdir()
-
+    def _save_data(self, data, filename):
+        self._path.mkdir(parents=True, exist_ok=True)
         if isinstance(data, pd.DataFrame):
-            file = self._path / (prefix + '.pkl.pd_')
+            file = self._path / (filename + '.pkl.pd_')
             pd.to_pickle(data, str(file))
         else:
-            file = self._path / (prefix + '.pkl.z')
-            self.be.dump(data, str(file))
+            file = self._path / (filename + '.pkl.z')
+            self.pkl.dump(data, str(file))
 
         return file
 
@@ -388,7 +385,7 @@ class Saver(object):
         if not path_dir.exists():
             path_dir.mkdir(parents=True, exist_ok=True)
         path = path_dir / (name + datetime + '.pkl.z')
-        self.be.dump(ret, str(path))
+        self.pkl.dump(ret, str(path))
 
         return str(path)
 
@@ -407,7 +404,7 @@ class Saver(object):
             Data stored in `*.pkl` file.
         """
         if d_name is None:
-            return self._load_data(self._files['temp_data'][-1])
+            return self._load_data(self._files['unnamed'][-1])
         return self._load_data(self._files[d_name][-1])
 
     def rm(self, index, d_name: str = None):
@@ -423,13 +420,13 @@ class Saver(object):
         """
 
         if not d_name:
-            files = self._files['temp_data'][index]
+            files = self._files['unnamed'][index]
             if not isinstance(files, list):
                 remove(str(files))
             else:
                 for f in files:
                     remove(str(f))
-            del self._files['temp_data'][index]
+            del self._files['unnamed'][index]
             return
 
         files = self._files[d_name][index]
@@ -489,13 +486,23 @@ class Saver(object):
         if isinstance(item, str):
             return self.__getitem__((item, slice(None, None, None)))
 
-        return _load_file(self._files['temp_data'], item)
+        return _load_file(self._files['unnamed'], item)
 
     def __call__(self, *data, **named_data):
+        def _get_file_index(fn):
+            if len(self._files[fn]) != 0:
+                return int(re.findall(r'\.@\d+\.', str(self._files[fn][-1]))[-1][2:-1])
+            return 0
+
+        num = 0
         for d in data:
-            f = self._save_data(d)
-            self._files['temp_data'].append(f)
+            if num == 0:
+                num = _get_file_index('unnamed')
+            num += 1
+            f = self._save_data(d, 'unnamed.@' + str(num))
+            self._files['unnamed'].append(f)
 
         for k, v in named_data.items():
-            f = self._save_data(v, k)
+            num = _get_file_index(k) + 1
+            f = self._save_data(v, k + '.@' + str(num))
             self._files[k].append(f)

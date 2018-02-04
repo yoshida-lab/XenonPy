@@ -54,9 +54,7 @@ def test_loader(setup):
 
 def test_loader_url(setup):
     load = Loader()
-    file = load(
-        'https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/travis/fetch_test.txt'
-    )
+    file = load(setup['fetch_file'])
     with open(str(file)) as f:
         assert f.readline() == 'Test xenonpy.utils.Loader._fetch_data'
 
@@ -78,7 +76,7 @@ def test_loader_return_saver(setup):
     try:
         load(dir_)
     except FileNotFoundError:
-        assert True, 'should got Saver instance'
+        assert True, 'should got FileNotFoundError'
         return
 
     assert False, 'should got FileNotFoundError'
@@ -96,13 +94,13 @@ def test_saver1(setup):
 def test_saver2(setup):
     saver = Saver(setup['user_dataset'])
     saver(list('abcd'), list('efgh'))
-    assert len(saver._files['temp_data']) == 2, 'should got 2 files'
+    assert len(saver._files['unnamed']) == 2, 'should got 2 files'
 
 
 def test_saver3(setup):
     saver = Saver(setup['user_dataset'])
     saver(key1=list('asdf'), key2=list('qwer'))
-    assert len(saver._files['temp_data']) == 2, 'should got 2 files'
+    assert len(saver._files['unnamed']) == 2, 'should got 2 files'
     assert len(saver._files['key1']) == 1, 'should got 1 files'
     assert len(saver._files['key2']) == 1, 'should got 1 files'
 
@@ -110,7 +108,7 @@ def test_saver3(setup):
 def test_saver4(setup):
     saver = Saver(setup['user_dataset'])
     saver(list('asdf'), key1=list('qwer'))
-    assert len(saver._files['temp_data']) == 3, 'should got 3 files'
+    assert len(saver._files['unnamed']) == 3, 'should got 3 files'
     assert len(saver._files['key1']) == 2, 'should got 1 files'
     assert len(saver._files['key2']) == 1, 'should got 1 files'
 
@@ -160,7 +158,7 @@ def test_dump2(setup):
 def test_saver_delete1(setup):
     saver = Saver(setup['user_dataset'])
     saver.rm(0)
-    assert len(saver._files['temp_data']) == 2, 'should got 1 files'
+    assert len(saver._files['unnamed']) == 2, 'should got 1 files'
 
 
 def test_saver_delete2(setup):
@@ -173,7 +171,6 @@ def test_saver_delete2(setup):
 
 def test_saver_clean1(setup):
     saver = Saver(setup['user_dataset'])
-    saver_dir = Path.home() / '.xenonpy' / 'userdata' / setup['user_dataset']
     saver.clean('key1')
     assert 'key1' not in saver._files, 'no saver dir'
 

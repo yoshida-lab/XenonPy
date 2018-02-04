@@ -11,6 +11,6 @@ with warnings.catch_warnings():
     except ImportError:
         warnings.warn("Can't fing pytorch, will not load neural network modules.", RuntimeWarning)
     else:
-        from .base import *
-        from .random_model import *
-        from .layer1 import *
+        from .base import ModelRunner, Optim, LrScheduler, Checker
+        from .random_model import Generator1d
+        from .layer1 import Layer1d, Wrap

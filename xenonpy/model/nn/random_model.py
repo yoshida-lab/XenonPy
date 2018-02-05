@@ -8,7 +8,8 @@ from itertools import product
 from numpy.random import choice
 from torch import nn
 
-from .layer1 import Layer1d, Wrap
+from .layer1 import Layer1d
+from .wrap import L1
 
 
 class Generator1d(object):
@@ -19,9 +20,9 @@ class Generator1d(object):
     def __init__(self, n_features: int, n_predict: int, *,
                  n_neuron,
                  p_drop=(0.0,),
-                 layer_func=(Wrap.Linear(),),
+                 layer_func=(L1.linear(),),
                  act_func=(nn.ReLU(),),
-                 batch_normalize=(Wrap.BatchNorm1d(),)
+                 batch_normalize=(L1.batch_norm(),)
                  ):
         """
 

@@ -2,7 +2,6 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-from functools import partial
 from pathlib import Path
 from warnings import warn
 
@@ -10,10 +9,13 @@ import numpy as np
 import torch as tc
 import torch.nn as nn
 from pandas import DataFrame as df
+from scipy.stats import pearsonr
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.externals import joblib
+from sklearn.metrics import mean_absolute_error, r2_score
 from torch.autograd import Variable as Var
 
+from .wrap import Init
 from ... import get_conf
 from ...utils.datatools import Saver
 
@@ -22,130 +24,6 @@ class _SL(object):
     def __init__(self):
         self.load = tc.load
         self.dump = tc.save
-
-
-class Optim(object):
-    @staticmethod
-    def SGD(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.SGD`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.SGD
-        """
-        return partial(tc.optim.SGD, *args, **kwargs)
-
-    @staticmethod
-    def Adadelta(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.Adadelta`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.Adadelta
-        """
-        return partial(tc.optim.Adadelta, *args, **kwargs)
-
-    @staticmethod
-    def Adagrad(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.Adagrad`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.Adagrad
-        """
-        return partial(tc.optim.Adagrad, *args, **kwargs)
-
-    @staticmethod
-    def Adam(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.Adam`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.Adam
-        """
-        return partial(tc.optim.Adam, *args, **kwargs)
-
-    @staticmethod
-    def SparseAdam(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.SparseAdam`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.SparseAdam
-        """
-        return partial(tc.optim.SparseAdam, *args, **kwargs)
-
-    @staticmethod
-    def Adamax(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.Adamax`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.Adamax
-        """
-        return partial(tc.optim.Adamax, *args, **kwargs)
-
-    @staticmethod
-    def ASGD(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.ASGD`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.ASGD
-        """
-        return partial(tc.optim.ASGD, *args, **kwargs)
-
-    @staticmethod
-    def LBFGS(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.LBFGS`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.LBFGS
-        """
-        return partial(tc.optim.LBFGS, *args, **kwargs)
-
-    @staticmethod
-    def RMSprop(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.RMSprop`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.RMSprop
-        """
-        return partial(tc.optim.RMSprop, *args, **kwargs)
-
-    @staticmethod
-    def Rprop(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.Rprop`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.Rprop
-        """
-        return partial(tc.optim.Rprop, *args, **kwargs)
-
-
-class LrScheduler(object):
-    @staticmethod
-    def LambdaLR(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.lr_scheduler.LambdaLR`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.lr_scheduler.LambdaLR
-        """
-        return partial(tc.optim.lr_scheduler.LambdaLR, *args, **kwargs)
-
-    @staticmethod
-    def StepLR(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.lr_scheduler.StepLR`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.lr_scheduler.StepLR
-        """
-        return partial(tc.optim.lr_scheduler.StepLR, *args, **kwargs)
-
-    @staticmethod
-    def MultiStepLR(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.lr_scheduler.MultiStepLR`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.lr_scheduler.MultiStepLR
-        """
-        return partial(tc.optim.lr_scheduler.MultiStepLR, *args, **kwargs)
-
-    @staticmethod
-    def ExponentialLR(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.lr_scheduler.ExponentialLR`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.lr_scheduler.ExponentialLR
-        """
-        return partial(tc.optim.lr_scheduler.ExponentialLR, *args, **kwargs)
-
-    @staticmethod
-    def ReduceLROnPlateau(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.optim.lr_scheduler.ReduceLROnPlateau`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.optim.lr_scheduler.ReduceLROnPlateau
-        """
-        return partial(tc.optim.lr_scheduler.ReduceLROnPlateau, *args, **kwargs)
 
 
 class Checker(object):
@@ -194,7 +72,6 @@ class ModelRunner(BaseEstimator, RegressorMixin):
     def __init__(self, epochs=2000, *,
                  ctx='cpu',
                  check_step=100,
-                 ignore_except=True,
                  log_step=0,
                  execute_dir=None,
                  verbose=True
@@ -207,13 +84,11 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         log_step: int
         ctx: str
         check_step: int
-        ignore_except: bool
         execute_dir: str
         verbose: bool
             Print :class:`ModelRunner` environment.
         """
         self.verbose = verbose
-        self.ignore_except = ignore_except
         self.check_step = check_step
         self.ctx = ctx
         self.epochs = epochs
@@ -232,7 +107,6 @@ class ModelRunner(BaseEstimator, RegressorMixin):
             print('Running dir: {}'.format(self.execute_dir))
             print('Epochs: {}'.format(self.epochs))
             print('Context: {}'.format(self.ctx.upper()))
-            print('Ignore exception: {}'.format(self.ignore_except))
             print('Check step: {}'.format(self.check_step))
             print('Log step: {}\n'.format(self.log_step))
         return self
@@ -240,19 +114,33 @@ class ModelRunner(BaseEstimator, RegressorMixin):
     def __exit__(self, exc_type, exc_val, exc_tb):
         del self
 
-    def __call__(self, model, name=None, *, loss_func=None, optim=None, lr=0.001, lr_scheduler=None):
-        if isinstance(model, nn.Module):
-            if not name:
-                name = model.sig
-            self.checker = Checker(self.execute_dir + '/' + name)
-            self.model = model
-            self.loss_func = loss_func
-            self.optim = optim
-            self.lr = lr
-            self.lr_scheduler = lr_scheduler
-        else:
+    def __call__(self, model, name=None, *,
+                 init_weight=Init.uniform(scale=0.1),
+                 loss_func=None,
+                 optim=None,
+                 lr=0.001,
+                 lr_scheduler=None):
+
+        def _init_weight(m):
+            if isinstance(m, nn.Linear):
+                print('init weight -> {}'.format(m))
+                init_weight(m.weight)
+
+        # model must inherit form nn.Module
+        if not isinstance(model, nn.Module):
             raise ValueError(
                 'Runner need a `torch.nn.Module` instance as first parameter but got {}'.format(type(model)))
+
+        if not name:
+            name = model.sig  # todo: model may not have attr sig
+        if init_weight:
+            model.apply(_init_weight)
+        self.checker = Checker(self.execute_dir + '/' + name)
+        self.model = model
+        self.loss_func = loss_func
+        self.optim = optim
+        self.lr = lr
+        self.lr_scheduler = lr_scheduler
 
     @staticmethod
     def _d2tv(data):
@@ -264,15 +152,15 @@ class ModelRunner(BaseEstimator, RegressorMixin):
             raise ValueError('need to be <numpy.ndarray> or <pandas.DataFrame> but got {}'.format(type(data)))
         return Var(data, requires_grad=False)
 
-    def fit(self, x, y=None):
+    def fit(self, x_train, y_train):
         """
         Fit Neural Network model
 
         Parameters
         ----------
-        x: ``numpy.ndarray`` or ``pandas.DataFrame``
+        x_train: ``numpy.ndarray`` or ``pandas.DataFrame``
             Training data.
-        y: ``numpy.ndarray`` or ``pandas.DataFrame``
+        y_train: ``numpy.ndarray`` or ``pandas.DataFrame``
             Target values.
 
         Returns
@@ -280,19 +168,19 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         self:
             returns an instance of self.
         """
+        self.checker(x_train=x_train, y_train=y_train)
 
         # transform to torch tensor
-        x = self._d2tv(x)
-        y = self._d2tv(y)
+        x_train = self._d2tv(x_train)
+        y_train = self._d2tv(y_train)
 
         # if use CUDA acc
         if self.ctx.lower() == 'gpu':
             if tc.cuda.is_available():
                 self.model.cuda()
-                x = x.cuda()
-                y = y.cuda()
+                x_train = x_train.cuda()
+                y_train = y_train.cuda()
             else:
-                self.ctx = 'CPU'
                 warn('No cuda environment, use cpu fallback.', RuntimeWarning)
         else:
             self.model.cpu()
@@ -307,69 +195,63 @@ class ModelRunner(BaseEstimator, RegressorMixin):
 
         # train
         loss, y_pred = None, None
-        try:
-            print('=======start training=======')
-            for t in range(self.epochs):
-                if scheduler and not isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
-                    scheduler.step()
-                y_pred = self.model(x)
-                loss = self.loss_func(y_pred, y)
-                if scheduler and isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
-                    scheduler.step(loss)
-                optim.zero_grad()
-                loss.backward()
-                optim.step()
+        print('=======start training=======')
+        print('Model layers: {}\n'.format(self.model.sig))  # todo: model may not have attr sig
+        for t in range(self.epochs):
+            if scheduler and not isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
+                scheduler.step()
+            y_pred = self.model(x_train)
+            loss = self.loss_func(y_pred, y_train)
+            if scheduler and isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
+                scheduler.step(loss)
+            optim.zero_grad()
+            loss.backward()
+            optim.step()
 
-                if self.log_step and t % self.log_step == 0:
-                    print('at step: {}, Loss={:.4f}'.format(t, loss.data[0]))
-                if self.check_step > 0 and t % self.check_step == 0:
-                    self.checker(model_state=self.model.state_dict(),
-                                 epochs=t,
-                                 y_pred=y_pred.cpu().data.numpy(),
-                                 loss=loss.data[0])
+            if self.log_step > 0 and t % self.log_step == 0:
+                print('at step[{}/{}], Loss={:.4f}'.format(t, self.epochs, loss.data[0]))
+            if self.check_step > 0 and t % self.check_step == 0:
+                self.checker(model_state=self.model.state_dict(),
+                             epochs=t,
+                             loss=loss.data[0])
 
-            print('=======over training=======')
-            print('Loss={:.4f}\n'.format(loss.data[0]))
-        except Exception as e:
-            if self.ignore_except:
-                pass
-            else:
-                raise e
+        print('\nFinal loss={:.4f}'.format(loss.data[0]))
+        print('=======over training=======\n')
 
         # save last results
         self.checker(model_state=self.model.state_dict(),
                      epochs=self.epochs,
-                     y_pred=y_pred.cpu().data.numpy(),
                      loss=loss.data[0])
         return self
 
-    def predict(self, x):
+    def predict(self, x_test, y_test):
+        self.checker(x_test=x_test, y_test=y_test)
         # prepare x
-        x = self._d2tv(x)
+        x_test = self._d2tv(x_test)
 
         # if use CUDA acc
         if self.ctx.lower() == 'gpu':
             if tc.cuda.is_available():
                 self.model.cuda()
-                x = x.cuda()
+                x_test = x_test.cuda()
             else:
-                self.ctx = 'CPU'
                 warn('No cuda environment, use cpu fallback.', RuntimeWarning)
         else:
             self.model.cpu()
-
         # prediction
-        try:
-            pre_y = self.model(x)
+        y_true, y_pred = y_test.ravel(), self.model(x_test).cpu().data.numpy().ravel()
 
-            if self.ctx.lower() == 'gpu':
-                return pre_y.cpu().data.numpy()
-            return pre_y.data.numpy()
-        except Exception as e:
-            if self.ignore_except:
-                pass
-            else:
-                raise e
+        mae = mean_absolute_error(y_true, y_pred)
+        r2 = r2_score(y_true, y_pred)
+        pr, p_val = pearsonr(y_true, y_pred)
+        self.checker(summary={'layers': str(self.model),
+                              'name': self.checker.name,
+                              'mae': mae,
+                              'r2': r2,
+                              'pearsonr': pr,
+                              'p-value': p_val})
+
+        return y_true, y_pred
 
     def from_checkpoint(self, fname):
         raise NotImplementedError('Not implemented')

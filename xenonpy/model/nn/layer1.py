@@ -2,43 +2,9 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-from functools import partial
-
 from torch import nn
 
-
-class Wrap(object):
-    @staticmethod
-    def Conv1d(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.nn.Conv1d`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.nn.Conv1d
-        """
-        return partial(nn.Conv1d, *args, **kwargs)
-
-    @staticmethod
-    def Linear(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.nn.Linear`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.nn.Linear
-        """
-        return partial(nn.Linear, *args, **kwargs)
-
-    @staticmethod
-    def BatchNorm1d(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.nn.BatchNorm1d`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.nn.BatchNorm1d
-        """
-        return partial(nn.BatchNorm1d, *args, **kwargs)
-
-    @staticmethod
-    def InstanceNorm1d(*args, **kwargs):
-        """
-        Wrapper class for :class:`torch.nn.InstanceNorm1d`.
-        http://pytorch.org/docs/0.3.0/optim.html#torch.nn.InstanceNorm1d
-        """
-        return partial(nn.InstanceNorm1d, *args, **kwargs)
+from .wrap import L1
 
 
 class Layer1d(nn.Module):
@@ -49,9 +15,9 @@ class Layer1d(nn.Module):
 
     def __init__(self, n_in: int, n_out: int, *,
                  p_drop=0.5,
-                 layer_func=Wrap.Linear(bias=True),
+                 layer_func=L1.linear(bias=True),
                  act_func=nn.ReLU(),
-                 batch_normalize=Wrap.BatchNorm1d(eps=1e-05, momentum=0.1, affine=True)
+                 batch_normalize=L1.batch_norm(eps=1e-05, momentum=0.1, affine=True)
                  ):
         """
         Parameters

@@ -5,7 +5,8 @@
 from torch.nn import Module
 
 from xenonpy.model.nn import Generator1d
-from xenonpy.model.nn import Layer1d, Wrap
+from xenonpy.model.nn import Layer1d
+from xenonpy.model.nn.wrap import L1
 
 
 def test_layer():
@@ -15,21 +16,21 @@ def test_layer():
 
 def test_generator1d1():
     g = Generator1d(290, 1, n_neuron=(100, 70, 50), p_drop=(0.2, 0.3, 0.4),
-                    batch_normalize=(None, Wrap.BatchNorm1d()))
+                    batch_normalize=(None, L1.batch_norm()))
     m = g(1)
     assert len(list(m)) == 18, '3x3x2'
 
 
 def test_generator1d2():
     g = Generator1d(290, 1, n_neuron=[100, 70, 50], p_drop=(0.2, 0.3, 0.4),
-                    batch_normalize=(None, Wrap.BatchNorm1d()))
+                    batch_normalize=(None, L1.batch_norm()))
     m = g(1, n_models=10)
     assert len(list(m)) == 10, '0 < n_models <= 3x3x2'
 
 
 def test_generator1d3():
     g = Generator1d(290, 1, n_neuron=[100, 70, 50], p_drop=(0.2, 0.3, 0.4),
-                    batch_normalize=(None, Wrap.BatchNorm1d()))
+                    batch_normalize=(None, L1.batch_norm()))
     m = g(1, n_models=20)
     try:
         len(list(m)) == 18
@@ -41,7 +42,7 @@ def test_generator1d3():
 
 def test_generator1d4():
     g = Generator1d(290, 1, n_neuron=[100, 70, 50], p_drop=(0.2, 0.3, 0.4),
-                    batch_normalize=(None, Wrap.BatchNorm1d()))
+                    batch_normalize=(None, L1.batch_norm()))
     m = g(1, n_models=20, replace=True)
     try:
         assert len(list(m)) == 20, "when 'replace=False' is OK"

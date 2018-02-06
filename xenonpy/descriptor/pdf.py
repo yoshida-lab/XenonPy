@@ -2,13 +2,11 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-from collections import Counter
-
 import numpy as np
 import pandas as pd
-from scipy import stats
 from matminer.featurizers.structure import RadialDistributionFunction
 from sklearn.base import BaseEstimator, TransformerMixin
+
 
 # from ..pipeline import combinator
 

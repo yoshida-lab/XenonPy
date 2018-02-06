@@ -16,7 +16,7 @@ from sklearn.metrics import mean_absolute_error, r2_score
 from torch.autograd import Variable as Var
 
 from .wrap import Init
-from ... import get_conf
+from ...conf import get_conf
 from ...utils.datatools import Saver
 
 

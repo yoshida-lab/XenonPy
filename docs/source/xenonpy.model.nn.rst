@@ -12,10 +12,10 @@ xenonpy\.model\.nn\.base module
     :undoc-members:
     :show-inheritance:
 
-xenonpy\.model\.nn\.checkpoint module
--------------------------------------
+xenonpy\.model\.nn\.layer1 module
+---------------------------------
 
-.. automodule:: xenonpy.model.nn.checkpoint
+.. automodule:: xenonpy.model.nn.layer1
     :members:
     :undoc-members:
     :show-inheritance:
@@ -24,6 +24,14 @@ xenonpy\.model\.nn\.random\_model module
 ----------------------------------------
 
 .. automodule:: xenonpy.model.nn.random_model
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xenonpy\.model\.nn\.wrap module
+-------------------------------
+
+.. automodule:: xenonpy.model.nn.wrap
     :members:
     :undoc-members:
     :show-inheritance:

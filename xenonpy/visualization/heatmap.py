@@ -11,6 +11,9 @@ from sklearn.preprocessing import minmax_scale
 
 
 class DescHeatmap(BaseEstimator):
+    """
+    Heatmap.
+    """
     def __init__(self,
                  save=None,
                  bc=False,
@@ -26,6 +29,25 @@ class DescHeatmap(BaseEstimator):
                  col_colors=None,
                  mask=None,
                  **kwargs):
+        """
+
+        Parameters
+        ----------
+        save
+        bc
+        pivot_kws
+        method
+        metric
+        figsize
+        row_cluster
+        col_cluster
+        row_linkage
+        col_linkage
+        row_colors
+        col_colors
+        mask
+        kwargs
+        """
         self.save = save
         self.bc = bc
         self.lmd = None

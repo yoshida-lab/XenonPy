@@ -15,7 +15,8 @@ import pandas as pd
 import requests
 from sklearn.externals import joblib
 
-from .. import _get_dataset_url, cfg_root, get_conf
+from .. import __cfg_root__
+from ..conf import get_dataset_url, get_conf
 
 
 class Loader(object):
@@ -154,8 +155,8 @@ class Loader(object):
             'electron_density', 'sample_A', 'mp_structure'
         ]
         self.chunk_size = chunk_size
-        self.dataset_dir = Path().home() / cfg_root / 'dataset'
-        self.cached_dir = Path().home() / cfg_root / 'cached'
+        self.dataset_dir = Path().home() / __cfg_root__ / 'dataset'
+        self.cached_dir = Path().home() / __cfg_root__ / 'cached'
 
         if getenv('userdata'):
             self.userdata_dir = Path(getenv('userdata')).expanduser()
@@ -211,7 +212,7 @@ class Loader(object):
 
             # check dataset exist
             if not dataset.exists():
-                self._fetch_data(_get_dataset_url(dname), dataset)
+                self._fetch_data(get_dataset_url(dname), dataset)
 
             # fetch data from source
             return pd.read_pickle(str(dataset))

@@ -1,3 +1,4 @@
+=======================
 Contribution guidelines
 =======================
 * Discussion with others

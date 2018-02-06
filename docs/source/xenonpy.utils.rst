@@ -12,6 +12,14 @@ xenonpy\.utils\.datatools module
     :undoc-members:
     :show-inheritance:
 
+xenonpy\.utils\.env module
+--------------------------
+
+.. automodule:: xenonpy.utils.env
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

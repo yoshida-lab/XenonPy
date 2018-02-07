@@ -62,8 +62,9 @@ def init_cfg_file(force=False):
     """
     Create config file is not exist at ~/.xenonpy/conf.yml
 
-    ..warning::
-        Set **force=True** will reset all which under the `~/.xenonpy`` dir.
+    .. warning::
+
+        Set ``force=True`` will reset all which under the ``~/.xenonpy`` dir.
 
     Args
     ----

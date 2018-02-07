@@ -48,6 +48,8 @@ The final goal of this project is to build a **All-In-One** virtual environment 
 * **Combined with deep learning methods seamless**
 * **Visualization tools for analysis and publish ready**
 
+.. image:: _static/xenonpy.png
+
 
 XenonPy built on top of pandas_ and PyTorch_ in order to make various downstream machine learning libraries and high-performance NN training.
 By use XenonPy(**v0.1.0b**) you can:

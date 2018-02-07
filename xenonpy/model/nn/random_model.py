@@ -5,7 +5,6 @@
 from collections import namedtuple
 from itertools import product
 
-from numpy.random import choice
 from torch import nn
 
 from .layer1 import Layer1d
@@ -25,7 +24,6 @@ class Generator1d(object):
                  batch_normalize=(L1.batch_norm(),)
                  ):
         """
-
         Parameters
         ----------
         n_features: int
@@ -37,15 +35,11 @@ class Generator1d(object):
         p_drop: [float]
             Dropout rate.
         layer_func: [func]
-            Layer functions. such like: :class:`torch.nn.Linear`.
+            Layer functions. such like: :meth:`~.L1.linear`.
         act_func: [func]
             Activation functions. such like: :class:`torch.nn.ReLU`.
-        lr: [float]
-            Learning rates.
         batch_normalize: [bool]
-            Batch Normalization. such like: :class:`torch.nn.BatchNorm1d`.
-        momentum: [float]
-            The value used for the running_mean and running_var computation.
+            Batch Normalization. such like: :meth:`~.L1.batch_norm`.
         """
         self.n_in, self.n_out = n_features, n_predict
 
@@ -70,19 +64,33 @@ class Generator1d(object):
             Number of hidden layers.
         n_models: int
             Number of model sample
-        scheduler:
-            A function be used to determining the layer properties from previous layer.
+        scheduler: func
+            A function be used to determining the layer parameters from previous layer.
 
-                >>> # index: layer index in a model; pars: parameters of previous layer as dict.
-                >>> # include: n_neuron, p_drop, layer_func, act_func, lr, batch_normalize, momentum
-                >>> scheduler = lambda index, pars: pars
+            .. py:function:: scheduler(index, paras) -> dict
+
+                index: int
+                    Index of  current layer.
+                paras: dict
+                    Layer parameters Include:
+                    ``n_in``, ``n_out``, ``p_drop``, ``layer_func``, ``act_func``, ``batch_nor``.
+                return: dict
+                    Layer parameters as dict.
 
         Returns
         -------
-        ret: iterable
-            Samples as generator
+        iterable
+            Random models as generator.
+            Can be access with :func:`next()` or ``for ... in models`` statement.
+
+        Examples
+        --------
+        >>> from  math import ceil
+        >>> from random import uniform
+        >>> scheduler = lambda index, pars: dict(paras, n_out=ceil(paras['n_out'] * uniform(0.5, 0.8)))
         """
-        named_paras = ['n_in', 'n_out', 'p_drop', 'layer_func', 'act_func', 'batch_normalize']
+        from numpy.random import choice
+        named_paras = ['n_in', 'n_out', 'p_drop', 'layer_func', 'act_func', 'batch_nor']
         layer = namedtuple('LayerParas', named_paras)
         layer_len = len(self.layer_var)
 
@@ -114,7 +122,7 @@ class Generator1d(object):
                     n_in = self.layer_var[i][0]
                     sig.append(n_in)
                 sig.append(self.n_out)
-                out_layer = Layer1d(n_in=n_in, n_out=self.n_out, act_func=None, batch_normalize=None, p_drop=0)
+                out_layer = Layer1d(n_in=n_in, n_out=self.n_out, act_func=None, batch_nor=None, p_drop=0)
                 layers.append(out_layer)
 
                 model = nn.Sequential(*layers)
@@ -150,7 +158,7 @@ class Generator1d(object):
                     n_in = layer_['n_out']
                     sig.append(n_in)
                 sig.append(self.n_out)
-                out_layer = Layer1d(n_in=n_in, n_out=self.n_out, act_func=None, batch_normalize=None, p_drop=0)
+                out_layer = Layer1d(n_in=n_in, n_out=self.n_out, act_func=None, batch_nor=None, p_drop=0)
                 layers.append(out_layer)
 
                 model = nn.Sequential(*layers)

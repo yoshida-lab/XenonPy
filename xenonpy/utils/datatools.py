@@ -30,7 +30,7 @@ class Loader(object):
 
         >>> load = Loader()
         >>> elements = load('elements')
-        >>> ele.info()
+        >>> elements.info()
         <class 'pandas.core.frame.DataFrame'>
         Index: 118 entries, H to Og
         Data columns (total 74 columns):
@@ -489,14 +489,26 @@ class Saver(object):
 
         return _load_file(self._files['unnamed'], item)
 
-    def __call__(self, *data, **named_data):
+    def __call__(self, *unnamed_data, **named_data):
+        """
+        Save data with or without name.
+        Data with same name will not be overwritten.
+
+        Parameters
+        ----------
+        unnamed_data: any object
+            Unnamed data.
+        named_data: dict
+            Named data as k,v pair.
+
+        """
         def _get_file_index(fn):
             if len(self._files[fn]) != 0:
                 return int(re.findall(r'\.@\d+\.', str(self._files[fn][-1]))[-1][2:-1])
             return 0
 
         num = 0
-        for d in data:
+        for d in unnamed_data:
             if num == 0:
                 num = _get_file_index('unnamed')
             num += 1

@@ -17,7 +17,7 @@ class Layer1d(nn.Module):
                  p_drop=0.5,
                  layer_func=L1.linear(bias=True),
                  act_func=nn.ReLU(),
-                 batch_normalize=L1.batch_norm(eps=1e-05, momentum=0.1, affine=True)
+                 batch_nor=L1.batch_norm(eps=1e-05, momentum=0.1, affine=True)
                  ):
         """
         Parameters
@@ -32,13 +32,12 @@ class Layer1d(nn.Module):
             Layers come with PyTorch.
         act_func: func
             Activation function.
-        batch_normalize: func
+        batch_nor: func
             Normalization layers
-        momentum
         """
         super().__init__()
         self.neuron = layer_func(n_in, n_out)
-        self.batch_nor = None if not batch_normalize else batch_normalize(n_out)
+        self.batch_nor = None if not batch_nor else batch_nor(n_out)
         self.act_func = None if not act_func else act_func
         self.dropout = None if p_drop == 0.0 else nn.Dropout(p_drop)
 

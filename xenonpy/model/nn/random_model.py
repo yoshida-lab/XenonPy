@@ -54,6 +54,30 @@ class Generator1d(object):
         # calculate layer's variety
         self.layer_var = list(product(n_neuron, p_drop, layer_func, act_func, batch_normalize))
 
+    @staticmethod
+    def _product(*lens):
+        from numpy import product
+        size_num = product(lens)
+        acc_list = [size_num // lens[0]]
+        for len_ in lens[1:]:
+            acc_list.append(acc_list[-1] // len_)
+
+        def _func(index):
+            ret = ()
+            remainder = index
+            end = False
+            for acc in acc_list:
+                if not end:
+                    quotient, remainder = divmod(remainder, acc)
+                    if remainder == 0:
+                        ret += (quotient - 1)
+                        end = True
+                else:
+                    pass
+            pass
+
+        return size_num, _func
+
     def __call__(self, hidden: int, *, n_models: int = 0, scheduler=None, replace=False):
         """
         Generate sample model.

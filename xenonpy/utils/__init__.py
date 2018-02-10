@@ -4,3 +4,4 @@
 
 from .datatools import Loader, Saver
 from .env import set_env
+from .itertools import Product

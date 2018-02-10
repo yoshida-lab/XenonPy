@@ -3,12 +3,12 @@
 # license that can be found in the LICENSE file.
 
 from collections import namedtuple
-from itertools import product
 
 from torch import nn
 
 from .layer1 import Layer1d
 from .wrap import L1
+from ...utils import Product
 
 
 class Generator1d(object):
@@ -50,33 +50,8 @@ class Generator1d(object):
         self.act_func = act_func
         self.batch_normalize = batch_normalize
 
-        # prepare layer container
         # calculate layer's variety
-        self.layer_var = list(product(n_neuron, p_drop, layer_func, act_func, batch_normalize))
-
-    @staticmethod
-    def _product(*lens):
-        from numpy import product
-        size_num = product(lens)
-        acc_list = [size_num // lens[0]]
-        for len_ in lens[1:]:
-            acc_list.append(acc_list[-1] // len_)
-
-        def _func(index):
-            ret = ()
-            remainder = index
-            end = False
-            for acc in acc_list:
-                if not end:
-                    quotient, remainder = divmod(remainder, acc)
-                    if remainder == 0:
-                        ret += (quotient - 1)
-                        end = True
-                else:
-                    pass
-            pass
-
-        return size_num, _func
+        self.layer_var = Product(n_neuron, p_drop, layer_func, act_func, batch_normalize)
 
     def __call__(self, hidden: int, *, n_models: int = 0, scheduler=None, replace=False):
         """
@@ -116,23 +91,22 @@ class Generator1d(object):
         from numpy.random import choice
         named_paras = ['n_in', 'n_out', 'p_drop', 'layer_func', 'act_func', 'batch_nor']
         layer = namedtuple('LayerParas', named_paras)
-        layer_len = len(self.layer_var)
 
         if scheduler is None:
-            indices = list(product(range(layer_len), repeat=hidden))
-            indices_len = layer_len ** hidden
+            all_ = Product(self.layer_var, repeat=hidden)
+            all_size = self.layer_var.size ** hidden
 
             if n_models == 0:
-                n_models = indices_len
-            if n_models > indices_len and not replace:
-                raise ValueError("larger sample than population({}) when 'replace=False'".format(indices_len))
+                n_models = all_size
+            if n_models > all_size and not replace:
+                raise ValueError("larger sample than population({}) when 'replace=False'".format(all_size))
 
-            # sampling indices
-            samples = choice(range(indices_len), n_models, replace).tolist()
+            # sampling all_
+            samples = choice(all_size, n_models, replace).tolist()
             while True:
                 try:
-                    index_ = samples.pop()
-                    ids = indices[index_]
+                    i = samples.pop()
+                    layer_paras = all_[i]
                 except IndexError:
                     raise StopIteration()
 
@@ -140,10 +114,10 @@ class Generator1d(object):
                 layers = list()
                 n_in = self.n_in
                 sig = [n_in]
-                for i in ids:
-                    layer_ = layer(*((n_in,) + self.layer_var[i]))._asdict()
+                for para in layer_paras:
+                    layer_ = layer(*((n_in,) + para))._asdict()
                     layers.append(Layer1d(**layer_))
-                    n_in = self.layer_var[i][0]
+                    n_in = para[0]
                     sig.append(n_in)
                 sig.append(self.n_out)
                 out_layer = Layer1d(n_in=n_in, n_out=self.n_out, act_func=None, batch_nor=None, p_drop=0)
@@ -155,11 +129,11 @@ class Generator1d(object):
 
         else:
             if n_models == 0:
-                n_models = layer_len
-            if n_models > layer_len and not replace:
-                raise ValueError("larger sample than population({}) when 'replace=False'".format(layer_len))
+                n_models = self.layer_var.size
+            if n_models > self.layer_var.size and not replace:
+                raise ValueError("larger sample than population({}) when 'replace=False'".format(self.layer_var.size))
 
-            samples = choice(range(layer_len), n_models, replace).tolist()
+            samples = choice(self.layer_var.size, n_models, replace).tolist()
 
             while True:
                 try:

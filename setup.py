@@ -51,13 +51,13 @@ if __name__ == "__main__":
     # Your GitHub user name
     try:
         GITHUB_USERNAME = package.__github_username__
-    except:
+    except ImportError:
         GITHUB_USERNAME = "Unknown-Github-Username"
 
     # Short description will be the description on PyPI
     try:
         SHORT_DESCRIPTION = package.__short_description__  # GitHub Short Description
-    except:
+    except ImportError:
         print("'__short_description__' not found in '%s.__init__.py'!" %
               PKG_NAME)
         SHORT_DESCRIPTION = "No short description!"
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     # Long description will be the body of content on PyPI page
     try:
         LONG_DESCRIPTION = open("README.rst", "rb").read().decode("utf-8")
-    except:
+    except FileNotFoundError:
         LONG_DESCRIPTION = "No long description!"
 
     # Version number, VERY IMPORTANT!
@@ -74,22 +74,22 @@ if __name__ == "__main__":
     # Author and Maintainer
     try:
         AUTHOR = package.__author__
-    except:
+    except ImportError:
         AUTHOR = "Unknown"
 
     try:
         AUTHOR_EMAIL = package.__author_email__
-    except:
+    except ImportError:
         AUTHOR_EMAIL = None
 
     try:
         MAINTAINER = package.__maintainer__
-    except:
+    except ImportError:
         MAINTAINER = "Unknown"
 
     try:
         MAINTAINER_EMAIL = package.__maintainer_email__
-    except:
+    except ImportError:
         MAINTAINER_EMAIL = None
 
     PACKAGES, INCLUDE_PACKAGE_DATA, PACKAGE_DATA, PY_MODULES = (
@@ -130,7 +130,7 @@ if __name__ == "__main__":
 
     try:
         LICENSE = package.__license__
-    except:
+    except ImportError:
         print("'__license__' not found in '%s.__init__.py'!" % PKG_NAME)
         LICENSE = ""
 
@@ -174,8 +174,7 @@ if __name__ == "__main__":
         platforms=PLATFORMS,
         license=LICENSE,
         setup_requires=REQUIRES,
-        install_requires=REQUIRES
-    )
+        install_requires=REQUIRES)
 """
 Appendix
 --------

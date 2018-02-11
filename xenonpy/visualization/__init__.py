@@ -3,3 +3,5 @@
 # license that can be found in the LICENSE file.
 
 from .heatmap import DescHeatmap
+from ._base import BasePlot
+from .regplot import RegPlot

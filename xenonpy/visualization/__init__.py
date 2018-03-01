@@ -2,6 +2,5 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-from .heatmap import DescHeatmap
 from ._base import BasePlot
-from .regplot import RegPlot
+from .heatmap import DescHeatmap

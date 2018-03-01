@@ -5,18 +5,19 @@
 import re
 from collections import defaultdict
 from datetime import datetime as dt
-from os import remove, getenv
+from os import remove
 from os.path import getmtime
 from pathlib import Path
 from shutil import rmtree
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 import pandas as pd
 import requests
 from sklearn.externals import joblib
 
+from .env import expand_path
 from .. import __cfg_root__
-from ..conf import get_dataset_url, get_conf
+from .._conf import get_dataset_url, get_data_loc
 
 
 class Loader(object):
@@ -112,20 +113,20 @@ class Loader(object):
         memory usage: 69.1+ KB
     """
 
+    dataset = (
+        'elements', 'elements_completed', 'mp_inorganic',
+        'electron_density', 'sample_A', 'mp_structure'
+    )
     # set to check params
 
-    def __init__(self,
-                 *,
-                 chunk_size: int = 256 * 1024,
-                 api_key: str = None,
-                 username: str = None,
-                 password: str = None,
-                 payload: dict = None):
+    def __init__(self, location=None, *,
+                 chunk_size: int = 256 * 1024
+                 ):
         """
 
         Parameters
         ----------
-        url: str
+        location: str
             Where data are.
             None(default) means to load data in ``~/.xenonpy/cached`` or ``~/.xenonpy/dataset`` dir.
             When given as url, later can be uesd to fetch files under this url from http-request.
@@ -146,33 +147,34 @@ class Loader(object):
             If need payload.
 
         """
-        self.payload = payload
-        self.pass_word = password
-        self.user_name = username
-        self.api_key = api_key
-        self.dataset = [
-            'elements', 'elements_completed', 'mp_inorganic',
-            'electron_density', 'sample_A', 'mp_structure'
-        ]
+        self.location = location
         self.chunk_size = chunk_size
+        self.type = self._select(location)
         self.dataset_dir = Path().home() / __cfg_root__ / 'dataset'
         self.cached_dir = Path().home() / __cfg_root__ / 'cached'
 
-        if getenv('userdata'):
-            self.userdata_dir = Path(getenv('userdata')).expanduser()
-        else:
-            self.userdata_dir = Path(get_conf('userdata')).expanduser()
+    def _select(self, loc):
+        if loc is None:
+            return 'local'
 
-    def _fetch_data(self, url, save_to=None):
-        schemes = {'http', 'https'}
-        scheme = urlparse(url).scheme
-        if 'http' in scheme:
-            return self._http_data(url, save_to)
-        else:
-            raise ValueError("Only can access [{}] data but you send {}. :(".format(schemes, scheme))
+        if not isinstance(loc, str):
+            raise TypeError('parameter `location` must be string but got {}'.format(type(loc)))
 
-    def _http_data(self, url, save_to=None):
-        r = requests.get(url, stream=True)
+        # local
+        scheme = urlparse(loc).scheme
+        if scheme is '':
+            self.location = expand_path(loc)
+            return 'user_loc'
+
+        # http
+        http_schemes = ('http', 'https')
+        if scheme in http_schemes:
+            return 'http'
+
+        raise ValueError('can not parse location {}'.format(loc))
+
+    def _http_data(self, url, params=None, save_to=None, **kwargs):
+        r = requests.get(url, params, **kwargs)
         r.raise_for_status()
 
         if 'filename' in r.headers:
@@ -180,7 +182,8 @@ class Loader(object):
         else:
             filename = url.split('/')[-1]
 
-        save_to = str(self.cached_dir / filename) if not save_to else str(save_to)
+        if save_to is None:
+            save_to = str(self.cached_dir / filename)
         with open(save_to, 'wb') as f:
             for chunk in r.iter_content(chunk_size=self.chunk_size):
                 if chunk:  # filter out keep-alive new chunks
@@ -188,9 +191,9 @@ class Loader(object):
 
         return save_to
 
-    def __call__(self, dname: str):
+    def __call__(self, data=None, **kwargs):
         """
-        load preset dataset.
+        load data.
 
         .. note::
             Try to load data from local at ``~/.xenonpy/dataset``.
@@ -198,36 +201,57 @@ class Loader(object):
 
         Args
         -----------
-        dname: str
-            name of dateset.
+        data: str
+            name of data.
 
         Returns
         ------
         ret:DataFrame or Saver or local file path.
         """
 
-        # check dataset name
-        if dname in self.dataset:
-            dataset = self.dataset_dir / (dname + '.pkl.pd_')
+        kwargs = dict(kwargs, data=data)
 
-            # check dataset exist
-            if not dataset.exists():
-                self._fetch_data(get_dataset_url(dname), dataset)
+        def _get_data(key, ignore_err=False, del_key=True):
+            try:
+                ret = kwargs[key]
+                if del_key:
+                    del kwargs[key]
+                return ret
+            except KeyError:
+                if ignore_err:
+                    return None
+                else:
+                    raise ValueError('need `{}` but got None'.format(key))
 
-            # fetch data from source
-            return pd.read_pickle(str(dataset))
+        if self.type == 'local':
+            data = _get_data('data')
+            if data in self.dataset:
+                dataset = self.dataset_dir / (data + '.pkl.pd_')
+                # fetch data from source if not in local
+                if not dataset.exists():
+                    self._http_data(get_dataset_url(data), save_to=str(dataset))
+                return pd.read_pickle(str(dataset))
+            return Saver(data, ignore_err=False)
 
-        elif '/' not in dname:
-            dataset = self.userdata_dir / dname
-            if not dataset.is_dir():
-                raise FileNotFoundError(
-                    'no user dataset under {}'.format(dataset))
-            return Saver(dname)
+        if self.type == 'user_local':
+            data = _get_data('data')
+            return Saver(data, path=self.location, ignore_err=False)
 
-        else:
-            file_name = self._fetch_data(dname)
-            dataset = self.cached_dir / file_name
-            return dataset
+        if self.type == 'http':
+            data = _get_data('data', ignore_err=True)
+            params = _get_data('params', ignore_err=True)
+            kwargs['stream'] = True
+            url = urljoin(self.location, data)
+            return self._http_data(url, params=params, **kwargs)
+
+        raise ValueError('can not fetch data')
+
+    def _get_prop(self, name):
+        tmp = self.type
+        self.type = 'local'
+        ret = self(name)
+        self.type = tmp
+        return ret
 
     @property
     def elements(self):
@@ -247,7 +271,7 @@ class Loader(object):
         DataFrame:
             element properties in pd.DataFrame
         """
-        return self('elements')
+        return self._get_prop('elements')
 
     @property
     def elements_completed(self):
@@ -265,7 +289,7 @@ class Loader(object):
         -------
             imputed element properties in pd.DataFrame
         """
-        return self('elements_completed')
+        return self._get_prop('elements_completed')
 
 
 class Saver(object):
@@ -300,7 +324,7 @@ class Saver(object):
     See Also: :doc:`dataset`
     """
 
-    def __init__(self, dataset=None, absolute=False):
+    def __init__(self, dataset=None, *, path=None, ignore_err=True):
         """
         Parameters
         ----------
@@ -311,17 +335,14 @@ class Saver(object):
             True to use absolute dir path.
         """
         self.pkl = joblib
-        if absolute:
-            self._path = Path(dataset).expanduser()
-            self.dataset = self._path.stem
+        self.dataset = dataset
+        if path is not None:
+            self._path = Path(expand_path(path))
         else:
-            if getenv('userdata'):
-                self._path = Path(getenv('userdata')).expanduser()
-            else:
-                self._path = Path(get_conf('userdata')).expanduser()
-            self._path = self._path / dataset
-            self.dataset = dataset
+            self._path = Path(get_data_loc('userdata')) / dataset
         if not self._path.exists():
+            if not ignore_err:
+                raise FileNotFoundError()
             self._path.mkdir(parents=True)
         self._files = None
         self._make_file_index()

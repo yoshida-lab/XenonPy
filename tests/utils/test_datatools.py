@@ -32,8 +32,8 @@ def setup():
 
     if test['test_file'].exists():
         remove(str(test['test_file']))
-    if (Path.home() / '.xenonpy/cached' / test['test_dir']).exists():
-        rmtree(str(test['test_dir']))
+    if (Path.home() / '.xenonpy/userdata' / test['test_dir']).exists():
+        rmtree(str(Path.home() / '.xenonpy/userdata' / test['test_dir']))
     if (Path.home() / '.xenonpy/cached/travis').exists():
         rmtree(str(Path.home() / '.xenonpy/cached/travis'))
     if (Path().expanduser() / 'test_user_data.pkl.z').exists():
@@ -41,7 +41,7 @@ def setup():
     print('test over')
 
 
-def test_loader(setup):
+def test_loader():
     load = Loader()
     e = load('elements')
     assert 118 == e.shape[0], 'should have 118 elements'
@@ -52,14 +52,23 @@ def test_loader(setup):
     assert 58 == e.shape[1], 'should have 58 completed features'
 
 
-def test_loader_url(setup):
-    load = Loader()
-    file = load(setup['fetch_file'])
+def test_loader_url1(setup):
+    load = Loader(setup['fetch_file'])
+    file = load()
     with open(str(file)) as f:
         assert f.readline() == 'Test xenonpy.utils.Loader._fetch_data'
+    remove(str(file))
 
 
-def test_loader_property(setup):
+def test_loader_url2(setup):
+    load = Loader(setup['fetch_file'])
+    file = load('fetch_test.txt')
+    with open(str(file)) as f:
+        assert f.readline() == 'Test xenonpy.utils.Loader._fetch_data'
+    remove(str(file))
+
+
+def test_loader_property():
     load = Loader()
     assert 118 == load.elements.shape[0], 'should have 118 elements'
     assert 74 == load.elements.shape[1], 'should have 74 features'
@@ -76,7 +85,7 @@ def test_loader_return_saver(setup):
     try:
         load(dir_)
     except FileNotFoundError:
-        assert True, 'should got FileNotFoundError'
+        assert True
         return
 
     assert False, 'should got FileNotFoundError'

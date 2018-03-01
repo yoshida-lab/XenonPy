@@ -9,9 +9,10 @@ with warnings.catch_warnings():
     try:
         import torch
     except ImportError:
-        warnings.warn("Can't fing pytorch, will not load neural network modules.", RuntimeWarning)
+        warnings.warn("Can't find pytorch, will not load neural network modules.", RuntimeWarning)
     else:
-        from .base import ModelRunner, Checker
-        from .random_model import Generator1d
-        from .layer1 import Layer1d
+        from .checker import Checker
+        from .runner import ModelRunner
+        from .model_maker import Generator1d, Sequential
+        from .layer import Layer1d
         from . import wrap

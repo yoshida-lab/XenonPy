@@ -3,6 +3,7 @@
 # license that can be found in the LICENSE file.
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sb
 from scipy.stats import boxcox
@@ -50,7 +51,6 @@ class DescHeatmap(BaseEstimator):
         """
         self.save = save
         self.bc = bc
-        self.lmd = None
         self.pivot_kws = pivot_kws
         self.method = method
         self.metric = metric
@@ -65,15 +65,23 @@ class DescHeatmap(BaseEstimator):
         self.kwargs = kwargs
         self.desc = None
 
-    def _bc(self, series):
-        series_bc, self.lmd = boxcox(series - series.min() + 0.01)
-        return series_bc
+    def _transform(self, series):
+        series_ = series
+        if series.min() != series.max():
+            if self.bc:
+                with np.errstate(all='raise'):
+                    shift = 1e-10
+                    tmp = series - series.min() + shift
+                    try:
+                        series_, _ = boxcox(tmp)
+                    except FloatingPointError:
+                        series_ = series
+        series_ = minmax_scale(series_)
+        return series_
 
     def fit(self, desc):
-        desc_ = desc
-        if self.bc:
-            desc_ = desc.apply(self._bc)
-        self.desc = pd.DataFrame(minmax_scale(desc_), index=desc.index, columns=desc.columns)
+        desc_ = desc.apply(self._transform)
+        self.desc = pd.DataFrame(desc_, index=desc.index, columns=desc.columns)
         return self
 
     def draw(self, y=None):

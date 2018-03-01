@@ -1,3 +1,3 @@
-mode_extern_backend: 'sklearn'
+model_extern_backend: 'sklearn'
 userdata: '~/.xenonpy/userdata'
 usermodel: '~/.xenonpy/usermodel'

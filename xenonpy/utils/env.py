@@ -3,6 +3,8 @@
 # license that can be found in the LICENSE file.
 
 from contextlib import contextmanager
+from os import getcwd
+from pathlib import Path
 
 
 @contextmanager
@@ -36,3 +38,21 @@ def set_env(**kwargs):
             del os.environ[k]
         else:
             os.environ[k] = v
+
+
+def expand_path(path):
+    """
+    Expand path when path include ``~``, ``parent/here``.
+
+    Parameters
+    ----------
+    path: str
+        Path to expand.
+    Returns
+    -------
+    str
+        Expanded path.
+    """
+    if path[0] != '/':
+        return getcwd() + '/' + str(Path(path).expanduser())
+    return str(Path(path).expanduser())

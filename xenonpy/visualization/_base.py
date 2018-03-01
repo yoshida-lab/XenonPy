@@ -32,6 +32,7 @@ class BasePlot(object):
             'showline': True,
             'zeroline': False
         },
+        annotations=[],
         autosize=False,
         showlegend=True,
         width=1000,
@@ -43,6 +44,10 @@ class BasePlot(object):
 
     @property
     def trace(self):
+        raise NotImplementedError()
+
+    @property
+    def annotation(self):
         raise NotImplementedError()
 
     @property
@@ -71,15 +76,10 @@ class BasePlot(object):
 
     @property
     def figure(self):
-        if len(self.__traces) > 1:
-            for i, trace in enumerate(self.__traces):
-                if 'unnamed' in trace['name']:
-                    trace['name'] = 'unnamed' + str(i + 1)
-
         return Figure(data=self.__traces, layout=self._layout)
 
-    def __mul__(self, other):
-        if not isinstance(other, BasePlot):
+    def __lt__(self, other):
+        if not issubclass(other.__class__, self.__class__):
             raise ValueError('only object inherit from BasePlot can use add')
 
         cp = deepcopy(self)

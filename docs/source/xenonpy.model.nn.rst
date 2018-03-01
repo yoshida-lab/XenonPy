@@ -1,35 +1,43 @@
-xenonpy\.model\.nn package
-==========================
+xenonpy.model.nn package
+========================
 
 Submodules
 ----------
 
-xenonpy\.model\.nn\.base module
+xenonpy.model.nn.checker module
 -------------------------------
 
-.. automodule:: xenonpy.model.nn.base
+.. automodule:: xenonpy.model.nn.checker
     :members:
     :undoc-members:
     :show-inheritance:
 
-xenonpy\.model\.nn\.layer1 module
----------------------------------
+xenonpy.model.nn.layer module
+-----------------------------
 
-.. automodule:: xenonpy.model.nn.layer1
+.. automodule:: xenonpy.model.nn.layer
     :members:
     :undoc-members:
     :show-inheritance:
 
-xenonpy\.model\.nn\.random\_model module
-----------------------------------------
+xenonpy.model.nn.model\_maker module
+------------------------------------
 
-.. automodule:: xenonpy.model.nn.random_model
+.. automodule:: xenonpy.model.nn.model_maker
     :members:
     :undoc-members:
     :show-inheritance:
 
-xenonpy\.model\.nn\.wrap module
--------------------------------
+xenonpy.model.nn.runner module
+------------------------------
+
+.. automodule:: xenonpy.model.nn.runner
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xenonpy.model.nn.wrap module
+----------------------------
 
 .. automodule:: xenonpy.model.nn.wrap
     :members:

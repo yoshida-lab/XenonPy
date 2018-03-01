@@ -1,5 +1,5 @@
-xenonpy\.preprocess package
-===========================
+xenonpy.preprocess package
+==========================
 
 Module contents
 ---------------

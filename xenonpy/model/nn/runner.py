@@ -153,7 +153,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         # train
         loss, y_pred = None, None
         print('=======start training=======')
-        print('Model layers: {}\n'.format(self.model_name))
+        print('Model name: {}\n'.format(self.model_name))
         for t in range(self.epochs):
             if scheduler and not isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
                 scheduler.step()

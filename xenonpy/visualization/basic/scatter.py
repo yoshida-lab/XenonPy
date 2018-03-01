@@ -6,7 +6,7 @@
 from pandas import DataFrame
 from plotly.graph_objs import Scattergl
 
-from visualization._base import BasePlot
+from .._base import BasePlot
 
 
 class Scatter(BasePlot):

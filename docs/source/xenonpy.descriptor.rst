@@ -1,19 +1,19 @@
-xenonpy\.descriptor package
-===========================
+xenonpy.descriptor package
+==========================
 
 Submodules
 ----------
 
-xenonpy\.descriptor\.element module
------------------------------------
+xenonpy.descriptor.element module
+---------------------------------
 
 .. automodule:: xenonpy.descriptor.element
     :members:
     :undoc-members:
     :show-inheritance:
 
-xenonpy\.descriptor\.pdf module
--------------------------------
+xenonpy.descriptor.pdf module
+-----------------------------
 
 .. automodule:: xenonpy.descriptor.pdf
     :members:

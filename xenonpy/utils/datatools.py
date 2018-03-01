@@ -324,22 +324,23 @@ class Saver(object):
     See Also: :doc:`dataset`
     """
 
-    def __init__(self, dataset=None, *, path=None, ignore_err=True):
+    def __init__(self, data=None, *, path=None, ignore_err=True):
         """
         Parameters
         ----------
-        dataset: str
+        data: str
             Name of dataset. Usually this is dir name contains data.
-            If ``absolute`` is true, ``dataset`` must be a absolute dir path.
-        absolute: bool
-            True to use absolute dir path.
+        path: str
+            Absolute dir path.
+        ignore_err: bool
+            Ignore ``FileNotFoundError``.
         """
         self.pkl = joblib
-        self.dataset = dataset
+        self.data = data
         if path is not None:
-            self._path = Path(expand_path(path))
+            self._path = Path(expand_path(path)) / data
         else:
-            self._path = Path(get_data_loc('userdata')) / dataset
+            self._path = Path(get_data_loc('userdata')) / data
         if not self._path.exists():
             if not ignore_err:
                 raise FileNotFoundError()
@@ -398,7 +399,7 @@ class Saver(object):
             File path.
         """
         ret = {k: self._load_data(v[-1]) for k, v in self._files.items()}
-        name = rename if rename else self.dataset
+        name = rename if rename else self.data
         if with_datetime:
             datetime = dt.now().strftime('-%Y-%m-%d_%H-%M-%S_%f')
         else:
@@ -479,7 +480,7 @@ class Saver(object):
         del self._files[data_name]
 
     def __repr__(self):
-        cont_ls = ['"{}" include:'.format(self.dataset)]
+        cont_ls = ['"{}" include:'.format(self.data)]
 
         for k, v in self._files.items():
             cont_ls.append('"{}": {}'.format(k, len(v)))

@@ -1,11 +1,18 @@
-xenonpy\.visualization package
-==============================
+xenonpy.visualization package
+=============================
+
+Subpackages
+-----------
+
+.. toctree::
+
+    xenonpy.visualization.basic
 
 Submodules
 ----------
 
-xenonpy\.visualization\.heatmap module
---------------------------------------
+xenonpy.visualization.heatmap module
+------------------------------------
 
 .. automodule:: xenonpy.visualization.heatmap
     :members:

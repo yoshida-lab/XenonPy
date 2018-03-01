@@ -13,18 +13,6 @@ Subpackages
     xenonpy.utils
     xenonpy.visualization
 
-Submodules
-----------
-
-xenonpy\.conf module
---------------------
-
-.. automodule:: xenonpy.conf
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
 Module contents
 ---------------
 

@@ -1,5 +1,5 @@
-xenonpy\.pipeline package
-=========================
+xenonpy.pipeline package
+========================
 
 Module contents
 ---------------

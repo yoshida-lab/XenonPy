@@ -1,5 +1,5 @@
-xenonpy\.model package
-======================
+xenonpy.model package
+=====================
 
 Subpackages
 -----------
@@ -11,8 +11,8 @@ Subpackages
 Submodules
 ----------
 
-xenonpy\.model\.extern module
------------------------------
+xenonpy.model.extern module
+---------------------------
 
 .. automodule:: xenonpy.model.extern
     :members:

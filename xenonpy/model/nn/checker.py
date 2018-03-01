@@ -30,6 +30,8 @@ class Checker(object):
         path: str
             Save path.
         """
+        if not name:
+            raise ValueError('need model name.')
         if path is None:
             path = get_data_loc('usermodel')
 

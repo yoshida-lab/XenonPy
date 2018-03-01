@@ -53,6 +53,12 @@ def expand_path(path):
     str
         Expanded path.
     """
-    if path[0] != '/':
-        return getcwd() + '/' + str(Path(path).expanduser())
+    from platform import system
+
+    if system() == 'Windows':
+        if path[1] != ':':
+            return str(Path(getcwd() + '/' + str(Path(path).expanduser())))
+    else:
+        if path[0] != '/':
+            return getcwd() + '/' + str(Path(path).expanduser())
     return str(Path(path).expanduser())

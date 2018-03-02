@@ -98,6 +98,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         self.optim = optim
         self.lr = lr
         self.lr_scheduler = lr_scheduler
+        self.checker(init_model=model)
 
     @staticmethod
     def _d2tv(data):
@@ -178,7 +179,8 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         # save last results
         self.checker(model_state=self.model.state_dict(),
                      epochs=self.epochs,
-                     loss=loss.data[0])
+                     loss=loss.data[0],
+                     trained_model=self.model)
         return self
 
     def predict(self, x_test, y_test):

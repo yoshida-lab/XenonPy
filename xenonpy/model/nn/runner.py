@@ -176,6 +176,9 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         print('\nFinal loss={:.4f}'.format(loss.data[0]))
         print('=======over training=======\n')
 
+        # move back to cpu
+        self.model.cpu()
+
         # save last results
         self.checker(model_state=self.model.state_dict(),
                      epochs=self.epochs,
@@ -199,6 +202,8 @@ class ModelRunner(BaseEstimator, RegressorMixin):
             self.model.cpu()
         # prediction
         y_true, y_pred = y_test.ravel(), self.model(x_test).cpu().data.numpy().ravel()
+        # move back to cpu
+        self.model.cpu()
 
         mae = mean_absolute_error(y_true, y_pred)
         r2 = r2_score(y_true, y_pred)

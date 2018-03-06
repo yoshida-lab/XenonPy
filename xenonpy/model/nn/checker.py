@@ -15,9 +15,8 @@ from ...utils.datatools import DataSet
 
 
 class _SL(object):
-    def __init__(self):
-        self.load = torch.load
-        self.dump = torch.save
+    load = torch.load
+    dump = torch.save
 
 
 class Checker(DataSet):
@@ -47,7 +46,7 @@ class Checker(DataSet):
         else:
             _fpath = Path(path) / name
         self._name = _fpath.stem
-        super().__init__(self._name, path=path, backend=_SL())
+        super().__init__(self._name, path=path, backend=_SL)
 
     @classmethod
     def from_checkpoint(cls, name, path=None):

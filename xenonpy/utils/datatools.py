@@ -433,9 +433,9 @@ class DataSet(object):
         -------
         self
         """
-        attr = DataSet(name, path=str(self._path))
-        setattr(self, name, attr)
-        return attr
+        sub_set = DataSet(name, path=str(self._path), backend=self._backend)
+        setattr(self, name, sub_set)
+        return sub_set
 
     def __repr__(self):
         cont_ls = ['"{}" include:'.format(self._name)]

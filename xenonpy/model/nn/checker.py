@@ -77,7 +77,7 @@ class Checker(DataSet):
             desc = dict(desc, **description)
         else:
             raise TypeError('except dict but got {}'.format(type(description)))
-        super()(describe=desc)
+        super().__call__(describe=desc)
 
     @property
     def init_model(self):
@@ -101,7 +101,7 @@ class Checker(DataSet):
         model: torch.nn.Module
         """
         if isinstance(model, torch.nn.Module):
-            super()(init_model=model)
+            super().__call__(init_model=model)
         else:
             raise TypeError('except `torch.nn.Module` object but got {}'.format(type(model)))
 
@@ -127,7 +127,7 @@ class Checker(DataSet):
         model: torch.nn.Module
         """
         if isinstance(model, torch.nn.Module):
-            super()(trained_model=model)
+            super().__call__(trained_model=model)
         else:
             raise TypeError('except `torch.nn.Module` object but got {}'.format(type(model)))
 
@@ -147,7 +147,7 @@ class Checker(DataSet):
             return isinstance(o, (numpy.ndarray, pandas.DataFrame))
 
         if _check(x_train) and _check(y_train):
-            super()(x_train=x_train, y_train=y_train)
+            super().__call__(x_train=x_train, y_train=y_train)
             return
         raise TypeError('except `numpy.ndarray or pandas.DataFrame`')
 

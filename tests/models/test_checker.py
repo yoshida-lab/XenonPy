@@ -70,7 +70,8 @@ def test_checker_init_model1(setup):
         checker.init_model = None
     except TypeError:
         assert True
-    assert False, 'should got error'
+    else:
+        assert False, 'should got error'
 
 
 def test_checker_init_model2(setup):
@@ -81,13 +82,20 @@ def test_checker_init_model2(setup):
         assert False, 'should not got error'
 
 
+def test_checker_init_model3(setup):
+    checker = Checker(setup['name'])
+    checker.init_model = setup['model']
+    assert str(checker.init_model) == str(setup['model'])
+
+
 def test_checker_trained_model1(setup):
     checker = Checker(setup['name'])
     try:
         checker.trained_model = None
     except TypeError:
         assert True
-    assert False, 'should got error'
+    else:
+        assert False, 'should got error'
 
 
 def test_checker_trained_model2(setup):
@@ -98,13 +106,20 @@ def test_checker_trained_model2(setup):
         assert False, 'should not got error'
 
 
+def test_checker_trained_model3(setup):
+    checker = Checker(setup['name'])
+    checker.trained_model = setup['model']
+    assert str(checker.trained_model) == str(setup['model'])
+
+
 def test_checker_train_data1(setup):
     checker = Checker(setup['name'])
     try:
         checker.train_data(None, None)
     except TypeError:
         assert True
-    assert False, 'should got error'
+    else:
+        assert False, 'should got error'
 
 
 def test_checker_train_data2(setup):

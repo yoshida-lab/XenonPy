@@ -10,12 +10,13 @@ from os.path import getmtime
 from pathlib import Path
 from shutil import rmtree
 from urllib.parse import urlparse, urljoin
+from warnings import warn
 
 import pandas as pd
 import requests
 from sklearn.externals import joblib
 
-from .env import expand_path
+from .functional import absolute_path
 from .. import __cfg_root__
 from .._conf import get_dataset_url, get_data_loc
 
@@ -43,74 +44,7 @@ class Loader(object):
         boiling_point                    96 non-null float64
         brinell_hardness                 59 non-null float64
         bulk_modulus                     69 non-null float64
-        c6                               43 non-null float64
-        c6_gb                            86 non-null float64
-        covalent_radius_bragg            37 non-null float64
-        covalent_radius_cordero          96 non-null float64
-        covalent_radius_pyykko           118 non-null int64
-        covalent_radius_pyykko_double    108 non-null float64
-        covalent_radius_pyykko_triple    80 non-null float64
-        covalent_radius_slater           86 non-null float64
-        density                          95 non-null float64
-        dipole_polarizability            106 non-null float64
-        electron_negativity              103 non-null float64
-        electron_affinity                77 non-null float64
-        en_allen                         71 non-null float64
-        en_ghosh                         103 non-null float64
-        en_pauling                       85 non-null float64
-        first_ion_en                     103 non-null float64
-        fusion_enthalpy                  92 non-null float64
-        gs_bandgap                       112 non-null float64
-        gs_energy                        112 non-null float64
-        gs_est_bcc_latcnt                112 non-null float64
-        gs_est_fcc_latcnt                112 non-null float64
-        gs_mag_moment                    112 non-null float64
-        gs_volume_per                    112 non-null float64
-        hhi_p                            77 non-null float64
-        hhi_r                            77 non-null float64
-        heat_capacity_mass               85 non-null float64
-        heat_capacity_molar              85 non-null float64
-        icsd_volume                      112 non-null float64
-        evaporation_heat                 88 non-null float64
-        gas_basicity                     32 non-null float64
-        heat_of_formation                89 non-null float64
-        lattice_constant                 87 non-null float64
-        linear_expansion_coefficient     63 non-null float64
-        mendeleev_number                 103 non-null float64
-        melting_point                    100 non-null float64
-        metallic_radius                  56 non-null float64
-        metallic_radius_c12              63 non-null float64
-        molar_volume                     97 non-null float64
-        num_unfilled                     112 non-null float64
-        num_valance                      112 non-null float64
-        num_d_unfilled                   112 non-null float64
-        num_d_valence                    112 non-null float64
-        num_f_unfilled                   112 non-null float64
-        num_f_valence                    112 non-null float64
-        num_p_unfilled                   112 non-null float64
-        num_p_valence                    112 non-null float64
-        num_s_unfilled                   112 non-null float64
-        num_s_valence                    112 non-null float64
-        period                           118 non-null int64
-        poissons_ratio                   54 non-null float64
-        proton_affinity                  32 non-null float64
-        specific_heat                    81 non-null float64
-        thermal_conductivity             96 non-null float64
-        vdw_radius                       103 non-null float64
-        vdw_radius_alvarez               94 non-null float64
-        vdw_radius_batsanov              65 non-null float64
-        vdw_radius_bondi                 28 non-null float64
-        vdw_radius_dreiding              21 non-null float64
-        vdw_radius_mm3                   94 non-null float64
-        vdw_radius_rt                    9 non-null float64
-        vdw_radius_truhlar               16 non-null float64
-        vdw_radius_uff                   103 non-null float64
-        sound_velocity                   72 non-null float64
-        vickers_hardness                 39 non-null float64
-        Polarizability                   102 non-null float64
-        youngs_modulus                   63 non-null float64
-        dtypes: float64(71), int64(3)
-        memory usage: 69.1+ KB
+        ...
     """
 
     dataset = (
@@ -119,9 +53,7 @@ class Loader(object):
     )
     # set to check params
 
-    def __init__(self, location=None, *,
-                 chunk_size: int = 256 * 1024
-                 ):
+    def __init__(self, location=None):
         """
 
         Parameters
@@ -130,25 +62,8 @@ class Loader(object):
             Where data are.
             None(default) means to load data in ``~/.xenonpy/cached`` or ``~/.xenonpy/dataset`` dir.
             When given as url, later can be uesd to fetch files under this url from http-request.
-
-        chunk_size: int
-            Http-request chunk size.
-
-        api_key: str
-            If remote access need a api key.
-
-        username: str
-            If need user name.
-
-        password: str
-            If need password.
-
-        payload: dict
-            If need payload.
-
         """
         self.location = location
-        self.chunk_size = chunk_size
         self.type = self._select(location)
         self.dataset_dir = Path().home() / __cfg_root__ / 'dataset'
         self.cached_dir = Path().home() / __cfg_root__ / 'cached'
@@ -163,7 +78,7 @@ class Loader(object):
         # local
         scheme = urlparse(loc).scheme
         if scheme is '':
-            self.location = expand_path(loc)
+            self.location = absolute_path(loc)
             return 'user_loc'
 
         # http
@@ -185,13 +100,19 @@ class Loader(object):
         if save_to is None:
             save_to = str(self.cached_dir / filename)
         with open(save_to, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=self.chunk_size):
+            for chunk in r.iter_content(chunk_size=256 * 1024):
                 if chunk:  # filter out keep-alive new chunks
                     f.write(chunk)
 
         return save_to
 
     def __call__(self, data=None, **kwargs):
+        """
+        Same to self.load()
+        """
+        return self.load(data=data, **kwargs)
+
+    def load(self, data=None, **kwargs):
         """
         load data.
 
@@ -231,11 +152,11 @@ class Loader(object):
                 if not dataset.exists():
                     self._http_data(get_dataset_url(data), save_to=str(dataset))
                 return pd.read_pickle(str(dataset))
-            return Saver(data, ignore_err=False)
+            return DataSet(data, ignore_err=False)
 
         if self.type == 'user_local':
             data = _get_data('data')
-            return Saver(data, path=self.location, ignore_err=False)
+            return DataSet(data, path=self.location, ignore_err=False)
 
         if self.type == 'http':
             data = _get_data('data', ignore_err=True)
@@ -292,7 +213,7 @@ class Loader(object):
         return self._get_prop('elements_completed')
 
 
-class Saver(object):
+class DataSet(object):
     """
     Save data in a convenient way:
 
@@ -324,29 +245,37 @@ class Saver(object):
     See Also: :doc:`dataset`
     """
 
-    def __init__(self, data=None, *, path=None, ignore_err=True):
+    def __init__(self, name=None, *, path=None, ignore_err=True, backend=joblib):
         """
         Parameters
         ----------
-        data: str
+        name: str
             Name of dataset. Usually this is dir name contains data.
         path: str
             Absolute dir path.
         ignore_err: bool
             Ignore ``FileNotFoundError``.
         """
-        self.pkl = joblib
-        self.data = data
+        self._backend = backend
+        self._name = name
         if path is not None:
-            self._path = Path(expand_path(path)) / data
+            self._path = Path(absolute_path(path, ignore_err)) / name
         else:
-            self._path = Path(get_data_loc('userdata')) / data
+            self._path = Path(get_data_loc('userdata')) / name
         if not self._path.exists():
             if not ignore_err:
                 raise FileNotFoundError()
             self._path.mkdir(parents=True)
         self._files = None
         self._make_file_index()
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def path(self):
+        return str(self._path.parent)
 
     def _make_file_index(self):
         self._files = defaultdict(list)
@@ -355,6 +284,18 @@ class Saver(object):
         for f in files:
             # select data
             fn = '.'.join(f.name.split('.')[:-3])
+
+            # for compatibility
+            # fixme: will be removed at future
+            if fn == 'unnamed':
+                warn('file like `unnamed.@x` will be renamed to `@x`.', RuntimeWarning)
+                new_name = '.'.join(f.name.split('.')[-3:])
+                new_path = f.parent / new_name
+                f.rename(new_path)
+                f = new_path
+
+            if fn == '':
+                fn = 'unnamed'
             self._files[fn].append(f)
 
         for fs in self._files.values():
@@ -365,7 +306,7 @@ class Saver(object):
         if file.suffix == '.pd_':
             return pd.read_pickle(str(file))
         else:
-            return self.pkl.load(str(file))
+            return self._backend.load(str(file))
 
     def _save_data(self, data, filename):
         self._path.mkdir(parents=True, exist_ok=True)
@@ -374,7 +315,7 @@ class Saver(object):
             pd.to_pickle(data, str(file))
         else:
             file = self._path / (filename + '.pkl.z')
-            self.pkl.dump(data, str(file))
+            self._backend.dump(data, str(file))
 
         return file
 
@@ -399,7 +340,7 @@ class Saver(object):
             File path.
         """
         ret = {k: self._load_data(v[-1]) for k, v in self._files.items()}
-        name = rename if rename else self.data
+        name = rename if rename else self._name
         if with_datetime:
             datetime = dt.now().strftime('-%Y-%m-%d_%H-%M-%S_%f')
         else:
@@ -408,17 +349,17 @@ class Saver(object):
         if not path_dir.exists():
             path_dir.mkdir(parents=True, exist_ok=True)
         path = path_dir / (name + datetime + '.pkl.z')
-        self.pkl.dump(ret, str(path))
+        self._backend.dump(ret, str(path))
 
         return str(path)
 
-    def last(self, d_name: str = None):
+    def last(self, name: str = None):
         """
         Return last saved data.
 
         Args
         ----
-        d_name: str
+        name: str
             Data's name. Omit for access temp data
 
         Return
@@ -426,11 +367,11 @@ class Saver(object):
         ret:any python object
             Data stored in `*.pkl` file.
         """
-        if d_name is None:
+        if name is None:
             return self._load_data(self._files['unnamed'][-1])
-        return self._load_data(self._files[d_name][-1])
+        return self._load_data(self._files[name][-1])
 
-    def rm(self, index, d_name: str = None):
+    def rm(self, index, name: str = None):
         """
         Delete file(s) with given index.
 
@@ -438,11 +379,11 @@ class Saver(object):
         ----------
         index: int or slice
             Index of data. Data sorted by datetime.
-        d_name: str
+        name: str
             Data's name. Omit for access unnamed data.
         """
 
-        if not d_name:
+        if not name:
             files = self._files['unnamed'][index]
             if not isinstance(files, list):
                 remove(str(files))
@@ -452,35 +393,52 @@ class Saver(object):
             del self._files['unnamed'][index]
             return
 
-        files = self._files[d_name][index]
+        files = self._files[name][index]
         if not isinstance(files, list):
             remove(str(files))
         else:
             for f in files:
                 remove(str(f))
-        del self._files[d_name][index]
+        del self._files[name][index]
 
-    def clean(self, data_name: str = None):
+    def clean(self, name: str = None):
         """
         Remove all data by name. Omit to remove hole dataset.
 
         Parameters
         ----------
-        data_name: str
+        name: str
             Data's name.Omit to remove hole dataset.
         """
-        if data_name is None:
+        if name is None:
             rmtree(str(self._path))
             self._files = list()
             self._files = defaultdict(list)
             return
 
-        for f in self._files[data_name]:
+        for f in self._files[name]:
             remove(str(f))
-        del self._files[data_name]
+        del self._files[name]
+
+    def __getattr__(self, name):
+        """
+        Returns sub-dataset.
+
+        Parameters
+        ----------
+        name: str
+            Dataset name.
+
+        Returns
+        -------
+        self
+        """
+        attr = DataSet(name, path=str(self._path))
+        setattr(self, name, attr)
+        return attr
 
     def __repr__(self):
-        cont_ls = ['"{}" include:'.format(self.data)]
+        cont_ls = ['"{}" include:'.format(self._name)]
 
         for k, v in self._files.items():
             cont_ls.append('"{}": {}'.format(k, len(v)))
@@ -513,6 +471,12 @@ class Saver(object):
 
     def __call__(self, *unnamed_data, **named_data):
         """
+        Same to self.save()
+        """
+        self.save(*unnamed_data, **named_data)
+
+    def save(self, *unnamed_data, **named_data):
+        """
         Save data with or without name.
         Data with same name will not be overwritten.
 
@@ -526,7 +490,7 @@ class Saver(object):
         """
         def _get_file_index(fn):
             if len(self._files[fn]) != 0:
-                return int(re.findall(r'\.@\d+\.', str(self._files[fn][-1]))[-1][2:-1])
+                return int(re.findall(r'@\d+\.', str(self._files[fn][-1]))[-1][1:-1])
             return 0
 
         num = 0
@@ -534,10 +498,11 @@ class Saver(object):
             if num == 0:
                 num = _get_file_index('unnamed')
             num += 1
-            f = self._save_data(d, 'unnamed.@' + str(num))
+            f = self._save_data(d, '@' + str(num))
             self._files['unnamed'].append(f)
 
         for k, v in named_data.items():
             num = _get_file_index(k) + 1
             f = self._save_data(v, k + '.@' + str(num))
             self._files[k].append(f)
+

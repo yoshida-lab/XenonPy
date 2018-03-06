@@ -23,7 +23,7 @@ from . import utils
 from . import visualization
 
 
-def _init_cfg_file(force=False):
+def _init(force=False):
     """
     Create config file is not exist at ~/.xenonpy/conf.yml
 
@@ -37,8 +37,12 @@ def _init_cfg_file(force=False):
         force reset ``conf.yml`` to default and empty all dirs under ``~/.xenonpy``.
     """
     from shutil import rmtree, copyfile
+    from sys import version_info
     from pathlib import Path
     from ._conf import get_conf
+
+    if version_info[0] != 3 or version_info[1] < 5:
+        raise SystemError("Must be using Python 3.5 or 3.6")
 
     root_dir = Path.home() / __cfg_root__
     root_dir.mkdir(parents=True, exist_ok=True)
@@ -62,3 +66,6 @@ def _init_cfg_file(force=False):
     cached_dir.mkdir(parents=True, exist_ok=True)
     user_data_dir.mkdir(parents=True, exist_ok=True)
     user_model_dir.mkdir(parents=True, exist_ok=True)
+
+
+_init()

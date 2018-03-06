@@ -1,6 +1,7 @@
 # Copyright 2018 TsumiNa. All rights reserved.
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
+from datetime import datetime as dt
 from warnings import warn
 
 import numpy as np
@@ -15,6 +16,7 @@ from torch.autograd import Variable as Var
 
 from .checker import Checker
 from .wrap import Init
+from ...utils import Stopwatch
 
 
 class ModelRunner(BaseEstimator, RegressorMixin):
@@ -27,7 +29,8 @@ class ModelRunner(BaseEstimator, RegressorMixin):
                  check_step=100,
                  log_step=0,
                  work_dir=None,
-                 verbose=True
+                 verbose=True,
+                 additional_info=None
                  ):
         """
 
@@ -41,28 +44,29 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         verbose: bool
             Print :class:`ModelRunner` environment.
         """
-        self.verbose = verbose
-        self.check_step = check_step
-        self.ctx = ctx
-        self.epochs = epochs
-        self.log_step = log_step
-        self.work_dir = work_dir
-        self.checker = None
-        self.model = None
-        self.model_name = None
-        self.loss_func = None
-        self.optim = None
-        self.lr = None
-        self.lr_scheduler = None
+        self._add_info = additional_info if additional_info else {}
+        self._verbose = verbose
+        self._check_step = check_step
+        self._ctx = ctx
+        self._epochs = epochs
+        self._log_step = log_step
+        self._work_dir = work_dir
+        self._checker = None
+        self._model = None
+        self._model_name = None
+        self._loss_func = None
+        self._optim = None
+        self._lr = None
+        self._lr_scheduler = None
 
     def __enter__(self):
-        if self.verbose:
+        if self._verbose:
             print('Runner environment:')
-            print('Running dir: {}'.format(self.work_dir))
-            print('Epochs: {}'.format(self.epochs))
-            print('Context: {}'.format(self.ctx.upper()))
-            print('Check step: {}'.format(self.check_step))
-            print('Log step: {}\n'.format(self.log_step))
+            print('Running dir: {}'.format(self._work_dir))
+            print('Epochs: {}'.format(self._epochs))
+            print('Context: {}'.format(self._ctx.upper()))
+            print('Check step: {}'.format(self._check_step))
+            print('Log step: {}\n'.format(self._log_step))
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -91,14 +95,14 @@ class ModelRunner(BaseEstimator, RegressorMixin):
             name = sig
         if init_weight:
             model.apply(_init_weight)
-        self.checker = Checker(name, self.work_dir)
-        self.model = model
-        self.model_name = name
-        self.loss_func = loss_func
-        self.optim = optim
-        self.lr = lr
-        self.lr_scheduler = lr_scheduler
-        self.checker(init_model=model)
+        self._checker = Checker(name, self._work_dir)
+        self._model = model
+        self._model_name = name
+        self._loss_func = loss_func
+        self._optim = optim
+        self._lr = lr
+        self._lr_scheduler = lr_scheduler
+        self._checker.init_model = model
 
     @staticmethod
     def _d2tv(data):
@@ -107,8 +111,51 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         elif isinstance(data, np.ndarray):
             data = tc.from_numpy(data).type(tc.FloatTensor)
         else:
-            raise ValueError('need to be <numpy.ndarray> or <pandas.DataFrame> but got {}'.format(type(data)))
+            raise TypeError('need to be <numpy.ndarray> or <pandas.DataFrame> but got {}'.format(type(data)))
         return Var(data, requires_grad=False)
+
+    def _train(self, x_train, y_train):
+        stopwatch = Stopwatch()
+        # optimization
+        optim = self._optim(self._model.parameters(), lr=self._lr)
+
+        # adjust learning rate
+        scheduler = self._lr_scheduler(optim) if self._lr_scheduler else None
+
+        # start
+        loss, y_pred = None, None
+        print('=======start training=======')
+        print('Model name: {}\n'.format(self._model_name))
+
+        for t in range(self._epochs):
+            if scheduler and not isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
+                scheduler.step()
+            y_pred = self._model(x_train)
+            loss = self._loss_func(y_pred, y_train)
+            if scheduler and isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
+                scheduler.step(loss)
+            optim.zero_grad()
+            loss.backward()
+            optim.step()
+
+            if self._log_step > 0 and t % self._log_step == 0:
+                print('at step[{}/{}], Loss={:.4f}, elapsed time: {}'.format(t, self._epochs,
+                                                                             loss.data[0],
+                                                                             stopwatch.count))
+            if self._check_step > 0 and t % self._check_step == 0:
+                self._checker(model_state=self._model.state_dict(),
+                              epochs=t,
+                              loss=loss.data[0],
+                              elapsed=stopwatch.count)
+
+        print('\n=======over training=======')
+        print('Final loss={:.4f}\n'.format(loss.data[0]))
+
+        # save last results
+        self._checker(model_state=self._model.state_dict(),
+                      epochs=self._epochs,
+                      loss=loss.data[0],
+                      elapsed=stopwatch.count)
 
     def fit(self, x_train, y_train):
         """
@@ -126,95 +173,65 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         self:
             returns an instance of self.
         """
-        self.checker(x_train=x_train, y_train=y_train)
+        self._checker.train_data(x_train=x_train, y_train=y_train)
 
         # transform to torch tensor
         x_train = self._d2tv(x_train)
         y_train = self._d2tv(y_train)
 
         # if use CUDA acc
-        if self.ctx.lower() == 'gpu':
+        if self._ctx.lower() == 'gpu':
             if tc.cuda.is_available():
-                self.model.cuda()
+                self._model.cuda()
                 x_train = x_train.cuda()
                 y_train = y_train.cuda()
             else:
                 warn('No cuda environment, use cpu fallback.', RuntimeWarning)
         else:
-            self.model.cpu()
-
-        # optimization
-        optim = self.optim(self.model.parameters(), lr=self.lr)
-
-        # adjust learning rate
-        scheduler = None
-        if self.lr_scheduler is not None:
-            scheduler = self.lr_scheduler(optim)
+            self._model.cpu()
 
         # train
-        loss, y_pred = None, None
-        print('=======start training=======')
-        print('Model name: {}\n'.format(self.model_name))
-        for t in range(self.epochs):
-            if scheduler and not isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
-                scheduler.step()
-            y_pred = self.model(x_train)
-            loss = self.loss_func(y_pred, y_train)
-            if scheduler and isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
-                scheduler.step(loss)
-            optim.zero_grad()
-            loss.backward()
-            optim.step()
-
-            if self.log_step > 0 and t % self.log_step == 0:
-                print('at step[{}/{}], Loss={:.4f}'.format(t, self.epochs, loss.data[0]))
-            if self.check_step > 0 and t % self.check_step == 0:
-                self.checker(model_state=self.model.state_dict(),
-                             epochs=t,
-                             loss=loss.data[0])
-
-        print('\nFinal loss={:.4f}'.format(loss.data[0]))
-        print('=======over training=======\n')
+        self._train(x_train, y_train)
 
         # move back to cpu
-        self.model.cpu()
+        self._model.cpu()
+        self._checker.trained_model = self._model
+        self._checker.describe = dict(self._add_info,
+                                      structure=str(self._model),
+                                      running_at=self._work_dir,
+                                      created_at=dt.now().strftime('-%Y-%m-%d_%H-%M-%S_%f'))
 
-        # save last results
-        self.checker(model_state=self.model.state_dict(),
-                     epochs=self.epochs,
-                     loss=loss.data[0],
-                     trained_model=self.model)
         return self
 
     def predict(self, x_test, y_test):
-        self.checker(x_test=x_test, y_test=y_test)
         # prepare x
         x_test = self._d2tv(x_test)
 
         # if use CUDA acc
-        if self.ctx.lower() == 'gpu':
+        if self._ctx.lower() == 'gpu':
             if tc.cuda.is_available():
-                self.model.cuda()
+                self._model.cuda()
                 x_test = x_test.cuda()
             else:
                 warn('No cuda environment, use cpu fallback.', RuntimeWarning)
         else:
-            self.model.cpu()
+            self._model.cpu()
         # prediction
-        y_true, y_pred = y_test.ravel(), self.model(x_test).cpu().data.numpy().ravel()
+        y_true, y_pred = y_test.ravel(), self._model(x_test).cpu().data.numpy().ravel()
         # move back to cpu
-        self.model.cpu()
+        self._model.cpu()
 
         mae = mean_absolute_error(y_true, y_pred)
         r2 = r2_score(y_true, y_pred)
         pr, p_val = pearsonr(y_true, y_pred)
-        self.checker(summary={'layers': str(self.model),
-                              'name': self.checker.name,
-                              'mae': mae,
-                              'r2': r2,
-                              'pearsonr': pr,
-                              'p-value': p_val})
-
+        self._checker.add_predict(
+            x_test=x_test,
+            y_test=y_test,
+            y_pred=y_pred,
+            mae=mae,
+            r2=r2,
+            pearsonr=pr,
+            p_value=p_val)
         return y_true, y_pred
 
     def from_checkpoint(self, fname):
@@ -232,5 +249,5 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         kwargs: dict
             Additional description
         """
-        val = dict(model=self.model, **kwargs)
+        val = dict(model=self._model, **kwargs)
         joblib.dump(val, fpath)

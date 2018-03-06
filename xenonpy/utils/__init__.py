@@ -2,6 +2,5 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-from .datatools import Loader, Saver
-from .env import set_env, expand_path
-from .itertools import Product
+from .datatools import Loader, DataSet
+from .functional import set_env, absolute_path, Stopwatch, Product

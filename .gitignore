@@ -107,3 +107,4 @@ tags
 .idea/
 .vscode/
 pyinstrument
+.pytest_cache/

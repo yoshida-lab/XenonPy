@@ -12,18 +12,10 @@ xenonpy.utils.datatools module
     :undoc-members:
     :show-inheritance:
 
-xenonpy.utils.env module
-------------------------
+xenonpy.utils.functional module
+-------------------------------
 
-.. automodule:: xenonpy.utils.env
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-xenonpy.utils.itertools module
-------------------------------
-
-.. automodule:: xenonpy.utils.itertools
+.. automodule:: xenonpy.utils.functional
     :members:
     :undoc-members:
     :show-inheritance:

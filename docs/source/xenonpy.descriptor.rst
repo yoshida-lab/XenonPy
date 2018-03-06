@@ -4,6 +4,14 @@ xenonpy.descriptor package
 Submodules
 ----------
 
+xenonpy.descriptor.base module
+------------------------------
+
+.. automodule:: xenonpy.descriptor.base
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xenonpy.descriptor.element module
 ---------------------------------
 

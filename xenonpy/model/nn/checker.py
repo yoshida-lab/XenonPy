@@ -25,7 +25,7 @@ class Checker(DataSet):
     Check point.
     """
 
-    def __init__(self, name, path=None):
+    def __init__(self, name, path=None, *, increment=True):
         """
         Parameters
         ----------
@@ -39,12 +39,19 @@ class Checker(DataSet):
         if path is None:
             path = get_data_loc('usermodel')
 
-        i = 1
-        while Path(path + '/' + name + '@' + str(i)).exists():
-            i += 1
-        _fpath = Path(path + '/' + name + '@' + str(i))
+        if increment:
+            i = 1
+            while Path(path + '/' + name + '@' + str(i)).exists():
+                i += 1
+            _fpath = Path(path + '/' + name + '@' + str(i))
+        else:
+            _fpath = Path(path) / name
         self._name = _fpath.stem
         super().__init__(self._name, path=path, backend=_SL())
+
+    @classmethod
+    def from_checkpoint(cls, name, path=None):
+        return cls(name, path, increment=False)
 
     @property
     def describe(self):
@@ -169,4 +176,4 @@ class Checker(DataSet):
         raise TypeError('except int as checkpoint index but got {}'.format(type(item)))
 
     def __call__(self, **kwargs):
-        super().checkpoints(kwargs)
+        self.checkpoints(kwargs)

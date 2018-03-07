@@ -20,8 +20,10 @@ def get_conf(key: str):
     object
         key value in ``conf.yml`` file.
     """
-    import yaml
+    from ruamel.yaml import YAML
     from pathlib import Path
+    yaml = YAML(typ='safe')
+    yaml.indent(mapping=2, sequence=4, offset=2)
     home = Path.home()
     dir_ = home / __cfg_root__
     cfg_file = dir_ / 'conf.yml'
@@ -55,7 +57,7 @@ def get_dataset_url(name: str):
     str
         binary file url.
     """
-    return 'https://github.com/' + __github_username__ + '/dataset/releases/download/v0.1' + '/' + name + '.pkl'
+    return 'https://github.com/' + __github_username__ + '/dataset/releases/download/v0.1' + '/' + name + '.pkl.pd_'
 
 
 def get_data_loc(name):

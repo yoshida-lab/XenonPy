@@ -3,4 +3,4 @@
 # license that can be found in the LICENSE file.
 
 from .datatools import Loader, DataSet
-from .functional import set_env, absolute_path, Stopwatch, Product
+from .functional import set_env, absolute_path, Stopwatch, Product, get_sha256

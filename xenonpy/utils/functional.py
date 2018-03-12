@@ -112,3 +112,25 @@ class Product(object):
 
     def __len__(self):
         return self.size
+
+
+def get_sha256(fname):
+    """
+    Calculate file's sha256 value
+
+    Parameters
+    ----------
+    fname: str
+        File name.
+
+    Returns
+    -------
+    str
+        sha256 value.
+    """
+    from hashlib import sha256
+    hasher = sha256()
+    with open(fname, "rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()

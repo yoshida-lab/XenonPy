@@ -57,7 +57,7 @@ def get_dataset_url(name: str):
     str
         binary file url.
     """
-    return 'https://github.com/' + __github_username__ + '/dataset/releases/download/v0.1' + '/' + name + '.pkl.pd_'
+    return 'https://github.com/' + __github_username__ + '/dataset/releases/download/v0.1.1' + '/' + name + '.pkl.pd_'
 
 
 def get_data_loc(name):

@@ -42,6 +42,14 @@ class Sequential(Sq):
 
     @property
     def md5(self):
+        """
+        Property of MD5 value calculate from layer structure.
+
+        Returns
+        -------
+        str
+            MD5 value
+        """
         return md5(str(self).encode()).hexdigest()
 
     def __getitem__(self, idx):

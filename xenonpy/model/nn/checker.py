@@ -55,11 +55,14 @@ class Checker(DataSet):
     @property
     def describe(self):
         """
-        Get description of this model
+        Model's description.
+        This is a property with getter/setter.
+        This action don't overwrite anything but add a new object.
 
         Returns
         -------
         dict
+            Description.
         """
         return self.last('describe')
 
@@ -67,7 +70,6 @@ class Checker(DataSet):
     def describe(self, description):
         """
         Set description.
-        This action don't overwrite but add a new object.
 
         Parameters
         ----------
@@ -88,11 +90,14 @@ class Checker(DataSet):
     @property
     def init_model(self):
         """
-        Get last appended initial model.
+        Last appended initial model.
+        This is a property with getter/setter.
+        This action don't overwrite anything but add a new object.
 
         Returns
         -------
-        model
+        model:
+            The last appended model.
         """
         return self.last('init_model')
 
@@ -114,11 +119,14 @@ class Checker(DataSet):
     @property
     def trained_model(self):
         """
-        Get last appended pre-trained model.
+        Last appended pre-trained model.
+        This is a property with getter/setter.
+        This action don't overwrite anything but add a new object.
 
         Returns
         -------
-        model
+        model:
+            The last appended model.
         """
         return self.last('trained_model')
 
@@ -126,7 +134,6 @@ class Checker(DataSet):
     def trained_model(self, model):
         """
         Set pre-trained model
-        This action don't overwrite but add a new object.
 
         Parameters
         ----------

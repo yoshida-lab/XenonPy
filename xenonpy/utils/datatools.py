@@ -14,11 +14,13 @@ from warnings import warn
 
 import pandas as pd
 import requests
+from ruamel.yaml import YAML
 from sklearn.externals import joblib
 
 from .functional import absolute_path
+from .functional import get_sha256
 from .. import __cfg_root__
-from .._conf import get_dataset_url, get_data_loc
+from .._conf import get_dataset_url, get_data_loc, get_conf
 
 
 class Loader(object):
@@ -47,11 +49,19 @@ class Loader(object):
         ...
     """
 
+    # dataset = (
+    #     'elements', 'elements_completed', 'mp_inorganic',
+    #     'electron_density', 'sample_A', 'mp_structure'
+    # )
     dataset = (
-        'elements', 'elements_completed', 'mp_inorganic',
-        'electron_density', 'sample_A', 'mp_structure'
+        'elements', 'elements_completed', 'mp_inorganic', 'mp_structure'
     )
     # set to check params
+
+    _dataset_dir = Path().home() / __cfg_root__ / 'dataset'
+    _cached_dir = Path().home() / __cfg_root__ / 'cached'
+    _yaml = YAML(typ='safe')
+    _yaml.indent(mapping=2, sequence=4, offset=2)
 
     def __init__(self, location=None):
         """
@@ -63,10 +73,8 @@ class Loader(object):
             None(default) means to load data in ``~/.xenonpy/cached`` or ``~/.xenonpy/dataset`` dir.
             When given as url, later can be uesd to fetch files under this url from http-request.
         """
-        self.location = location
-        self.type = self._select(location)
-        self.dataset_dir = Path().home() / __cfg_root__ / 'dataset'
-        self.cached_dir = Path().home() / __cfg_root__ / 'cached'
+        self._location = location
+        self._type = self._select(location)
 
     def _select(self, loc):
         if loc is None:
@@ -78,7 +86,7 @@ class Loader(object):
         # local
         scheme = urlparse(loc).scheme
         if scheme is '':
-            self.location = absolute_path(loc)
+            self._location = absolute_path(loc)
             return 'user_loc'
 
         # http
@@ -88,7 +96,8 @@ class Loader(object):
 
         raise ValueError('can not parse location {}'.format(loc))
 
-    def _http_data(self, url, params=None, save_to=None, **kwargs):
+    @classmethod
+    def _http_data(cls, url, params=None, save_to=None, **kwargs):
         r = requests.get(url, params, **kwargs)
         r.raise_for_status()
 
@@ -98,7 +107,7 @@ class Loader(object):
             filename = url.split('/')[-1]
 
         if save_to is None:
-            save_to = str(self.cached_dir / filename)
+            save_to = str(cls._cached_dir / filename)
         with open(save_to, 'wb') as f:
             for chunk in r.iter_content(chunk_size=256 * 1024):
                 if chunk:  # filter out keep-alive new chunks
@@ -142,36 +151,71 @@ class Loader(object):
                 if ignore_err:
                     return None
                 else:
-                    raise ValueError('need `{}` but got None'.format(key))
+                    raise KeyError('no key `{}` in **kwargs'.format(key))
 
-        if self.type == 'local':
+        if self._type == 'local':
             data = _get_data('data')
             if data in self.dataset:
-                dataset = self.dataset_dir / (data + '.pkl.pd_')
+                dataset = self._dataset_dir / (data + '.pkl.pd_')
+                sha256_file = self._dataset_dir / 'sha256.yml'
+
                 # fetch data from source if not in local
                 if not dataset.exists():
-                    self._http_data(get_dataset_url(data), save_to=str(dataset))
+                    url = get_dataset_url(data)
+                    print('fetching dataset `{}` from {} because of none or old'.format(data, url))
+                    print('you can download it manually from this url'
+                          'then put it under `~/.xenonpy/dataset/`')
+                    self._http_data(url, save_to=str(dataset))
+
+                # check sha256 value
+                sha256_file.touch()  # make sure sha256_file file exist.
+                sha256 = self._yaml.load(sha256_file)
+                if sha256 is None:
+                    sha256 = {}
+                if data not in sha256:
+                    sha256_ = get_sha256(str(dataset))
+                    sha256[data] = sha256_
+                    self._yaml.dump(sha256, sha256_file)
+                else:
+                    sha256_ = sha256[data]
+
+                if sha256_ != get_conf(data):
+                    warn('local data {} is different from the repository version.\n'
+                         'use `load(data, sync=True)` to fix it.'.format(data), RuntimeWarning)
+                    if _get_data('sync', ignore_err=True):
+                        url = get_dataset_url(data)
+                        print('fetching dataset `{}` from {} because of none or old'.format(data, url))
+                        print('you can download it manually from this url'
+                              'then put it under `~/.xenonpy/dataset/`')
+                        self._http_data(url, save_to=str(dataset))
+                        sha256_ = get_sha256(str(dataset))
+                        sha256[data] = sha256_
+                        self._yaml.dump(sha256, sha256_file)
+                        
+                # return preset data
                 return pd.read_pickle(str(dataset))
+
+            # return user local data
             return DataSet(data, ignore_err=False)
 
-        if self.type == 'user_local':
+        if self._type == 'user_local':
             data = _get_data('data')
-            return DataSet(data, path=self.location, ignore_err=False)
+            return DataSet(data, path=self._location, ignore_err=False)
 
-        if self.type == 'http':
+        if self._type == 'http':
             data = _get_data('data', ignore_err=True)
             params = _get_data('params', ignore_err=True)
             kwargs['stream'] = True
-            url = urljoin(self.location, data)
+            url = urljoin(self._location, data)
             return self._http_data(url, params=params, **kwargs)
 
         raise ValueError('can not fetch data')
 
     def _get_prop(self, name):
-        tmp = self.type
-        self.type = 'local'
+        tmp = self._type
+        self._type = 'local'
         ret = self(name)
-        self.type = tmp
+        self._type = tmp
         return ret
 
     @property
@@ -193,6 +237,35 @@ class Loader(object):
             element properties in pd.DataFrame
         """
         return self._get_prop('elements')
+
+    @property
+    def mp_inorganic(self):
+        """
+        Inorganic properties summarized from `Materials Projects`_.
+
+        .. _Materials Projects: https://www.materialsproject.org/
+
+        Returns
+        -------
+        DataFrame:
+            Properties in pd.DataFrame
+        """
+        return self._get_prop('mp_inorganic')
+
+    @property
+    def mp_structure(self):
+        """
+        Inorganic structures summarized from `Materials Projects`_.
+
+        .. _Materials Projects: https://www.materialsproject.org/
+
+        Returns
+        -------
+        DataFrame:
+            Structures as dict that can be loaded by pymatgen.
+        """
+        # return self._get_prop('mp_structure')
+        raise NotImplementedError()
 
     @property
     def elements_completed(self):

@@ -50,16 +50,14 @@ def _init(force=False):
     if not user_cfg_file.exists() or force:
         copyfile(str(Path(__file__).parent / 'conf.yml'), str(user_cfg_file))
     else:
-        with open(str(user_cfg_file), 'r') as f:
-            user_cfg = yaml.load(f)
+        user_cfg = yaml.load(user_cfg_file)
         if 'version' not in user_cfg or user_cfg['version'] != __version__:
             with open(str(Path(__file__).parent / 'conf.yml'), 'r') as f:
                 pack_cfg = yaml.load(f)
             pack_cfg['userdata'] = user_cfg['userdata']
             pack_cfg['usermodel'] = user_cfg['usermodel']
             pack_cfg['model_extern_backend'] = user_cfg['model_extern_backend']
-            with open(str(user_cfg_file), 'w') as f:
-                yaml.dump(pack_cfg, f)
+            yaml.dump(pack_cfg, user_cfg_file)
 
     # init dirs
     dataset_dir = root_dir / 'dataset'

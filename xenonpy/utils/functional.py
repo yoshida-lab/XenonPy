@@ -9,6 +9,10 @@ from pathlib import Path
 
 import numpy as np
 from numpy import product
+from sklearn.base import BaseEstimator, TransformerMixin
+from scipy.stats import boxcox
+from pandas import DataFrame, Series
+from scipy.special import inv_boxcox
 
 
 @contextmanager
@@ -82,7 +86,8 @@ class Stopwatch(object):
 class Product(object):
     def __init__(self, *paras, repeat=1):
         if not isinstance(repeat, int):
-            raise ValueError('repeat must be int but got {}'.format(type(repeat)))
+            raise ValueError('repeat must be int but got {}'.format(
+                type(repeat)))
         lens = [len(p) for p in paras]
         if repeat > 1:
             lens = lens * repeat
@@ -134,3 +139,55 @@ def get_sha256(fname):
         for chunk in iter(lambda: f.read(65536), b""):
             hasher.update(chunk)
     return hasher.hexdigest()
+
+
+class BoxCox(BaseEstimator, TransformerMixin):
+    def __init__(self, shift=1e-9):
+        self._shift = shift
+        self._lmd = []
+        self._shape = None
+
+    def fit(self, X):
+        self._shape = X.shape
+        return self
+
+    def transform(self, X):
+        X = self._check_type(X)
+
+        columns = ()
+        for col in X.columns:
+            x, lmd = self._boxcox(X[col])
+            columns += (x.reshap(-1, 1), )
+            self._lmd.append(lmd)
+        X = np.concatenate(columns, axis=1)
+        return X
+
+    def _check_type(self, X):
+        if isinstance(X, (np.ndarray, Series, list)):
+            X = DataFrame(data=X)
+        if not isinstance(X, DataFrame):
+            raise TypeError(
+                'parameter `X` should be a `DataFrame`, `Series`, `ndarray` or list object'
+                'but got {}'.format(type(X)))
+        if X.shape != self._shape:
+            raise ValueError('parameter `X` should have shape {}'.format(
+                self._shape))
+        return X
+
+    def _boxcox(self, series):
+        if series.min() != series.max():
+            with np.errstate(all='raise'):
+                tmp = series - series.min() + self._shift
+                try:
+                    return boxcox(tmp)
+                except FloatingPointError:
+                    return series, None
+
+    def inverse_transform(self, X):
+        X = self._check_type(X)
+        columns = ()
+        for i, col in enumerate(X.columns):
+            x = inv_boxcox(X[col], self._lmd[i])
+            columns += (x.reshap(-1, 1), )
+        X = np.concatenate(columns, axis=1)
+        return X

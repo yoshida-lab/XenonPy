@@ -11,7 +11,7 @@ import torch
 
 from ... import __version__
 from ..._conf import get_data_loc
-from ...utils.datatools import DataSet
+from ...utils import DataSet
 
 
 class _SL(object):
@@ -76,11 +76,12 @@ class Checker(DataSet):
         description: dict
             Description in dict object.
         """
-        desc = dict(python=version(),
-                    system=system(),
-                    numpy=numpy.__version__,
-                    torch=torch.__version__,
-                    xenonpy=__version__)
+        desc = dict(
+            python=version(),
+            system=system(),
+            numpy=numpy.__version__,
+            torch=torch.__version__,
+            xenonpy=__version__)
         if isinstance(description, dict):
             desc = dict(desc, **description)
         else:
@@ -114,7 +115,9 @@ class Checker(DataSet):
         if isinstance(model, torch.nn.Module):
             super().__call__(init_model=model)
         else:
-            raise TypeError('except `torch.nn.Module` object but got {}'.format(type(model)))
+            raise TypeError(
+                'except `torch.nn.Module` object but got {}'.format(
+                    type(model)))
 
     @property
     def trained_model(self):
@@ -142,7 +145,9 @@ class Checker(DataSet):
         if isinstance(model, torch.nn.Module):
             super().__call__(trained_model=model)
         else:
-            raise TypeError('except `torch.nn.Module` object but got {}'.format(type(model)))
+            raise TypeError(
+                'except `torch.nn.Module` object but got {}'.format(
+                    type(model)))
 
     def train_data(self, x_train, y_train):
         """
@@ -179,7 +184,8 @@ class Checker(DataSet):
     def __getitem__(self, item):
         if isinstance(item, int):
             return self.checkpoints[item]
-        raise TypeError('except int as checkpoint index but got {}'.format(type(item)))
+        raise TypeError('except int as checkpoint index but got {}'.format(
+            type(item)))
 
     def __call__(self, **kwargs):
         self.checkpoints(kwargs)

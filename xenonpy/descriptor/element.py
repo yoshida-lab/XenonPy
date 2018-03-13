@@ -7,8 +7,7 @@ import pandas as pd
 from pymatgen import Composition
 from sklearn.base import TransformerMixin, BaseEstimator
 
-from ..utils.datatools import Loader
-
+from ..utils import Loader
 
 # from ..pipeline import combinator
 
@@ -23,14 +22,15 @@ class ElementDesc(BaseEstimator, TransformerMixin):
     """
 
     #: methods can be used to calculate descriptors.
-    methods = {'weighted_average', 'weighted_sum', 'weighted_variance', 'max', 'min'}
+    methods = {
+        'weighted_average', 'weighted_sum', 'weighted_variance', 'max', 'min'
+    }
 
     def __init__(self,
                  *methods: str,
                  elements=None,
                  comps_col: str = 'composition',
-                 verbose: bool = True
-                 ):
+                 verbose: bool = True):
         """
 
         Parameters
@@ -50,7 +50,7 @@ class ElementDesc(BaseEstimator, TransformerMixin):
             if not set(methods).issubset(self.methods):
                 raise ValueError(
                     'method(s) must be as "{:s}", left it None to use all'.
-                        format(', '.join(self.methods)))
+                    format(', '.join(self.methods)))
             self.methods = methods
 
         if elements:
@@ -78,7 +78,7 @@ class ElementDesc(BaseEstimator, TransformerMixin):
             w_nums = nums / np.sum(nums)
             e_mean = w_nums.dot(elems)
             cen_elems = elems - e_mean
-            return nums.dot(cen_elems ** 2)
+            return nums.dot(cen_elems**2)
 
         def max_(_, elems):
             return elems.max()

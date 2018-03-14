@@ -24,6 +24,6 @@ dependencies:
 - jupyter
 - pip:
   - pymonad
-  - pymatgen==2018.1.19
+  - pymatgen
   - matminer
   - ruamel.yaml

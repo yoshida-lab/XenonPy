@@ -1,10 +1,8 @@
 numpy
 pandas
 pymatgen
-matminer
 tqdm
 seaborn
-PyYAML
 scikit-learn
 scipy
 plotly

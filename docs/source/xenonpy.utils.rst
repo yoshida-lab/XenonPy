@@ -4,10 +4,10 @@ xenonpy.utils package
 Submodules
 ----------
 
-xenonpy.utils.batch module
---------------------------
+xenonpy.utils.config module
+---------------------------
 
-.. automodule:: xenonpy.utils.batch
+.. automodule:: xenonpy.utils.config
     :members:
     :undoc-members:
     :show-inheritance:
@@ -32,6 +32,14 @@ xenonpy.utils.loader module
 ---------------------------
 
 .. automodule:: xenonpy.utils.loader
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xenonpy.utils.math module
+-------------------------
+
+.. automodule:: xenonpy.utils.math
     :members:
     :undoc-members:
     :show-inheritance:

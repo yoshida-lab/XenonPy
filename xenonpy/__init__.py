@@ -3,19 +3,21 @@
 # license that can be found in the LICENSE file.
 
 # change version in there, conf.yml, setup.py
-__all__ = ['descriptor', 'model', 'utils', 'visualization']
+__all__ = ['descriptor', 'model', 'utils', 'visualization', 'preprocess']
+
+__version__ = '0.1.0b9'  # also change version in conf.yml
+__release__ = 'b9'
+__cfg_root__ = '.' + __name__
+
+from . import descriptor
+from . import model
+# from . import pipeline
+from . import preprocess
+from . import utils
+from . import visualization
 
 
-def _get_package_info(key):
-    import yaml
-    from pathlib import Path
-    cwd = Path(__file__).parent / 'conf.yml'
-    with open(str(cwd), 'r') as f:
-        info = yaml.load(f)
-    return info[key]
-
-
-def _init(force=False):
+def __init(force=False):
     """
     Create config file is not exist at ~/.xenonpy/conf.yml
 
@@ -32,7 +34,7 @@ def _init(force=False):
     from ruamel.yaml import YAML
     from sys import version_info
     from pathlib import Path
-    from ._conf import get_conf
+    from .utils import get_conf
 
     if version_info[0] != 3 or version_info[1] < 5:
         raise SystemError("Must be using Python 3.5 or 3.6")
@@ -72,22 +74,4 @@ def _init(force=False):
     user_model_dir.mkdir(parents=True, exist_ok=True)
 
 
-__version__ = _get_package_info('version')
-__release__ = _get_package_info('release')
-__short_description__ = _get_package_info('short_description')
-__license__ = _get_package_info('license')
-__author__ = _get_package_info('author')
-__author_email__ = _get_package_info('author_email')
-__maintainer__ = _get_package_info('maintainer')
-__maintainer_email__ = _get_package_info('maintainer_email')
-__github_username__ = _get_package_info('github_username')
-__cfg_root__ = '.' + __name__
-
-from . import descriptor
-from . import model
-# from .pipeline import *
-# from .preprocess import *
-from . import utils
-from . import visualization
-
-_init()
+__init()

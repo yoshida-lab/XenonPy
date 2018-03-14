@@ -10,8 +10,7 @@ import pandas
 import torch
 
 from ... import __version__
-from ..._conf import get_data_loc
-from ...utils import DataSet
+from ...utils import get_data_loc, DataSet
 
 
 class _SL(object):

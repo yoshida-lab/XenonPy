@@ -3,10 +3,11 @@
 # license that can be found in the LICENSE file.
 
 __all__ = [
-    'DataSet', 'Loader', 'set_env', 'absolute_path', 'Stopwatch', 'Product',
-    'BoxCox', 'Batch'
+    'DataSet', 'Loader', 'set_env', 'absolute_path', 'Stopwatch', 'Product', 'get_sha256', 'get_data_loc', 'get_conf',
+    'get_dataset_url'
 ]
+from .config import set_env, get_dataset_url, get_conf, get_data_loc
 from .dataset import DataSet
+from .functional import absolute_path, Stopwatch, get_sha256
 from .loader import Loader
-from .batch import Batch
-from .functional import set_env, absolute_path, Stopwatch, Product, BoxCox, get_sha256
+from .math import Product

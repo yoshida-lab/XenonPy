@@ -14,7 +14,7 @@ from warnings import warn
 import pandas as pd
 from sklearn.externals import joblib
 
-from .._conf import get_data_loc
+from .config import get_data_loc
 from .functional import absolute_path
 
 

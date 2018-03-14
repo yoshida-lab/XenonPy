@@ -10,10 +10,10 @@ import pandas as pd
 import requests
 from ruamel.yaml import YAML
 
-from .. import __cfg_root__
-from .._conf import get_conf, get_dataset_url
+from .config import get_conf, get_dataset_url
 from .dataset import DataSet
 from .functional import absolute_path, get_sha256
+from .. import __cfg_root__
 
 
 class Loader(object):

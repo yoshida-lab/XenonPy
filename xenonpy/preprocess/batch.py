@@ -4,13 +4,14 @@
 
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-from .functional import BoxCox
+from .transform import BoxCox
 
 
-class __Valuer(object):
-    def __init__(self, Value):
-        self.__value = Value
-        self.__now = Value
+class _Valuer(object):
+    def __init__(self, value):
+        self.__value = value
+        self.__now = value
+        self._test = None
         self.__inverse_chain = []
 
     @property
@@ -38,6 +39,11 @@ class __Valuer(object):
     def value(self):
         return self.__now
 
+    @property
+    def test(self):
+        return self.__now.loc[self._test, :]
+
+    # fixme: from here
     def inverse(self, data):
         for inv in self.__inverse_chain[::-1]:
             data = inv(data)
@@ -56,3 +62,9 @@ class Batch(object):
         self._x = x
         self._y = y
         self._describe = describe
+
+    def sort_property(self, ascend=False):
+        raise NotImplementedError()
+
+    def split(self, test_rate=0.2):
+        raise NotImplementedError()

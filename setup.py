@@ -8,10 +8,13 @@
 # from __future__ import print_function
 
 import os
+from pathlib import Path
+
+from ruamel.yaml import YAML
 from setuptools import setup, find_packages
 
-# --- import your package ---
-import xenonpy as package
+# YOUR PACKAGE NAME
+__package__ = 'xenonpy'
 
 
 def get_requirements(filename: str):
@@ -43,54 +46,68 @@ def get_requirements(filename: str):
     return require
 
 
+class Package(object):
+    def __init__(self):
+        self.__info = None
+        self.__name__ = __package__
+        self.__version__ = self.get_info('version')
+        self.__short_description__ = self.get_info('short_description')
+        self.__license__ = self.get_info('license')
+        self.__author__ = self.get_info('author')
+        self.__author_email__ = self.get_info('author_email')
+        self.__maintainer__ = self.get_info('maintainer')
+        self.__maintainer_email__ = self.get_info('maintainer_email')
+        self.__github_username__ = self.get_info('github_username')
+        try:
+            self.__long_description__ = open("README.rst", "rb").read().decode("utf-8")
+        except FileNotFoundError:
+            self.__long_description__ = "No long description!"
+
+    def get_info(self, key):
+        if not self.__info:
+            yaml = YAML(typ='safe')
+            yaml.indent(mapping=2, sequence=4, offset=2)
+            cwd = Path(__file__).parent / __package__ / 'conf.yml'
+            with open(str(cwd), 'r') as f:
+                self.__info = yaml.load(f)
+        try:
+            return self.__info[key]
+        except KeyError:
+            return 'No <' + key + '>'
+
+    def __getattr__(self, item: str):
+        item = item.strip('_')
+        return 'No <' + item + '>'
+
+
 if __name__ == "__main__":
     # --- Automatically generate setup parameters ---
+    package = Package()
+    
     # Your package name
     PKG_NAME = package.__name__
 
     # Your GitHub user name
-    try:
-        GITHUB_USERNAME = package.__github_username__
-    except ImportError:
-        GITHUB_USERNAME = "Unknown-Github-Username"
+    GITHUB_USERNAME = package.__github_username__
 
     # Short description will be the description on PyPI
-    try:
-        SHORT_DESCRIPTION = package.__short_description__  # GitHub Short Description
-    except ImportError:
-        print("'__short_description__' not found in '%s.__init__.py'!" %
-              PKG_NAME)
-        SHORT_DESCRIPTION = "No short description!"
+    SHORT_DESCRIPTION = package.__short_description__  # GitHub Short Description
 
     # Long description will be the body of content on PyPI page
-    try:
-        LONG_DESCRIPTION = open("README.rst", "rb").read().decode("utf-8")
-    except FileNotFoundError:
-        LONG_DESCRIPTION = "No long description!"
+    LONG_DESCRIPTION = package.__long_description__
 
     # Version number, VERY IMPORTANT!
-    VERSION = package.__version__ + package.__release__
+    VERSION = package.__version__
 
     # Author and Maintainer
-    try:
-        AUTHOR = package.__author__
-    except ImportError:
-        AUTHOR = "Unknown"
+    AUTHOR = package.__author__
 
-    try:
-        AUTHOR_EMAIL = package.__author_email__
-    except ImportError:
-        AUTHOR_EMAIL = None
+    # Author email
+    AUTHOR_EMAIL = package.__author_email__
 
-    try:
-        MAINTAINER = package.__maintainer__
-    except ImportError:
-        MAINTAINER = "Unknown"
+    MAINTAINER = package.__maintainer__
 
-    try:
-        MAINTAINER_EMAIL = package.__maintainer_email__
-    except ImportError:
-        MAINTAINER_EMAIL = None
+    MAINTAINER_EMAIL = package.__maintainer_email__
 
     PACKAGES, INCLUDE_PACKAGE_DATA, PACKAGE_DATA, PY_MODULES = (
         None,
@@ -153,8 +170,9 @@ if __name__ == "__main__":
     ]
 
     # Read requirements.txt, ignore comments
-    REQUIRES = get_requirements("requirements.txt")
-
+    INSTALL_REQUIRES = get_requirements("requirements.txt")
+    SETUP_REQUIRES = ['pytest-runner', 'ruamel.yaml']
+    TESTS_REQUIRE = ['pytest']
     setup(
         name=PKG_NAME,
         description=SHORT_DESCRIPTION,
@@ -173,8 +191,9 @@ if __name__ == "__main__":
         classifiers=CLASSIFIERS,
         platforms=PLATFORMS,
         license=LICENSE,
-        setup_requires=REQUIRES,
-        install_requires=REQUIRES)
+        setup_requires=SETUP_REQUIRES,
+        install_requires=INSTALL_REQUIRES,
+        tests_require=TESTS_REQUIRE)
 """
 Appendix
 --------

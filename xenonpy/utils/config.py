@@ -3,7 +3,55 @@
 # license that can be found in the LICENSE file.
 
 
-from . import __github_username__, __cfg_root__
+from contextlib import contextmanager
+from os import getenv
+from pathlib import Path
+
+from ruamel.yaml import YAML
+
+from .. import __cfg_root__
+
+
+@contextmanager
+def set_env(**kwargs):
+    """
+    Set temp environment variable with ``with`` statement.
+
+    Examples
+    --------
+    >>> import os
+    >>> with set_env(test='test env'):
+    >>>    print(os.getenv('test'))
+    test env
+    >>> print(os.getenv('test'))
+    None
+
+    Parameters
+    ----------
+    kwargs: dict
+        Dict with string value.
+    """
+    import os
+
+    tmp = dict()
+    for k, v in kwargs.items():
+        tmp[k] = os.getenv(k)
+        os.environ[k] = v
+    yield
+    for k, v in tmp.items():
+        if not v:
+            del os.environ[k]
+        else:
+            os.environ[k] = v
+
+
+def __get_package_info(key):
+    yaml = YAML(typ='safe')
+    yaml.indent(mapping=2, sequence=4, offset=2)
+    cwd = Path(__file__).parents[1] / 'conf.yml'
+    with open(str(cwd), 'r') as f:
+        info = yaml.load(f)
+    return info[key]
 
 
 def get_conf(key: str):
@@ -20,8 +68,6 @@ def get_conf(key: str):
     object
         key value in ``conf.yml`` file.
     """
-    from ruamel.yaml import YAML
-    from pathlib import Path
     yaml = YAML(typ='safe')
     yaml.indent(mapping=2, sequence=4, offset=2)
     home = Path.home()
@@ -57,13 +103,12 @@ def get_dataset_url(name: str):
     str
         binary file url.
     """
-    return 'https://github.com/' + __github_username__ + '/dataset/releases/download/v0.1.1' + '/' + name + '.pkl.pd_'
+    username = __get_package_info('github_username')
+    return 'https://github.com/' + username + '/dataset/releases/download/v0.1.1' + '/' + name + '.pkl.pd_'
 
 
 def get_data_loc(name):
     """Return user data location"""
-    from os import getenv
-    from pathlib import Path
 
     scheme = ('userdata', 'usermodel')
     if name not in scheme:

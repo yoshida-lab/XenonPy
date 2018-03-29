@@ -6,12 +6,12 @@ import re
 from collections import defaultdict
 from datetime import datetime as dt
 from os import remove
-from os.path import getmtime
 from pathlib import Path
 from shutil import rmtree
 from warnings import warn
 
 import pandas as pd
+from os.path import getmtime
 from sklearn.externals import joblib
 
 from .config import get_data_loc
@@ -180,9 +180,12 @@ class DataSet(object):
         ret:any python object
             Data stored in `*.pkl` file.
         """
-        if name is None:
-            return self._load_data(self._files['unnamed'][-1])
-        return self._load_data(self._files[name][-1])
+        try:
+            if name is None:
+                return self._load_data(self._files['unnamed'][-1])
+            return self._load_data(self._files[name][-1])
+        except IndexError:
+            raise FileNotFoundError('no data under dataset {}.'.format(self._name))
 
     def rm(self, index, name: str = None):
         """

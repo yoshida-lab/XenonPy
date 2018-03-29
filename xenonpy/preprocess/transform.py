@@ -8,6 +8,8 @@ from scipy.special import inv_boxcox
 from scipy.stats import boxcox
 from sklearn.base import BaseEstimator, TransformerMixin
 
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+
 
 class BoxCox(BaseEstimator, TransformerMixin):
     """
@@ -75,7 +77,10 @@ class BoxCox(BaseEstimator, TransformerMixin):
                 try:
                     return boxcox(tmp)
                 except FloatingPointError:
-                    return series, None
+                    return boxcox(tmp, 0.), 0.
+        self._min.append(series.min())
+        tmp = series - series.min() + self._shift
+        return boxcox(tmp, 0.), 0.
 
     def inverse_transform(self, x):
         """
@@ -97,3 +102,47 @@ class BoxCox(BaseEstimator, TransformerMixin):
             x_ = inv_boxcox(x[col], self._lmd[i]) - self._shift + self._min[i]
             df[col] = x_
         return df
+
+
+class Scaler(object):
+    """
+    A value-matrix container for data transform.
+    """
+
+    def __init__(self, value):
+        """
+        Parameters
+        ----------
+        value: DataFrame
+            Inner data.
+        """
+        self.__value = value
+        self.__now = value
+        self.__inverse_chain = []
+
+    def box_cox(self, *args, **kwargs):
+        return self._scale(BoxCox, *args, **kwargs)
+
+    def min_max(self, *args, **kwargs):
+        return self._scale(MinMaxScaler, *args, **kwargs)
+
+    def standard_scale(self, *args, **kwargs):
+        return self._scale(StandardScaler, *args, **kwargs)
+
+    def _scale(self, scaler, *args, **kwargs):
+        scaler = scaler(*args, **kwargs)
+        self.__now = scaler.fit_transform(self.__now)
+        self.__inverse_chain.append(scaler.inverse_transform)
+        return self
+
+    @property
+    def value(self):
+        return DataFrame(self.__now, index=self.__value.index, columns=self.__value.columns)
+
+    def inverse(self, data):
+        for inv in self.__inverse_chain[::-1]:
+            data = inv(data)
+        return data
+
+    def reset(self):
+        self.__now = self.__value

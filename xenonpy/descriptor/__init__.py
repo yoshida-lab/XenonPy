@@ -4,4 +4,4 @@
 
 
 from .element import ElementDesc
-# from .pdf import PDFDesc
+from .pdf import PDFDesc

@@ -15,7 +15,6 @@ dependencies:
 - scikit-learn
 - scipy
 - pytorch
-- pyyaml
 - pytest
 - pytest-cov
 - pylint
@@ -25,5 +24,4 @@ dependencies:
 - pip:
   - pymonad
   - pymatgen
-  - matminer
   - ruamel.yaml

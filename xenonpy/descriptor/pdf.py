@@ -2,9 +2,10 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
+from operator import itemgetter
+
 import numpy as np
 import pandas as pd
-from matminer.featurizers.structure import RadialDistributionFunction
 from sklearn.base import BaseEstimator, TransformerMixin
 
 
@@ -44,9 +45,7 @@ class PDFDesc(BaseEstimator, TransformerMixin):
         self.r_max = r_max
         self.dr = r_max / (n_grid - 1)
         self.interval = np.arange(0, r_max + self.dr, self.dr)
-        self.rdf = RadialDistributionFunction(r_max, self.dr)
         self.verbose = verbose
-        self.pdfs = None
 
     def fit(self, structures):
         """
@@ -85,12 +84,36 @@ class PDFDesc(BaseEstimator, TransformerMixin):
             ret = pd.DataFrame(
                 np.array(ret), index=structures.index, columns=self.interval)
 
-        self.pdfs = ret
         return ret
 
-    def _pdf(self, s):
-        _, rdf = self.rdf(s)[0]
-        pass
+    def pdf(self, s):
+        """
+        Get RDF of the input structure.
+        Args:
+            s: Pymatgen Structure object.
+        Returns:
+            rdf, dist: (tuple of arrays) the first element is the
+                    normalized RDF, whereas the second element is
+                    the inner radius of the RDF bin.
+        """
+        if not s.is_ordered:
+            raise ValueError("Disordered structure support not built yet")
+
+        # Get the distances between all atoms
+        neighbors_lst = s.get_all_neighbors(self.r_max)
+        all_distances = np.concatenate(
+            tuple(map(lambda x: [itemgetter(1)(e) for e in x], neighbors_lst)))
+
+        # Compute a histogram
+        dist_hist, dist_bins = np.histogram(
+            all_distances, bins=np.arange(
+                0, self.r_max + self.dr, self.dr), density=False)
+
+        # Normalize counts
+        shell_vol = 4.0 / 3.0 * np.pi * (np.power(
+            dist_bins[1:], 3) - np.power(dist_bins[:-1], 3))
+        number_density = s.num_sites / s.volume
+        return dist_hist / shell_vol / number_density
 
     def to_csv(self, file: str):
         """

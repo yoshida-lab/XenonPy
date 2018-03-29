@@ -2,7 +2,6 @@ name: xepy35
 channels:
 - defaults
 - pytorch
-- matsci
 dependencies:
 - python=3.5
 - numpy
@@ -14,7 +13,7 @@ dependencies:
 - plotly
 - scikit-learn
 - scipy
-- pytorch
+- pytorch-cpu
 - pytest
 - pytest-cov
 - pylint

@@ -145,7 +145,7 @@ class Scaler(object):
 
     @property
     def value(self):
-        return DataFrame(self.__now, index=self.__value.index, columns=self.__value.columns)
+        return DataFrame(data=self.__now.values, index=self.__value.index, columns=self.__value.columns)
 
     def inverse(self, data):
         if len(self.__inverse_chain) == 0:

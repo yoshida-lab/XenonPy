@@ -17,10 +17,10 @@ conda update -q conda
 conda info -a
 
 if [[ "$PYTHON_VERSION" == "3.5" ]]; then
-    conda env create -f devtools/environment_py35.yml
+    conda env create -f travis/environment_py35.yml
     source activate xepy35
 else
-    conda env create -f devtools/environment_py36.yml
+    conda env create -f travis/environment_py36.yml
     source activate xepy36
 fi
 

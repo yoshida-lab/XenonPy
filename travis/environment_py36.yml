@@ -1,9 +1,9 @@
-name: xepy35
+name: xepy36
 channels:
 - defaults
 - pytorch
 dependencies:
-- python=3.5
+- python=3.6
 - numpy
 - pandas
 - tqdm
@@ -13,7 +13,7 @@ dependencies:
 - plotly
 - scikit-learn
 - scipy
-- pytorch
+- pytorch-cpu
 - pytest
 - pytest-cov
 - pylint
@@ -21,6 +21,6 @@ dependencies:
 - sphinx_rtd_theme
 - jupyter
 - pip:
-  - pymonad
   - pymatgen
+  - pymonad
   - ruamel.yaml

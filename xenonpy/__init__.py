@@ -5,8 +5,8 @@
 # change version in there, conf.yml, setup.py
 __all__ = ['descriptor', 'model', 'utils', 'visualization', 'preprocess']
 
-__version__ = '0.1.0b9'  # also change version in conf.yml
-__release__ = 'b9'
+__version__ = '0.1.0b10'  # also change version in conf.yml
+__release__ = 'b10'
 __cfg_root__ = '.' + __name__
 
 from . import descriptor

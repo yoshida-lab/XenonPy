@@ -59,7 +59,7 @@ class Package(object):
         self.__maintainer_email__ = self.get_info('maintainer_email')
         self.__github_username__ = self.get_info('github_username')
         try:
-            self.__long_description__ = open("README.rst", "rb").read().decode("utf-8")
+            self.__long_description__ = open("README.rst", "r").read()
         except FileNotFoundError:
             self.__long_description__ = "No long description!"
 

@@ -35,6 +35,8 @@ class BoxCox(BaseEstimator, TransformerMixin):
 
     def fit(self, x):
         self._shape = x.shape
+        if len(self._shape) == 1:
+            self._shape = (self._shape[0], 1)
         return self
 
     def transform(self, x):
@@ -65,8 +67,8 @@ class BoxCox(BaseEstimator, TransformerMixin):
                 'parameter `X` should be a `DataFrame`, `Series`, `ndarray` or list object'
                 'but got {}'.format(type(x)))
         if x.shape != self._shape:
-            raise ValueError('parameter `X` should have shape {}'.format(
-                self._shape))
+            raise ValueError('parameter `X` should have shape {} but got {}'.format(
+                self._shape, x.shape))
         return x
 
     def _box_cox(self, series):

@@ -33,10 +33,22 @@ class BoxCox(BaseEstimator, TransformerMixin):
         self._lmd = []
         self._shape = None
 
+    def _check_type(self, x, check_shape=True):
+        if isinstance(x, list):
+            x = np.array(x, dtype=np.float)
+        elif isinstance(x, (DataFrame, Series)):
+            x = x.values
+        if not isinstance(x, np.ndarray):
+            raise TypeError(
+                'parameter `X` should be a `DataFrame`, `Series`, `ndarray` or list object '
+                'but got {}'.format(type(x)))
+        if check_shape and x.shape != self._shape:
+            raise ValueError('parameter `X` should have shape {} but got {}'.format(
+                self._shape, x.shape))
+        return x
+
     def fit(self, x):
         self._shape = x.shape
-        if len(self._shape) == 1:
-            self._shape = (self._shape[0], 1)
         return self
 
     def transform(self, x):
@@ -52,24 +64,18 @@ class BoxCox(BaseEstimator, TransformerMixin):
             Box-Cox transformed data.
         """
         x = self._check_type(x)
-        df = DataFrame()
-        for col in x.columns:
-            x_, lmd = self._box_cox(x[col])
+        if len(x.shape) == 1:
+            x_, lmd = self._box_cox(col)
             self._lmd.append(lmd)
-            df[col] = x_
-        return df
+            return x_
 
-    def _check_type(self, x):
-        if isinstance(x, (np.ndarray, Series, list)):
-            x = DataFrame(data=x)
-        if not isinstance(x, DataFrame):
-            raise TypeError(
-                'parameter `X` should be a `DataFrame`, `Series`, `ndarray` or list object'
-                'but got {}'.format(type(x)))
-        if x.shape != self._shape:
-            raise ValueError('parameter `X` should have shape {} but got {}'.format(
-                self._shape, x.shape))
-        return x
+        xs = []
+        for col in x.T:
+            x_, lmd = self._box_cox(col)
+            self._lmd.append(lmd)
+            xs.append(x_.reshape(-1, 1))
+        df = np.concatenate(xs, axis=1)
+        return df
 
     def _box_cox(self, series):
         if series.min() != series.max():
@@ -98,11 +104,15 @@ class BoxCox(BaseEstimator, TransformerMixin):
         DataFrame
             Inverse transformed data.
         """
-        x = self._check_type(x)
-        df = DataFrame()
-        for i, col in enumerate(x.columns):
-            x_ = inv_boxcox(x[col], self._lmd[i]) - self._shift + self._min[i]
-            df[col] = x_
+        x = self._check_type(x, check_shape=False)
+        if len(x.shape) == 1:
+            return  inv_boxcox(x, self._lmd[0]) - self._shift + self._min[0]
+
+        xs = []
+        for i, col in enumerate(x.T):
+            x_ = inv_boxcox(col, self._lmd[i]) - self._shift + self._min[i]
+            xs.append(x_.reshape(-1, 1))
+        df = np.concatenate(xs, axis=1)
         return df
 
 
@@ -118,14 +128,16 @@ class Scaler(object):
         value: DataFrame
             Inner data.
         """
-        if isinstance(value, DataFrame):
-            self.__value = value
-        elif isinstance(value, (list, dict, tuple, Series, np.ndarray)):
+        if isinstance(value, (Series, list, np.ndarray)):
             self.__value = DataFrame(data=value)
+        elif isinstance(value, DataFrame):
+            self.__value = value
         else:
             raise TypeError(
                 'value must be list, dict, tuple, Series, ndarray or DataFrame but got {}'.format(type(value)))
-        self.__now = self.__value
+        self._index = self.__value.index
+        self._columns = self.__value.columns
+        self.__now = self.__value.values
         self.__inverse_chain = []
 
     def box_cox(self, *args, **kwargs):
@@ -145,7 +157,11 @@ class Scaler(object):
 
     @property
     def value(self):
-        return DataFrame(data=self.__now.values, index=self.__value.index, columns=self.__value.columns)
+        return DataFrame(self.__now, index=self._index, columns=self._columns)
+
+    @property
+    def value_test(self):
+        return self.__now
 
     def inverse(self, data):
         if len(self.__inverse_chain) == 0:

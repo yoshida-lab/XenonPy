@@ -65,7 +65,7 @@ class BoxCox(BaseEstimator, TransformerMixin):
         """
         x = self._check_type(x)
         if len(x.shape) == 1:
-            x_, lmd = self._box_cox(col)
+            x_, lmd = self._box_cox(x)
             self._lmd.append(lmd)
             return x_
 

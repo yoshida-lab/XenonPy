@@ -118,8 +118,14 @@ class Scaler(object):
         value: DataFrame
             Inner data.
         """
-        self.__value = value
-        self.__now = value
+        if isinstance(value, DataFrame):
+            self.__value = value
+        elif isinstance(value, (list, dict, tuple, Series, np.ndarray)):
+            self.__value = DataFrame(data=value)
+        else:
+            raise TypeError(
+                'value must be list, dict, tuple, Series, ndarray or DataFrame but got {}'.format(type(value)))
+        self.__now = self.__value
         self.__inverse_chain = []
 
     def box_cox(self, *args, **kwargs):
@@ -142,6 +148,8 @@ class Scaler(object):
         return DataFrame(self.__now, index=self.__value.index, columns=self.__value.columns)
 
     def inverse(self, data):
+        if len(self.__inverse_chain) == 0:
+            return data
         for inv in self.__inverse_chain[::-1]:
             data = inv(data)
         return data

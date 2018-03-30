@@ -174,6 +174,7 @@ if __name__ == "__main__":
     SETUP_REQUIRES = ['pytest-runner', 'ruamel.yaml']
     TESTS_REQUIRE = ['pytest']
     setup(
+        python_requires='~=3.5',
         name=PKG_NAME,
         description=SHORT_DESCRIPTION,
         long_description=LONG_DESCRIPTION,

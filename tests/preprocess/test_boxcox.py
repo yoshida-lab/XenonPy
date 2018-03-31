@@ -47,34 +47,34 @@ def data():
 
 def test_transform_4x1(data):
     bc = BoxCox()
-    trans = bc.fit_transform(data[0]).as_matrix()
+    trans = bc.fit_transform(data[0])
     assert np.all(trans == data[2])
-    inverse = bc.inverse_transform(trans).as_matrix()
+    inverse = bc.inverse_transform(trans)
     assert np.all(inverse == data[0])
 
 
 def test_transform_4x4(data):
     bc = BoxCox()
-    trans = bc.fit_transform(data[1]).as_matrix()
+    trans = bc.fit_transform(data[1])
     assert np.all(trans == data[3])
-    inverse = bc.inverse_transform(trans).as_matrix()
+    inverse = bc.inverse_transform(trans)
     assert np.all(inverse == data[1])
 
 
 def test_transform_err_4x1(data):
     bc = BoxCox()
-    trans = bc.fit_transform(data[4]).as_matrix()
+    trans = bc.fit_transform(data[4])
     assert np.all(trans == data[6])
-    inverse = bc.inverse_transform(trans).as_matrix()
+    inverse = bc.inverse_transform(trans)
     print(inverse)
     assert np.all(inverse == data[4])
 
 
 def test_transform_err_4x4(data):
     bc = BoxCox()
-    trans = bc.fit_transform(data[5]).as_matrix()
+    trans = bc.fit_transform(data[5])
     assert np.all(trans == data[7])
-    inverse = bc.inverse_transform(trans).as_matrix()
+    inverse = bc.inverse_transform(trans)
     assert np.all(inverse == data[5])
 
 

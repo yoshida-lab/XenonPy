@@ -59,7 +59,6 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         self._lr = None
         self._lr_scheduler = None
 
-    def __enter__(self):
         if self._verbose:
             print('Runner environment:')
             print('Running dir: {}'.format(self._work_dir))
@@ -67,6 +66,8 @@ class ModelRunner(BaseEstimator, RegressorMixin):
             print('Context: {}'.format(self._ctx.upper()))
             print('Check step: {}'.format(self._check_step))
             print('Log step: {}\n'.format(self._log_step))
+
+    def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -103,6 +104,20 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         self._lr = lr
         self._lr_scheduler = lr_scheduler
         self._checker.init_model = model
+        self._checker.save(runner=dict(
+            add_info=self._add_info,
+            verbose=self._verbose,
+            check_step=self._check_step,
+            ctx=self._ctx,
+            epochs=self._epochs,
+            log_step=self._log_step,
+            work_dir=self._work_dir,
+            model_name=self._model_name,
+            loss_func=self._loss_func,
+            optim=self._optim,
+            lr=self._lr,
+            lr_scheduler=self._lr_scheduler
+        ))
 
     @staticmethod
     def _d2tv(data):
@@ -143,19 +158,13 @@ class ModelRunner(BaseEstimator, RegressorMixin):
                                                                              loss.data[0],
                                                                              stopwatch.count))
             if self._check_step > 0 and t % self._check_step == 0:
-                self._checker(model_state=self._model.state_dict(),
-                              epochs=t,
-                              loss=loss.data[0],
-                              elapsed=stopwatch.count)
+                self._checker(model_state=self._model.state_dict(), epochs=t)
 
         print('\n=======over training=======')
         print('Final loss={:.4f}\n'.format(loss.data[0]))
 
         # save last results
-        self._checker(model_state=self._model.state_dict(),
-                      epochs=self._epochs,
-                      loss=loss.data[0],
-                      elapsed=stopwatch.count)
+        self._checker(model_state=self._model.state_dict(), epochs=self._epochs)
 
     def fit(self, x_train, y_train, x_id=None, y_id=None):
         """
@@ -246,8 +255,26 @@ class ModelRunner(BaseEstimator, RegressorMixin):
 
         return y_true, y_pred, metrics
 
-    def from_checkpoint(self, fname):
-        raise NotImplementedError('Not implemented')
+    @classmethod
+    def from_checker(cls, name, path=None):
+        checker = Checker.load(name, path)
+        runner = checker.last('runner')
+        ret = cls()
+        ret._add_info = runner['add_info']
+        ret._verbose = runner['verbose']
+        ret._check_step = runner['check_step']
+        ret._ctx = runner['ctx']
+        ret._epochs = runner['epochs']
+        ret._log_step = runner['log_step']
+        ret._work_dir = runner['work_dir']
+        ret._model_name = runner['model_name']
+        ret._loss_func = runner['loss_func']
+        ret._optim = runner['optim']
+        ret._lr = runner['lr']
+        ret._lr_scheduler = runner['lr_scheduler']
+        ret._checker = checker
+        ret._model = checker.trained_model if checker.trained_model else checker.init_model
+        return ret
 
     def dump(self, fpath, **kwargs):
         """

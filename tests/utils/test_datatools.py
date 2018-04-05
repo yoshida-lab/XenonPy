@@ -99,7 +99,7 @@ def test_dataset5(setup):
 
 def test_dataset1(setup):
     saver = DataSet(setup['user_dataset'])
-    ret = '"{}" include:'.format(setup['user_dataset'])
+    ret = '<{}> include:'.format(setup['user_dataset'])
     assert str(saver) == ret, 'no files'
 
 

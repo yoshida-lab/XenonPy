@@ -49,7 +49,7 @@ class Checker(DataSet):
         super().__init__(self._name, path=path)
 
     @classmethod
-    def from_checkpoint(cls, name, path=None):
+    def load(cls, name, path=None):
         return cls(name, path, increment=False)
 
     @property
@@ -101,9 +101,12 @@ class Checker(DataSet):
             The last appended model.
         """
         self._backend = _SL
-        ret = self.last('init_model')
-        self._backend = joblib
-        return ret
+        try:
+            return self.last('init_model')
+        except FileNotFoundError:
+            return None
+        finally:
+            self._backend = joblib
 
     @init_model.setter
     def init_model(self, model):
@@ -137,9 +140,12 @@ class Checker(DataSet):
             The last appended model.
         """
         self._backend = _SL
-        ret = self.last('trained_model')
-        self._backend = joblib
-        return ret
+        try:
+            return self.last('trained_model')
+        except FileNotFoundError:
+            return None
+        finally:
+            self._backend = joblib
 
     @trained_model.setter
     def trained_model(self, model):
@@ -159,7 +165,7 @@ class Checker(DataSet):
                 'except `torch.nn.Module` object but got {}'.format(
                     type(model)))
 
-    def train_data(self, x_train, y_train, x_id, y_id):
+    def train_data(self, x_train, y_train, x_id=None, y_id=None):
         """
         Save training data.
 
@@ -169,6 +175,10 @@ class Checker(DataSet):
             Features as X.
         y_train: pandas.DataFrame or numpy.ndarray
             Target property as y.
+        x_id: list-like
+            Row id for train
+        y_id: list-like
+            Row id for test
         """
 
         def _check(o):
@@ -197,7 +207,13 @@ class Checker(DataSet):
 
     def __getitem__(self, item):
         if isinstance(item, int):
-            return self.checkpoints[item]
+            self._backend = _SL
+            try:
+                return self.checkpoints[item]
+            except IndexError:
+                return None
+            finally:
+                self._backend = joblib
         raise TypeError('except int as checkpoint index but got {}'.format(
             type(item)))
 

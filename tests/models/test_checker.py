@@ -144,7 +144,7 @@ def test_checker_from_cp(setup):
     name = checker.name
     path = checker.path
     checker(**setup['cp'])
-    checker2 = Checker.from_checkpoint(name, path)
+    checker2 = Checker.load(name, path)
     assert checker2[0] == setup['cp']
 
 

@@ -6,12 +6,12 @@ import re
 from collections import defaultdict
 from datetime import datetime as dt
 from os import remove
+from os.path import getmtime
 from pathlib import Path
 from shutil import rmtree
 from warnings import warn
 
 import pandas as pd
-from os.path import getmtime
 from sklearn.externals import joblib
 
 from .config import get_data_loc
@@ -254,7 +254,7 @@ class DataSet(object):
         return sub_set
 
     def __repr__(self):
-        cont_ls = ['"{}" include:'.format(self._name)]
+        cont_ls = ['<{}> include:'.format(self._name)]
 
         for k, v in self._files.items():
             cont_ls.append('"{}": {}'.format(k, len(v)))

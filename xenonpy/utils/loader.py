@@ -156,11 +156,10 @@ class Loader(object):
                 # fetch data from source if not in local
                 if not dataset.exists():
                     url = get_dataset_url(data)
-                    print(
-                        'fetching dataset `{}` from {} because of none or old'.
-                        format(data, url))
-                    print('you can download it manually from this url'
-                          'then put it under `~/.xenonpy/dataset/`')
+                    print('fetching dataset `{}` from {} because of none data file or is older'.format(data, url))
+                    print('for some reason you can\'t download it automatically, '
+                          'you can download it manually from the url above and '
+                          'put it under `~/.xenonpy/dataset/`')
                     self._http_data(url, save_to=str(dataset))
 
                 # check sha256 value
@@ -184,7 +183,7 @@ class Loader(object):
                         url = get_dataset_url(data)
                         print(
                             'fetching dataset `{}` from {} because of none or old'.
-                            format(data, url))
+                                format(data, url))
                         print('you can download it manually from this url'
                               'then put it under `~/.xenonpy/dataset/`')
                         self._http_data(url, save_to=str(dataset))
@@ -198,7 +197,7 @@ class Loader(object):
             # return user local data
             return DataSet(data, ignore_err=False)
 
-        if self._type == 'user_local':
+        if self._type == 'user_loc':
             data = _get_data('data')
             return DataSet(data, path=self._location, ignore_err=False)
 

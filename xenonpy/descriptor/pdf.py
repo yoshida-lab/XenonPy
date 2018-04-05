@@ -44,7 +44,7 @@ class PDFDesc(BaseEstimator, TransformerMixin):
         self.structure_col = structure_col
         self.r_max = r_max
         self.dr = r_max / (n_grid - 1)
-        self.interval = np.arange(0, r_max + self.dr, self.dr)
+        self.interval = np.arange(self.dr, r_max + self.dr, self.dr)
         self.verbose = verbose
 
     def fit(self, structures):

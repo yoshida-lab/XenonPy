@@ -11,7 +11,7 @@ from pandas import DataFrame as df
 from scipy.stats import pearsonr
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.externals import joblib
-from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error
 from torch.autograd import Variable as Var
 
 from .checker import Checker
@@ -157,7 +157,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
                       loss=loss.data[0],
                       elapsed=stopwatch.count)
 
-    def fit(self, x_train, y_train):
+    def fit(self, x_train, y_train, x_id=None, y_id=None):
         """
         Fit Neural Network model
 
@@ -167,13 +167,17 @@ class ModelRunner(BaseEstimator, RegressorMixin):
             Training data.
         y_train: ``numpy.ndarray`` or ``pandas.DataFrame``
             Target values.
+        x_id: list-like
+            Row id for train
+        y_id: list-like
+            Row id for test
 
         Returns
         -------
         self:
             returns an instance of self.
         """
-        self._checker.train_data(x_train=x_train, y_train=y_train)
+        self._checker.train_data(x_train=x_train, y_train=y_train, x_id=x_id, y_id=y_id)
 
         # transform to torch tensor
         x_train = self._d2tv(x_train)
@@ -222,17 +226,25 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         self._model.cpu()
 
         mae = mean_absolute_error(y_true, y_pred)
+        rmse = np.sqrt(mean_squared_error(y_true, y_pred))
         r2 = r2_score(y_true, y_pred)
         pr, p_val = pearsonr(y_true, y_pred)
-        self._checker.add_predict(
-            x_test=x_test,
-            y_test=y_test,
-            y_pred=y_pred,
+        metrics = dict(
             mae=mae,
+            rmse=rmse,
             r2=r2,
             pearsonr=pr,
-            p_value=p_val)
-        return y_true, y_pred
+            p_value=p_val
+        )
+
+        self._checker.add_predict(
+            x_test=x_test.cpu().data.numpy(),
+            y_test=y_test,
+            y_pred=y_pred,
+            metrics=metrics
+        )
+
+        return y_true, y_pred, metrics
 
     def from_checkpoint(self, fname):
         raise NotImplementedError('Not implemented')

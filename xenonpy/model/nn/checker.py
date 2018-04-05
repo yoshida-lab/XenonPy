@@ -8,6 +8,7 @@ from platform import version, system
 import numpy
 import pandas
 import torch
+from sklearn.externals import joblib
 
 from ... import __version__
 from ...utils import get_data_loc, DataSet
@@ -45,7 +46,7 @@ class Checker(DataSet):
         else:
             _fpath = Path(path) / name
         self._name = _fpath.stem
-        super().__init__(self._name, path=path, backend=_SL)
+        super().__init__(self._name, path=path)
 
     @classmethod
     def from_checkpoint(cls, name, path=None):
@@ -99,7 +100,10 @@ class Checker(DataSet):
         model:
             The last appended model.
         """
-        return self.last('init_model')
+        self._backend = _SL
+        ret = self.last('init_model')
+        self._backend = joblib
+        return ret
 
     @init_model.setter
     def init_model(self, model):
@@ -112,7 +116,9 @@ class Checker(DataSet):
         model: torch.nn.Module
         """
         if isinstance(model, torch.nn.Module):
+            self._backend = _SL
             super().__call__(init_model=model)
+            self._backend = joblib
         else:
             raise TypeError(
                 'except `torch.nn.Module` object but got {}'.format(
@@ -130,7 +136,10 @@ class Checker(DataSet):
         model:
             The last appended model.
         """
-        return self.last('trained_model')
+        self._backend = _SL
+        ret = self.last('trained_model')
+        self._backend = joblib
+        return ret
 
     @trained_model.setter
     def trained_model(self, model):
@@ -142,13 +151,15 @@ class Checker(DataSet):
         model: torch.nn.Module
         """
         if isinstance(model, torch.nn.Module):
+            self._backend = _SL
             super().__call__(trained_model=model)
+            self._backend = joblib
         else:
             raise TypeError(
                 'except `torch.nn.Module` object but got {}'.format(
                     type(model)))
 
-    def train_data(self, x_train, y_train):
+    def train_data(self, x_train, y_train, x_id, y_id):
         """
         Save training data.
 
@@ -165,6 +176,10 @@ class Checker(DataSet):
 
         if _check(x_train) and _check(y_train):
             super().__call__(x_train=x_train, y_train=y_train)
+            if x_id:
+                super().__call__(x_id=x_id)
+            if y_id:
+                super().__call__(y_id=y_id)
             return
         raise TypeError('except `numpy.ndarray or pandas.DataFrame`')
 
@@ -178,7 +193,7 @@ class Checker(DataSet):
         pred: dict
             A prediction result as dict.
         """
-        self.predicts(pred)
+        self.predicts(**pred)
 
     def __getitem__(self, item):
         if isinstance(item, int):
@@ -187,4 +202,6 @@ class Checker(DataSet):
             type(item)))
 
     def __call__(self, **kwargs):
+        self._backend = _SL
         self.checkpoints(kwargs)
+        self._backend = joblib

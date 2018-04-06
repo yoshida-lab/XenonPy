@@ -7,7 +7,8 @@ import pandas as pd
 from pymatgen import Composition
 from sklearn.base import TransformerMixin, BaseEstimator
 
-from ..utils import Loader
+from ..preprocess.datatools import Loader
+
 
 # from ..pipeline import combinator
 

@@ -9,22 +9,24 @@ import torch as tc
 import torch.nn as nn
 from pandas import DataFrame as df
 from scipy.stats import pearsonr
-from sklearn.base import BaseEstimator, RegressorMixin
+from sklearn.base import BaseEstimator
 from sklearn.externals import joblib
 from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error
 from torch.autograd import Variable as Var
 
 from .checker import Checker
 from .wrap import Init
-from ...utils import Stopwatch
+from ...preprocess.transform import Scaler
+from ...utils.functional import Stopwatch
 
 
-class ModelRunner(BaseEstimator, RegressorMixin):
+class ModelRunner(BaseEstimator):
     """
     Run model.
     """
 
     def __init__(self, epochs=2000, *,
+                 xy_scaler=None,
                  ctx='cpu',
                  check_step=100,
                  log_step=0,
@@ -44,6 +46,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         verbose: bool
             Print :class:`ModelRunner` environment.
         """
+        self._xy_scaler = xy_scaler
         self._add_info = additional_info if additional_info else {}
         self._verbose = verbose
         self._check_step = check_step
@@ -119,6 +122,19 @@ class ModelRunner(BaseEstimator, RegressorMixin):
             lr_scheduler=self._lr_scheduler
         ))
 
+    @property
+    def xy_scaler(self):
+        return self._xy_scaler
+
+    @xy_scaler.setter
+    def xy_scaler(self, scalers):
+        if isinstance(scalers, (tuple, list)):
+            if not (isinstance(scalers[0], Scaler) and isinstance(scalers[1], Scaler)):
+                raise TypeError('must be a Scaler but got ({}, {})'.format(type(scalers[0]), type(scalers[1])))
+            self._xy_scaler = scalers
+        else:
+            raise ValueError('parameter scaler must be a tuple or list with size 2 but got {}'.format(scalers))
+
     @staticmethod
     def _d2tv(data):
         if isinstance(data, df):
@@ -128,6 +144,7 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         else:
             raise TypeError('need to be <numpy.ndarray> or <pandas.DataFrame> but got {}'.format(type(data)))
         return Var(data, requires_grad=False)
+
 
     def _train(self, x_train, y_train):
         stopwatch = Stopwatch()
@@ -166,26 +183,30 @@ class ModelRunner(BaseEstimator, RegressorMixin):
         # save last results
         self._checker(model_state=self._model.state_dict(), epochs=self._epochs)
 
-    def fit(self, x_train, y_train, x_id=None, y_id=None):
+    def fit(self, *xy):
         """
         Fit Neural Network model
 
         Parameters
         ----------
-        x_train: ``numpy.ndarray`` or ``pandas.DataFrame``
+        xy: None or list or ``numpy.ndarray`` or ``pandas.DataFrame``.
             Training data.
-        y_train: ``numpy.ndarray`` or ``pandas.DataFrame``
-            Target values.
-        x_id: list-like
-            Row id for train
-        y_id: list-like
-            Row id for test
+            If None, will split data in ``self.xy_scaler`` with ``test_size=0.2``.
+            If ``self.xy_scaler``  is None, raise ``ValueError``.
+            If list, use as indices to sample training data from `self.xy_scaler``.
+            If ``self.xy_scaler``  is None, raise ``ValueError``.
+            Also can input x y training data directly in ``numpy.ndarray`` or ``pandas.DataFrame``.
 
         Returns
         -------
         self:
             returns an instance of self.
         """
+        if xy is None:
+            if self._xy_scaler is None:
+                raise ValueError('No data for training, please set ``xy_scaler`` or input training data directly')
+
+        # fixme: from  here
         self._checker.train_data(x_train=x_train, y_train=y_train, x_id=x_id, y_id=y_id)
 
         # transform to torch tensor

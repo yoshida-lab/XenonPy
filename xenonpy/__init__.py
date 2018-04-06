@@ -34,7 +34,7 @@ def __init(force=False):
     from ruamel.yaml import YAML
     from sys import version_info
     from pathlib import Path
-    from .utils import get_conf
+    from .utils.functional import get_conf
 
     if version_info[0] != 3 or version_info[1] < 5:
         raise SystemError("Must be using Python 3.5 or 3.6")

@@ -10,7 +10,7 @@ from torch.nn import Sequential as Sq
 
 from .layer import Layer1d
 from .wrap import L1
-from ...utils import Product
+from ...utils.math import Product
 
 
 class Sequential(Sq):

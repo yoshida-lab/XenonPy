@@ -11,7 +11,8 @@ import torch
 from sklearn.externals import joblib
 
 from ... import __version__
-from ...utils import get_data_loc, DataSet
+from ...preprocess.datatools import DataSet
+from ...utils.functional import get_data_loc
 
 
 class _SL(object):

@@ -7,7 +7,7 @@ from itertools import product
 
 import pytest
 
-from xenonpy.utils import Product
+from xenonpy.utils.math import Product
 
 
 @pytest.fixture(scope='module')

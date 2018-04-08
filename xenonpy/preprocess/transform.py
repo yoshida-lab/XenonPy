@@ -157,10 +157,26 @@ class Scaler(object):
 
     @property
     def value(self):
+        """
+        Return scaled values as Dataframe object.
+
+        Returns
+        -------
+        DataFrame
+            Scaled value. If your need value as ndarray object, please use ``np_value``
+        """
         return DataFrame(self.__now, index=self._index, columns=self._columns)
 
     @property
-    def value_test(self):
+    def np_value(self):
+        """
+        Return scaled values as ndarray object
+
+        Returns
+        -------
+        ndarray
+            Scaled value. If your need value as Dataframe object, please use ``value``
+        """
         return self.__now
 
     def inverse(self, data):

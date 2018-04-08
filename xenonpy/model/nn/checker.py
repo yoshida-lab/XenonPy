@@ -11,7 +11,9 @@ import torch
 from sklearn.externals import joblib
 
 from ... import __version__
+from ...preprocess.data_select import DataSplitter
 from ...preprocess.datatools import DataSet
+from ...preprocess.transform import Scaler
 from ...utils.functional import get_data_loc
 
 
@@ -166,33 +168,23 @@ class Checker(DataSet):
                 'except `torch.nn.Module` object but got {}'.format(
                     type(model)))
 
-    def train_data(self, x_train, y_train, x_id=None, y_id=None):
+    def save_data(self, **kwargs):
         """
-        Save training data.
+        Save data.
 
         Parameters
         ----------
-        x_train: pandas.DataFrame or numpy.ndarray
-            Features as X.
-        y_train: pandas.DataFrame or numpy.ndarray
-            Target property as y.
-        x_id: list-like
-            Row id for train
-        y_id: list-like
-            Row id for test
+        **kwargs
+            Same as :class:`DataSet`
         """
 
         def _check(o):
-            return isinstance(o, (numpy.ndarray, pandas.DataFrame))
+            return isinstance(o, (numpy.ndarray, pandas.DataFrame, Scaler, DataSplitter))
 
-        if _check(x_train) and _check(y_train):
-            super().__call__(x_train=x_train, y_train=y_train)
-            if x_id:
-                super().__call__(x_id=x_id)
-            if y_id:
-                super().__call__(y_id=y_id)
-            return
-        raise TypeError('except `numpy.ndarray or pandas.DataFrame`')
+        for v in kwargs.values():
+            if not _check(v):
+                raise TypeError('except <ndarray>, <DataFrame>, <DataSplitter> or <Scaler> but got {}'.format(type(v)))
+        super().__call__(**kwargs)
 
     def add_predict(self, **pred):
         """
@@ -219,6 +211,9 @@ class Checker(DataSet):
             type(item)))
 
     def __call__(self, **kwargs):
+        self.check(**kwargs)
+
+    def check(self, **kwargs):
         self._backend = _SL
         self.checkpoints(kwargs)
         self._backend = joblib

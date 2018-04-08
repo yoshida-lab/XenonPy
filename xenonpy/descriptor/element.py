@@ -79,7 +79,7 @@ class ElementDesc(BaseEstimator, TransformerMixin):
             w_nums = nums / np.sum(nums)
             e_mean = w_nums.dot(elems)
             cen_elems = elems - e_mean
-            return nums.dot(cen_elems**2)
+            return w_nums.dot(cen_elems ** 2)
 
         def max_(_, elems):
             return elems.max()

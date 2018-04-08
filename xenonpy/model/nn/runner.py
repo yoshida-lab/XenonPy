@@ -16,6 +16,7 @@ from torch.autograd import Variable as Var
 
 from .checker import Checker
 from .wrap import Init
+from ...preprocess.data_select import DataSplitter
 from ...preprocess.transform import Scaler
 from ...utils.functional import Stopwatch
 
@@ -46,7 +47,6 @@ class ModelRunner(BaseEstimator):
         verbose: bool
             Print :class:`ModelRunner` environment.
         """
-        self._xy_scaler = xy_scaler
         self._add_info = additional_info if additional_info else {}
         self._verbose = verbose
         self._check_step = check_step
@@ -55,12 +55,17 @@ class ModelRunner(BaseEstimator):
         self._log_step = log_step
         self._work_dir = work_dir
         self._checker = None
+        self._splitter = None
         self._model = None
         self._model_name = None
         self._loss_func = None
         self._optim = None
         self._lr = None
         self._lr_scheduler = None
+        if xy_scaler:
+            self._x_scaler, self._y_scaler = self._check_xy_scaler(xy_scaler)
+        else:
+            self._x_scaler, self._y_scaler = None, None
 
         if self._verbose:
             print('Runner environment:')
@@ -85,7 +90,6 @@ class ModelRunner(BaseEstimator):
 
         def _init_weight(m):
             if isinstance(m, nn.Linear):  # fixme: not only linear
-                print('init weight -> {}'.format(m))
                 init_weight(m.weight)
 
         # model must inherit form nn.Module
@@ -98,6 +102,8 @@ class ModelRunner(BaseEstimator):
             sig = md5(model.__str__().encode()).hexdigest()
             name = sig
         if init_weight:
+            if self._verbose:
+                print('init weight with {}'.format(init_weight))
             model.apply(_init_weight)
         self._checker = Checker(name, self._work_dir)
         self._model = model
@@ -122,18 +128,24 @@ class ModelRunner(BaseEstimator):
             lr_scheduler=self._lr_scheduler
         ))
 
+    @staticmethod
+    def _check_xy_scaler(scaler):
+        if isinstance(scaler, (tuple, list)):
+            if not (isinstance(scaler[0], Scaler) and isinstance(scaler[1], Scaler)):
+                raise TypeError('must be a Scaler but got ({}, {})'.format(type(scaler[0]), type(scaler[1])))
+            if scaler[0].value.shape[0] != scaler[1].value.shape[0]:
+                raise ValueError('X y should have same row size (shape[0])')
+            return scaler[0], scaler[1]
+        else:
+            raise ValueError('parameter scaler must be a tuple or list with size 2 but got {}'.format(scaler))
+
     @property
     def xy_scaler(self):
-        return self._xy_scaler
+        return self._x_scaler, self._y_scaler
 
     @xy_scaler.setter
-    def xy_scaler(self, scalers):
-        if isinstance(scalers, (tuple, list)):
-            if not (isinstance(scalers[0], Scaler) and isinstance(scalers[1], Scaler)):
-                raise TypeError('must be a Scaler but got ({}, {})'.format(type(scalers[0]), type(scalers[1])))
-            self._xy_scaler = scalers
-        else:
-            raise ValueError('parameter scaler must be a tuple or list with size 2 but got {}'.format(scalers))
+    def xy_scaler(self, scaler):
+        self._x_scaler, self._y_scaler = self._check_xy_scaler(scaler)
 
     @staticmethod
     def _d2tv(data):
@@ -145,6 +157,19 @@ class ModelRunner(BaseEstimator):
             raise TypeError('need to be <numpy.ndarray> or <pandas.DataFrame> but got {}'.format(type(data)))
         return Var(data, requires_grad=False)
 
+    @staticmethod
+    def metrics(y_true, y_pred):
+        mae = mean_absolute_error(y_true, y_pred)
+        rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+        r2 = r2_score(y_true, y_pred)
+        pr, p_val = pearsonr(y_true, y_pred)
+        return dict(
+            mae=mae,
+            rmse=rmse,
+            r2=r2,
+            pearsonr=pr,
+            p_value=p_val
+        )
 
     def _train(self, x_train, y_train):
         stopwatch = Stopwatch()
@@ -156,8 +181,8 @@ class ModelRunner(BaseEstimator):
 
         # start
         loss, y_pred = None, None
-        print('=======start training=======')
         print('Model name: {}\n'.format(self._model_name))
+        print('=======start training=======')
 
         for t in range(self._epochs):
             if scheduler and not isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
@@ -178,12 +203,20 @@ class ModelRunner(BaseEstimator):
                 self._checker(model_state=self._model.state_dict(), epochs=t)
 
         print('\n=======over training=======')
-        print('Final loss={:.4f}\n'.format(loss.data[0]))
 
         # save last results
         self._checker(model_state=self._model.state_dict(), epochs=self._epochs)
+        y_train, y_pred = y_train.cpu().data.numpy(), y_pred.cpu().data.numpy()
+        metrics = self.metrics(y_train, y_pred)
 
-    def fit(self, *xy):
+        if self._verbose:
+            print('Final loss={:.4f}\n'.format(loss.data[0]))
+            print('Mean absolute error with train data: %s' % metrics['mae'])
+            print('Root mean squared error with train data: %s' % metrics['rmse'])
+
+        return y_train, y_pred, metrics
+
+    def fit(self, *xy, test_size=0.2):
         """
         Fit Neural Network model
 
@@ -196,18 +229,29 @@ class ModelRunner(BaseEstimator):
             If list, use as indices to sample training data from `self.xy_scaler``.
             If ``self.xy_scaler``  is None, raise ``ValueError``.
             Also can input x y training data directly in ``numpy.ndarray`` or ``pandas.DataFrame``.
-
+        test_size: float, int, None
+            If float, should be between 0.0 and 1.0 and represent the proportion
+            of the dataset to include in the test split. If int, represents the
+            absolute number of test samples. If None, the value is set to the
+            complement of the train size. By default, the value is set to 0.2.
         Returns
         -------
         self:
             returns an instance of self.
         """
-        if xy is None:
-            if self._xy_scaler is None:
+        if len(xy) == 0:
+            if self._x_scaler and self._y_scaler:
+                ds = DataSplitter(self._x_scaler.np_value, test_size=test_size)
+                x_train, y_train = ds.split_data(self._x_scaler.np_value, self._y_scaler.np_value, test=False)
+                self._checker.save_data(x_scaler=self._x_scaler, y_scaler=self._y_scaler, splitter=ds)
+                self._splitter = ds
+            else:
                 raise ValueError('No data for training, please set ``xy_scaler`` or input training data directly')
-
-        # fixme: from  here
-        self._checker.train_data(x_train=x_train, y_train=y_train, x_id=x_id, y_id=y_id)
+        else:
+            if len(xy) != 2:
+                raise ValueError('xy size must be 2 but got {}'.format(len(xy)))
+            x_train, y_train = xy
+            self._checker.save_data(x_train=x_train, y_train=y_train)
 
         # transform to torch tensor
         x_train = self._d2tv(x_train)
@@ -225,7 +269,7 @@ class ModelRunner(BaseEstimator):
             self._model.cpu()
 
         # train
-        self._train(x_train, y_train)
+        result = self._train(x_train, y_train)
 
         # move back to cpu
         self._model.cpu()
@@ -235,46 +279,51 @@ class ModelRunner(BaseEstimator):
                                       running_at=self._work_dir,
                                       created_at=dt.now().strftime('-%Y-%m-%d_%H-%M-%S_%f'))
 
-        return self
+        return result
 
-    def predict(self, x_test, y_test):
+    def predict(self, *xy):
+        save_data = False
+        if len(xy) == 0:
+            if self._x_scaler and self._y_scaler:
+                x_test, y_test = self._splitter.split_data(self._x_scaler.np_value, self._y_scaler.np_value,
+                                                           train=False)
+            else:
+                raise ValueError('No data for test, please set ``xy_scaler`` or input test data directly')
+        else:
+            if len(xy) != 2:
+                raise ValueError('xy size must be 2 but got {}'.format(len(xy)))
+            x_test, y_test = xy
+            save_data = True
         # prepare x
-        x_test = self._d2tv(x_test)
+        x_test_ = self._d2tv(x_test)
 
         # if use CUDA acc
         if self._ctx.lower() == 'gpu':
             if tc.cuda.is_available():
                 self._model.cuda()
-                x_test = x_test.cuda()
+                x_test_ = x_test_.cuda()
             else:
                 warn('No cuda environment, use cpu fallback.', RuntimeWarning)
         else:
             self._model.cpu()
         # prediction
-        y_true, y_pred = y_test.ravel(), self._model(x_test).cpu().data.numpy().ravel()
-        # move back to cpu
-        self._model.cpu()
+        y_pred = self._model(x_test_).cpu().data.numpy()
+        metrics = self.metrics(y_test, y_pred)
 
-        mae = mean_absolute_error(y_true, y_pred)
-        rmse = np.sqrt(mean_squared_error(y_true, y_pred))
-        r2 = r2_score(y_true, y_pred)
-        pr, p_val = pearsonr(y_true, y_pred)
-        metrics = dict(
-            mae=mae,
-            rmse=rmse,
-            r2=r2,
-            pearsonr=pr,
-            p_value=p_val
-        )
+        if save_data:
+            self._checker.add_predict(
+                x_test=x_test,
+                y_test=y_test,
+                y_pred=y_pred,
+                metrics=metrics
+            )
+        else:
+            self._checker.add_predict(
+                y_pred=y_pred,
+                metrics=metrics
+            )
 
-        self._checker.add_predict(
-            x_test=x_test.cpu().data.numpy(),
-            y_test=y_test,
-            y_pred=y_pred,
-            metrics=metrics
-        )
-
-        return y_true, y_pred, metrics
+        return y_test, y_pred, metrics
 
     @classmethod
     def from_checker(cls, name, path=None):
@@ -293,6 +342,18 @@ class ModelRunner(BaseEstimator):
         ret._optim = runner['optim']
         ret._lr = runner['lr']
         ret._lr_scheduler = runner['lr_scheduler']
+        try:
+            ret._x_scaler = checker.last('x_scaler')
+        except FileExistsError:
+            pass
+        try:
+            ret._y_scaler = checker.last('y_scaler')
+        except FileExistsError:
+            pass
+        try:
+            ret._splitter = checker.last('splitter')
+        except FileExistsError:
+            pass
         ret._checker = checker
         ret._model = checker.trained_model if checker.trained_model else checker.init_model
         return ret

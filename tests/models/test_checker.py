@@ -10,7 +10,7 @@ import pandas as pd
 import pytest
 
 from xenonpy.model.nn import Checker, Layer1d
-from xenonpy.utils import DataSet
+from xenonpy.preprocess.datatools import DataSet
 
 
 @pytest.fixture(scope='module')
@@ -117,7 +117,7 @@ def test_checker_trained_model3(setup):
 def test_checker_train_data1(setup):
     checker = Checker(setup['name'])
     try:
-        checker.train_data(None, None)
+        checker.save_data(None, None)
     except TypeError:
         assert True
     else:
@@ -127,7 +127,7 @@ def test_checker_train_data1(setup):
 def test_checker_train_data2(setup):
     checker = Checker(setup['name'])
     try:
-        checker.train_data(setup['np'], setup['df'])
+        checker.save_data(setup['np'], setup['df'])
     except TypeError:
         assert False, 'should not got error'
 

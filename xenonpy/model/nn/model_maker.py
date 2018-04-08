@@ -152,12 +152,8 @@ class Generator1d(object):
 
             # sampling all_
             samples = choice(all_size, n_models, replace).tolist()
-            while True:
-                try:
-                    i = samples.pop()
-                    layer_paras = all_[i]
-                except IndexError:
-                    raise StopIteration()
+            for i in samples:
+                layer_paras = all_[i]
 
                 # set layers
                 layers = list()
@@ -179,11 +175,7 @@ class Generator1d(object):
 
             samples = choice(self.layer_var.size, n_models, replace).tolist()
 
-            while True:
-                try:
-                    i = samples.pop()
-                except IndexError:
-                    raise StopIteration()
+            for i in samples:
 
                 layers = list()
                 n_in = self.n_in
@@ -201,3 +193,5 @@ class Generator1d(object):
                 layers.append(out_layer)
 
                 yield Sequential(*layers)
+
+        return

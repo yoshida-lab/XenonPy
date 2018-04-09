@@ -84,10 +84,24 @@ class DataSet(object):
 
     @property
     def name(self):
+        """
+        Dataset name.
+
+        Returns
+        -------
+        str
+        """
         return self._name
 
     @property
     def path(self):
+        """
+        Dataset path
+
+        Returns
+        -------
+        str
+        """
         return str(self._path.parent)
 
     def _make_file_index(self):
@@ -326,6 +340,8 @@ class DataSet(object):
             num = _get_file_index(k) + 1
             f = self._save_data(v, k + '.@' + str(num))
             self._files[k].append(f)
+
+
 class Loader(object):
     """
     Load data from embed dataset in XenonPy's or user create data saved in ``~/.xenonpy/cached`` dir.
@@ -466,10 +482,10 @@ class Loader(object):
                 # fetch data from source if not in local
                 if not dataset.exists():
                     url = get_dataset_url(data)
-                    print('fetching dataset `{}` from {} because of none data file or is older'.format(data, url))
-                    print('for some reason you can\'t download it automatically, '
+                    print('fetching dataset `{}` from {} because of none data file or is older. '
+                          'for some reason you can\'t download it automatically, '
                           'you can download it manually from the url above and '
-                          'put it under `~/.xenonpy/dataset/`')
+                          'put it under `~/.xenonpy/dataset/`'.format(data, url))
                     self._http_data(url, save_to=str(dataset))
 
                 # check sha256 value
@@ -485,17 +501,13 @@ class Loader(object):
                     sha256_ = sha256[data]
 
                 if sha256_ != get_conf(data):
-                    warn(
-                        'local data {} is different from the repository version.\n'
-                        'use `load(data, sync=True)` to fix it.'.format(data),
-                        RuntimeWarning)
+                    warn('local data {} is different from the repository version. '
+                         'use `load(data, sync=True)` to fix it.'.format(data), RuntimeWarning)
                     if _get_data('sync', ignore_err=True):
                         url = get_dataset_url(data)
-                        print(
-                            'fetching dataset `{}` from {} because of none or old'.
-                                format(data, url))
-                        print('you can download it manually from this url'
-                              'then put it under `~/.xenonpy/dataset/`')
+                        print('fetching dataset `{}` from {} because of none data file or is older. '
+                              'you can download it manually from this url '
+                              'then put it under `~/.xenonpy/dataset/`'.format(data, url))
                         self._http_data(url, save_to=str(dataset))
                         sha256_ = get_sha256(str(dataset))
                         sha256[data] = sha256_
@@ -523,7 +535,7 @@ class Loader(object):
     def _get_prop(self, name):
         tmp = self._type
         self._type = 'local'
-        ret = self(name)
+        ret = self.load(name)
         self._type = tmp
         return ret
 
@@ -573,8 +585,7 @@ class Loader(object):
         DataFrame:
             Structures as dict that can be loaded by pymatgen.
         """
-        # return self._get_prop('mp_structure')
-        raise NotImplementedError()
+        return self._get_prop('mp_structure')
 
     @property
     def elements_completed(self):

@@ -62,6 +62,7 @@ class ModelRunner(BaseEstimator):
         self._optim = None
         self._lr = None
         self._lr_scheduler = None
+        self._x_torch_type = self._y_torch_type = None
         if xy_scaler:
             self._x_scaler, self._y_scaler = self._check_xy_scaler(xy_scaler)
         else:
@@ -148,11 +149,17 @@ class ModelRunner(BaseEstimator):
         self._x_scaler, self._y_scaler = self._check_xy_scaler(scaler)
 
     @staticmethod
-    def _d2tv(data):
+    def _d2tv(data, torch_type):
         if isinstance(data, df):
-            data = tc.from_numpy(data.as_matrix()).type(tc.FloatTensor)
+            if torch_type is None:
+                data = tc.from_numpy(data.as_matrix()).type(tc.FloatTensor)
+            else:
+                data = tc.from_numpy(data.as_matrix()).type(torch_type)
         elif isinstance(data, np.ndarray):
-            data = tc.from_numpy(data).type(tc.FloatTensor)
+            if torch_type is None:
+                data = tc.from_numpy(data).type(tc.FloatTensor)
+            else:
+                data = tc.from_numpy(data).type(torch_type)
         else:
             raise TypeError('need to be <numpy.ndarray> or <pandas.DataFrame> but got {}'.format(type(data)))
         return Var(data, requires_grad=False)
@@ -216,7 +223,7 @@ class ModelRunner(BaseEstimator):
 
         return y_train, y_pred, metrics
 
-    def fit(self, *xy, test_size=0.2):
+    def fit(self, *xy, test_size=0.2, x_torch_type=None, y_torch_type=None):
         """
         Fit Neural Network model
 
@@ -234,6 +241,10 @@ class ModelRunner(BaseEstimator):
             of the dataset to include in the test split. If int, represents the
             absolute number of test samples. If None, the value is set to the
             complement of the train size. By default, the value is set to 0.2.
+        x_torch_type: torch data type
+            Default is torch.FloatTensor.
+        y_torch_type: torch data type
+            Default is torch.FloatTensor.
         Returns
         -------
         self:
@@ -254,8 +265,8 @@ class ModelRunner(BaseEstimator):
             self._checker.save_data(x_train=x_train, y_train=y_train)
 
         # transform to torch tensor
-        x_train = self._d2tv(x_train)
-        y_train = self._d2tv(y_train)
+        x_train = self._d2tv(x_train, x_torch_type)
+        y_train = self._d2tv(y_train, y_torch_type)
 
         # if use CUDA acc
         if self._ctx.lower() == 'gpu':
@@ -281,7 +292,7 @@ class ModelRunner(BaseEstimator):
 
         return result
 
-    def predict(self, *xy):
+    def predict(self, *xy, x_torch_type=None):
         save_data = False
         if len(xy) == 0:
             if self._x_scaler and self._y_scaler:
@@ -295,7 +306,7 @@ class ModelRunner(BaseEstimator):
             x_test, y_test = xy
             save_data = True
         # prepare x
-        x_test_ = self._d2tv(x_test)
+        x_test_ = self._d2tv(x_test, x_torch_type)
 
         # if use CUDA acc
         if self._ctx.lower() == 'gpu':

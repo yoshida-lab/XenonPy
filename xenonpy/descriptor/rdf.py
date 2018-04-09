@@ -12,7 +12,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 # from ..pipeline import combinator
 
 
-class PDFDesc(BaseEstimator, TransformerMixin):
+class RDFDesc(BaseEstimator, TransformerMixin):
     """
     Calculate pair distribution descriptor for machine learning.
 

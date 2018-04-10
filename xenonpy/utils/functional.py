@@ -81,7 +81,7 @@ def get_conf(key: str):
 
     # if no key locally, use default
     if key not in conf:
-        with open(str(Path(__file__).parent / 'conf.yml')) as f:
+        with open(str(Path(__file__).parents[1] / 'conf.yml')) as f:
             conf_ = yaml.load(f)
             conf[key] = conf_[key]
         with open(str(cfg_file), 'w') as f:

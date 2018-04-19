@@ -1,12 +1,14 @@
 # Copyright 2018 TsumiNa. All rights reserved.
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
+import math
 from datetime import datetime as dt
 from warnings import warn
 
 import numpy as np
 import torch as tc
 import torch.nn as nn
+import torch.utils.data as Data
 from pandas import DataFrame as df
 from scipy.stats import pearsonr
 from sklearn.base import BaseEstimator
@@ -28,6 +30,7 @@ class ModelRunner(BaseEstimator):
 
     def __init__(self, epochs=2000, *,
                  xy_scaler=None,
+                 batch_size=1000,
                  ctx='cpu',
                  check_step=100,
                  log_step=0,
@@ -51,6 +54,7 @@ class ModelRunner(BaseEstimator):
         self._verbose = verbose
         self._check_step = check_step
         self._ctx = ctx
+        self._batch_size = batch_size
         self._epochs = epochs
         self._log_step = log_step
         self._work_dir = work_dir
@@ -149,7 +153,7 @@ class ModelRunner(BaseEstimator):
         self._x_scaler, self._y_scaler = self._check_xy_scaler(scaler)
 
     @staticmethod
-    def _d2tv(data, torch_type):
+    def _d2t(data, torch_type):
         if isinstance(data, df):
             if torch_type is None:
                 data = tc.from_numpy(data.as_matrix()).type(tc.FloatTensor)
@@ -162,7 +166,7 @@ class ModelRunner(BaseEstimator):
                 data = tc.from_numpy(data).type(torch_type)
         else:
             raise TypeError('need to be <numpy.ndarray> or <pandas.DataFrame> but got {}'.format(type(data)))
-        return Var(data, requires_grad=False)
+        return data
 
     @staticmethod
     def metrics(y_true, y_pred):
@@ -178,7 +182,7 @@ class ModelRunner(BaseEstimator):
             p_value=p_val
         )
 
-    def _train(self, x_train, y_train):
+    def _train(self, train_loader):
         stopwatch = Stopwatch()
         # optimization
         optim = self._optim(self._model.parameters(), lr=self._lr)
@@ -192,15 +196,21 @@ class ModelRunner(BaseEstimator):
         print('=======start training=======')
 
         for t in range(self._epochs):
-            if scheduler and not isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
-                scheduler.step()
-            y_pred = self._model(x_train)
-            loss = self._loss_func(y_pred, y_train)
-            if scheduler and isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
-                scheduler.step(loss)
-            optim.zero_grad()
-            loss.backward()
-            optim.step()
+            batch = list(train_loader)
+            for x_train, y_train in batch:
+                # transform to torch variable
+                x_train = Var(x_train, requires_grad=False)
+                y_train = Var(y_train, requires_grad=False)
+
+                if scheduler and not isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
+                    scheduler.step()
+                y_pred = self._model(x_train)
+                loss = self._loss_func(y_pred, y_train)
+                if scheduler and isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
+                    scheduler.step(loss)
+                optim.zero_grad()
+                loss.backward()
+                optim.step()
 
             if self._log_step > 0 and t % self._log_step == 0:
                 print('at step[{}/{}], Loss={:.4f}, elapsed time: {}'.format(t, self._epochs,
@@ -264,9 +274,11 @@ class ModelRunner(BaseEstimator):
             x_train, y_train = xy
             self._checker.save_data(x_train=x_train, y_train=y_train)
 
-        # transform to torch tensor
-        x_train = self._d2tv(x_train, x_torch_type)
-        y_train = self._d2tv(y_train, y_torch_type)
+        # train
+        if isinstance(self._batch_size, float):  # todo: need range check
+            self._batch_size = math.floor(x_train.shape[0] * self._batch_size)
+        x_train = self._d2t(x_train, x_torch_type)
+        y_train = self._d2t(y_train, y_torch_type)
 
         # if use CUDA acc
         if self._ctx.lower() == 'gpu':
@@ -279,8 +291,12 @@ class ModelRunner(BaseEstimator):
         else:
             self._model.cpu()
 
-        # train
-        result = self._train(x_train, y_train)
+        train_data = Data.TensorDataset(x_train, y_train)
+        train_loader = Data.DataLoader(dataset=train_data, batch_size=self._batch_size,
+                                       shuffle=True,
+                                       num_workers=0,
+                                       pin_memory=False)
+        result = self._train(train_loader)
 
         # move back to cpu
         self._model.cpu()
@@ -306,7 +322,8 @@ class ModelRunner(BaseEstimator):
             x_test, y_test = xy
             save_data = True
         # prepare x
-        x_test_ = self._d2tv(x_test, x_torch_type)
+        x_test_ = self._d2t(x_test, x_torch_type)
+        x_test_ = Var(x_test_, requires_grad=False)
 
         # if use CUDA acc
         if self._ctx.lower() == 'gpu':

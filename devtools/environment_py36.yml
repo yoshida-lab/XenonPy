@@ -9,7 +9,6 @@ dependencies:
 - tqdm
 - seaborn
 - requests
-- matplotlib
 - plotly
 - scikit-learn
 - scipy

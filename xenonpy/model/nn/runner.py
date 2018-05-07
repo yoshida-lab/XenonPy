@@ -30,7 +30,7 @@ class ModelRunner(BaseEstimator):
 
     def __init__(self, epochs=2000, *,
                  xy_scaler=None,
-                 batch_size=1000,
+                 batch_size=10000,
                  ctx='cpu',
                  check_step=100,
                  log_step=0,
@@ -196,8 +196,7 @@ class ModelRunner(BaseEstimator):
         print('=======start training=======')
 
         for t in range(self._epochs):
-            batch = list(train_loader)
-            for x_train, y_train in batch:
+            for x_train, y_train in train_loader:
                 # transform to torch variable
                 x_train = Var(x_train, requires_grad=False)
                 y_train = Var(y_train, requires_grad=False)
@@ -294,7 +293,7 @@ class ModelRunner(BaseEstimator):
         train_data = Data.TensorDataset(x_train, y_train)
         train_loader = Data.DataLoader(dataset=train_data, batch_size=self._batch_size,
                                        shuffle=True,
-                                       num_workers=0,
+                                       num_workers=5,
                                        pin_memory=False)
         result = self._train(train_loader)
 

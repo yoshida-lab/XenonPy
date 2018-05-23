@@ -22,6 +22,90 @@ from ... import __version__
 from ...utils.functional import TimedMetaClass
 
 
+def persistence(*args, **kwargs):
+    """
+
+    Parameters
+    ----------
+    args
+    kwargs
+
+    Returns
+    -------
+
+    """
+    n_args = len(args)
+    n_kwargs = len(kwargs)
+
+    def _checked(o):
+        if not isinstance(o, BaseRunner):
+            raise TypeError('persistence only decorate <BaseRunner> inherent object\'s method')
+        return o
+
+    # only args or kwargs, no mix
+    if (n_args == 0 and n_kwargs == 0) or (n_args != 0 and n_kwargs != 0):
+        raise RuntimeError('Decorator need a function or method as first para')
+
+    # if first para is func
+    if n_args == 1:
+        arg = args[0]
+        if isinstance(arg, (types.FunctionType, types.MethodType)):
+            @wraps
+            def _func(self, *args_, **kwargs_):
+                self = _checked(self)
+                ret = arg(self, *args_, **kwargs_)
+                self._checker.save(ret)
+                return ret
+
+            return _func
+
+    # for name paras
+    if n_args >= 1:
+        if not all([isinstance(o, str) for o in args]):
+            raise TypeError('Name of key must be str')
+
+        def _deco(fn):
+            @wraps
+            def _func_1(self, *args_, **kwargs_):
+                self = _checked(self)
+                ret = fn(self, *args_, **kwargs_)
+                if not isinstance(ret, tuple):
+                    ret = (ret,)
+                _n_ret = len(ret)
+                if _n_ret != n_args:
+                    raise RuntimeError('Number of keys not equal values\' number')
+                pair = zip(args, ret)
+                self._checker.save(**{k: v for k, v in pair})
+                return ret if len(ret) > 1 else ret[0]
+
+            return _func_1
+
+        return _deco
+
+    if n_kwargs >= 1:
+        def _deco(fn):
+            @wraps
+            def _func_2(self, *args_, **kwargs_):
+                self = _checked(self)
+                ret = fn(self, *args_, **kwargs_)
+                if not isinstance(ret, tuple):
+                    ret = (ret,)
+                _n_ret = len(ret)
+                if _n_ret != n_kwargs:
+                    raise RuntimeError('Number of keys not equal values\' number')
+                types_ = kwargs.values()
+                if not all([isinstance(v, t) for v, t in zip(ret, types_)]):
+                    raise TypeError('Returns\' type not match')
+                names = kwargs.keys()
+                pair = zip(names, ret)
+                self._checker.save(**{k: v for k, v in pair})
+                return ret if len(ret) > 1 else ret[0]
+
+            return _func_2
+
+        return _deco
+
+
 class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
 
     def __init__(self, epochs=2000, ctx='cpu', work_dir='.'):
@@ -110,81 +194,6 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         if kwargs:
             for k, v in kwargs.items():
                 setattr(self, k + '_', v)
-
-    def persistence(*args, **kwargs):
-        """
-
-        Parameters
-        ----------
-        args
-        kwargs
-
-        Returns
-        -------
-
-        """
-        n_args = len(args)
-        n_kwargs = len(kwargs)
-
-        # only args or kwargs, no mix
-        if (n_args == 0 and n_kwargs == 0) or (n_args != 0 and n_kwargs != 0):
-            raise RuntimeError('Decorator need a function or method as first para')
-
-        # if first para is func
-        if n_args == 1:
-            arg = args[0]
-            if isinstance(arg, (types.FunctionType, types.MethodType)):
-                @wraps
-                def _func(self, *args_, **kwargs_):
-                    ret = arg(self, *args_, **kwargs_)
-                    self._checker.save(ret)
-                    return ret
-
-                return _func
-
-        # for name paras
-        if n_args >= 1:
-            if not all([isinstance(o, str) for o in args]):
-                raise TypeError('Name of key must be str')
-
-            def _deco(fn):
-                @wraps
-                def _func_1(self, *args_, **kwargs_):
-                    ret = fn(self, *args_, **kwargs_)
-                    if not isinstance(ret, tuple):
-                        ret = (ret,)
-                    _n_ret = len(ret)
-                    if _n_ret != n_args:
-                        raise RuntimeError('Number of keys not equal values\' number')
-                    pair = zip(args, ret)
-                    self._checker.save(**{k: v for k, v in pair})
-                    return ret if len(ret) > 1 else ret[0]
-
-                return _func_1
-
-            return _deco
-
-        if n_kwargs >= 1:
-            def _deco(fn):
-                @wraps
-                def _func_2(self, *args_, **kwargs_):
-                    ret = fn(self, *args_, **kwargs_)
-                    if not isinstance(ret, tuple):
-                        ret = (ret,)
-                    _n_ret = len(ret)
-                    if _n_ret != n_kwargs:
-                        raise RuntimeError('Number of keys not equal values\' number')
-                    types_ = kwargs.values()
-                    if not all([isinstance(v, t) for v, t in zip(ret, types_)]):
-                        raise TypeError('Returns\' type not match')
-                    names = kwargs.keys()
-                    pair = zip(names, ret)
-                    self._checker.save(**{k: v for k, v in pair})
-                    return ret if len(ret) > 1 else ret[0]
-
-                return _func_2
-
-            return _deco
 
     def checkpoint(self, **describe):
         """

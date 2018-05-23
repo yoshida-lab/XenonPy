@@ -114,24 +114,6 @@ def test_checker_trained_model3(setup):
     assert str(checker.trained_model) == str(setup['model'])
 
 
-def test_checker_train_data1(setup):
-    checker = Checker(setup['name'])
-    try:
-        checker.save_others(key=None)
-    except TypeError:
-        assert True
-    else:
-        assert False, 'should got error'
-
-
-def test_checker_train_data2(setup):
-    checker = Checker(setup['name'])
-    try:
-        checker.save_others(key1=setup['np'], key2=setup['df'])
-    except TypeError:
-        assert False, 'should not got error'
-
-
 def test_checker_call1(setup):
     checker = Checker(setup['name'])
     checker(**setup['cp'])

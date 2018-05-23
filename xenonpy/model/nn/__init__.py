@@ -11,8 +11,8 @@ with warnings.catch_warnings():
     except ImportError:
         warnings.warn("Can't find pytorch, will not load neural network modules.", RuntimeWarning)
     else:
-        from .checker import Checker
-        from .runner import ModelRunner
+        from .checker import *
+        from .runner import *
         from .model_maker import Generator1d, Sequential
         from .layer import Layer1d
         from . import wrap

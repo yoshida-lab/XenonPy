@@ -2,355 +2,346 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 import math
+import types
 from datetime import datetime as dt
+from functools import wraps
+from platform import version, system
 from warnings import warn
 
 import numpy as np
-import torch as tc
+import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.utils.data as Data
 from pandas import DataFrame as df
-from scipy.stats import pearsonr
 from sklearn.base import BaseEstimator
 from sklearn.externals import joblib
-from sklearn.metrics import mean_absolute_error, r2_score, mean_squared_error
-from torch.autograd import Variable as Var
 
 from .checker import Checker
-from .wrap import Init
-from ...preprocess.data_select import DataSplitter
-from ...preprocess.transform import Scaler
-from ...utils.functional import Stopwatch
+from ... import __version__
+from ...utils.functional import TimedMetaClass
 
 
-class ModelRunner(BaseEstimator):
-    """
-    Run model.
-    """
+class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
 
-    def __init__(self, epochs=2000, *,
-                 xy_scaler=None,
-                 batch_size=10000,
-                 ctx='cpu',
-                 check_step=100,
-                 log_step=0,
-                 work_dir=None,
-                 verbose=True,
-                 additional_info=None
-                 ):
+    def __init__(self, epochs=2000, ctx='cpu', work_dir='.'):
+        self._epochs = epochs
+        self._ctx = ctx
+        self._work_dir = work_dir
+        self._models = None
+        self._model_name = None
+        self._checker = None
+
+    def optim(self, iter_):
         """
 
         Parameters
         ----------
-        epochs: int
-        log_step: int
-        ctx: str
-        check_step: int
-        work_dir: str
-        verbose: bool
-            Print :class:`ModelRunner` environment.
+        iter_: generator
+            Yields y_train, self._model(x_train), n_ite, n_batch
+
+        Returns
+        -------
+        any
+
         """
-        self._add_info = additional_info if additional_info else {}
-        self._verbose = verbose
-        self._check_step = check_step
-        self._ctx = ctx
-        self._batch_size = batch_size
-        self._epochs = epochs
-        self._log_step = log_step
-        self._work_dir = work_dir
-        self._checker = None
-        self._splitter = None
-        self._model = None
-        self._model_name = None
-        self._loss_func = None
-        self._optim = None
-        self._lr = None
-        self._lr_scheduler = None
-        self._x_torch_type = self._y_torch_type = None
-        if xy_scaler:
-            self._x_scaler, self._y_scaler = self._check_xy_scaler(xy_scaler)
-        else:
-            self._x_scaler, self._y_scaler = None, None
+        raise NotImplementedError
 
-        if self._verbose:
-            print('Runner environment:')
-            print('Running dir: {}'.format(self._work_dir))
-            print('Epochs: {}'.format(self._epochs))
-            print('Context: {}'.format(self._ctx.upper()))
-            print('Check step: {}'.format(self._check_step))
-            print('Log step: {}\n'.format(self._log_step))
+    def post_predict(self, y_true, y_pred):
+        """
 
-    def __enter__(self):
-        return self
+        Parameters
+        ----------
+        y_true: torch.Tensor
+        y_pred: torch.Tensor
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        del self
+        Returns
+        -------
+        any
+        """
+        raise NotImplementedError
 
-    def __call__(self, model, name=None, *,
-                 init_weight=Init.uniform(scale=0.1),
-                 loss_func=None,
-                 optim=None,
-                 lr=0.001,
-                 lr_scheduler=None):
+    @property
+    def epochs(self):
+        return self._epochs
 
-        def _init_weight(m):
-            if isinstance(m, nn.Linear):  # fixme: not only linear
-                init_weight(m.weight)
+    @epochs.setter
+    def epochs(self, v):
+        self._epochs = v
 
+    @property
+    def ctx(self):
+        return self._ctx
+
+    @ctx.setter
+    def ctx(self, v):
+        self._ctx = v
+
+    @property
+    def work_dir(self):
+        return self._work_dir
+
+    @work_dir.setter
+    def work_dir(self, v):
+        self._work_dir = v
+
+    @property
+    def elapsed(self):
+        return self._timer.elapsed
+
+    def __call__(self, model, name=None, **kwargs):
+        """"""
         # model must inherit form nn.Module
         if not isinstance(model, nn.Module):
-            raise ValueError(
-                'Runner need a `torch.nn.Module` instance as first parameter but got {}'.format(type(model)))
+            raise TypeError('Need <torch.nn.Module> instance but got %s' % type(model))
 
         if not name:
             from hashlib import md5
             sig = md5(model.__str__().encode()).hexdigest()
             name = sig
-        if init_weight:
-            if self._verbose:
-                print('init weight with {}'.format(init_weight))
-            model.apply(_init_weight)
         self._checker = Checker(name, self._work_dir)
         self._model = model
         self._model_name = name
-        self._loss_func = loss_func
-        self._optim = optim
-        self._lr = lr
-        self._lr_scheduler = lr_scheduler
         self._checker.init_model = model
-        self._checker.save(runner=dict(
-            add_info=self._add_info,
-            verbose=self._verbose,
-            check_step=self._check_step,
-            ctx=self._ctx,
-            epochs=self._epochs,
-            log_step=self._log_step,
-            work_dir=self._work_dir,
-            model_name=self._model_name,
-            loss_func=self._loss_func,
-            optim=self._optim,
-            lr=self._lr,
-            lr_scheduler=self._lr_scheduler
-        ))
+        self._checker.save(runner=dict(ctx=self._ctx,
+                                       epochs=self._epochs,
+                                       work_dir=self._work_dir))
+
+        if kwargs:
+            for k, v in kwargs.items():
+                setattr(self, k + '_', v)
+
+    def persistence(*args, **kwargs):
+        """
+
+        Parameters
+        ----------
+        args
+        kwargs
+
+        Returns
+        -------
+
+        """
+        n_args = len(args)
+        n_kwargs = len(kwargs)
+
+        # only args or kwargs, no mix
+        if (n_args == 0 and n_kwargs == 0) or (n_args != 0 and n_kwargs != 0):
+            raise RuntimeError('Decorator need a function or method as first para')
+
+        # if first para is func
+        if n_args == 1:
+            arg = args[0]
+            if isinstance(arg, (types.FunctionType, types.MethodType)):
+                @wraps
+                def _func(self, *args_, **kwargs_):
+                    ret = arg(self, *args_, **kwargs_)
+                    self._checker.save(ret)
+                    return ret
+
+                return _func
+
+        # for name paras
+        if n_args >= 1:
+            if not all([isinstance(o, str) for o in args]):
+                raise TypeError('Name of key must be str')
+
+            def _deco(fn):
+                @wraps
+                def _func_1(self, *args_, **kwargs_):
+                    ret = fn(self, *args_, **kwargs_)
+                    if not isinstance(ret, tuple):
+                        ret = (ret,)
+                    _n_ret = len(ret)
+                    if _n_ret != n_args:
+                        raise RuntimeError('Number of keys not equal values\' number')
+                    pair = zip(args, ret)
+                    self._checker.save(**{k: v for k, v in pair})
+                    return ret if len(ret) > 1 else ret[0]
+
+                return _func_1
+
+            return _deco
+
+        if n_kwargs >= 1:
+            def _deco(fn):
+                @wraps
+                def _func_2(self, *args_, **kwargs_):
+                    ret = fn(self, *args_, **kwargs_)
+                    if not isinstance(ret, tuple):
+                        ret = (ret,)
+                    _n_ret = len(ret)
+                    if _n_ret != n_kwargs:
+                        raise RuntimeError('Number of keys not equal values\' number')
+                    types_ = kwargs.values()
+                    if not all([isinstance(v, t) for v, t in zip(ret, types_)]):
+                        raise TypeError('Returns\' type not match')
+                    names = kwargs.keys()
+                    pair = zip(names, ret)
+                    self._checker.save(**{k: v for k, v in pair})
+                    return ret if len(ret) > 1 else ret[0]
+
+                return _func_2
+
+            return _deco
+
+    def checkpoint(self, **describe):
+        """
+        Take a snapshot for current model status.
+
+        Parameters
+        ----------
+        describe: dict
+            Additional description for checkpoint.
+
+        """
+        self._checker(model_state=self._model.state_dict(), **describe)
 
     @staticmethod
-    def _check_xy_scaler(scaler):
-        if isinstance(scaler, (tuple, list)):
-            if not (isinstance(scaler[0], Scaler) and isinstance(scaler[1], Scaler)):
-                raise TypeError('must be a Scaler but got ({}, {})'.format(type(scaler[0]), type(scaler[1])))
-            if scaler[0].value.shape[0] != scaler[1].value.shape[0]:
-                raise ValueError('X y should have same row size (shape[0])')
-            return scaler[0], scaler[1]
-        else:
-            raise ValueError('parameter scaler must be a tuple or list with size 2 but got {}'.format(scaler))
-
-    @property
-    def xy_scaler(self):
-        return self._x_scaler, self._y_scaler
-
-    @xy_scaler.setter
-    def xy_scaler(self, scaler):
-        self._x_scaler, self._y_scaler = self._check_xy_scaler(scaler)
-
-    @staticmethod
-    def _d2t(data, torch_type):
-        if isinstance(data, df):
-            if torch_type is None:
-                data = tc.from_numpy(data.as_matrix()).type(tc.FloatTensor)
+    def _to_tensor(*data_type):
+        def _tensor(data, torch_type):
+            if isinstance(data, df):
+                return torch.from_numpy(data.as_matrix()).type(torch_type)
+            elif isinstance(data, np.ndarray):
+                return torch.from_numpy(data).type(torch_type)
             else:
-                data = tc.from_numpy(data.as_matrix()).type(torch_type)
-        elif isinstance(data, np.ndarray):
-            if torch_type is None:
-                data = tc.from_numpy(data).type(tc.FloatTensor)
+                raise TypeError('Need <numpy.ndarray> or <pandas.DataFrame> but got %s' % type(data))
+
+        return tuple([_tensor(data_, type_) for data_, type_ in data_type])
+
+    def _cuda(self, *tensor):
+        # if use CUDA acc
+        if self._ctx.lower() == 'gpu':
+            if torch.cuda.is_available():
+                self._model.cuda()
+                return tuple([t.cuda() for t in tensor])
             else:
-                data = tc.from_numpy(data).type(torch_type)
+                warn('No cuda environment, use cpu fallback.', RuntimeWarning)
         else:
-            raise TypeError('need to be <numpy.ndarray> or <pandas.DataFrame> but got {}'.format(type(data)))
-        return data
+            self._model.cpu()
+            return tuple([t.cpu() for t in tensor])
 
-    @staticmethod
-    def metrics(y_true, y_pred):
-        mae = mean_absolute_error(y_true, y_pred)
-        rmse = np.sqrt(mean_squared_error(y_true, y_pred))
-        r2 = r2_score(y_true, y_pred)
-        pr, p_val = pearsonr(y_true, y_pred)
-        return dict(
-            mae=mae,
-            rmse=rmse,
-            r2=r2,
-            pearsonr=pr,
-            p_value=p_val
-        )
-
-    def _train(self, train_loader):
-        stopwatch = Stopwatch()
-        # optimization
-        optim = self._optim(self._model.parameters(), lr=self._lr)
-
-        # adjust learning rate
-        scheduler = self._lr_scheduler(optim) if self._lr_scheduler else None
-
-        # start
-        loss, y_pred = None, None
-        print('Model name: {}\n'.format(self._model_name))
-        print('=======start training=======')
-
-        for t in range(self._epochs):
-            for x_train, y_train in train_loader:
-                # transform to torch variable
-                x_train = Var(x_train, requires_grad=False)
-                y_train = Var(y_train, requires_grad=False)
-
-                if scheduler and not isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
-                    scheduler.step()
-                y_pred = self._model(x_train)
-                loss = self._loss_func(y_pred, y_train)
-                if scheduler and isinstance(scheduler, tc.optim.lr_scheduler.ReduceLROnPlateau):
-                    scheduler.step(loss)
-                optim.zero_grad()
-                loss.backward()
-                optim.step()
-
-            if self._log_step > 0 and t % self._log_step == 0:
-                print('at step[{}/{}], Loss={:.4f}, elapsed time: {}'.format(t, self._epochs,
-                                                                             loss.data[0],
-                                                                             stopwatch.count))
-            if self._check_step > 0 and t % self._check_step == 0:
-                self._checker(model_state=self._model.state_dict(), epochs=t)
-
-        print('\n=======over training=======')
-
-        # save last results
-        self._checker(model_state=self._model.state_dict(), epochs=self._epochs)
-        y_train, y_pred = y_train.cpu().data.numpy(), y_pred.cpu().data.numpy()
-        metrics = self.metrics(y_train, y_pred)
-
-        if self._verbose:
-            print('Final loss={:.4f}\n'.format(loss.data[0]))
-            print('Mean absolute error with train data: %s' % metrics['mae'])
-            print('Root mean squared error with train data: %s' % metrics['rmse'])
-
-        return y_train, y_pred, metrics
-
-    def fit(self, *xy, test_size=0.2, x_torch_type=None, y_torch_type=None):
+    def fit(self, x_train, y_train, *,
+            x_torch_type=torch.FloatTensor,
+            y_torch_type=torch.FloatTensor,
+            describe=None,
+            batch_size=None,
+            shuffle=False,
+            num_worker=0,
+            pin_memory=False):
         """
         Fit Neural Network model
 
         Parameters
         ----------
-        xy: None or list or ``numpy.ndarray`` or ``pandas.DataFrame``.
+        x_train:  ``numpy.ndarray`` or ``pandas.DataFrame``.
             Training data.
-            If None, will split data in ``self.xy_scaler`` with ``test_size=0.2``.
-            If ``self.xy_scaler``  is None, raise ``ValueError``.
-            If list, use as indices to sample training data from `self.xy_scaler``.
-            If ``self.xy_scaler``  is None, raise ``ValueError``.
-            Also can input x y training data directly in ``numpy.ndarray`` or ``pandas.DataFrame``.
-        test_size: float, int, None
-            If float, should be between 0.0 and 1.0 and represent the proportion
-            of the dataset to include in the test split. If int, represents the
-            absolute number of test samples. If None, the value is set to the
-            complement of the train size. By default, the value is set to 0.2.
+        y_train:  ``numpy.ndarray`` or ``pandas.DataFrame``.
+            Test data.
         x_torch_type: torch data type
             Default is torch.FloatTensor.
         y_torch_type: torch data type
             Default is torch.FloatTensor.
+        describe: dict
+            Additional information to describe this model training.
+        batch_size: int, float
+        pin_memory: bool
+            If ``True``, the data loader will copy tensors into CUDA pinned memory before returning them.
+        num_worker: int
+            How many subprocesses to use for data loading.
+            0 means that the data will be loaded in the main process. (default: 0)
+        shuffle: bool
+            Set to ``True`` to have the data reshuffled at every epoch (default: False).
         Returns
         -------
         self:
             returns an instance of self.
         """
-        if len(xy) == 0:
-            if self._x_scaler and self._y_scaler:
-                ds = DataSplitter(self._x_scaler.np_value, test_size=test_size)
-                x_train, y_train = ds.split_data(self._x_scaler.np_value, self._y_scaler.np_value, test=False)
-                self._checker.save_data(x_scaler=self._x_scaler, y_scaler=self._y_scaler, splitter=ds)
-                self._splitter = ds
-            else:
-                raise ValueError('No data for training, please set ``xy_scaler`` or input training data directly')
+
+        # prepare data
+        x_train, y_train = self._to_tensor((x_train, x_torch_type), (y_train, y_torch_type))
+        x_train, y_train = self._cuda(x_train, y_train)
+
+        # batch_size
+        if batch_size:
+            if isinstance(batch_size, int):
+                if batch_size > x_train.shape[0]:
+                    warn('Batch size %d is greater than sample size, set batch size to %d.'
+                         % (batch_size, x_train.shape[0]), RuntimeWarning)
+                    batch_size = x_train.shape[0]
+            elif isinstance(batch_size, float):
+                batch_size = math.floor(x_train.shape[0] * batch_size)
         else:
-            if len(xy) != 2:
-                raise ValueError('xy size must be 2 but got {}'.format(len(xy)))
-            x_train, y_train = xy
-            self._checker.save_data(x_train=x_train, y_train=y_train)
+            batch_size = x_train.shape[0]
 
-        # train
-        if isinstance(self._batch_size, float):  # todo: need range check
-            self._batch_size = math.floor(x_train.shape[0] * self._batch_size)
-        x_train = self._d2t(x_train, x_torch_type)
-        y_train = self._d2t(y_train, y_torch_type)
+        train_loader = Data.DataLoader(dataset=Data.TensorDataset(x_train, y_train),
+                                       batch_size=batch_size,
+                                       shuffle=shuffle,
+                                       num_workers=num_worker,
+                                       pin_memory=pin_memory)
 
-        # if use CUDA acc
-        if self._ctx.lower() == 'gpu':
-            if tc.cuda.is_available():
-                self._model.cuda()
-                x_train = x_train.cuda()
-                y_train = y_train.cuda()
-            else:
-                warn('No cuda environment, use cpu fallback.', RuntimeWarning)
+        def _ite():
+            for t in range(self._epochs):
+                for i, (x_, y_) in enumerate(train_loader):
+                    yield y_, self._model(x_), t, i
+
+        desc = dict(
+            python=version(),
+            system=system(),
+            numpy=np.__version__,
+            torch=torch.__version__,
+            xenonpy=__version__,
+            structure=str(self._model),
+            running_at=self._work_dir,
+            start=dt.now().strftime('%Y-%m-%d_%H-%M-%S_%f'),
+        )
+
+        # training
+        print('|> training start ===> ', dt.now().strftime('%Y-%m-%d_%H-%M-%S'))
+        print('|> Model name: {}\n'.format(self._model_name))
+
+        ret = self.optim(_ite())  # user implementation
+
+        print('\n|> elapsed time: {}'.format(self.elapsed))
+        print('|> training done ===> ', dt.now().strftime('%Y-%m-%d_%H-%M-%S'))
+
+        if describe and isinstance(describe, dict):
+            self._checker.save(describe={**desc, **describe, 'done': dt.now().strftime('%Y-%m-%d_%H-%M-%S_%f')})
         else:
-            self._model.cpu()
-
-        train_data = Data.TensorDataset(x_train, y_train)
-        train_loader = Data.DataLoader(dataset=train_data, batch_size=self._batch_size,
-                                       shuffle=True,
-                                       num_workers=5,
-                                       pin_memory=False)
-        result = self._train(train_loader)
-
-        # move back to cpu
-        self._model.cpu()
+            self._checker.save(describe={**desc, 'done': dt.now().strftime('%Y-%m-%d_%H-%M-%S_%f')})
         self._checker.trained_model = self._model
-        self._checker.describe = dict(self._add_info,
-                                      structure=str(self._model),
-                                      running_at=self._work_dir,
-                                      created_at=dt.now().strftime('-%Y-%m-%d_%H-%M-%S_%f'))
 
-        return result
+        return ret
 
-    def predict(self, *xy, x_torch_type=None):
-        save_data = False
-        if len(xy) == 0:
-            if self._x_scaler and self._y_scaler:
-                x_test, y_test = self._splitter.split_data(self._x_scaler.np_value, self._y_scaler.np_value,
-                                                           train=False)
-            else:
-                raise ValueError('No data for test, please set ``xy_scaler`` or input test data directly')
-        else:
-            if len(xy) != 2:
-                raise ValueError('xy size must be 2 but got {}'.format(len(xy)))
-            x_test, y_test = xy
-            save_data = True
-        # prepare x
-        x_test_ = self._d2t(x_test, x_torch_type)
-        x_test_ = Var(x_test_, requires_grad=False)
+    def predict(self, x_test, y_test, *,
+                x_torch_type=torch.FloatTensor,
+                y_torch_type=torch.FloatTensor):
+        """
 
-        # if use CUDA acc
-        if self._ctx.lower() == 'gpu':
-            if tc.cuda.is_available():
-                self._model.cuda()
-                x_test_ = x_test_.cuda()
-            else:
-                warn('No cuda environment, use cpu fallback.', RuntimeWarning)
-        else:
-            self._model.cpu()
+        Parameters
+        ----------
+        x_test: DataFrame, ndarray
+            Input data for test..
+        y_test: DataFrame, ndarray
+            Target data for test.
+        x_torch_type: torch.Tensor
+            Corresponding dtype in torch tensor.
+        y_torch_type: torch.Tensor
+            Corresponding dtype in torch tensor
+
+        Returns
+        -------
+        any
+            Return ::meth:`post_predict` results.
+        """
+        # prepare data
+        x_test, y_test = self._to_tensor((x_test, x_torch_type), (y_test, y_torch_type))
+        x_test, y_test = self._cuda(x_test, y_test)
+
         # prediction
-        y_pred = self._model(x_test_).cpu().data.numpy()
-        metrics = self.metrics(y_test, y_pred)
-
-        if save_data:
-            self._checker.add_predict(
-                x_test=x_test,
-                y_test=y_test,
-                y_pred=y_pred,
-                metrics=metrics
-            )
-        else:
-            self._checker.add_predict(
-                y_pred=y_pred,
-                metrics=metrics
-            )
-
-        return y_test, y_pred, metrics
+        y_true, y_pred = self._model(x_test), y_test
+        return self.post_predict(y_true, y_pred)
 
     @classmethod
     def from_checker(cls, name, path=None):
@@ -399,3 +390,92 @@ class ModelRunner(BaseEstimator):
         """
         val = dict(model=self._model, **kwargs)
         joblib.dump(val, fpath)
+
+
+class RegressionRunner(BaseRunner):
+    """
+    Run model.
+    """
+
+    def __init__(self, epochs=2000, *,
+                 ctx='cpu',
+                 check_step=100,
+                 log_step=0,
+                 work_dir=None,
+                 verbose=True
+                 ):
+        """
+
+        Parameters
+        ----------
+        epochs: int
+        log_step: int
+        ctx: str
+        check_step: int
+        work_dir: str
+        verbose: bool
+            Print :class:`ModelRunner` environment.
+        """
+        super(RegressionRunner, self).__init__(epochs, ctx, work_dir)
+        self._verbose = verbose
+        self._check_step = check_step
+        self._log_step = log_step
+        self._lr = 0.01
+        self._lr_scheduler = None
+
+        if verbose:
+            print('Runner environment:')
+            print('Running dir: {}'.format(self._work_dir))
+            print('Epochs: {}'.format(self._epochs))
+            print('Context: {}'.format(self._ctx.upper()))
+            print('Check step: {}'.format(self._check_step))
+            print('Log step: {}\n'.format(self._log_step))
+
+    @property
+    def lr(self):
+        return self._lr
+
+    @lr.setter
+    def lr(self, v):
+        """"""
+        self._lr = v
+
+    @property
+    def lr_scheduler(self):
+        return None
+
+    @lr_scheduler.setter
+    def lr_scheduler(self, v):
+        self._lr_scheduler = v
+
+    @persistence('y_true', 'y_pred')
+    def post_predict(self, y_true, y_pred):
+        return y_true.cpu().numpy(), y_pred.cpu().numpy()
+
+    def optim(self, train_loader):
+        # optimization
+        optim = torch.optim.Adam(self._model.parameters(), lr=self._lr)
+
+        # adjust learning rate
+        scheduler = self._lr_scheduler(optim) if self._lr_scheduler else None
+
+        y_train = y_pred = loss = None
+        for y_train, y_pred, t, i in range(self._epochs):
+
+            if scheduler and not isinstance(scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
+                scheduler.step()
+            loss = F.mse_loss(y_pred, y_train)
+            if scheduler and isinstance(scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
+                scheduler.step(loss)
+            optim.zero_grad()
+            loss.backward()
+            optim.step()
+
+            if self._log_step > 0 and t % self._log_step == 0:
+                print('|> {}/{}, Loss={:.4f}, elapsed time: {}'.format(t, self._epochs, loss, self.elapsed))
+            if self._check_step > 0 and t % self._check_step == 0:
+                self.checkpoint(mse_loss=loss.item())
+
+        print('Final loss={:.4f}\n'.format(loss))
+
+        return y_train.cpu().numpy(), y_pred.cpu().numpy()

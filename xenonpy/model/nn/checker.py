@@ -3,29 +3,22 @@
 # license that can be found in the LICENSE file.
 
 from pathlib import Path
-from platform import version, system
 
-import numpy
-import pandas
 import torch
 from sklearn.externals import joblib
 
-from ... import __version__
-from ...preprocess.data_select import DataSplitter
 from ...preprocess.datatools import DataSet
-from ...preprocess.transform import Scaler
 from ...utils.functional import get_data_loc
-
-
-class _SL(object):
-    load = torch.load
-    dump = torch.save
 
 
 class Checker(DataSet):
     """
     Check point.
     """
+
+    class __SL(object):
+        load = torch.load
+        dump = torch.save
 
     def __init__(self, name, path=None, *, increment=True):
         """
@@ -69,28 +62,6 @@ class Checker(DataSet):
         """
         return self.last('describe')
 
-    @describe.setter
-    def describe(self, description):
-        """
-        Set description.
-
-        Parameters
-        ----------
-        description: dict
-            Description in dict object.
-        """
-        desc = dict(
-            python=version(),
-            system=system(),
-            numpy=numpy.__version__,
-            torch=torch.__version__,
-            xenonpy=__version__)
-        if isinstance(description, dict):
-            desc = dict(desc, **description)
-        else:
-            raise TypeError('except dict but got {}'.format(type(description)))
-        super().__call__(describe=desc)
-
     @property
     def init_model(self):
         """
@@ -103,7 +74,7 @@ class Checker(DataSet):
         model:
             The last appended model.
         """
-        self._backend = _SL
+        self._backend = self.__SL
         try:
             return self.last('init_model')
         except FileNotFoundError:
@@ -122,7 +93,7 @@ class Checker(DataSet):
         model: torch.nn.Module
         """
         if isinstance(model, torch.nn.Module):
-            self._backend = _SL
+            self._backend = self.__SL
             super().__call__(init_model=model)
             self._backend = joblib
         else:
@@ -142,7 +113,7 @@ class Checker(DataSet):
         model:
             The last appended model.
         """
-        self._backend = _SL
+        self._backend = self.__SL
         try:
             return self.last('trained_model')
         except FileNotFoundError:
@@ -160,7 +131,7 @@ class Checker(DataSet):
         model: torch.nn.Module
         """
         if isinstance(model, torch.nn.Module):
-            self._backend = _SL
+            self._backend = self.__SL
             super().__call__(trained_model=model)
             self._backend = joblib
         else:
@@ -168,39 +139,9 @@ class Checker(DataSet):
                 'except `torch.nn.Module` object but got {}'.format(
                     type(model)))
 
-    def save_data(self, **kwargs):
-        """
-        Save data.
-
-        Parameters
-        ----------
-        **kwargs
-            Same as :class:`DataSet`
-        """
-
-        def _check(o):
-            return isinstance(o, (numpy.ndarray, pandas.DataFrame, Scaler, DataSplitter))
-
-        for v in kwargs.values():
-            if not _check(v):
-                raise TypeError('except <ndarray>, <DataFrame>, <DataSplitter> or <Scaler> but got {}'.format(type(v)))
-        super().__call__(**kwargs)
-
-    def add_predict(self, **pred):
-        """
-        add a prediction result.
-        This action don't overwrite but add a new object.
-
-        Parameters
-        ----------
-        pred: dict
-            A prediction result as dict.
-        """
-        self.predicts(**pred)
-
     def __getitem__(self, item):
         if isinstance(item, int):
-            self._backend = _SL
+            self._backend = self.__SL
             try:
                 return self.checkpoints[item]
             except IndexError:
@@ -211,9 +152,6 @@ class Checker(DataSet):
             type(item)))
 
     def __call__(self, **kwargs):
-        self.check(**kwargs)
-
-    def check(self, **kwargs):
-        self._backend = _SL
+        self._backend = self.__SL
         self.checkpoints(kwargs)
         self._backend = joblib

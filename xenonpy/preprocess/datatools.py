@@ -148,10 +148,10 @@ class DataSet(object):
         return file
 
     def dump(self,
-             fpath: str,
+             fpath,
              *,
-             rename: str = None,
-             with_datetime: bool = True):
+             rename=None,
+             with_datetime=True):
         """
         Dump last checked dataset to file.
 
@@ -183,7 +183,7 @@ class DataSet(object):
 
         return str(path)
 
-    def last(self, name: str = None):
+    def last(self, name=None):
         """
         Return last saved data.
 
@@ -202,9 +202,9 @@ class DataSet(object):
                 return self._load_data(self._files['unnamed'][-1])
             return self._load_data(self._files[name][-1])
         except IndexError:
-            raise FileNotFoundError('no data under dataset {}.'.format(self._name))
+            return None
 
-    def rm(self, index, name: str = None):
+    def rm(self, index, name=None):
         """
         Delete file(s) with given index.
 
@@ -234,7 +234,7 @@ class DataSet(object):
                 remove(str(f))
         del self._files[name][index]
 
-    def clean(self, name: str = None):
+    def clean(self, name=None):
         """
         Remove all data by name. Omit to remove hole dataset.
 

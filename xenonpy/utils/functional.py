@@ -2,9 +2,12 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
+# A timer utility class
 import time
+import types
+from collections import defaultdict
 from contextlib import contextmanager
-from datetime import timedelta
+from functools import wraps
 from os import getenv
 from pathlib import Path
 
@@ -145,13 +148,63 @@ def absolute_path(path, ignore_err=True):
     return str(p.expanduser().resolve(not ignore_err))
 
 
-class Stopwatch(object):
-    def __init__(self):
-        self._start = time.monotonic()
+class Timer(object):
+    class __Timer:
+        def __init__(self):
+            self.start = None
+            self.times = []
+
+        @property
+        def elapsed(self):
+            all_ = sum(self.times)
+            dt = 0.0
+            if self.start:
+                dt = time.perf_counter() - self.start
+            return all_ + dt
+
+    def __init__(self, time_func=time.perf_counter):
+        self._func = time_func
+        self._timers = defaultdict(self.__Timer)
+
+    def __call__(self, *args, **kwargs):
+        self.timed(*args, **kwargs)
+
+    def start(self, fn_name='main'):
+        if self._timers[fn_name].start is not None:
+            raise RuntimeError('Timer <%s> Already started' % fn_name)
+        self._timers[fn_name].start = self._func()
+
+    def timed(self, fn):
+        if isinstance(fn, (types.FunctionType, types.MethodType)):
+            @wraps(fn)
+            def fn_(*args, **kwargs):
+                self.start(fn.__name__)
+                rt = fn(*args, **kwargs)
+                self.stop(fn.__name__)
+                return rt
+
+            return fn_
+        raise TypeError('Need <FunctionType> or <MethodType> but got %s' % type(fn))
+
+    def stop(self, fn_name='main'):
+        if self._timers[fn_name].start is None:
+            raise RuntimeError('Timer <%s> not started' % fn_name)
+        elapsed = self._func() - self._timers[fn_name].start
+        self._timers[fn_name].times.append(elapsed)
+        self._timers[fn_name].start = None
 
     @property
-    def count(self):
-        return timedelta(seconds=time.monotonic() - self._start)
+    def elapsed(self):
+        if 'main' in self._timers:
+            return self._timers['main'].elapsed
+        return sum([v.elapsed for v in self._timers.values()])
+
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, *args):
+        self.stop()
 
 
 def get_sha256(fname):
@@ -174,3 +227,26 @@ def get_sha256(fname):
         for chunk in iter(lambda: f.read(65536), b""):
             hasher.update(chunk)
     return hasher.hexdigest()
+
+
+class TimedMetaClass(type):
+    """
+    This metaclass replaces each methods of its classes
+    with a new function that is timed
+    """
+
+    def __new__(mcs, name, bases, attr):
+
+        attr['_timer'] = Timer()
+        for name, value in attr.items():
+            if isinstance(value, (types.FunctionType, types.MethodType)):
+                attr[name] = attr['_timer'].timed(value)
+
+        return super(TimedMetaClass, mcs).__new__(mcs, name, bases, attr)
+
+    def __enter__(self):
+        self._timer.start()
+        return self
+
+    def __exit__(self, *args):
+        self._timer.stop()

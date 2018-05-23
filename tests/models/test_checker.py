@@ -117,7 +117,7 @@ def test_checker_trained_model3(setup):
 def test_checker_train_data1(setup):
     checker = Checker(setup['name'])
     try:
-        checker.save_data(key=None)
+        checker.save_others(key=None)
     except TypeError:
         assert True
     else:
@@ -127,7 +127,7 @@ def test_checker_train_data1(setup):
 def test_checker_train_data2(setup):
     checker = Checker(setup['name'])
     try:
-        checker.save_data(key1=setup['np'], key2=setup['df'])
+        checker.save_others(key1=setup['np'], key2=setup['df'])
     except TypeError:
         assert False, 'should not got error'
 

@@ -2,6 +2,7 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
+from copy import deepcopy
 from pathlib import Path
 from shutil import rmtree
 
@@ -21,7 +22,7 @@ def setup():
     dot = Path()
     test = dict(
         name=name,
-        cp=dict(a=1, b=2),
+        cp=dict(model_state=1, b=2),
         path='./',
         default=str(default),
         dot=str(dot),
@@ -118,7 +119,6 @@ def test_checker_call1(setup):
     checker = Checker(setup['name'])
     checker(**setup['cp'])
     assert (Path(checker.path) / checker.name / 'checkpoints').exists()
-    assert checker[0] == setup['cp']
 
 
 def test_checker_from_cp(setup):
@@ -127,7 +127,11 @@ def test_checker_from_cp(setup):
     path = checker.path
     checker(**setup['cp'])
     checker2 = Checker.load(name, path)
-    assert checker2[0] == setup['cp']
+    model_state, other = checker2[0]
+    other_ = deepcopy(setup['cp'])
+    del other_['model_state']
+    assert model_state == setup['cp']['model_state']
+    assert other == other_
 
 
 if __name__ == "__main__":

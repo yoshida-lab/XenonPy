@@ -4,10 +4,18 @@ xenonpy.preprocess package
 Submodules
 ----------
 
-xenonpy.preprocess.batch module
--------------------------------
+xenonpy.preprocess.data\_select module
+--------------------------------------
 
-.. automodule:: xenonpy.preprocess.batch
+.. automodule:: xenonpy.preprocess.data_select
+:members:
+        :undoc-members:
+        :show-inheritance:
+
+xenonpy.preprocess.datatools module
+-----------------------------------
+
+.. automodule:: xenonpy.preprocess.datatools
     :members:
     :undoc-members:
     :show-inheritance:

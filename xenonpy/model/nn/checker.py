@@ -49,6 +49,10 @@ class Checker(DataSet):
         return cls(name, path, increment=False)
 
     @property
+    def model_name(self):
+        return self._name
+
+    @property
     def describe(self):
         """
         Model's description.
@@ -143,7 +147,10 @@ class Checker(DataSet):
         if isinstance(item, int):
             self._backend = self.__SL
             try:
-                return self.checkpoints[item]
+                cp = self.checkpoints[item]
+                model_state = cp['model_state']
+                del cp['model_state']
+                return model_state, cp
             except IndexError:
                 return None
             finally:

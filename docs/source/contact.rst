@@ -1,5 +1,5 @@
 ========
-Contract
+Contact
 ========
 
 * With issues_

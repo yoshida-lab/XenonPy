@@ -174,18 +174,6 @@ class Timer(object):
             raise RuntimeError('Timer <%s> Already started' % fn_name)
         self._timers[fn_name].start = self._func()
 
-    def timed(self, fn):
-        if isinstance(fn, (types.FunctionType, types.MethodType)):
-            @wraps(fn)
-            def fn_(*args, **kwargs):
-                self.start(fn.__name__)
-                rt = fn(*args, **kwargs)
-                self.stop(fn.__name__)
-                return rt
-
-            return fn_
-        raise TypeError('Need <FunctionType> or <MethodType> but got %s' % type(fn))
-
     def stop(self, fn_name='main'):
         if self._timers[fn_name].start is None:
             raise RuntimeError('Timer <%s> not started' % fn_name)
@@ -229,6 +217,19 @@ def get_sha256(fname):
     return hasher.hexdigest()
 
 
+def timed(fn):
+    if isinstance(fn, (types.FunctionType, types.MethodType)):
+        @wraps(fn)
+        def fn_(self, *args, **kwargs):
+            self._timer.start(fn.__name__)
+            rt = fn(self, *args, **kwargs)
+            self._timer.stop(fn.__name__)
+            return rt
+
+        return fn_
+    raise TypeError('Need <FunctionType> or <MethodType> but got %s' % type(fn))
+
+
 class TimedMetaClass(type):
     """
     This metaclass replaces each methods of its classes
@@ -237,16 +238,23 @@ class TimedMetaClass(type):
 
     def __new__(mcs, name, bases, attr):
 
-        attr['_timer'] = Timer()
+        if '__init__' in attr:
+            real_init = attr['__init__']
+
+            # we do a deepcopy in case default is mutable
+            # but beware, this might not always work
+            def injected_init(self, *args, **kwargs):
+                setattr(self, '_timer', Timer())
+                # call the "real" __init__ that we hid with our injected one
+                real_init(self, *args, **kwargs)
+        else:
+            def injected_init(self, *args, **kwargs):
+                setattr(self, '_timer', Timer())
+        # inject it
+        attr['__init__'] = injected_init
+
         for name, value in attr.items():
-            if isinstance(value, (types.FunctionType, types.MethodType)):
-                attr[name] = attr['_timer'].timed(value)
+            if name[0] != '_' and isinstance(value, (types.FunctionType, types.MethodType)):
+                attr[name] = timed(value)
 
         return super(TimedMetaClass, mcs).__new__(mcs, name, bases, attr)
-
-    def __enter__(self):
-        self._timer.start()
-        return self
-
-    def __exit__(self, *args):
-        self._timer.stop()

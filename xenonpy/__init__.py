@@ -37,7 +37,7 @@ def __init(force=False):
     from .utils.functional import get_conf
 
     if version_info[0] != 3 or version_info[1] < 5:
-        raise SystemError("Must be using Python 3.5 or 3.6")
+        raise SystemError("Python 3.5 or 3.6 needed")
 
     yaml = YAML(typ='safe')
     yaml.indent(mapping=2, sequence=4, offset=2)

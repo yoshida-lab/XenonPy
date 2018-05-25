@@ -20,10 +20,10 @@ xenonpy.descriptor.element module
     :undoc-members:
     :show-inheritance:
 
-xenonpy.descriptor.pdf module
+xenonpy.descriptor.rdf module
 -----------------------------
 
-.. automodule:: xenonpy.descriptor.pdf
+.. automodule:: xenonpy.descriptor.rdf
     :members:
     :undoc-members:
     :show-inheritance:

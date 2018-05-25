@@ -3,19 +3,17 @@
 # license that can be found in the LICENSE file.
 import math
 import types
-from datetime import datetime as dt
+from datetime import datetime
+from datetime import timedelta
 from functools import wraps
 from platform import version, system
-from warnings import warn
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torch.utils.data as Data
-from pandas import DataFrame as df
 from sklearn.base import BaseEstimator
-from sklearn.externals import joblib
 
 from .checker import Checker
 from ... import __version__
@@ -48,13 +46,15 @@ def persistence(*args, **kwargs):
 
     # if first para is func
     if n_args == 1:
-        arg = args[0]
-        if isinstance(arg, (types.FunctionType, types.MethodType)):
-            @wraps
+        if isinstance(args[0], (types.FunctionType, types.MethodType)):
+            fn = args[0]
+
+            @wraps(fn)
             def _func(self, *args_, **kwargs_):
                 self = _checked(self)
-                ret = arg(self, *args_, **kwargs_)
-                self._checker.save(ret)
+                ret = fn(self, *args_, **kwargs_)
+                checker = getattr(self._checker, fn.__name__)
+                checker.save(ret)
                 return ret
 
             return _func
@@ -64,18 +64,19 @@ def persistence(*args, **kwargs):
         if not all([isinstance(o, str) for o in args]):
             raise TypeError('Name of key must be str')
 
-        def _deco(fn):
-            @wraps
+        def _deco(fn_):
+            @wraps(fn_)
             def _func_1(self, *args_, **kwargs_):
                 self = _checked(self)
-                ret = fn(self, *args_, **kwargs_)
+                ret = fn_(self, *args_, **kwargs_)
                 if not isinstance(ret, tuple):
                     ret = (ret,)
                 _n_ret = len(ret)
                 if _n_ret != n_args:
                     raise RuntimeError('Number of keys not equal values\' number')
                 pair = zip(args, ret)
-                self._checker.save(**{k: v for k, v in pair})
+                checker = getattr(self._checker, fn_.__name__)
+                checker.save(**{k: v for k, v in pair})
                 return ret if len(ret) > 1 else ret[0]
 
             return _func_1
@@ -83,11 +84,14 @@ def persistence(*args, **kwargs):
         return _deco
 
     if n_kwargs >= 1:
-        def _deco(fn):
-            @wraps
+        if not all([isinstance(v, type) for v in kwargs.values()]):
+            raise RuntimeError('Values must be type')
+
+        def _deco(fn_):
+            @wraps(fn_)
             def _func_2(self, *args_, **kwargs_):
                 self = _checked(self)
-                ret = fn(self, *args_, **kwargs_)
+                ret = fn_(self, *args_, **kwargs_)
                 if not isinstance(ret, tuple):
                     ret = (ret,)
                 _n_ret = len(ret)
@@ -98,7 +102,8 @@ def persistence(*args, **kwargs):
                     raise TypeError('Returns\' type not match')
                 names = kwargs.keys()
                 pair = zip(names, ret)
-                self._checker.save(**{k: v for k, v in pair})
+                checker = getattr(self._checker, fn_.__name__)
+                checker.save(**{k: v for k, v in pair})
                 return ret if len(ret) > 1 else ret[0]
 
             return _func_2
@@ -108,13 +113,38 @@ def persistence(*args, **kwargs):
 
 class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
 
-    def __init__(self, epochs=2000, ctx='cpu', work_dir='.'):
+    def __init__(self, epochs=2000, *,
+                 cuda: bool or int or str = False,
+                 work_dir='.',
+                 verbose=True):
         self._epochs = epochs
-        self._ctx = ctx
+        if isinstance(cuda, bool):
+            self._device = torch.device('cuda') if cuda else torch.device('cpu')
+        elif isinstance(cuda, int):
+            self._device = torch.device('cuda', cuda)
+        else:
+            self._device = torch.device(cuda)
+        self._verbose = verbose
         self._work_dir = work_dir
         self._models = None
         self._model_name = None
         self._checker = None
+        self._logs = []
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._timer.stop()
+        elapsed = str(timedelta(seconds=self.elapsed))
+        self.logger('done runner <%s>: %s' % (type(self).__qualname__, datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
+        self.logger('total elapsed time: %s' % elapsed)
+        logs = '\n'.join(self._logs)
+        now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')
+        with open(self.work_dir + '/log_' + now + '.txt', 'w') as f:
+            f.write(logs)
+
+    def __enter__(self):
+        self.logger('start runner <%s> at %s' % (type(self).__qualname__, datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
+        self._timer.start()
+        return self
 
     def optim(self, iter_):
         """
@@ -154,12 +184,14 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self._epochs = v
 
     @property
-    def ctx(self):
-        return self._ctx
+    def device(self):
+        return self._device
 
-    @ctx.setter
-    def ctx(self, v):
-        self._ctx = v
+    @device.setter
+    def device(self, v):
+        if not isinstance(v, torch.torch.device):
+            raise TypeError('Need torch.device object')
+        self._device = v
 
     @property
     def work_dir(self):
@@ -187,13 +219,13 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self._model = model
         self._model_name = name
         self._checker.init_model = model
-        self._checker.save(runner=dict(ctx=self._ctx,
-                                       epochs=self._epochs,
+        self._checker.save(runner=dict(epochs=self._epochs,
+                                       verbose=self._verbose,
                                        work_dir=self._work_dir))
 
         if kwargs:
             for k, v in kwargs.items():
-                setattr(self, k + '_', v)
+                setattr(self, k, v)
 
     def checkpoint(self, **describe):
         """
@@ -208,93 +240,94 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self._checker(model_state=self._model.state_dict(), **describe)
 
     @staticmethod
-    def _to_tensor(*data_type):
+    def tensor(*data_and_type):
         def _tensor(data, torch_type):
-            if isinstance(data, df):
-                return torch.from_numpy(data.as_matrix()).type(torch_type)
+            if isinstance(data, pd.DataFrame):
+                return torch.from_numpy(data.as_matrix()).to(torch_type)
             elif isinstance(data, np.ndarray):
-                return torch.from_numpy(data).type(torch_type)
+                return torch.from_numpy(data).to(torch_type)
             else:
                 raise TypeError('Need <numpy.ndarray> or <pandas.DataFrame> but got %s' % type(data))
 
-        return tuple([_tensor(data_, type_) for data_, type_ in data_type])
+        return tuple([_tensor(data_, type_) for data_, type_ in data_and_type])
 
-    def _cuda(self, *tensor):
+    def to_device(self, *tensor):
         # if use CUDA acc
-        if self._ctx.lower() == 'gpu':
-            if torch.cuda.is_available():
-                self._model.cuda()
-                return tuple([t.cuda() for t in tensor])
-            else:
-                warn('No cuda environment, use cpu fallback.', RuntimeWarning)
-        else:
-            self._model.cpu()
-            return tuple([t.cpu() for t in tensor])
+        if self._device.type != 'cpu':
+            return tuple([t.cuda(self._device, True) for t in tensor])
+        return tuple([t.cpu() for t in tensor])
 
-    def fit(self, x_train, y_train, *,
-            x_torch_type=torch.FloatTensor,
-            y_torch_type=torch.FloatTensor,
-            describe=None,
-            batch_size=None,
-            shuffle=False,
-            num_worker=0,
-            pin_memory=False):
+    def batch_tensor(self, *data,
+                     batch_size=0.2,
+                     shuffle=True,
+                     num_worker=0,
+                     pin_memory=True):
+        # batch_size
+        if not data:
+            return None
+        if not all([isinstance(o, (pd.DataFrame, np.ndarray)) for o, _ in data]):
+            raise TypeError('Need <numpy.ndarray> or <pandas.DataFrame>')
+        if isinstance(batch_size, float):
+            batch_size = math.floor(data[0][0].shape[0] * batch_size)
+
+        return Data.DataLoader(dataset=Data.TensorDataset(*self.to_device(*self.tensor(*data))),
+                               batch_size=batch_size,
+                               shuffle=shuffle,
+                               num_workers=num_worker,
+                               pin_memory=pin_memory)
+
+    def logger(self, *info):
+        log = '|> ' + '\n|> '.join(info)
+        self._logs.append(log)
+        if self._verbose:
+            print(log)
+
+    def fit(self, x_train=None, y_train=None, *,
+            data_loader=None,
+            x_dtype=torch.float,
+            y_dtype=torch.float,
+            describe=None):
         """
         Fit Neural Network model
 
         Parameters
         ----------
         x_train:  ``numpy.ndarray`` or ``pandas.DataFrame``.
-            Training data.
+            Training data. Will be ignored will``data_loader`` is given.
         y_train:  ``numpy.ndarray`` or ``pandas.DataFrame``.
-            Test data.
-        x_torch_type: torch data type
-            Default is torch.FloatTensor.
-        y_torch_type: torch data type
-            Default is torch.FloatTensor.
+            Test data. Will be ignored will``data_loader`` is given.
+        data_loader: torch.data.DataLoader
+            Torch DataLoader. If given, will only use this as training dataset.
+        x_dtype: tensor type
+            Corresponding dtype in torch tensor. Default is torch.float.
+            Detials: https://pytorch.org/docs/stable/tensors.html
+        y_dtype: tensor types
+            Corresponding dtype in torch tensor. Default is torch.float.
         describe: dict
             Additional information to describe this model training.
-        batch_size: int, float
-        pin_memory: bool
-            If ``True``, the data loader will copy tensors into CUDA pinned memory before returning them.
-        num_worker: int
-            How many subprocesses to use for data loading.
-            0 means that the data will be loaded in the main process. (default: 0)
-        shuffle: bool
-            Set to ``True`` to have the data reshuffled at every epoch (default: False).
+
         Returns
         -------
-        self:
-            returns an instance of self.
+        any
+            returns ::meth:`optim` results.
         """
 
-        # prepare data
-        x_train, y_train = self._to_tensor((x_train, x_torch_type), (y_train, y_torch_type))
-        x_train, y_train = self._cuda(x_train, y_train)
-
-        # batch_size
-        if batch_size:
-            if isinstance(batch_size, int):
-                if batch_size > x_train.shape[0]:
-                    warn('Batch size %d is greater than sample size, set batch size to %d.'
-                         % (batch_size, x_train.shape[0]), RuntimeWarning)
-                    batch_size = x_train.shape[0]
-            elif isinstance(batch_size, float):
-                batch_size = math.floor(x_train.shape[0] * batch_size)
-        else:
-            batch_size = x_train.shape[0]
-
-        train_loader = Data.DataLoader(dataset=Data.TensorDataset(x_train, y_train),
-                                       batch_size=batch_size,
-                                       shuffle=shuffle,
-                                       num_workers=num_worker,
-                                       pin_memory=pin_memory)
-
         def _ite():
-            for t in range(self._epochs):
-                for i, (x_, y_) in enumerate(train_loader):
-                    yield y_, self._model(x_), t, i
+            self._model.to(self._device)
+            if not data_loader:
+                x_, y_ = self.to_device(*self.tensor((x_train, x_dtype), (y_train, y_dtype)))
+                for t in range(self._epochs):
+                    yield y_, self._model(x_), t, None
+                return
 
+            if data_loader:
+                for t in range(self._epochs):
+                    for i, (x_, y_) in enumerate(data_loader):
+                        x_, y_ = self.to_device(self._device, x_, y_)
+                        yield y_, self._model(x_), t, i
+                return
+
+        self._model.cpu()
         desc = dict(
             python=version(),
             system=system(),
@@ -303,29 +336,33 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             xenonpy=__version__,
             structure=str(self._model),
             running_at=self._work_dir,
-            start=dt.now().strftime('%Y-%m-%d_%H-%M-%S_%f'),
+            start=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
         )
 
         # training
-        print('|> training start ===> ', dt.now().strftime('%Y-%m-%d_%H-%M-%S'))
-        print('|> Model name: {}\n'.format(self._model_name))
+        now = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+        self.logger('training model: <%s>' % self._model_name)
+        self.logger('start: %s' % now, '')
+        start = self.elapsed
 
         ret = self.optim(_ite())  # user implementation
 
-        print('\n|> elapsed time: {}'.format(self.elapsed))
-        print('|> training done ===> ', dt.now().strftime('%Y-%m-%d_%H-%M-%S'))
+        now = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+        elapsed = str(timedelta(seconds=self.elapsed - start))
+        self.logger('done: %s' % now)
+        self.logger('elapsed time: %s\n' % elapsed)
 
         if describe and isinstance(describe, dict):
-            self._checker.save(describe={**desc, **describe, 'done': dt.now().strftime('%Y-%m-%d_%H-%M-%S_%f')})
+            self._checker.save(describe={**desc, **describe, 'done': now})
         else:
-            self._checker.save(describe={**desc, 'done': dt.now().strftime('%Y-%m-%d_%H-%M-%S_%f')})
+            self._checker.save(describe={**desc, 'done': now})
         self._checker.trained_model = self._model
 
         return ret
 
     def predict(self, x_test, y_test, *,
-                x_torch_type=torch.FloatTensor,
-                y_torch_type=torch.FloatTensor):
+                x_dtype=torch.float,
+                y_dtype=torch.float):
         """
 
         Parameters
@@ -334,10 +371,11 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             Input data for test..
         y_test: DataFrame, ndarray
             Target data for test.
-        x_torch_type: torch.Tensor
-            Corresponding dtype in torch tensor.
-        y_torch_type: torch.Tensor
-            Corresponding dtype in torch tensor
+        x_dtype: tensor type
+            Corresponding dtype in torch tensor. Default is torch.float.
+            Detials: https://pytorch.org/docs/stable/tensors.html
+        y_dtype: tensor types
+            Corresponding dtype in torch tensor. Default is torch.float.
 
         Returns
         -------
@@ -345,60 +383,28 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             Return ::meth:`post_predict` results.
         """
         # prepare data
-        x_test, y_test = self._to_tensor((x_test, x_torch_type), (y_test, y_torch_type))
-        x_test, y_test = self._cuda(x_test, y_test)
+        x_test, y_test = self.to_device(*self.tensor((x_test, x_dtype), (y_test, y_dtype)))
 
         # prediction
+        self._model.to(self._device)
         y_true, y_pred = self._model(x_test), y_test
         return self.post_predict(y_true, y_pred)
 
     @classmethod
-    def from_checker(cls, name, path=None):
-        checker = Checker.load(name, path)
+    def from_checker(cls, checker, checkpoint=None):
         runner = checker.last('runner')
         ret = cls()
-        ret._add_info = runner['add_info']
         ret._verbose = runner['verbose']
-        ret._check_step = runner['check_step']
-        ret._ctx = runner['ctx']
         ret._epochs = runner['epochs']
-        ret._log_step = runner['log_step']
         ret._work_dir = runner['work_dir']
-        ret._model_name = runner['model_name']
-        ret._loss_func = runner['loss_func']
-        ret._optim = runner['optim']
-        ret._lr = runner['lr']
-        ret._lr_scheduler = runner['lr_scheduler']
-        try:
-            ret._x_scaler = checker.last('x_scaler')
-        except FileExistsError:
-            pass
-        try:
-            ret._y_scaler = checker.last('y_scaler')
-        except FileExistsError:
-            pass
-        try:
-            ret._splitter = checker.last('splitter')
-        except FileExistsError:
-            pass
         ret._checker = checker
-        ret._model = checker.trained_model if checker.trained_model else checker.init_model
+        ret._model_name = checker.model_name
+        if not checkpoint:
+            ret._model = checker.trained_model if checker.trained_model else checker.init_model
+        else:
+            model_state, _ = checker[checkpoint]
+            ret._model = checker.init_model.load_state_dict(model_state)
         return ret
-
-    def dump(self, fpath, **kwargs):
-        """
-        Save model into pickled file with at ``fpath``.
-        Some additional description can be given from ``kwargs``.
-
-        Parameters
-        ----------
-        fpath: str
-            Path with name of pickle file.
-        kwargs: dict
-            Additional description
-        """
-        val = dict(model=self._model, **kwargs)
-        joblib.dump(val, fpath)
 
 
 class RegressionRunner(BaseRunner):
@@ -407,7 +413,7 @@ class RegressionRunner(BaseRunner):
     """
 
     def __init__(self, epochs=2000, *,
-                 ctx='cpu',
+                 cuda=False,
                  check_step=100,
                  log_step=0,
                  work_dir=None,
@@ -419,26 +425,24 @@ class RegressionRunner(BaseRunner):
         ----------
         epochs: int
         log_step: int
-        ctx: str
+        cuda: str
         check_step: int
         work_dir: str
         verbose: bool
             Print :class:`ModelRunner` environment.
         """
-        super(RegressionRunner, self).__init__(epochs, ctx, work_dir)
-        self._verbose = verbose
+        super(RegressionRunner, self).__init__(epochs, cuda=cuda, work_dir=work_dir, verbose=verbose)
         self._check_step = check_step
         self._log_step = log_step
         self._lr = 0.01
         self._lr_scheduler = None
 
-        if verbose:
-            print('Runner environment:')
-            print('Running dir: {}'.format(self._work_dir))
-            print('Epochs: {}'.format(self._epochs))
-            print('Context: {}'.format(self._ctx.upper()))
-            print('Check step: {}'.format(self._check_step))
-            print('Log step: {}\n'.format(self._log_step))
+        self.logger('Runner environment:',
+                    'Running dir: {}'.format(self._work_dir),
+                    'Epochs: {}'.format(self._epochs),
+                    'Context: {}'.format(self._device),
+                    'Check step: {}'.format(self._check_step),
+                    'Log step: {}\n'.format(self._log_step))
 
     @property
     def lr(self):
@@ -459,21 +463,22 @@ class RegressionRunner(BaseRunner):
 
     @persistence('y_true', 'y_pred')
     def post_predict(self, y_true, y_pred):
-        return y_true.cpu().numpy(), y_pred.cpu().numpy()
+        return y_true.cpu().detach().numpy(), y_pred.cpu().detach().numpy()
 
-    def optim(self, train_loader):
+    def optim(self, iter_):
         # optimization
         optim = torch.optim.Adam(self._model.parameters(), lr=self._lr)
 
         # adjust learning rate
         scheduler = self._lr_scheduler(optim) if self._lr_scheduler else None
-
+        MSE_loss = nn.MSELoss()
         y_train = y_pred = loss = None
-        for y_train, y_pred, t, i in range(self._epochs):
+        start = self.elapsed
+        for y_train, y_pred, t, i in iter_:
 
             if scheduler and not isinstance(scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
                 scheduler.step()
-            loss = F.mse_loss(y_pred, y_train)
+            loss = MSE_loss(y_pred, y_train)
             if scheduler and isinstance(scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
                 scheduler.step(loss)
             optim.zero_grad()
@@ -481,10 +486,12 @@ class RegressionRunner(BaseRunner):
             optim.step()
 
             if self._log_step > 0 and t % self._log_step == 0:
-                print('|> {}/{}, Loss={:.4f}, elapsed time: {}'.format(t, self._epochs, loss, self.elapsed))
+                elapsed = str(timedelta(seconds=self.elapsed - start))
+                start = self.elapsed
+                self.logger('{}/{}, Loss={:.4f}, elapsed time: {}'.format(t, self._epochs, loss, elapsed))
             if self._check_step > 0 and t % self._check_step == 0:
                 self.checkpoint(mse_loss=loss.item())
 
-        print('Final loss={:.4f}\n'.format(loss))
+        self.logger('Final loss={:.4f}'.format(loss), '')
 
-        return y_train.cpu().numpy(), y_pred.cpu().numpy()
+        return y_train.cpu().detach().numpy(), y_pred.cpu().detach().numpy()

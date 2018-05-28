@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.utils.data as Data
 from sklearn.base import BaseEstimator
 
@@ -20,7 +21,7 @@ from ... import __version__
 from ...utils.functional import TimedMetaClass
 
 
-def persistence(*args, **kwargs):
+def persist(*args, **kwargs):
     """
 
     Parameters
@@ -226,6 +227,18 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         if kwargs:
             for k, v in kwargs.items():
                 setattr(self, k, v)
+
+    def persist(self, *args, **kwargs):
+        """
+        Persist data.
+        This is a wrap of ::class:`Dataset`
+
+        Parameters
+        ----------
+        args
+        kwargs
+        """
+        self._checker.save(*args, **kwargs)
 
     def checkpoint(self, **describe):
         """
@@ -461,7 +474,7 @@ class RegressionRunner(BaseRunner):
     def lr_scheduler(self, v):
         self._lr_scheduler = v
 
-    @persistence('y_true', 'y_pred')
+    @persist('y_true', 'y_pred')
     def post_predict(self, y_true, y_pred):
         return y_true.cpu().detach().numpy(), y_pred.cpu().detach().numpy()
 
@@ -471,14 +484,13 @@ class RegressionRunner(BaseRunner):
 
         # adjust learning rate
         scheduler = self._lr_scheduler(optim) if self._lr_scheduler else None
-        MSE_loss = nn.MSELoss()
         y_train = y_pred = loss = None
         start = self.elapsed
         for y_train, y_pred, t, i in iter_:
 
             if scheduler and not isinstance(scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
                 scheduler.step()
-            loss = MSE_loss(y_pred, y_train)
+            loss = F.mse_loss(y_pred, y_train)
             if scheduler and isinstance(scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
                 scheduler.step(loss)
             optim.zero_grad()

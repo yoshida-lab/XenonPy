@@ -7,6 +7,7 @@ import time
 import types
 from collections import defaultdict
 from contextlib import contextmanager
+from datetime import timedelta
 from functools import wraps
 from os import getenv
 from pathlib import Path
@@ -162,6 +163,9 @@ class Timer(object):
                 dt = time.perf_counter() - self.start
             return all_ + dt
 
+        def __repr__(self):
+            return 'elapsed: %s' % str(timedelta(seconds=self.elapsed))
+
     def __init__(self, time_func=time.perf_counter):
         self._func = time_func
         self._timers = defaultdict(self.__Timer)
@@ -186,6 +190,10 @@ class Timer(object):
         if 'main' in self._timers:
             return self._timers['main'].elapsed
         return sum([v.elapsed for v in self._timers.values()])
+
+    def __repr__(self):
+        return 'Total elapsed: %s\n' % str(timedelta(seconds=self.elapsed)) + \
+               '\n'.join(['  |- %s: %s' % (k, v.elapsed) for k, v in self._timers.items()])
 
     def __enter__(self):
         self.start()

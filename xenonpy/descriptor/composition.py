@@ -214,13 +214,7 @@ class CompositionDescriptor(BaseDescriptor):
     Calculate elemental descriptors from compound's composition.
     """
 
-    #: methods can be used to calculate descriptors.
-    methods = {
-        'weighted_average', 'weighted_sum', 'weighted_variance', 'max', 'min'
-    }
-
     def __init__(self,
-                 *methods: str,
                  n_jobs=-1,
                  elemental_info=None
                  ):
@@ -236,13 +230,6 @@ class CompositionDescriptor(BaseDescriptor):
             Column's name which have compound's ``composition``.
             ``composition`` described in dict object.
         """
-
-        if methods:
-            if not set(methods).issubset(self.methods):
-                raise ValueError(
-                    'method(s) must be as "{:s}", left it None to use all'.
-                    format(', '.join(self.methods)))
-            self.methods = methods
 
         if elemental_info is not None:
             self._elemental_info = elemental_info

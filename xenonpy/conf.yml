@@ -1,6 +1,6 @@
 # package info
-version: '0.1.0b14'  # also change version in __init__.py
-release: 'b14'
+version: '0.1.0'  # also change version in __init__.py
+release: ''
 short_description: "material descriptor library"
 license: "BSD (3-clause)"
 author: "TsumiNa"

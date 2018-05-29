@@ -3,8 +3,7 @@
 # license that can be found in the LICENSE file.
 import math
 import types
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from functools import wraps
 from platform import version, system
 

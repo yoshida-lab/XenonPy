@@ -214,13 +214,13 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         if isinstance(o, pd.DataFrame):
             for k in self.__features__:
                 if k not in o:
-                    raise KeyError('Pandas Series object must have name corresponding to feature type name')
+                    raise KeyError('Pandas Series object must have name corresponding to feature <%s>' % k)
             return False
         raise TypeError('X, y must be <pd.DataFrame> or <pd.Series>')
 
     def fit(self, X, y=None, **fit_params):
 
-        if y and not isinstance(y, pd.Series):
+        if y is not None and not isinstance(y, pd.Series):
             raise TypeError('y must be <pd.Series> or None')
 
         if self._if_series(X):
@@ -228,10 +228,9 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
             for f in features:
                 f.fit(X, y, **fit_params)
         else:
-            for col in X:
-                features = self.__features__[col]
+            for k, features in self.__features__.items():
                 for f in features:
-                    f.fit(X[col], y, **fit_params)
+                    f.fit(X[k], y, **fit_params)
 
         return self
 
@@ -257,10 +256,9 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
                 results.append(ret)
 
         else:
-            for col in X:
-                features = self.__features__[col]
+            for k, features in self.__features__.items():
                 for f in features:
-                    ret = f.transform(X[col])
+                    ret = f.transform(X[k])
                     if isinstance(ret, list):
                         ret = _make_df(f, ret)
                     results.append(ret)

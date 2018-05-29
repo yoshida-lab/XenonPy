@@ -243,12 +243,13 @@ class TimedMetaClass(type):
 
             # we do a deepcopy in case default is mutable
             # but beware, this might not always work
+            @wraps(real_init)
             def injected_init(self, *args, **kwargs):
                 setattr(self, '_timer', Timer())
                 # call the "real" __init__ that we hid with our injected one
                 real_init(self, *args, **kwargs)
         else:
-            def injected_init(self, *args, **kwargs):
+            def injected_init(self):
                 setattr(self, '_timer', Timer())
         # inject it
         attr['__init__'] = injected_init

@@ -14,7 +14,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.data as Data
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, RegressorMixin
 
 from .checker import Checker
 from ... import __version__
@@ -420,7 +420,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         return ret
 
 
-class RegressionRunner(BaseRunner):
+class RegressionRunner(BaseRunner, RegressorMixin):
     """
     Run model.
     """

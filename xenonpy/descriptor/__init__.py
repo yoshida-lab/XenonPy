@@ -3,5 +3,6 @@
 # license that can be found in the LICENSE file.
 
 
-from .element import ElementDesc
+from .base import BaseDescriptor, BaseFeaturizer
+from .composition import WeightedAvgFeature, CompositionDescriptor
 from .rdf import RDFDesc

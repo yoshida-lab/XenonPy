@@ -21,18 +21,12 @@ class WeightedAvgFeature(BaseFeaturizer):
         """
 
         super().__init__(n_jobs=n_jobs)
+        self.__authors__ = ['TsumiNa']
 
         if elements is not None:
             self.elemental_info = elements
         else:
-            # csv_path = str(Path(__file__).parent / 'completed.csv')
             self.elemental_info = Loader().elements_completed
-
-    def implementors(self):
-        pass
-
-    def citations(self):
-        pass
 
     def featurize(self, comp):
         elems_, nums_ = [], []
@@ -61,29 +55,23 @@ class WeightedSumFeature(BaseFeaturizer):
         """
 
         super().__init__(n_jobs=n_jobs)
+        self.__authors__ = ['TsumiNa']
 
         if elements is not None:
             self.elemental_info = elements
         else:
-            # csv_path = str(Path(__file__).parent / 'completed.csv')
             self.elemental_info = Loader().elements_completed
 
-    def implementors(self):
-        pass
-
-    def citations(self):
-        pass
-
     def featurize(self, comp):
-        elems_, nums_ = [], []
+        elements_, nums_ = [], []
         if isinstance(comp, Composition):
             comp = comp.as_dict()
         for e, n in comp.items():
-            elems_.append(e)
+            elements_.append(e)
             nums_.append(n)
-        elems_ = self.elemental_info.loc[elems_, :]
+        elements_ = self.elemental_info.loc[elements_, :]
         nums_ = np.array(nums_)
-        return nums_.dot(elems_)
+        return nums_.dot(elements_)
 
     def feature_labels(self):
         return ['sum:' + s for s in self.elemental_info]
@@ -101,18 +89,12 @@ class WeightedVarFeature(BaseFeaturizer):
         """
 
         super().__init__(n_jobs=n_jobs)
+        self.__authors__ = ['TsumiNa']
 
         if elements is not None:
             self.elemental_info = elements
         else:
-            # csv_path = str(Path(__file__).parent / 'completed.csv')
             self.elemental_info = Loader().elements_completed
-
-    def implementors(self):
-        pass
-
-    def citations(self):
-        pass
 
     def featurize(self, comp):
         elems_, nums_ = [], []
@@ -143,18 +125,12 @@ class MaxFeature(BaseFeaturizer):
         """
 
         super().__init__(n_jobs=n_jobs)
+        self.__authors__ = ['TsumiNa']
 
         if elements is not None:
             self.elemental_info = elements
         else:
-            # csv_path = str(Path(__file__).parent / 'completed.csv')
             self.elemental_info = Loader().elements_completed
-
-    def implementors(self):
-        pass
-
-    def citations(self):
-        pass
 
     def featurize(self, comp):
         elems_, nums_ = [], []
@@ -182,18 +158,12 @@ class MinFeature(BaseFeaturizer):
         """
 
         super().__init__(n_jobs=n_jobs)
+        self.__authors__ = ['TsumiNa']
 
         if elements is not None:
             self.elemental_info = elements
         else:
-            # csv_path = str(Path(__file__).parent / 'completed.csv')
             self.elemental_info = Loader().elements_completed
-
-    def implementors(self):
-        pass
-
-    def citations(self):
-        pass
 
     def featurize(self, comp):
         elems_, nums_ = [], []

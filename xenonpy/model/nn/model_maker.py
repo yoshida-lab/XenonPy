@@ -3,61 +3,13 @@
 # license that can be found in the LICENSE file.
 
 from collections import namedtuple
-from hashlib import md5
 
 from torch import nn
-from torch.nn import Sequential as Sq
+from torch.nn import Sequential
 
 from .layer import Layer1d
 from .wrap import L1
 from ...utils.math import Product
-
-
-class Sequential(Sq):
-    r"""A sequential container.
-    Modules will be added to it in the order they are passed in the constructor.
-    Alternatively, an ordered dict of modules can also be passed in.
-
-    To make it easier to understand, given is a small example::
-
-        # Example of using Sequential
-        model = nn.Sequential(
-                  nn.Conv2d(1,20,5),
-                  nn.ReLU(),
-                  nn.Conv2d(20,64,5),
-                  nn.ReLU()
-                )
-
-        # Example of using Sequential with OrderedDict
-        model = nn.Sequential(OrderedDict([
-                  ('conv1', nn.Conv2d(1,20,5)),
-                  ('relu1', nn.ReLU()),
-                  ('conv2', nn.Conv2d(20,64,5)),
-                  ('relu2', nn.ReLU())
-                ]))
-    """
-
-    def __init__(self, *args):
-        super().__init__(*args)
-
-    @property
-    def md5(self):
-        """
-        Property of MD5 value calculate from layer structure.
-
-        Returns
-        -------
-        str
-            MD5 value
-        """
-        return md5(str(self).encode()).hexdigest()
-
-    def __getitem__(self, idx):
-        if isinstance(idx, int):
-            return super().__getitem__(idx)
-
-        if isinstance(idx, slice):
-            raise NotImplementedError()
 
 
 class Generator1d(object):

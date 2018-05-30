@@ -12,10 +12,10 @@ xenonpy.descriptor.base module
     :undoc-members:
     :show-inheritance:
 
-xenonpy.descriptor.element module
----------------------------------
+xenonpy.descriptor.composition module
+-------------------------------------
 
-.. automodule:: xenonpy.descriptor.element
+.. automodule:: xenonpy.descriptor.composition
     :members:
     :undoc-members:
     :show-inheritance:

@@ -11,7 +11,7 @@ from multiprocessing import Pool, cpu_count
 
 import numpy as np
 import pandas as pd
-from sklearn.base import TransformerMixin, BaseEstimator
+from sklearn.base import TransformerMixin, BaseEstimator, _pprint
 
 from ..utils.functional import TimedMetaClass
 
@@ -22,6 +22,9 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
     such a compound formula or a pymatgen crystal structure or
     bandstructure object.
     """
+
+    __authors__ = ['anonymous']
+    __citations__ = ['No citations']
 
     def __init__(self, n_jobs=-1,
                  ignore_errors=False,
@@ -172,8 +175,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             (list) each element should be a string citation,
                 ideally in BibTeX format.
         """
-
-        raise NotImplementedError("citations() is not defined!")
+        return '\n'.join(self.__citations__)
 
     def implementors(self):
         """
@@ -185,7 +187,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
                 Jain", "email": "ajain@lbl.gov", "institution": "LBNL"}).
         """
 
-        raise NotImplementedError("implementors() is not defined!")
+        return '\n'.join(self.__authors__)
 
 
 class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
@@ -205,6 +207,14 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         except AttributeError:
             pass
         super().__setattr__(key, value)
+
+    def __repr__(self):
+        class_name = self.__class__.__qualname__
+        header = '%s(%s)' % (class_name, _pprint(self.get_params(deep=False),
+                                                 offset=len(class_name), ),)
+        return header + ':\n' + \
+               '\n'.join(['  |- %s:\n  |  |- %s' % (k, '\n  |  |- '.join(map(lambda i: str(i), v))) for k, v in
+                          self.__features__.items()])
 
     def _if_series(self, o):
         if isinstance(o, pd.Series):

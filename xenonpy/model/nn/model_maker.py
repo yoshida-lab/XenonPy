@@ -9,7 +9,7 @@ from torch.nn import Sequential
 
 from .layer import Layer1d
 from .wrap import L1
-from ...utils.math import Product
+from ...math import Product
 
 
 class Generator1d(object):

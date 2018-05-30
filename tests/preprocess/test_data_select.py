@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 from pandas import DataFrame, Series
 
-from xenonpy.preprocess.data_select import DataSplitter
+from xenonpy.datatools.preprocess import DataSplitter
 
 
 @pytest.fixture(scope='module')

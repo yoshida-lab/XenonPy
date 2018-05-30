@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 from scipy.stats import boxcox
 
-from xenonpy.preprocess.transform import BoxCox
+from xenonpy.datatools.transform import BoxCox
 
 
 @pytest.fixture(scope='module')

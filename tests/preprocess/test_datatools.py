@@ -9,7 +9,7 @@ from shutil import rmtree
 import pytest
 from sklearn.externals import joblib as jl
 
-from xenonpy.preprocess.datatools import Loader, DataSet
+from xenonpy.datatools.dataset import Loader, DataSet
 
 
 @pytest.fixture(scope='module')

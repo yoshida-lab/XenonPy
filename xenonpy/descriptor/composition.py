@@ -6,7 +6,7 @@ import numpy as np
 from pymatgen import Composition
 
 from .base import BaseFeaturizer, BaseDescriptor
-from ..preprocess.datatools import Loader
+from ..datatools.dataset import Loader
 
 
 class WeightedAvgFeature(BaseFeaturizer):
@@ -39,6 +39,7 @@ class WeightedAvgFeature(BaseFeaturizer):
         w_nums = nums_ / np.sum(nums_)
         return w_nums.dot(elems_)
 
+    @property
     def feature_labels(self):
         return ['ave:' + s for s in self.elemental_info]
 
@@ -73,6 +74,7 @@ class WeightedSumFeature(BaseFeaturizer):
         nums_ = np.array(nums_)
         return nums_.dot(elements_)
 
+    @property
     def feature_labels(self):
         return ['sum:' + s for s in self.elemental_info]
 
@@ -109,6 +111,7 @@ class WeightedVarFeature(BaseFeaturizer):
         cen_elems = elems_ - e_mean_
         return w_nums.dot(cen_elems ** 2)
 
+    @property
     def feature_labels(self):
         return ['var:' + s for s in self.elemental_info]
 
@@ -142,6 +145,7 @@ class MaxFeature(BaseFeaturizer):
         elems_ = self.elemental_info.loc[elems_, :]
         return elems_.max().values
 
+    @property
     def feature_labels(self):
         return ['max:' + s for s in self.elemental_info]
 
@@ -175,6 +179,7 @@ class MinFeature(BaseFeaturizer):
         elems_ = self.elemental_info.loc[elems_, :]
         return elems_.min().values
 
+    @property
     def feature_labels(self):
         return ['min:' + s for s in self.elemental_info]
 

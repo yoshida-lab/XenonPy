@@ -45,7 +45,7 @@ Changes
 
 .. include: docs/source/CHANGES.rst
 
-Contract
+Contact Us
 ========
 
 * With issues_

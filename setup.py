@@ -17,97 +17,79 @@ from setuptools import setup, find_packages
 __package__ = 'xenonpy'
 
 
-def get_requirements(filename: str):
-    """
-    Return requirements list from a text file.
+class PackageInfo(object):
+    def __init__(self, conf_file):
+        yaml = YAML(typ='safe')
+        yaml.indent(mapping=2, sequence=4, offset=2)
+        with open(conf_file, 'r') as f:
+            self._info = yaml.load(f)
+        self.name = __package__
 
-    Parameters
-    ----------
-    filename: str
-        Name of requirement file.
+    @staticmethod
+    def requirements(filename="requirements.txt"):
+        """
+        Return requirements list from a text file.
 
-    Returns
-    -------
-        str-list
-    """
-    try:
-        require = list()
-        f = open(filename, "rb")
-        for line in f.read().decode("utf-8").split("\n"):
-            line = line.strip()
-            if "#" in line:
-                line = line[:line.find("#")].strip()
-            if line:
-                require.append(line)
-    except IOError:
-        print("'{}' not found!".format(filename))
-        require = list()
+        Parameters
+        ----------
+        filename: str
+            Name of requirement file.
 
-    return require
-
-
-class Package(object):
-    def __init__(self):
-        self.__info = None
-        self.__name__ = __package__
-        self.__version__ = self.get_info('version')
-        self.__short_description__ = self.get_info('short_description')
-        self.__license__ = self.get_info('license')
-        self.__author__ = self.get_info('author')
-        self.__author_email__ = self.get_info('author_email')
-        self.__maintainer__ = self.get_info('maintainer')
-        self.__maintainer_email__ = self.get_info('maintainer_email')
-        self.__github_username__ = self.get_info('github_username')
+        Returns
+        -------
+            str-list
+        """
         try:
-            self.__long_description__ = open("README.rst", "r").read()
-        except FileNotFoundError:
-            self.__long_description__ = "No long description!"
+            require = list()
+            f = open(filename, "rb")
+            for line in f.read().decode("utf-8").split("\n"):
+                line = line.strip()
+                if "#" in line:
+                    line = line[:line.find("#")].strip()
+                if line:
+                    require.append(line)
+        except IOError:
+            print("'{}' not found!".format(filename))
+            require = list()
 
-    def get_info(self, key):
-        if not self.__info:
-            yaml = YAML(typ='safe')
-            yaml.indent(mapping=2, sequence=4, offset=2)
-            cwd = Path(__file__).parent / __package__ / 'conf.yml'
-            with open(str(cwd), 'r') as f:
-                self.__info = yaml.load(f)
-        try:
-            return self.__info[key]
-        except KeyError:
-            return 'No <' + key + '>'
+        return require
 
     def __getattr__(self, item: str):
-        item = item.strip('_')
-        return 'No <' + item + '>'
+        try:
+            return self._info[item]
+        except KeyError:
+            return None
 
 
 if __name__ == "__main__":
     # --- Automatically generate setup parameters ---
-    package = Package()
+    cwd = Path(__file__).parent / __package__ / 'conf.yml'
+    package = PackageInfo(str(cwd))
     
     # Your package name
-    PKG_NAME = package.__name__
+    PKG_NAME = package.name
 
     # Your GitHub user name
-    GITHUB_USERNAME = package.__github_username__
+    GITHUB_USERNAME = package.github_username
 
     # Short description will be the description on PyPI
-    SHORT_DESCRIPTION = package.__short_description__  # GitHub Short Description
+    SHORT_DESCRIPTION = package.short_description  # GitHub Short Description
 
     # Long description will be the body of content on PyPI page
-    LONG_DESCRIPTION = package.__long_description__
+    LONG_DESCRIPTION = package.long_description
 
     # Version number, VERY IMPORTANT!
-    VERSION = package.__version__
+    VERSION = package.version
 
     # Author and Maintainer
-    AUTHOR = package.__author__
+    AUTHOR = package.author
 
     # Author email
-    AUTHOR_EMAIL = package.__author_email__
+    AUTHOR_EMAIL = package.author_email
 
-    MAINTAINER = package.__maintainer__
+    MAINTAINER = package.maintainer
 
-    MAINTAINER_EMAIL = package.__maintainer_email__
+    MAINTAINER_EMAIL = package.maintainer_email
 
     PACKAGES, INCLUDE_PACKAGE_DATA, PACKAGE_DATA, PY_MODULES = (
         None,
@@ -134,22 +116,15 @@ if __name__ == "__main__":
             PKG_NAME,
         ]
 
-    # The project directory name is the GitHub repository name
-    repository_name = package.__name__
-
     # Project Url
-    URL = "https://github.com/{0}/{1}".format(GITHUB_USERNAME, repository_name)
+    GITHUB_URL = "https://github.com/{0}/{1}".format(GITHUB_USERNAME, PKG_NAME)
     # Use todays date as GitHub release tag
-    github_release_tag = 'v' + VERSION
+    RELEASE_TAG = 'v' + VERSION
     # Source code download url
     DOWNLOAD_URL = "https://github.com/{0}/{1}/archive/{2}.tar.gz".format(
-        GITHUB_USERNAME, repository_name, github_release_tag)
+        GITHUB_USERNAME, PKG_NAME, RELEASE_TAG)
 
-    try:
-        LICENSE = package.__license__
-    except ImportError:
-        print("'__license__' not found in '%s.__init__.py'!" % PKG_NAME)
-        LICENSE = ""
+    LICENSE = package.license or "'__license__' not found in '%s.__init__.py'!" % PKG_NAME
 
     PLATFORMS = [
         "Windows",
@@ -170,7 +145,7 @@ if __name__ == "__main__":
     ]
 
     # Read requirements.txt, ignore comments
-    INSTALL_REQUIRES = get_requirements("requirements.txt")
+    INSTALL_REQUIRES = PackageInfo.requirements()
     SETUP_REQUIRES = ['pytest-runner', 'ruamel.yaml']
     TESTS_REQUIRE = ['pytest']
     setup(
@@ -187,7 +162,7 @@ if __name__ == "__main__":
         include_package_data=INCLUDE_PACKAGE_DATA,
         package_data=PACKAGE_DATA,
         py_modules=PY_MODULES,
-        url=URL,
+        url=GITHUB_URL,
         download_url=DOWNLOAD_URL,
         classifiers=CLASSIFIERS,
         platforms=PLATFORMS,

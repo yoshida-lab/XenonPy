@@ -6,10 +6,11 @@ Subpackages
 
 .. toctree::
 
+    xenonpy.datatools
     xenonpy.descriptor
+    xenonpy.math
     xenonpy.model
     xenonpy.pipeline
-    xenonpy.preprocess
     xenonpy.utils
     xenonpy.visualization
 

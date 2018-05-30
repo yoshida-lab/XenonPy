@@ -1,13 +1,6 @@
 xenonpy.visualization package
 =============================
 
-Subpackages
------------
-
-.. toctree::
-
-    xenonpy.visualization.basic
-
 Submodules
 ----------
 

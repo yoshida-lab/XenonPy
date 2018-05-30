@@ -13,14 +13,69 @@ import numpy as np
 import pandas as pd
 from sklearn.base import TransformerMixin, BaseEstimator, _pprint
 
-from ..utils.functional import TimedMetaClass
+from ..utils import TimedMetaClass
 
 
 class BaseFeaturizer(BaseEstimator, TransformerMixin):
     """
-    Abstract class to calculate features from raw materials input data
-    such a compound formula or a pymatgen crystal structure or
-    bandstructure object.
+    Abstract class to calculate features from :class:`pandas.Series` input data.
+    Each entry can be any format such a compound formula or a pymatgen crystal structure
+    dependent on the featurizer implementation.
+
+    This class have similar structure with `matminer BaseFeaturizer`_ but follow more strict convention.
+    That means you can embed this feature directly into `matminer BaseFeaturizer`_ class implement.::
+
+        class MatFeature(BaseFeaturizer):
+            def featurize(self, *x):
+                return <xenonpy_featurizer>.featurize(*x)
+
+    .. _matminer BaseFeaturizer: https://github.com/hackingmaterials/matminer/blob/master/matminer/featurizers/base.py
+
+    **Using a BaseFeaturizer Class**
+
+    :meth:`BaseFeaturizer` implement :class:`sklearn.base.BaseEstimator` and :class:`sklearn.base.TransformerMixin`
+    that means you can use it in a scikit-learn way.::
+
+        featurizer = SomeFeaturizer()
+        features = featurizer.fit_transform(X)
+
+    You can also employ the featurizer as part of a ScikitLearn Pipeline object.
+    You would then provide your input data as an array to the Pipeline, which would
+    output the featurers as an :class:`pandas.DataFrame`.
+
+    :class:`BaseFeaturizer` also provide you to retrieving proper references for a featurizer.
+    The ``__citations__`` returns a list of papers that should be cited.
+    The ``__authors__`` returns a list of people who wrote the featurizer.
+    Also can be accessed from property ``citations`` and ``citations``.
+
+    **Implementing a New BaseFeaturizer Class**
+
+    These operations must be implemented for each new featurizer:
+
+    - ``featurize`` - Takes a single material as input, returns the features of that material.
+    - ``feature_labels`` - Generates a human-meaningful name for each of the features. **Implement this as property**.
+
+    Also suggest to implement these two **properties**:
+
+    - ``citations`` - Returns a list of citations in BibTeX format.
+    - ``implementors`` - Returns a list of people who contributed writing a paper.
+
+    All options of the featurizer must be set by the ``__init__`` function. All
+    options must be listed as keyword arguments with default values, and the
+    value must be saved as a class attribute with the same name or as a property
+    (e.g., argument `n` should be stored in `self.n`).
+    These requirements are necessary for
+    compatibility with the ``get_params`` and ``set_params`` methods of ``BaseEstimator``,
+    which enable easy interoperability with scikit-learn.
+    :meth:`featurize` must return a list of features in :class:`numpy.ndarray`.
+
+    .. note::
+
+        None of these operations should change the state of the featurizer. I.e.,
+        running each method twice should no produce different results, no class
+        attributes should be changed, unning one operation should not affect the
+        output of another.
+
     """
 
     __authors__ = ['anonymous']
@@ -108,7 +163,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
 
         labels = None
         try:
-            labels = self.feature_labels()
+            labels = self.feature_labels
         except NotImplementedError:
             pass
 
@@ -133,11 +188,11 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         except BaseException as e:
             if self.__ignore_errors:
                 if self.__return_errors:
-                    features = [float("nan")] * len(self.feature_labels())
+                    features = [float("nan")] * len(self.feature_labels)
                     error = traceback.format_exception(*sys.exc_info())
                     return features, "".join(error)
                 else:
-                    return [float("nan")] * len(self.feature_labels())
+                    return [float("nan")] * len(self.feature_labels)
             else:
                 raise e
 
@@ -159,15 +214,16 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
 
         raise NotImplementedError("featurize() is not defined!")
 
+    @property
     def feature_labels(self):
         """
         Generate attribute names.
         Returns:
             ([str]) attribute labels.
         """
-
         raise NotImplementedError("feature_labels() is not defined!")
 
+    @property
     def citations(self):
         """
         Citation(s) and reference(s) for this feature.
@@ -177,7 +233,8 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         """
         return '\n'.join(self.__citations__)
 
-    def implementors(self):
+    @property
+    def authors(self):
         """
         List of implementors of the feature.
         Returns:
@@ -191,6 +248,9 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
 
 
 class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
+    """
+    BaseDescriptor
+    """
     n_jobs = cpu_count()
 
     @property

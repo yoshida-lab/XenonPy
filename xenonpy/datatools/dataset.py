@@ -17,8 +17,8 @@ from os.path import getmtime
 from ruamel.yaml import YAML
 from sklearn.externals import joblib
 
-from .. import __cfg_root__
-from ..utils.functional import get_conf, get_dataset_url, get_data_loc, absolute_path, get_sha256
+from .._conf import __cfg_root__
+from ..utils.gadget import get_conf, get_dataset_url, get_data_loc, absolute_path, get_sha256
 
 
 class DataSet(object):

@@ -28,7 +28,7 @@ class BoxCox(BaseEstimator, TransformerMixin):
         shift: float
             Guarantee that all variables > 0
         """
-        self._shift = shift
+        self.shift = shift
         self._min = []
         self._lmd = []
         self._shape = None
@@ -81,13 +81,13 @@ class BoxCox(BaseEstimator, TransformerMixin):
         if series.min() != series.max():
             self._min.append(series.min())
             with np.errstate(all='raise'):
-                tmp = series - series.min() + self._shift
+                tmp = series - series.min() + self.shift
                 try:
                     return boxcox(tmp)
                 except FloatingPointError:
                     return boxcox(tmp, 0.), 0.
         self._min.append(series.min())
-        tmp = series - series.min() + self._shift
+        tmp = series - series.min() + self.shift
         return boxcox(tmp, 0.), 0.
 
     def inverse_transform(self, x):
@@ -106,11 +106,11 @@ class BoxCox(BaseEstimator, TransformerMixin):
         """
         x = self._check_type(x, check_shape=False)
         if len(x.shape) == 1:
-            return  inv_boxcox(x, self._lmd[0]) - self._shift + self._min[0]
+            return inv_boxcox(x, self._lmd[0]) - self.shift + self._min[0]
 
         xs = []
         for i, col in enumerate(x.T):
-            x_ = inv_boxcox(col, self._lmd[i]) - self._shift + self._min[i]
+            x_ = inv_boxcox(col, self._lmd[i]) - self.shift + self._min[i]
             xs.append(x_.reshape(-1, 1))
         df = np.concatenate(xs, axis=1)
         return df

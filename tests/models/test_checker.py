@@ -10,8 +10,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from xenonpy.datatools.dataset import DataSet
 from xenonpy.model.nn import Checker, Layer1d
-from xenonpy.preprocess.datatools import DataSet
 
 
 @pytest.fixture(scope='module')

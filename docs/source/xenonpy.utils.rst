@@ -4,18 +4,18 @@ xenonpy.utils package
 Submodules
 ----------
 
-xenonpy.utils.functional module
--------------------------------
+xenonpy.utils.gadget module
+---------------------------
 
-.. automodule:: xenonpy.utils.functional
+.. automodule:: xenonpy.utils.gadget
     :members:
     :undoc-members:
     :show-inheritance:
 
-xenonpy.utils.math module
--------------------------
+xenonpy.utils.timer module
+--------------------------
 
-.. automodule:: xenonpy.utils.math
+.. automodule:: xenonpy.utils.timer
     :members:
     :undoc-members:
     :show-inheritance:

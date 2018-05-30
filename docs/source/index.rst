@@ -4,6 +4,7 @@
 .. role:: raw-html(raw)
     :format: html
 
+========================
 What is XenonPy project
 ========================
 .. image:: https://badges.gitter.im/yoshida-lab/XenonPy.svg
@@ -54,7 +55,7 @@ The final goal of this project is to build a **All-In-One** virtual environment 
 XenonPy built on top of pandas_ and PyTorch_ in order to make various downstream machine learning libraries and high-performance NN training.
 By use XenonPy(**v0.1.0b**) you can:
 
-* Save and retriever your data in a very simple way by using :py:class:`~xenonpy.utils.datatools.Saver` and :py:class:`~xenonpy.utils.datatools.Loader`.
+* Save and retriever your data in a very simple way by using :py:class:`~xenonpy.datatools.Dataset` and :py:class:`~xenonpy.datatools.Loader`.
 * Turn a compound's composition into arrays of numbers representing things such as ``variance``, ``max``, ``min`` etc.
 * Calculate pair distribution from compound's structure(:py:class:`pymatget.core.Structure`).
 * Draw descriptor heatmap.
@@ -80,7 +81,6 @@ Sample
 
 Some samples available here: https://github.com/yoshida-lab/XenonPy/tree/master/samples
 
-
 .. _user-doc:
 .. toctree::
     :maxdepth: 2
@@ -89,12 +89,10 @@ Some samples available here: https://github.com/yoshida-lab/XenonPy/tree/master/
     installation
     dataset
     contribution
-    contract
-
+        contact
 
 Indices and tables
 ==================
-
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`

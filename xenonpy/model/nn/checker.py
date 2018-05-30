@@ -7,8 +7,8 @@ from pathlib import Path
 import torch
 from sklearn.externals import joblib
 
-from ...preprocess.datatools import DataSet
-from ...utils.functional import get_data_loc
+from ...datatools.dataset import DataSet
+from ...utils.gadget import get_data_loc
 
 
 class Checker(DataSet):

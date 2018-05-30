@@ -5,16 +5,12 @@
 # change version in there, conf.yml, setup.py
 __all__ = ['descriptor', 'model', 'utils', 'visualization', 'preprocess']
 
-__version__ = '0.1.0'  # also change version in conf.yml
-__release__ = ''
-__cfg_root__ = '.' + __name__
-
 from . import descriptor
 from . import model
 # from . import pipeline
-from . import preprocess
 from . import utils
 from . import visualization
+from ._conf import *
 
 
 def __init(force=False):
@@ -34,7 +30,6 @@ def __init(force=False):
     from ruamel.yaml import YAML
     from sys import version_info
     from pathlib import Path
-    from .utils.functional import get_conf
 
     if version_info[0] != 3 or version_info[1] < 5:
         raise SystemError("Python 3.5 or 3.6 needed")
@@ -64,8 +59,8 @@ def __init(force=False):
     # init dirs
     dataset_dir = root_dir / 'dataset'
     cached_dir = root_dir / 'cached'
-    user_data_dir = Path(get_conf('userdata')).expanduser()
-    user_model_dir = Path(get_conf('usermodel')).expanduser()
+    user_data_dir = Path(utils.get_conf('userdata')).expanduser()
+    user_model_dir = Path(utils.get_conf('usermodel')).expanduser()
 
     # create dirs
     dataset_dir.mkdir(parents=True, exist_ok=True)

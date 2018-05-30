@@ -1,7 +1,6 @@
 # Copyright 2018 TsumiNa. All rights reserved.
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
-import math
 import types
 from datetime import datetime, timedelta
 from functools import wraps
@@ -15,9 +14,10 @@ import torch.nn.functional as F
 import torch.utils.data as Data
 from sklearn.base import BaseEstimator, RegressorMixin
 
+import math
 from .checker import Checker
-from ... import __version__
-from ...utils.functional import TimedMetaClass
+from ..._conf import __version__
+from ...utils import TimedMetaClass
 
 
 def persist(*args, **kwargs):

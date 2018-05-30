@@ -3,7 +3,7 @@
 # license that can be found in the LICENSE file.
 
 
-from xenonpy.utils.functional import set_env
+from xenonpy.utils.gadget import set_env
 
 
 def test_set_env1():

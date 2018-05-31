@@ -206,13 +206,14 @@ class CompositionDescriptor(BaseDescriptor):
             ``composition`` described in dict object.
         """
 
+        self.n_jobs = n_jobs
         if elemental_info is not None:
-            self._elemental_info = elemental_info
+            self.elemental_info = elemental_info
         else:
-            self._elemental_info = Loader().elements_completed
+            self.elemental_info = Loader().elements_completed
 
-        self.composition = WeightedAvgFeature(n_jobs, self._elemental_info)
-        self.composition = WeightedSumFeature(n_jobs, self._elemental_info)
-        self.composition = WeightedVarFeature(n_jobs, self._elemental_info)
-        self.composition = MaxFeature(n_jobs, self._elemental_info)
-        self.composition = MinFeature(n_jobs, self._elemental_info)
+        self.composition = WeightedAvgFeature(n_jobs, self.elemental_info)
+        self.composition = WeightedSumFeature(n_jobs, self.elemental_info)
+        self.composition = WeightedVarFeature(n_jobs, self.elemental_info)
+        self.composition = MaxFeature(n_jobs, self.elemental_info)
+        self.composition = MinFeature(n_jobs, self.elemental_info)

@@ -134,7 +134,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._timer.stop()
         elapsed = str(timedelta(seconds=self.elapsed))
-        self.logger('done runner <%s>: %s' % (type(self).__qualname__, datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
+        self.logger('done runner <%s>: %s' % (self.__class__.__name__, datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
         self.logger('total elapsed time: %s' % elapsed)
         logs = '\n'.join(self._logs)
         now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')
@@ -142,7 +142,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             f.write(logs)
 
     def __enter__(self):
-        self.logger('start runner <%s> at %s' % (type(self).__qualname__, datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
+        self.logger('start runner <%s> at %s' % (self.__class__.__name__, datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
         self._timer.start()
         return self
 

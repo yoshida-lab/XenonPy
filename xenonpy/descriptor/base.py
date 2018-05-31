@@ -3,15 +3,13 @@
 # license that can be found in the LICENSE file.
 
 
-import sys
-import traceback
 import types
 from collections import defaultdict
 from multiprocessing import Pool, cpu_count
 
 import numpy as np
 import pandas as pd
-from sklearn.base import TransformerMixin, BaseEstimator, _pprint
+from sklearn.base import TransformerMixin, BaseEstimator
 
 from ..utils import TimedMetaClass
 
@@ -80,10 +78,10 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
 
     __authors__ = ['anonymous']
     __citations__ = ['No citations']
+    _n_jobs = 1
 
     def __init__(self, n_jobs=-1,
-                 ignore_errors=False,
-                 return_errors=False):
+                 ignore_errors=False):
         """
         Parameters
         ----------
@@ -93,18 +91,9 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         ignore_errors: bool
             Returns NaN for entries where exceptions are
             thrown if True. If False, exceptions are thrown as normal.
-        return_errors: bool
-            If True, returns the feature list as
-            determined by ignore_errors with traceback strings added
-            as an extra 'feature'. Entries which featurize without
-            exceptions have this extra feature set to NaN.
         """
-        self._n_jobs = cpu_count() if n_jobs is -1 else n_jobs
-        if return_errors and not ignore_errors:
-            raise ValueError("Please set ignore_errors to True to use"
-                             " return_errors.")
+        self.n_jobs = n_jobs
         self.__ignore_errors = ignore_errors
-        self.__return_errors = return_errors
 
     @property
     def n_jobs(self):
@@ -113,7 +102,10 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
     @n_jobs.setter
     def n_jobs(self, n_jobs):
         """Set the number of threads for this """
-        self._n_jobs = n_jobs
+        if n_jobs > cpu_count() or n_jobs == -1:
+            self._n_jobs = cpu_count()
+        else:
+            self._n_jobs = n_jobs
 
     def fit(self, X, y=None, **fit_kwargs):
         """Update the parameters of this featurizer based on available data
@@ -147,13 +139,6 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         if len(entries) is 0:
             return []
 
-        # keep index
-        index = entries.index
-
-        # If the featurize function only has a single arg, zip the inputs
-        if not isinstance(entries[0], (tuple, list, np.ndarray)):
-            entries = zip(entries)
-
         # Run the actual featurization
         if self.n_jobs == 1:
             ret = [self._wrapper(x) for x in entries]
@@ -167,7 +152,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         except NotImplementedError:
             pass
 
-        return pd.DataFrame(ret, index=index, columns=labels)
+        return pd.DataFrame(ret, index=entries.index, columns=labels)
 
     def _wrapper(self, x):
         """
@@ -181,20 +166,13 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         """
         try:
             # Successful featurization returns nan for an error.
-            if self.__return_errors:
-                return self.featurize(*x), None
-            else:
-                return self.featurize(*x)
+            if not isinstance(x, (tuple, list, np.ndarray)):
+                return self.featurize(x)
+            return self.featurize(*x)
         except BaseException as e:
             if self.__ignore_errors:
-                if self.__return_errors:
-                    features = [float("nan")] * len(self.feature_labels)
-                    error = traceback.format_exception(*sys.exc_info())
-                    return features, "".join(error)
-                else:
-                    return [float("nan")] * len(self.feature_labels)
-            else:
-                raise e
+                return [float("nan")] * len(self.feature_labels)
+            raise e
 
     def featurize(self, *x):
         """
@@ -249,30 +227,47 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
 
 class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
     """
-    BaseDescriptor
+    BaseDescriptor.
+
+    Examples
+    --------
+    a = BaseDescriptor()
     """
-    n_jobs = cpu_count()
+
+    _n_jobs = 1
+    """sfesefe"""
 
     @property
     def elapsed(self):
         return self._timer.elapsed
 
+    @property
+    def n_jobs(self):
+        return self._n_jobs
+
+    @n_jobs.setter
+    def n_jobs(self, n_jobs):
+        """Set the number of threads for this """
+        if n_jobs > cpu_count() or n_jobs == -1:
+            self._n_jobs = cpu_count()
+        else:
+            self._n_jobs = n_jobs
+
     def __setattr__(self, key, value):
 
         if '__features__' not in self.__dict__:
             super().__setattr__('__features__', defaultdict(list))
-        try:
-            if isinstance(value, TransformerMixin) and isinstance(value.featurize, types.MethodType):
-                self.__features__[key].append(value)
-        except AttributeError:
-            pass
-        super().__setattr__(key, value)
+        if isinstance(value, TransformerMixin):
+            try:
+                if isinstance(value.featurize, types.MethodType):
+                    self.__features__[key].append(value)
+            except AttributeError:
+                super().__setattr__(key, value)
+        else:
+            super().__setattr__(key, value)
 
     def __repr__(self):
-        class_name = self.__class__.__qualname__
-        header = '%s(%s)' % (class_name, _pprint(self.get_params(deep=False),
-                                                 offset=len(class_name), ),)
-        return header + ':\n' + \
+        return super().__repr__() + ':\n' + \
                '\n'.join(['  |- %s:\n  |  |- %s' % (k, '\n  |  |- '.join(map(lambda i: str(i), v))) for k, v in
                           self.__features__.items()])
 

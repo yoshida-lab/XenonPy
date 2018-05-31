@@ -82,10 +82,10 @@ class TimedMetaClass(type):
     with a new function that is timed
     """
 
-    def __new__(mcs, name, bases, attr):
+    def __new__(mcs, name, bases, attrs):
 
-        if '__init__' in attr:
-            real_init = attr['__init__']
+        if '__init__' in attrs:
+            real_init = attrs['__init__']
 
             # we do a deepcopy in case default is mutable
             # but beware, this might not always work
@@ -98,10 +98,10 @@ class TimedMetaClass(type):
             def injected_init(self):
                 setattr(self, '_timer', Timer())
         # inject it
-        attr['__init__'] = injected_init
+        attrs['__init__'] = injected_init
 
-        for name, value in attr.items():
-            if name[0] != '_' and isinstance(value, (types.FunctionType, types.MethodType)):
-                attr[name] = timed(value)
+        for name_, value_ in attrs.items():
+            if not name_.startswith("__") and isinstance(value_, (types.FunctionType, types.MethodType)):
+                attrs[name_] = timed(value_)
 
-        return super(TimedMetaClass, mcs).__new__(mcs, name, bases, attr)
+        return super(TimedMetaClass, mcs).__new__(mcs, name, bases, attrs)

@@ -89,7 +89,7 @@ Some samples available here: https://github.com/yoshida-lab/XenonPy/tree/master/
     installation
     dataset
     contribution
-        contact
+    contact
 
 Indices and tables
 ==================

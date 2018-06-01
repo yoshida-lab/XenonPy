@@ -3,11 +3,11 @@
 # license that can be found in the LICENSE file.
 
 __all__ = [
-    'DataSet', 'Loader',
+    'LocalSet', 'Loader',
     'DataSplitter',
     'Scaler', 'BoxCox'
 ]
 
-from .dataset import DataSet, Loader
+from .dataset import LocalSet, Loader
 from .preprocess import DataSplitter
 from .transform import Scaler, BoxCox

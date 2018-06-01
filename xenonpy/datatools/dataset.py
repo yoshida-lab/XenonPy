@@ -21,7 +21,30 @@ from .._conf import __cfg_root__
 from ..utils.gadget import get_conf, get_dataset_url, get_data_loc, absolute_path, get_sha256
 
 
-class DataSet(object):
+class BaseDataset(object):
+    """
+    By employ the conception of Restfull_, :class:`BaseDatest` class defined a abstract interface to play with data.
+    All implemented Dataset class should override methods :meth:`save`, :meth:`up`, :meth:`load` and :meth:`rm`
+    to provide data access functional corresponding to *get*, *post*, *update* and *delete* in http protocol
+    and *CURD* in database operations.
+
+    .. _Restfull: https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm
+    """
+
+    def load(self, *args, **kwargs):
+        raise NotImplementedError('Must implement <load> method.')
+
+    def save(self, *args, **kwargs):
+        raise NotImplementedError('Must implement <save> method.')
+
+    def up(self, *args, **kwargs):
+        raise NotImplementedError('Must implement <up> method.')
+
+    def rm(self, *args, **kwargs):
+        raise NotImplementedError('Must implement <rm> method.')
+
+
+class LocalSet(BaseDataset):
     """
     Save data in a convenient way:
 
@@ -57,7 +80,7 @@ class DataSet(object):
                  name=None,
                  *,
                  path=None,
-                 ignore_err=True,
+                 mk_dir=True,
                  backend=joblib):
         """
         Parameters
@@ -66,17 +89,17 @@ class DataSet(object):
             Name of dataset. Usually this is dir name contains data.
         path: str
             Absolute dir path.
-        ignore_err: bool
+        mk_dir: bool
             Ignore ``FileNotFoundError``.
         """
         self._backend = backend
         self._name = name
         if path is not None:
-            self._path = Path(absolute_path(path, ignore_err)) / name
+            self._path = Path(absolute_path(path, mk_dir)) / name
         else:
             self._path = Path(get_data_loc('userdata')) / name
         if not self._path.exists():
-            if not ignore_err:
+            if not mk_dir:
                 raise FileNotFoundError()
             self._path.mkdir(parents=True)
         self._files = None
@@ -204,6 +227,12 @@ class DataSet(object):
         except IndexError:
             return None
 
+    def up(self, *args, **kwargs):
+        pass
+
+    def load(self, *args, **kwargs):
+        pass
+
     def rm(self, index, name=None):
         """
         Delete file(s) with given index.
@@ -266,7 +295,7 @@ class DataSet(object):
         -------
         self
         """
-        sub_set = DataSet(name, path=str(self._path), backend=self._backend)
+        sub_set = LocalSet(name, path=str(self._path), backend=self._backend)
         setattr(self, name, sub_set)
         return sub_set
 
@@ -517,11 +546,11 @@ class Loader(object):
                 return pd.read_pickle(str(dataset))
 
             # return user local data
-            return DataSet(data, ignore_err=False)
+            return LocalSet(data, mk_dir=False)
 
         if self._type == 'user_loc':
             data = _get_data('data')
-            return DataSet(data, path=self._location, ignore_err=False)
+            return LocalSet(data, path=self._location, mk_dir=False)
 
         if self._type == 'http':
             data = _get_data('data', ignore_err=True)

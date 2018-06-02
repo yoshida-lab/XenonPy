@@ -15,7 +15,9 @@ What is XenonPy project
     :alt: Build Status
     :target: https://travis-ci.org/yoshida-lab/XenonPy
 
-**XenonPy** is a Python library focus on the material informatics which be designed for material explore based on machine learning.
+**XenonPy** is a high-throughput material exploration framework written in Python.
+This framework is designed for researchers but also can be used in industry.
+By employ the cutting edge machine learning technologies, we wish to bring the traditional material design a strong acceleration.
 
 
 
@@ -23,9 +25,12 @@ Why this name
 =============
 
 XenonPy named from element Xenon_.
-We did a `Graphical Lasso` calculation with our elemental descriptor to find the relationship between elements.
-In Bonacich’s centrality calculation, Xenon got the lowest score which means the most isolated element.
-This is very interesting because the element's name xenon from the Greek word **ξένος [xenos]** also meaning 'foreign(er)', 'strange(r)', or 'guest'!
+We did a ``Graphical Lasso`` calculation with our ``build-in`` elemental descriptors to find the relationship between elements.
+Xenon_ got the lowest score when using Bonacich’s centrality calculation, that means Xenon_ is the most isolated element.
+This is very interesting because the name **Xenon** from the Greek word **ξένος [xenos]** also meaning 'foreign(er)', 'strange(r)', or 'guest'!
+
+Maybe it's just a coincidence but the result showed the potential of using ML in material design.
+We all love this story, so we named our package **XenonPy /ˈziːnɒnˈpaɪ/**.
 
 .. figure:: _static/glasso.png
     :alt: Graphical Lasso

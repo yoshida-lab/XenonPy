@@ -3,6 +3,7 @@
 # license that can be found in the LICENSE file.
 
 
+import os
 from pathlib import Path
 
 from xenonpy.utils.gadget import set_env, absolute_path
@@ -26,18 +27,21 @@ def test_set_env2():
 def test_absolute_path1():
     path = absolute_path('.')
     path = Path(path)
-    assert path.parent.name == 'tests'
-    assert path.name == 'utils'
+    cwd = Path(os.getcwd())
+    assert path.parent.name == cwd.parent.name
+    assert path.name == cwd.name
 
 
 def test_absolute_path2():
     path = absolute_path('../')
     path = Path(path)
-    assert path.name == 'tests'
+    cwd = Path(os.getcwd())
+    assert path.name == cwd.parent.name
 
 
 def test_absolute_path3():
     path = absolute_path('../other')
     path = Path(path)
+    cwd = Path(os.getcwd())
     assert path.name == 'other'
-    assert path.parent.name == 'tests'
+    assert path.parent.name == cwd.parent.name

@@ -7,11 +7,11 @@ from pathlib import Path
 import torch
 from sklearn.externals import joblib
 
-from ...datatools.dataset import LocalSet
+from ...datatools.dataset import LocalStorage
 from ...utils.gadget import get_data_loc
 
 
-class Checker(LocalSet):
+class Checker(LocalStorage):
     """
     Check point.
     """

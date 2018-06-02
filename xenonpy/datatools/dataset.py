@@ -21,30 +21,7 @@ from .._conf import __cfg_root__
 from ..utils.gadget import get_conf, get_dataset_url, get_data_loc, absolute_path, get_sha256
 
 
-class BaseDataset(object):
-    """
-    By employ the conception of Restfull_, :class:`BaseDatest` class defined a abstract interface to play with data.
-    All implemented Dataset class should override methods :meth:`save`, :meth:`up`, :meth:`load` and :meth:`rm`
-    to provide data access functional corresponding to *get*, *post*, *update* and *delete* in http protocol
-    and *CURD* in database operations.
-
-    .. _Restfull: https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm
-    """
-
-    def load(self, *args, **kwargs):
-        raise NotImplementedError('Must implement <load> method.')
-
-    def save(self, *args, **kwargs):
-        raise NotImplementedError('Must implement <save> method.')
-
-    def up(self, *args, **kwargs):
-        raise NotImplementedError('Must implement <up> method.')
-
-    def rm(self, *args, **kwargs):
-        raise NotImplementedError('Must implement <rm> method.')
-
-
-class LocalSet(BaseDataset):
+class LocalStorage(object):
     """
     Save data in a convenient way:
 
@@ -227,12 +204,6 @@ class LocalSet(BaseDataset):
         except IndexError:
             return None
 
-    def up(self, *args, **kwargs):
-        pass
-
-    def load(self, *args, **kwargs):
-        pass
-
     def rm(self, index, name=None):
         """
         Delete file(s) with given index.
@@ -295,7 +266,7 @@ class LocalSet(BaseDataset):
         -------
         self
         """
-        sub_set = LocalSet(name, path=str(self._path), backend=self._backend)
+        sub_set = LocalStorage(name, path=str(self._path), backend=self._backend)
         setattr(self, name, sub_set)
         return sub_set
 
@@ -546,11 +517,11 @@ class Loader(object):
                 return pd.read_pickle(str(dataset))
 
             # return user local data
-            return LocalSet(data, mk_dir=False)
+            return LocalStorage(data, mk_dir=False)
 
         if self._type == 'user_loc':
             data = _get_data('data')
-            return LocalSet(data, path=self._location, mk_dir=False)
+            return LocalStorage(data, path=self._location, mk_dir=False)
 
         if self._type == 'http':
             data = _get_data('data', ignore_err=True)

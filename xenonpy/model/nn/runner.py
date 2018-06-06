@@ -126,7 +126,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             self._device = torch.device(cuda)
         self._verbose = verbose
         self._work_dir = work_dir
-        self._models = None
+        self._model = None
         self._model_name = None
         self._checker = None
         self._logs = []
@@ -192,14 +192,6 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         if not isinstance(v, torch.torch.device):
             raise TypeError('Need torch.device object')
         self._device = v
-
-    @property
-    def work_dir(self):
-        return self._work_dir
-
-    @work_dir.setter
-    def work_dir(self, v):
-        self._work_dir = v
 
     @property
     def elapsed(self):
@@ -339,7 +331,6 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
                         yield y_, self._model(x_), t, i
                 return
 
-        self._model.cpu()
         desc = dict(
             python=version(),
             system=system(),
@@ -357,7 +348,9 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self.logger('start: %s' % now, '')
         start = self.elapsed
 
+        self._model.train(True)
         ret = self.optim(_ite())  # user implementation
+        self._model.train(False)
 
         now = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
         elapsed = str(timedelta(seconds=self.elapsed - start))

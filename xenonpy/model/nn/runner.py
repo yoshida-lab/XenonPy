@@ -138,7 +138,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self.logger('total elapsed time: %s' % elapsed)
         logs = '\n'.join(self._logs)
         now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')
-        with open(self.work_dir + '/log_' + now + '.txt', 'w') as f:
+        with open(self._work_dir + '/log_' + now + '.txt', 'w') as f:
             f.write(logs)
 
     def __enter__(self):
@@ -392,7 +392,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
 
         # prediction
         self._model.to(self._device)
-        y_true, y_pred = self._model(x_test), y_test
+        y_true, y_pred = y_test, self._model(x_test)
         return self.post_predict(y_true, y_pred)
 
     @classmethod

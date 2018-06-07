@@ -13,7 +13,7 @@ class Layer1d(nn.Module):
     See here for details: http://pytorch.org/docs/master/nn.html#
     """
 
-    def __init__(self, n_in: int, n_out: int, *,
+    def __init__(self, n_in, n_out, *,
                  drop_out=0.,
                  layer_func=L1.linear(bias=True),
                  act_func=nn.ReLU(),
@@ -41,8 +41,8 @@ class Layer1d(nn.Module):
         self.act_func = None if not act_func else act_func
         self.dropout = None if drop_out == 0. else nn.Dropout(drop_out)
 
-    def forward(self, x):
-        _out = self.layer(x)
+    def forward(self, *x):
+        _out = self.layer(*x)
         if self.dropout:
             _out = self.dropout(_out)
         if self.batch_nor:

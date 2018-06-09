@@ -4,8 +4,8 @@
 
 import numpy as np
 from pandas import DataFrame, Series
-from scipy.special import inv_boxcox
-from scipy.stats import boxcox
+from scipy.special import inv_boxcox, boxcox
+from scipy.stats import boxcox as bc
 from sklearn.base import BaseEstimator, TransformerMixin
 
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
@@ -21,7 +21,7 @@ class BoxCox(BaseEstimator, TransformerMixin):
     Journal of the Royal Statistical Society B, 26, 211-252 (1964).
     """
 
-    def __init__(self, shift=1e-9):
+    def __init__(self, *, lmd=None, shift=1e-9):
         """
         Parameters
         ----------
@@ -29,6 +29,7 @@ class BoxCox(BaseEstimator, TransformerMixin):
             Guarantee that all variables > 0
         """
         self.shift = shift
+        self.lmd = lmd
         self._min = []
         self._lmd = []
         self._shape = None
@@ -78,16 +79,28 @@ class BoxCox(BaseEstimator, TransformerMixin):
         return df
 
     def _box_cox(self, series):
-        if series.min() != series.max():
-            self._min.append(series.min())
+        _series = series[~np.isnan(series)]
+
+        if self.lmd is not None:
+            _min = _series.min()
+            self._min.append(_min)
+            tmp = series - _min + self.shift
+            return boxcox(tmp, self.lmd), self.lmd
+
+        if _series.min() != _series.max():
+            _min = _series.min()
+            self._min.append(_min)
+            tmp = _series - _min + self.shift
             with np.errstate(all='raise'):
-                tmp = series - series.min() + self.shift
                 try:
-                    return boxcox(tmp)
+                    _, lmd = bc(tmp)
+                    return boxcox(series - _min + self.shift, lmd), lmd
                 except FloatingPointError:
-                    return boxcox(tmp, 0.), 0.
-        self._min.append(series.min())
-        tmp = series - series.min() + self.shift
+                    return boxcox(series - _min + self.shift, 0.), 0.
+
+        _min = _series.min()
+        self._min.append(_min)
+        tmp = series - _min + self.shift
         return boxcox(tmp, 0.), 0.
 
     def inverse_transform(self, x):
@@ -129,16 +142,16 @@ class Scaler(object):
             Inner data.
         """
         if isinstance(value, (Series, list, np.ndarray)):
-            self.__value = DataFrame(data=value)
+            self._value = DataFrame(data=value)
         elif isinstance(value, DataFrame):
-            self.__value = value
+            self._value = value
         else:
             raise TypeError(
                 'value must be list, dict, tuple, Series, ndarray or DataFrame but got {}'.format(type(value)))
-        self._index = self.__value.index
-        self._columns = self.__value.columns
-        self.__now = self.__value.values
-        self.__inverse_chain = []
+        self._index = self._value.index
+        self._columns = self._value.columns
+        self._now = self._value.values
+        self._inverse_chain = []
 
     def box_cox(self, *args, **kwargs):
         return self._scale(BoxCox, *args, **kwargs)
@@ -146,17 +159,20 @@ class Scaler(object):
     def min_max(self, *args, **kwargs):
         return self._scale(MinMaxScaler, *args, **kwargs)
 
-    def standard_scale(self, *args, **kwargs):
+    def standard(self, *args, **kwargs):
         return self._scale(StandardScaler, *args, **kwargs)
+
+    def log(self):
+        return self._scale(BoxCox, lmd=0.)
 
     def _scale(self, scaler, *args, **kwargs):
         scaler = scaler(*args, **kwargs)
-        self.__now = scaler.fit_transform(self.__now)
-        self.__inverse_chain.append(scaler.inverse_transform)
+        self._now = scaler.fit_transform(self._now)
+        self._inverse_chain.append(scaler.inverse_transform)
         return self
 
     @property
-    def value(self):
+    def data_frame(self):
         """
         Return scaled values as Dataframe object.
 
@@ -165,10 +181,10 @@ class Scaler(object):
         DataFrame
             Scaled value. If your need value as ndarray object, please use ``np_value``
         """
-        return DataFrame(self.__now, index=self._index, columns=self._columns)
+        return DataFrame(self._now, index=self._index, columns=self._columns)
 
     @property
-    def np_value(self):
+    def values(self):
         """
         Return scaled values as ndarray object
 
@@ -177,14 +193,14 @@ class Scaler(object):
         ndarray
             Scaled value. If your need value as Dataframe object, please use ``value``
         """
-        return self.__now
+        return self._now
 
     def inverse(self, data):
-        if len(self.__inverse_chain) == 0:
+        if len(self._inverse_chain) == 0:
             return data
-        for inv in self.__inverse_chain[::-1]:
+        for inv in self._inverse_chain[::-1]:
             data = inv(data)
         return data
 
     def reset(self):
-        self.__now = self.__value
+        self._now = self._value

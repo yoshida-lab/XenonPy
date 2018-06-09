@@ -3,9 +3,11 @@
 # license that can be found in the LICENSE file.
 
 # change version in there, conf.yml, setup.py
-__all__ = ['descriptor', 'model', 'utils', 'visualization', 'preprocess']
+__all__ = ['descriptor', 'model', 'utils', 'visualization', 'datatools', 'math']
 
+from . import datatools
 from . import descriptor
+from . import math
 from . import model
 # from . import pipeline
 from . import utils

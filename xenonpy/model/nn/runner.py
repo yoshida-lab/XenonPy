@@ -246,6 +246,8 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
     @staticmethod
     def tensor(*data_and_type):
         def _tensor(data, torch_type):
+            if torch_type is None:
+                torch_type = torch.float
             if isinstance(data, pd.DataFrame):
                 return torch.from_numpy(data.as_matrix()).to(torch_type)
             elif isinstance(data, np.ndarray):
@@ -272,9 +274,9 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         if not all([isinstance(o, (pd.DataFrame, np.ndarray)) for o, _ in data]):
             raise TypeError('Need <numpy.ndarray> or <pandas.DataFrame>')
         if isinstance(batch_size, float):
-            batch_size = math.floor(data[0][0].shape[0] * batch_size)
+            batch_size = math.ceil(data[0][0].shape[0] * batch_size)
 
-        return Data.DataLoader(dataset=Data.TensorDataset(*self.to_device(*self.tensor(*data))),
+        return Data.DataLoader(dataset=Data.TensorDataset(*self.tensor(*data)),
                                batch_size=batch_size,
                                shuffle=shuffle,
                                num_workers=num_worker,
@@ -321,13 +323,13 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             if not data_loader:
                 x_, y_ = self.to_device(*self.tensor((x_train, x_dtype), (y_train, y_dtype)))
                 for t in range(self._epochs):
-                    yield y_, self._model(x_), t, None
+                    yield y_, self._model(x_), t, 1
                 return
 
             if data_loader:
                 for t in range(self._epochs):
                     for i, (x_, y_) in enumerate(data_loader):
-                        x_, y_ = self.to_device(self._device, x_, y_)
+                        x_, y_ = self.to_device(x_, y_)
                         yield y_, self._model(x_), t, i
                 return
 
@@ -489,11 +491,11 @@ class RegressionRunner(BaseRunner, RegressorMixin):
             loss.backward()
             optim.step()
 
-            if self._log_step > 0 and t % self._log_step == 0:
+            if self._log_step > 0 and t % self._log_step == 0 and i == 1:
                 elapsed = str(timedelta(seconds=self.elapsed - start))
                 start = self.elapsed
                 self.logger('{}/{}, Loss={:.4f}, elapsed time: {}'.format(t, self._epochs, loss, elapsed))
-            if self._check_step > 0 and t % self._check_step == 0:
+            if self._check_step > 0 and t % self._check_step == 0 and i == 1:
                 self.checkpoint(mse_loss=loss.item())
 
         self.logger('Final loss={:.4f}'.format(loss), '')

@@ -104,9 +104,12 @@ class DescHeatmap(BaseEstimator):
             ax.ax_col_dendrogram.set_position((0.1, 0.8, 0.83, 0.1))
             ax.ax_heatmap.set_position((0.1, 0.2, 0.84, 0.6))
             ax = plt.axes([0.95, 0.2, 0.05, 0.6])
-            ax.plot(y.values, lw=4)
+            x_ = y.values
+            y_ = np.arange(len(x_))[::-1]
+            ax.plot(x_, y_, lw=4)
+            ax.get_yaxis().set_visible(False)
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
-            ax.set_xlabel('{:s}\n(property)'.format(y.name), fontsize=20)
+            ax.set_xlabel('{:s}'.format(y.name), fontsize='large')
         if self.save:
             plt.savefig(**self.save)

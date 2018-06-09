@@ -42,7 +42,7 @@ class DataSplitter(object):
         if isinstance(array, list):
             array = np.array(array)
         if isinstance(array, Scaler):
-            array = array.np_value
+            array = array.values
         if array.shape[0] <= 1:
             raise ValueError('array size should greater than 1')
         self._index = np.arange(array.shape[0])

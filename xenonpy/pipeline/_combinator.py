@@ -101,7 +101,7 @@ class Just(Maybe):
         if other == Nothing:
             return self
         else:
-            return Just(self.value + other.value)
+            return Just(self.value + other.data_frame)
 
 
 def combinator(cls_func):

@@ -7,4 +7,4 @@ __all__ = [
     'timed', 'Timer', 'TimedMetaClass'
 ]
 from .gadget import *
-from .timer import *
+from .base_class import *

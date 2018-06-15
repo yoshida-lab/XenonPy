@@ -6,18 +6,18 @@ import re
 from collections import defaultdict
 from datetime import datetime as dt
 from os import remove
+from os.path import getmtime
 from pathlib import Path
 from shutil import rmtree
-from urllib.parse import urljoin, urlparse
 from warnings import warn
 
 import pandas as pd
 import requests
-from os.path import getmtime
 from ruamel.yaml import YAML
 from sklearn.externals import joblib
 
 from .._conf import __cfg_root__
+from ..utils.base_class import Singleton
 from ..utils.gadget import get_conf, get_dataset_url, get_data_loc, absolute_path, get_sha256
 
 
@@ -342,7 +342,7 @@ class LocalStorage(object):
             self._files[k].append(f)
 
 
-class Loader(object):
+class Preset(Singleton):
     """
     Load data from embed dataset in XenonPy's or user create data saved in ``~/.xenonpy/cached`` dir.
     Also can fetch data by http request.
@@ -351,8 +351,8 @@ class Loader(object):
 
     ::
 
-        >>> load = Loader()
-        >>> elements = load('elements')
+        >>> from xenonpy.datatools import preset
+        >>> elements = preset.load('elements')
         >>> elements.info()
         <class 'pandas.core.frame.DataFrame'>
         Index: 118 entries, H to Og
@@ -381,41 +381,6 @@ class Loader(object):
     _yaml = YAML(typ='safe')
     _yaml.indent(mapping=2, sequence=4, offset=2)
 
-    def __init__(self, location=None):
-        """
-
-        Parameters
-        ----------
-        location: str
-            Where data are.
-            None(default) means to load data in ``~/.xenonpy/cached`` or ``~/.xenonpy/dataset`` dir.
-            When given as url, later can be uesd to fetch files under this url from http-request.
-        """
-        self._location = location
-        self._type = self._select(location)
-
-    def _select(self, loc):
-        if loc is None:
-            return 'local'
-
-        if not isinstance(loc, str):
-            raise TypeError(
-                'parameter `location` must be string but got {}'.format(
-                    type(loc)))
-
-        # local
-        scheme = urlparse(loc).scheme
-        if scheme is '':
-            self._location = absolute_path(loc)
-            return 'user_loc'
-
-        # http
-        http_schemes = ('http', 'https')
-        if scheme in http_schemes:
-            return 'http'
-
-        raise ValueError('can not parse location {}'.format(loc))
-
     @classmethod
     def _http_data(cls, url, params=None, save_to=None, **kwargs):
         r = requests.get(url, params, **kwargs)
@@ -435,13 +400,14 @@ class Loader(object):
 
         return save_to
 
-    def __call__(self, data=None, **kwargs):
+    def __call__(self, data, *, sync=False):
         """
         Same to self.load()
         """
-        return self.load(data=data, **kwargs)
+        return self.load(data=data, sync=sync)
 
-    def load(self, data=None, **kwargs):
+    @classmethod
+    def load(cls, data, *, sync=False):
         """
         load data.
 
@@ -453,91 +419,57 @@ class Loader(object):
         -----------
         data: str
             name of data.
+        sync: bool
+            If ``true``, try to sync data file with online version.
 
         Returns
         ------
         ret:DataFrame or Saver or local file path.
         """
 
-        kwargs = dict(kwargs, data=data)
+        dataset = cls._dataset_dir / (data + '.pkl.pd_')
+        sha256_file = cls._dataset_dir / 'sha256.yml'
 
-        def _get_data(key, ignore_err=False, del_key=True):
-            try:
-                ret = kwargs[key]
-                if del_key:
-                    del kwargs[key]
-                return ret
-            except KeyError:
-                if ignore_err:
-                    return None
-                else:
-                    raise KeyError('no key `{}` in **kwargs'.format(key))
+        # fetch data from source if not in local
+        if not dataset.exists():
+            url = get_dataset_url(data)
+            print('fetching dataset `{}` from {} because of none data file or outdated. '
+                  'If you can\'t download it automatically, '
+                  'just download it manually from the url above and '
+                  'put it under `~/.xenonpy/dataset/`'.format(data, url))
+            cls._http_data(url, save_to=str(dataset))
 
-        if self._type == 'local':
-            data = _get_data('data')
-            if data in self.dataset:
-                dataset = self._dataset_dir / (data + '.pkl.pd_')
-                sha256_file = self._dataset_dir / 'sha256.yml'
+        # check sha256 value
+        sha256_file.touch()  # make sure sha256_file file exist.
+        sha256 = cls._yaml.load(sha256_file)
+        if sha256 is None:
+            sha256 = {}
+        if data not in sha256:
+            sha256_ = get_sha256(str(dataset))
+            sha256[data] = sha256_
+            cls._yaml.dump(sha256, sha256_file)
+        else:
+            sha256_ = sha256[data]
 
-                # fetch data from source if not in local
-                if not dataset.exists():
-                    url = get_dataset_url(data)
-                    print('fetching dataset `{}` from {} because of none data file or is older. '
-                          'for some reason you can\'t download it automatically, '
-                          'you can download it manually from the url above and '
-                          'put it under `~/.xenonpy/dataset/`'.format(data, url))
-                    self._http_data(url, save_to=str(dataset))
+        if sha256_ != get_conf(data):
+            warn('local data {} is different from the repository version. '
+                 'use `load(data, sync=True)` to fix it.'.format(data), RuntimeWarning)
+            if sync:
+                url = get_dataset_url(data)
+                print('fetching dataset `{}` from {} because of none data file or outdated. '
+                      'you can download it manually from this url '
+                      'then put it under `~/.xenonpy/dataset/`'.format(data, url))
+                cls._http_data(url, save_to=str(dataset))
+                sha256_ = get_sha256(str(dataset))
+                sha256[data] = sha256_
+                cls._yaml.dump(sha256, sha256_file)
 
-                # check sha256 value
-                sha256_file.touch()  # make sure sha256_file file exist.
-                sha256 = self._yaml.load(sha256_file)
-                if sha256 is None:
-                    sha256 = {}
-                if data not in sha256:
-                    sha256_ = get_sha256(str(dataset))
-                    sha256[data] = sha256_
-                    self._yaml.dump(sha256, sha256_file)
-                else:
-                    sha256_ = sha256[data]
+        # return preset data
+        return pd.read_pickle(str(dataset))
 
-                if sha256_ != get_conf(data):
-                    warn('local data {} is different from the repository version. '
-                         'use `load(data, sync=True)` to fix it.'.format(data), RuntimeWarning)
-                    if _get_data('sync', ignore_err=True):
-                        url = get_dataset_url(data)
-                        print('fetching dataset `{}` from {} because of none data file or is older. '
-                              'you can download it manually from this url '
-                              'then put it under `~/.xenonpy/dataset/`'.format(data, url))
-                        self._http_data(url, save_to=str(dataset))
-                        sha256_ = get_sha256(str(dataset))
-                        sha256[data] = sha256_
-                        self._yaml.dump(sha256, sha256_file)
-
-                # return preset data
-                return pd.read_pickle(str(dataset))
-
-            # return user local data
-            return LocalStorage(data, mk_dir=False)
-
-        if self._type == 'user_loc':
-            data = _get_data('data')
-            return LocalStorage(data, path=self._location, mk_dir=False)
-
-        if self._type == 'http':
-            data = _get_data('data', ignore_err=True)
-            params = _get_data('params', ignore_err=True)
-            kwargs['stream'] = True
-            url = urljoin(self._location, data)
-            return self._http_data(url, params=params, **kwargs)
-
-        raise ValueError('can not fetch data')
-
-    def _get_prop(self, name):
-        tmp = self._type
-        self._type = 'local'
-        ret = self.load(name)
-        self._type = tmp
-        return ret
+    @classmethod
+    def _get_prop(cls, name):
+        return cls.load(name)
 
     @property
     def elements(self):
@@ -604,3 +536,6 @@ class Loader(object):
             imputed element properties in pd.DataFrame
         """
         return self._get_prop('elements_completed')
+
+
+preset = Preset()

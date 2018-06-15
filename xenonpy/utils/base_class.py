@@ -105,3 +105,21 @@ class TimedMetaClass(type):
                 attrs[name_] = timed(value_)
 
         return super(TimedMetaClass, mcs).__new__(mcs, name, bases, attrs)
+
+
+class Singleton(object):
+    """
+    Singleton class
+
+    .. code::
+
+        class NewClass(Singleton):
+            pass
+
+    """
+    _instance = None
+
+    def __new__(cls, *args, **kw):
+        if not cls._instance:
+            cls._instance = super(Singleton, cls).__new__(cls, *args, **kw)
+        return cls._instance

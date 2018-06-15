@@ -9,7 +9,7 @@ from shutil import rmtree
 import pytest
 from sklearn.externals import joblib as jl
 
-from xenonpy.datatools.dataset import Loader, LocalStorage
+from xenonpy.datatools.dataset import Preset, LocalStorage, preset
 
 
 @pytest.fixture(scope='module')
@@ -41,35 +41,20 @@ def setup():
     print('test over')
 
 
-def test_loader():
-    load = Loader()
-    e = load('elements')
+def test_preset():
+    load = Preset()
+    assert load is preset
+    e = preset.load('elements')
     assert 118 == e.shape[0], 'should have 118 elements'
     assert 74 == e.shape[1], 'should have 74 features'
 
-    e = load('elements_completed')
+    e = preset('elements_completed')
     assert 94 == e.shape[0], 'should have 94 completed elements'
     assert 58 == e.shape[1], 'should have 58 completed features'
 
 
-def test_loader_url1(setup):
-    load = Loader(setup['fetch_file'])
-    file = load()
-    with open(str(file)) as f:
-        assert f.readline() == 'Test xenonpy.utils.Loader._fetch_data'
-    remove(str(file))
-
-
-def test_loader_url2(setup):
-    load = Loader(setup['fetch_file'])
-    file = load('fetch_test.txt')
-    with open(str(file)) as f:
-        assert f.readline() == 'Test xenonpy.utils.Loader._fetch_data'
-    remove(str(file))
-
-
-def test_loader_property():
-    load = Loader()
+def test_preset_property():
+    load = Preset()
     assert 118 == load.elements.shape[0], 'should have 118 elements'
     assert 74 == load.elements.shape[1], 'should have 74 features'
 
@@ -79,37 +64,25 @@ def test_loader_property():
         1], 'should have 58 completed features'
 
 
-def test_loader_return_dataset(setup):
-    load = Loader()
-    dir_ = setup['test_dir']
-    try:
-        load(dir_)
-    except FileNotFoundError:
-        assert True
-        return
-
-    assert False, 'should got FileNotFoundError'
-
-
 # =====================================================================================================
-def test_dataset5(setup):
+def test_local_storage5(setup):
     saver = LocalStorage('dens')
     saver(list('sdfs'))
 
 
-def test_dataset1(setup):
+def test_local_storage1(setup):
     saver = LocalStorage(setup['user_dataset'])
     ret = '<{}> include:'.format(setup['user_dataset'])
     assert str(saver) == ret, 'no files'
 
 
-def test_dataset2(setup):
+def test_local_storage2(setup):
     saver = LocalStorage(setup['user_dataset'])
     saver(list('abcd'), list('efgh'))
     assert len(saver._files['unnamed']) == 2, 'should got 2 files'
 
 
-def test_dataset3(setup):
+def test_local_storage3(setup):
     saver = LocalStorage(setup['user_dataset'])
     saver(key1=list('asdf'), key2=list('qwer'))
     assert len(saver._files['unnamed']) == 2, 'should got 2 files'
@@ -117,7 +90,7 @@ def test_dataset3(setup):
     assert len(saver._files['key2']) == 1, 'should got 1 files'
 
 
-def test_dataset4(setup):
+def test_local_storage4(setup):
     saver = LocalStorage(setup['user_dataset'])
     saver(list('asdf'), key1=list('qwer'))
     assert len(saver._files['unnamed']) == 3, 'should got 3 files'
@@ -125,25 +98,25 @@ def test_dataset4(setup):
     assert len(saver._files['key2']) == 1, 'should got 1 files'
 
 
-def test_dataset_prop(setup):
+def test_local_storage_prop(setup):
     saver = LocalStorage(setup['user_dataset'])
     assert saver.name == 'test_user_data'
     assert saver.path == str(Path.home() / '.xenonpy' / 'userdata')
 
 
-def test_dataset_last1(setup):
+def test_local_storage_last1(setup):
     saver = LocalStorage(setup['user_dataset'])
     last = saver.last()
     assert last == list('asdf'), 'retriever same data'
 
 
-def test_dataset_last2(setup):
+def test_local_storage_last2(setup):
     saver = LocalStorage(setup['user_dataset'])
     last = saver.last('key1')
     assert last == list('qwer'), 'retriever same data'
 
 
-def test_dataset_getitem1(setup):
+def test_local_storage_getitem1(setup):
     saver = LocalStorage(setup['user_dataset'])
     item = saver[:]
     assert item[1] == list('efgh'), 'retriever same data'
@@ -151,7 +124,7 @@ def test_dataset_getitem1(setup):
     assert item == list('efgh'), 'retriever same data'
 
 
-def test_dataset_getitem2(setup):
+def test_local_storage_getitem2(setup):
     saver = LocalStorage(setup['user_dataset'])
     item = saver['key2', :]
     assert item[0] == list('qwer'), 'retriever same data'
@@ -173,19 +146,19 @@ def test_dump2(setup):
     assert dumped['key1'] == list('qwer')
 
 
-def test_dataset_chained(setup):
+def test_local_storage_chained(setup):
     saver = LocalStorage(setup['user_dataset']).chain
     assert saver.name == 'chain'
     assert saver.path == str(Path.home() / '.xenonpy' / 'userdata' / 'test_user_data')
 
 
-def test_dataset_delete1(setup):
+def test_local_storage_delete1(setup):
     saver = LocalStorage(setup['user_dataset'])
     saver.rm(0)
     assert len(saver._files['unnamed']) == 2, 'should got 1 files'
 
 
-def test_dataset_delete2(setup):
+def test_local_storage_delete2(setup):
     saver = LocalStorage(setup['user_dataset'])
     saver(key1=list('qwer'))
     assert len(saver._files['key1']) == 3, 'should got 3 files'
@@ -193,13 +166,13 @@ def test_dataset_delete2(setup):
     assert len(saver._files['key1']) == 1, 'should got 1 files'
 
 
-def test_dataset_clean1(setup):
+def test_local_storage_clean1(setup):
     saver = LocalStorage(setup['user_dataset'])
     saver.clean('key1')
     assert 'key1' not in saver._files, 'no saver dir'
 
 
-def test_dataset_clean2(setup):
+def test_local_storage_clean2(setup):
     saver = LocalStorage(setup['user_dataset'])
     saver_dir = Path.home() / '.xenonpy' / 'userdata' / setup['user_dataset']
     saver.clean()

@@ -6,7 +6,7 @@ import numpy as np
 from pymatgen import Composition
 
 from .base import BaseFeaturizer, BaseDescriptor
-from ..datatools.dataset import Loader
+from ..datatools.dataset import Preset
 
 
 class WeightedAvgFeature(BaseFeaturizer):
@@ -26,7 +26,7 @@ class WeightedAvgFeature(BaseFeaturizer):
         if elements is not None:
             self.elemental_info = elements
         else:
-            self.elemental_info = Loader().elements_completed
+            self.elemental_info = Preset().elements_completed
 
     def featurize(self, comp):
         elems_, nums_ = [], []
@@ -61,7 +61,7 @@ class WeightedSumFeature(BaseFeaturizer):
         if elements is not None:
             self.elemental_info = elements
         else:
-            self.elemental_info = Loader().elements_completed
+            self.elemental_info = Preset().elements_completed
 
     def featurize(self, comp):
         elements_, nums_ = [], []
@@ -96,7 +96,7 @@ class WeightedVarFeature(BaseFeaturizer):
         if elements is not None:
             self.elemental_info = elements
         else:
-            self.elemental_info = Loader().elements_completed
+            self.elemental_info = Preset().elements_completed
 
     def featurize(self, comp):
         elems_, nums_ = [], []
@@ -133,7 +133,7 @@ class MaxFeature(BaseFeaturizer):
         if elements is not None:
             self.elemental_info = elements
         else:
-            self.elemental_info = Loader().elements_completed
+            self.elemental_info = Preset().elements_completed
 
     def featurize(self, comp):
         elems_, nums_ = [], []
@@ -167,7 +167,7 @@ class MinFeature(BaseFeaturizer):
         if elements is not None:
             self.elemental_info = elements
         else:
-            self.elemental_info = Loader().elements_completed
+            self.elemental_info = Preset().elements_completed
 
     def featurize(self, comp):
         elems_, nums_ = [], []
@@ -184,7 +184,7 @@ class MinFeature(BaseFeaturizer):
         return ['min:' + s for s in self.elemental_info]
 
 
-class CompositionDescriptor(BaseDescriptor):
+class Composition(BaseDescriptor):
     """
     Calculate elemental descriptors from compound's composition.
     """
@@ -210,7 +210,7 @@ class CompositionDescriptor(BaseDescriptor):
         if elemental_info is not None:
             self.elemental_info = elemental_info
         else:
-            self.elemental_info = Loader().elements_completed
+            self.elemental_info = Preset().elements_completed
 
         self.composition = WeightedAvgFeature(n_jobs, self.elemental_info)
         self.composition = WeightedSumFeature(n_jobs, self.elemental_info)

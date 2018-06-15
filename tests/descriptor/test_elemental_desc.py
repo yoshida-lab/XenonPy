@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from xenonpy.descriptor import CompositionDescriptor
+from xenonpy.descriptor import Composition
 from xenonpy.model.nn import Layer1d
 
 
@@ -46,7 +46,7 @@ def setup():
 
 
 def test_comp_descripotor(setup):
-    desc = CompositionDescriptor(n_jobs=1)
+    desc = Composition(n_jobs=1)
     ret = desc.fit_transform(pd.Series([{'H': 2}], name='composition'))
 
 

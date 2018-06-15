@@ -11,10 +11,11 @@ from sklearn.base import BaseEstimator
 from sklearn.preprocessing import minmax_scale
 
 
-class DescHeatmap(BaseEstimator):
+class DescriptorHeatmap(BaseEstimator):
     """
     Heatmap.
     """
+
     def __init__(self,
                  save=None,
                  bc=False,

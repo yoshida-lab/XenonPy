@@ -9,4 +9,4 @@ __all__ = [
 
 from .base import BaseDescriptor, BaseFeaturizer
 from .composition import Composition, WeightedAvgFeature, WeightedSumFeature, WeightedVarFeature, MaxFeature, MinFeature
-from .rdf import RadialDistributionFunction
+from .structure import RadialDistributionFunction

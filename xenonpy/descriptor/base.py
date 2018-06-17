@@ -227,12 +227,24 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
 
 class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
     """
-    BaseDescriptor.
+    Abstract class to organize featurizers.
+
 
     Examples
     --------
-    a = BaseDescriptor()
-    """
+
+    .. code::
+
+
+        class MyDescriptor(BaseDescriptor):
+
+            def __init__(self, n_jobs=-1):
+                self.descriptor = SomeFeature1(n_jobs)
+                self.descriptor = SomeFeature2(n_jobs)
+                self.descriptor = SomeFeature3(n_jobs)
+                self.descriptor = SomeFeature4(n_jobs)
+
+"""
 
     _n_jobs = 1
     """sfesefe"""

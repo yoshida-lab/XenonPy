@@ -28,10 +28,9 @@ class BoxCox(BaseEstimator, TransformerMixin):
         shift: float
             Guarantee that all variables > 0
         """
-        self.shift = shift
-        self.lmd = lmd
-        self._min = []
-        self._lmd = []
+        self._shift = shift
+        self._min = None
+        self._lmd = lmd or []
         self._shape = None
 
     def _check_type(self, x, check_shape=True):
@@ -39,17 +38,50 @@ class BoxCox(BaseEstimator, TransformerMixin):
             x = np.array(x, dtype=np.float)
         elif isinstance(x, (DataFrame, Series)):
             x = x.values
+        if len(x.shape) == 1:
+            x = x.reshape(-1, 1)
         if not isinstance(x, np.ndarray):
             raise TypeError(
                 'parameter `X` should be a `DataFrame`, `Series`, `ndarray` or list object '
                 'but got {}'.format(type(x)))
-        if check_shape and x.shape != self._shape:
-            raise ValueError('parameter `X` should have shape {} but got {}'.format(
-                self._shape, x.shape))
+        if check_shape:
+            if x.shape[1] != self._shape[1]:
+                raise ValueError('shape[1] of parameter `X` should be {} but got {}'.format(self._shape[1], x.shape[1]))
         return x
 
+    def _positive(self, x):
+        xs = []
+        self._min = []
+        for col in x.T:
+            col_ = x[~np.isnan(x)]
+            min_ = col_.min()
+            self._min.append(min_)
+            tmp = col - min_ + self._shift
+            xs.append(tmp)
+        return xs
+
     def fit(self, x):
+        x = self._check_type(x, check_shape=False)
         self._shape = x.shape
+        if self._lmd:
+            if x.shape[1] != len(self._lmd):
+                raise ValueError('shape[1] of parameter `X` should be {} but got {}'.format(
+                    len(self._lmd), x.shape[1]))
+            return self
+
+        for col in x.T:
+            col_ = col[~np.isnan(col)]
+            if col_.min() != col_.max():
+                tmp = col_ - col_.min() + self._shift
+                with np.errstate(all='raise'):
+                    try:
+                        _, lmd = bc(tmp)
+                        self._lmd.append(lmd)
+                    except FloatingPointError:
+                        self._lmd.append(0.)
+            else:
+                self._lmd.append(0.)
+
         return self
 
     def transform(self, x):
@@ -65,43 +97,9 @@ class BoxCox(BaseEstimator, TransformerMixin):
             Box-Cox transformed data.
         """
         x = self._check_type(x)
-        if len(x.shape) == 1:
-            x_, lmd = self._box_cox(x)
-            self._lmd.append(lmd)
-            return x_
-
-        xs = []
-        for col in x.T:
-            x_, lmd = self._box_cox(col)
-            self._lmd.append(lmd)
-            xs.append(x_.reshape(-1, 1))
-        df = np.concatenate(xs, axis=1)
-        return df
-
-    def _box_cox(self, series):
-        _series = series[~np.isnan(series)]
-
-        if self.lmd is not None:
-            _min = _series.min()
-            self._min.append(_min)
-            tmp = series - _min + self.shift
-            return boxcox(tmp, self.lmd), self.lmd
-
-        if _series.min() != _series.max():
-            _min = _series.min()
-            self._min.append(_min)
-            tmp = _series - _min + self.shift
-            with np.errstate(all='raise'):
-                try:
-                    _, lmd = bc(tmp)
-                    return boxcox(series - _min + self.shift, lmd), lmd
-                except FloatingPointError:
-                    return boxcox(series - _min + self.shift, 0.), 0.
-
-        _min = _series.min()
-        self._min.append(_min)
-        tmp = series - _min + self.shift
-        return boxcox(tmp, 0.), 0.
+        x_ = self._positive(x)
+        xs = [boxcox(col, lmd).reshape(-1, 1) for col, lmd in zip(x_, self._lmd)]
+        return np.concatenate(xs, axis=1)
 
     def inverse_transform(self, x):
         """
@@ -117,19 +115,13 @@ class BoxCox(BaseEstimator, TransformerMixin):
         DataFrame
             Inverse transformed data.
         """
-        x = self._check_type(x, check_shape=False)
-        if len(x.shape) == 1:
-            return inv_boxcox(x, self._lmd[0]) - self.shift + self._min[0]
-
-        xs = []
-        for i, col in enumerate(x.T):
-            x_ = inv_boxcox(col, self._lmd[i]) - self.shift + self._min[i]
-            xs.append(x_.reshape(-1, 1))
-        df = np.concatenate(xs, axis=1)
-        return df
+        x = self._check_type(x, check_shape=True)
+        xs = [(inv_boxcox(col, lmd) + min_ - self._shift).reshape(-1, 1) for col, min_, lmd in
+              zip(x.T, self._min, self._lmd)]
+        return np.concatenate(xs, axis=1)
 
 
-class Scaler(object):
+class Scaler(BaseEstimator, TransformerMixin):
     """
     A value-matrix container for data transform.
     """
@@ -152,6 +144,7 @@ class Scaler(object):
         self._columns = self._value.columns
         self._now = self._value.values
         self._inverse_chain = []
+        self._scalers = []
 
     def box_cox(self, *args, **kwargs):
         return self._scale(BoxCox, *args, **kwargs)
@@ -166,41 +159,42 @@ class Scaler(object):
         return self._scale(BoxCox, lmd=0.)
 
     def _scale(self, scaler, *args, **kwargs):
-        scaler = scaler(*args, **kwargs)
-        self._now = scaler.fit_transform(self._now)
-        self._inverse_chain.append(scaler.inverse_transform)
+        self._scalers.append(scaler(*args, **kwargs))
         return self
 
-    @property
-    def data_frame(self):
+    def fit(self, x):
+        """Compute the minimum and maximum to be used for later scaling.
+        Parameters
+        ----------
+        x: array-like, shape [n_samples, n_features]
+            The data used to compute the per-feature minimum and maximum
+            used for later scaling along the features axis.
         """
-        Return scaled values as Dataframe object.
+        for s in self._scalers:
+            s.fit(x)
+        return self
 
-        Returns
-        -------
-        DataFrame
-            Scaled value. If your need value as ndarray object, please use ``np_value``
+    def transform(self, x):
+        """Scaling features of X according to feature_range.
+        Parameters
+        ----------
+        x : array-like, shape [n_samples, n_features]
+            Input data that will be transformed.
         """
-        return DataFrame(self._now, index=self._index, columns=self._columns)
+        for s in self._scalers:
+            x = s.transform(x)
+        return x
 
-    @property
-    def values(self):
+    def inverse_transform(self, x):
+        for s in self._scalers[::-1]:
+            x = s.transform(x)
+        return x
+
+    def _reset(self):
+        """Reset internal data-dependent state of the scaler, if necessary.
+        __init__ parameters are not touched.
         """
-        Return scaled values as ndarray object
 
-        Returns
-        -------
-        ndarray
-            Scaled value. If your need value as Dataframe object, please use ``value``
-        """
-        return self._now
-
-    def inverse(self, data):
-        if len(self._inverse_chain) == 0:
-            return data
-        for inv in self._inverse_chain[::-1]:
-            data = inv(data)
-        return data
-
-    def reset(self):
-        self._now = self._value
+        # Checking one attribute is enough, becase they are all set together
+        # in partial_fit
+        self._scalers = []

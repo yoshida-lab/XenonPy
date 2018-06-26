@@ -7,23 +7,21 @@ import numpy as np
 from pandas import DataFrame, Series
 from sklearn.model_selection import train_test_split
 
-from .transform import Scaler
-
 
 class DataSplitter(object):
     """
     Data splitter for train and test
     """
 
-    def __init__(self, array, *,
+    def __init__(self, total_size, *,
                  test_size=0.2,
                  random_state=None,
                  shuffle=True):
         """
         Parameters
         ----------
-        array: DataFrame, Series, ndarray or list
-            Divided array. :class:`DataSplitter` only same the data shape.
+        total_size: int
+            Total sample size.
         test_size: float, int, None
             If float, should be between 0.0 and 1.0 and represent the proportion
             of the dataset to include in the test split. If int, represents the
@@ -37,19 +35,13 @@ class DataSplitter(object):
         shuffle: boolean
             Whether or not to shuffle the data before splitting.
         """
-        if not isinstance(array, (DataFrame, Series, np.ndarray, Scaler, list)):
-            raise TypeError('must be a list or matrix like object but got {}.'.format(array))
-        if isinstance(array, list):
-            array = np.array(array)
-        if isinstance(array, Scaler):
-            array = array.values
-        if array.shape[0] <= 1:
-            raise ValueError('array size should greater than 1')
-        self._index = np.arange(array.shape[0])
-        self._train, self._test = train_test_split(self._index,
-                                                   test_size=test_size,
-                                                   random_state=random_state,
-                                                   shuffle=shuffle)
+        self._size = np.arange(total_size)
+        self._random_state = random_state
+        self._shuffle = shuffle
+        self._test_size = test_size
+        self._test = None
+        self._train = None
+        self.re_sample(test_size=test_size, random_state=random_state, shuffle=shuffle)
 
     def re_sample(self, *, test_size=0.2, random_state=None, shuffle=True):
         """
@@ -70,10 +62,13 @@ class DataSplitter(object):
         shuffle: boolean
             Whether or not to shuffle the data before splitting.
         """
-        self._train, self._test = train_test_split(self._index,
-                                                   test_size=test_size,
-                                                   random_state=random_state,
-                                                   shuffle=shuffle)
+        self._random_state = random_state or self._random_state
+        self._test_size = test_size or self._test_size
+        self._shuffle = shuffle or self._shuffle
+        self._train, self._test = train_test_split(self._size,
+                                                   test_size=self._test_size,
+                                                   random_state=self._random_state,
+                                                   shuffle=self._shuffle)
 
     @property
     def index(self):
@@ -89,13 +84,9 @@ class DataSplitter(object):
 
     @property
     def size(self):
-        return self._index.size
+        return self._size.size
 
-    @property
-    def shape(self):
-        return self._index.shape
-
-    def split_data(self, *arrays, train=True, test=True):
+    def split(self, *arrays, train=True, test=True):
         """
         Split data with index.
 
@@ -115,14 +106,14 @@ class DataSplitter(object):
             length=2 * len(arrays)
         """
         if not (train or test):
-            raise ValueError('at least a return value')
+            raise ValueError("train and test can't simultaneously False ")
 
         def _split(array):
             ret = []
             if isinstance(array, (DataFrame, Series)):
-                if array.shape[0] != self._index.shape[0]:
+                if array.shape[0] != self._size.size:
                     raise ValueError(
-                        'para `data` must have row size {} but got {}'.format(self._index.shape[0], array.shape[0]))
+                        'para `data` must have row size {} but got {}'.format(self._size.size, array.shape[0]))
                 if train:
                     ret.append(array.iloc[self._train])
                 if test:
@@ -131,9 +122,9 @@ class DataSplitter(object):
             if isinstance(array, list):
                 array = np.array(array)
             if isinstance(array, np.ndarray):
-                if array.shape[0] != self._index.shape[0]:
+                if array.shape[0] != self._size.size:
                     raise ValueError(
-                        'para `data` must have row size {} but got {}'.format(self._index.shape[0], array.shape[0]))
+                        'para `data` must have row size {} but got {}'.format(self._size.size, array.shape[0]))
                 if train:
                     ret.append(array[self._train])
                 if test:

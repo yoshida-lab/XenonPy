@@ -126,24 +126,13 @@ class Scaler(BaseEstimator, TransformerMixin):
     A value-matrix container for data transform.
     """
 
-    def __init__(self, value):
+    def __init__(self):
         """
         Parameters
         ----------
         value: DataFrame
             Inner data.
         """
-        if isinstance(value, (Series, list, np.ndarray)):
-            self._value = DataFrame(data=value)
-        elif isinstance(value, DataFrame):
-            self._value = value
-        else:
-            raise TypeError(
-                'value must be list, dict, tuple, Series, ndarray or DataFrame but got {}'.format(type(value)))
-        self._index = self._value.index
-        self._columns = self._value.columns
-        self._now = self._value.values
-        self._inverse_chain = []
         self._scalers = []
 
     def box_cox(self, *args, **kwargs):
@@ -187,7 +176,7 @@ class Scaler(BaseEstimator, TransformerMixin):
 
     def inverse_transform(self, x):
         for s in self._scalers[::-1]:
-            x = s.transform(x)
+            x = s.inverse_transform(x)
         return x
 
     def _reset(self):

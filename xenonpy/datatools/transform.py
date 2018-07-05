@@ -100,7 +100,9 @@ class BoxCox(BaseEstimator, TransformerMixin):
         x_ = self._positive(x)
         xs = [boxcox(col, lmd).reshape(-1, 1) for col, lmd in zip(x_, self._lmd)]
         xs = np.concatenate(xs, axis=1)
-        return xs.reshape(*self._shape)
+        if xs.shape[1] == 1:
+            return xs.ravel()
+        return xs
 
     def inverse_transform(self, x):
         """
@@ -120,7 +122,9 @@ class BoxCox(BaseEstimator, TransformerMixin):
         xs = [(inv_boxcox(col, lmd) + min_ - self._shift).reshape(-1, 1) for col, min_, lmd in
               zip(x.T, self._min, self._lmd)]
         xs = np.concatenate(xs, axis=1)
-        return xs.reshape(*self._shape)
+        if xs.shape[1] == 1:
+            return xs.ravel()
+        return xs
 
 
 class Scaler(BaseEstimator, TransformerMixin):

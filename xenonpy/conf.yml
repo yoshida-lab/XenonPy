@@ -4,7 +4,7 @@
 name: 'xenonpy'
 version: '0.1.3'
 db_version: '0.1.1'
-release: ''
+release: 'post1'
 short_description: "material descriptor library"
 license: "BSD (3-clause)"
 author:

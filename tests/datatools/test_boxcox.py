@@ -53,6 +53,14 @@ def test_transform_4x1(data):
     assert np.all(inverse == data[0])
 
 
+def test_transform_4x1_ravel(data):
+    bc = BoxCox()
+    trans = bc.fit_transform(data[0].ravel())
+    assert np.all(trans == data[2].ravel())
+    inverse = bc.inverse_transform(trans)
+    assert np.all(inverse == data[0].ravel())
+
+
 def test_transform_4x4(data):
     bc = BoxCox()
     trans = bc.fit_transform(data[1])

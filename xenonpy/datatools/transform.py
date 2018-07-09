@@ -49,15 +49,15 @@ class BoxCox(BaseEstimator, TransformerMixin):
             x = np.array(x, dtype=np.float)
         elif isinstance(x, (DataFrame, Series)):
             x = x.values
-        if len(x.shape) == 1:
-            x = x.reshape(-1, 1)
         if not isinstance(x, np.ndarray):
             raise TypeError(
                 'parameter `X` should be a `DataFrame`, `Series`, `ndarray` or list object '
                 'but got {}'.format(type(x)))
-        if check_shape:
+        if check_shape and len(x.shape) > 1:
             if x.shape[1] != self._shape[1]:
-                raise ValueError('shape[1] of parameter `X` should be {} but got {}'.format(self._shape[1], x.shape[1]))
+                raise ValueError('parameter `X` should have shape {} but got {}'.format(self._shape, x.shape))
+        if len(x.shape) == 1:
+            x = x.reshape(-1, 1)
         return x
 
     def _positive(self, x):
@@ -82,8 +82,8 @@ class BoxCox(BaseEstimator, TransformerMixin):
         -------
 
         """
-        x = self._check_type(x, check_shape=False)
         self._shape = x.shape
+        x = self._check_type(x, check_shape=False)
         if self._lmd:
             if x.shape[1] != len(self._lmd):
                 raise ValueError('shape[1] of parameter `X` should be {} but got {}'.format(
@@ -123,9 +123,7 @@ class BoxCox(BaseEstimator, TransformerMixin):
         x_ = self._positive(x)
         xs = [boxcox(col, lmd).reshape(-1, 1) for col, lmd in zip(x_, self._lmd)]
         xs = np.concatenate(xs, axis=1)
-        if xs.shape[1] == 1:
-            return xs.ravel()
-        return xs
+        return xs.reshape(*self._shape)
 
     def inverse_transform(self, x):
         """
@@ -141,11 +139,11 @@ class BoxCox(BaseEstimator, TransformerMixin):
         DataFrame
             Inverse transformed data.
         """
-        x = self._check_type(x, check_shape=True)
+        x = self._check_type(x)
         xs = [(inv_boxcox(col, lmd) + min_ - self._shift).reshape(-1, 1) for col, min_, lmd in
               zip(x.T, self._min, self._lmd)]
         xs = np.concatenate(xs, axis=1)
-        if xs.shape[1] == 1:
+        if len(self._shape) == 1:
             return xs.ravel()
         return xs
 

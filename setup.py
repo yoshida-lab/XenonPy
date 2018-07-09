@@ -79,7 +79,7 @@ if __name__ == "__main__":
     LONG_DESCRIPTION = package.long_description
 
     # Version number, VERY IMPORTANT!
-    VERSION = package.version
+    VERSION = package.version + package.release
 
     # Author and Maintainer
     AUTHOR = package.author

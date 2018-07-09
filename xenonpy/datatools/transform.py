@@ -21,13 +21,24 @@ class BoxCox(BaseEstimator, TransformerMixin):
     Journal of the Royal Statistical Society B, 26, 211-252 (1964).
     """
 
-    def __init__(self, *, lmd=None, shift=1e-9):
+    def __init__(self, *, lmd=None, shift=1e-9, tolerance=(-2, 2)):
         """
         Parameters
         ----------
+        lmd: list or 1-dim ndarray
+            You might assign each input x a lmd by yourself.
+            Leave None(default) to use a inference value.
+            See `boxcox`_ for detials.
         shift: float
-            Guarantee that all variables > 0
+            Guarantee Xs positive. ``x = x - x.min + shift``
+        tolerance : tuple
+            Tolerance of lmd. Set None to accept any.
+
+
+        .. _boxcox:
+            https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.boxcox.html
         """
+        self._tolerance = tolerance
         self._shift = shift
         self._min = None
         self._lmd = lmd or []
@@ -61,6 +72,16 @@ class BoxCox(BaseEstimator, TransformerMixin):
         return xs
 
     def fit(self, x):
+        """
+
+        Parameters
+        ----------
+        x
+
+        Returns
+        -------
+
+        """
         x = self._check_type(x, check_shape=False)
         self._shape = x.shape
         if self._lmd:
@@ -76,6 +97,8 @@ class BoxCox(BaseEstimator, TransformerMixin):
                 with np.errstate(all='raise'):
                     try:
                         _, lmd = bc(tmp)
+                        if self._tolerance:
+                            lmd = lmd if self._tolerance[0] < lmd < self._tolerance[1] else 0.
                         self._lmd.append(lmd)
                     except FloatingPointError:
                         self._lmd.append(0.)
@@ -158,7 +181,9 @@ class Scaler(BaseEstimator, TransformerMixin):
         return self
 
     def fit(self, x):
-        """Compute the minimum and maximum to be used for later scaling.
+        """
+        Compute the minimum and maximum to be used for later scaling.
+
         Parameters
         ----------
         x: array-like, shape [n_samples, n_features]

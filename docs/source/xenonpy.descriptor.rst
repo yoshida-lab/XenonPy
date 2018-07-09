@@ -20,10 +20,10 @@ xenonpy.descriptor.composition module
     :undoc-members:
     :show-inheritance:
 
-xenonpy.descriptor.rdf module
------------------------------
+xenonpy.descriptor.structure module
+-----------------------------------
 
-.. automodule:: xenonpy.descriptor.rdf
+.. automodule:: xenonpy.descriptor.structure
     :members:
     :undoc-members:
     :show-inheritance:

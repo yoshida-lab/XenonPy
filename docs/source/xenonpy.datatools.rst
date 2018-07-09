@@ -20,14 +20,6 @@ xenonpy.datatools.preprocess module
     :undoc-members:
     :show-inheritance:
 
-xenonpy.datatools.test\_preset module
--------------------------------------
-
-.. automodule:: xenonpy.datatools.test_preset
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 xenonpy.datatools.transform module
 ----------------------------------
 

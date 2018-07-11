@@ -21,7 +21,7 @@ class BoxCox(BaseEstimator, TransformerMixin):
     Journal of the Royal Statistical Society B, 26, 211-252 (1964).
     """
 
-    def __init__(self, *, lmd=None, shift=1e-9, tolerance=(-2, 2)):
+    def __init__(self, *, lmd=None, shift=1e-9, tolerance=(-2, 2), on_err=None):
         """
         Parameters
         ----------
@@ -31,8 +31,11 @@ class BoxCox(BaseEstimator, TransformerMixin):
             See `boxcox`_ for detials.
         shift: float
             Guarantee Xs positive. ``x = x - x.min + shift``
-        tolerance : tuple
+        tolerance: tuple
             Tolerance of lmd. Set None to accept any.
+        on_err: None or 'log', 'nan' and 'raise' in string
+            Error handle. Default is None means return input series.
+            Can be set to ``log``, ``nan`` or ``raise``.
 
 
         .. _boxcox:
@@ -40,9 +43,10 @@ class BoxCox(BaseEstimator, TransformerMixin):
         """
         self._tolerance = tolerance
         self._shift = shift
-        self._min = None
-        self._lmd = lmd or []
+        self._lmd = lmd
+        self._min = []
         self._shape = None
+        self._on_err = on_err
 
     def _check_type(self, x, check_shape=True):
         if isinstance(x, list):
@@ -53,6 +57,8 @@ class BoxCox(BaseEstimator, TransformerMixin):
             raise TypeError(
                 'parameter `X` should be a `DataFrame`, `Series`, `ndarray` or list object '
                 'but got {}'.format(type(x)))
+        if not self._shape:
+            self._shape = x.shape
         if check_shape and len(x.shape) > 1:
             if x.shape[1] != self._shape[1]:
                 raise ValueError('parameter `X` should have shape {} but got {}'.format(self._shape, x.shape))
@@ -62,14 +68,32 @@ class BoxCox(BaseEstimator, TransformerMixin):
 
     def _positive(self, x):
         xs = []
-        self._min = []
-        for col in x.T:
-            col_ = x[~np.isnan(x)]
-            min_ = col_.min()
-            self._min.append(min_)
-            tmp = col - min_ + self._shift
-            xs.append(tmp)
+        for i, col in enumerate(x.T):
+            _lmd = self._lmd[i]
+            if _lmd == 0. or _lmd is np.inf:
+                xs.append(col)
+                self._min.append(0.)
+            elif _lmd is np.nan:
+                xs.append(np.array([np.nan] * len(col)))
+                self._min.append(0.)
+            else:
+                col_ = col[~np.isnan(col)]
+                min_ = col_.min()
+                self._min.append(min_)
+                xs.append(col - min_ + self._shift)
         return xs
+
+    def _handle_err(self, e):
+        if self._on_err is None:
+            self._lmd.append(np.inf)
+        elif self._on_err is 'log':
+            self._lmd.append(0.)
+        elif self._on_err is 'nan':
+            self._lmd.append(np.nan)
+        elif self._on_err is 'raise':
+            raise e
+        else:
+            raise RuntimeError('parameter on_err must be None "log", "nan" or "raise"')
 
     def fit(self, x):
         """
@@ -82,28 +106,28 @@ class BoxCox(BaseEstimator, TransformerMixin):
         -------
 
         """
-        self._shape = x.shape
         x = self._check_type(x, check_shape=False)
-        if self._lmd:
+        if self._lmd is not None:
+            if isinstance(self._lmd, float):
+                self._lmd = [self._lmd] * x.shape[1]
             if x.shape[1] != len(self._lmd):
                 raise ValueError('shape[1] of parameter `X` should be {} but got {}'.format(
-                    len(self._lmd), x.shape[1]))
+                    x.shape[1], len(self._lmd)))
             return self
 
-        for col in x.T:
-            col_ = col[~np.isnan(col)]
-            if col_.min() != col_.max():
+        self._lmd = []
+        with np.errstate(all='raise'):
+            for col in x.T:
+                col_ = col[~np.isnan(col)]
                 tmp = col_ - col_.min() + self._shift
-                with np.errstate(all='raise'):
-                    try:
-                        _, lmd = bc(tmp)
-                        if self._tolerance:
-                            lmd = lmd if self._tolerance[0] < lmd < self._tolerance[1] else 0.
-                        self._lmd.append(lmd)
-                    except FloatingPointError:
-                        self._lmd.append(0.)
-            else:
-                self._lmd.append(0.)
+                try:
+                    _, lmd = bc(tmp)
+                    if self._tolerance:
+                        if not self._tolerance[0] < lmd < self._tolerance[1]:
+                            raise FloatingPointError()
+                    self._lmd.append(lmd)
+                except FloatingPointError as e:
+                    self._handle_err(e)
 
         return self
 
@@ -121,7 +145,12 @@ class BoxCox(BaseEstimator, TransformerMixin):
         """
         x = self._check_type(x)
         x_ = self._positive(x)
-        xs = [boxcox(col, lmd).reshape(-1, 1) for col, lmd in zip(x_, self._lmd)]
+        xs = []
+        for col, lmd in zip(x_, self._lmd):
+            if lmd is np.nan or lmd is np.inf:
+                xs.append(col.reshape(-1, 1))
+            else:
+                xs.append(boxcox(col, lmd).reshape(-1, 1))
         xs = np.concatenate(xs, axis=1)
         return xs.reshape(*self._shape)
 
@@ -140,8 +169,14 @@ class BoxCox(BaseEstimator, TransformerMixin):
             Inverse transformed data.
         """
         x = self._check_type(x)
-        xs = [(inv_boxcox(col, lmd) + min_ - self._shift).reshape(-1, 1) for col, min_, lmd in
-              zip(x.T, self._min, self._lmd)]
+        xs = []
+        for col, min_, lmd in zip(x.T, self._min, self._lmd):
+            if lmd is np.nan or lmd is np.inf:
+                xs.append(col.reshape(-1, 1))
+            elif lmd == 0.:
+                xs.append(np.exp(col).reshape(-1, 1))
+            else:
+                xs.append((inv_boxcox(col, lmd) + min_ - self._shift).reshape(-1, 1))
         xs = np.concatenate(xs, axis=1)
         if len(self._shape) == 1:
             return xs.ravel()

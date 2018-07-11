@@ -35,8 +35,7 @@ def data():
     raw_err_4x1 = a
     raw_err_4x4 = np.concatenate((a, a, a, a), axis=1)
 
-    raw_err_shift = raw_err - raw_err.min() + 1e-9
-    a_ = boxcox(raw_err_shift, 0)
+    a_ = boxcox(raw_err, 0)
     a_ = a_.reshape(-1, 1)
     trans_err_4x1 = a_
     trans_err_4x4 = np.concatenate((a_, a_, a_, a_), axis=1)
@@ -72,7 +71,7 @@ def test_transform_4x4(data):
 def test_transform_err_4x1(data):
     bc = BoxCox()
     trans = bc.fit_transform(data[4])
-    assert np.all(trans == data[6])
+    assert np.all(trans == data[4])
     inverse = bc.inverse_transform(trans)
     print(inverse)
     assert np.all(inverse == data[4])
@@ -81,9 +80,47 @@ def test_transform_err_4x1(data):
 def test_transform_err_4x4(data):
     bc = BoxCox()
     trans = bc.fit_transform(data[5])
+    assert np.all(trans == data[5])
+    inverse = bc.inverse_transform(trans)
+    assert np.all(inverse == data[5])
+
+
+def test_transform_err_4x1_2(data):
+    bc = BoxCox(on_err='nan')
+    trans = bc.fit_transform(data[4])
+    assert np.all(np.isnan(trans))
+
+
+def test_transform_err_4x4_2(data):
+    bc = BoxCox(on_err='nan')
+    trans = bc.fit_transform(data[5])
+    assert np.all(np.isnan(trans))
+
+
+def test_transform_err_4x1_3(data):
+    bc = BoxCox(on_err='log')
+    trans = bc.fit_transform(data[4])
+    assert np.all(trans == data[6])
+    inverse = bc.inverse_transform(trans)
+    assert np.all(inverse == data[4])
+
+
+def test_transform_err_4x4_3(data):
+    bc = BoxCox(on_err='log')
+    trans = bc.fit_transform(data[5])
     assert np.all(trans == data[7])
     inverse = bc.inverse_transform(trans)
     assert np.all(inverse == data[5])
+
+
+def test_transform_err():
+    bc = BoxCox(on_err='raise')
+    try:
+        bc.fit_transform([1, 1, 1])
+    except FloatingPointError:
+        assert True
+    else:
+        assert False, 'should got FloatingPointError'
 
 
 if __name__ == "__main__":

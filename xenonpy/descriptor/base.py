@@ -2,7 +2,6 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-
 import types
 from collections import defaultdict
 from multiprocessing import Pool, cpu_count
@@ -80,8 +79,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
     __citations__ = ['No citations']
     _n_jobs = 1
 
-    def __init__(self, n_jobs=-1,
-                 ignore_errors=False):
+    def __init__(self, n_jobs=-1, ignore_errors=False):
         """
         Parameters
         ----------
@@ -225,7 +223,8 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         return '\n'.join(self.__authors__)
 
 
-class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
+class BaseDescriptor(
+        BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
     """
     Abstract class to organize featurizers.
 
@@ -244,7 +243,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
                 self.descriptor = SomeFeature3(n_jobs)
                 self.descriptor = SomeFeature4(n_jobs)
 
-"""
+    """
 
     _n_jobs = 1
     """sfesefe"""
@@ -285,13 +284,18 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
     def _if_series(self, o):
         if isinstance(o, pd.Series):
-            if len(self.__features__) > 1 or not o.name or o.name not in self.__features__:
-                raise KeyError('Pandas Series object must have name corresponding to feature type name')
+            if len(self.__features__
+                   ) > 1 or not o.name or o.name not in self.__features__:
+                raise KeyError(
+                    'Pandas Series object must have name corresponding to feature type name'
+                )
             return True
         if isinstance(o, pd.DataFrame):
             for k in self.__features__:
                 if k not in o:
-                    raise KeyError('Pandas Series object must have name corresponding to feature <%s>' % k)
+                    raise KeyError(
+                        'Pandas Series object must have name corresponding to feature <%s>'
+                        % k)
             return False
         raise TypeError('X, y must be <pd.DataFrame> or <pd.Series>')
 

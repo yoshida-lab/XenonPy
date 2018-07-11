@@ -3,14 +3,13 @@
 # license that can be found in the LICENSE file.
 
 import numpy as np
-from pymatgen import Composition
+from pymatgen.core.composition import Composition as pg_comp
 
 from .base import BaseFeaturizer, BaseDescriptor
-from ..datatools.dataset import Preset
+from ..datatools.dataset import preset
 
 
 class WeightedAvgFeature(BaseFeaturizer):
-
     def __init__(self, n_jobs=-1, elements=None):
         """
 
@@ -30,7 +29,7 @@ class WeightedAvgFeature(BaseFeaturizer):
 
     def featurize(self, comp):
         elems_, nums_ = [], []
-        if isinstance(comp, Composition):
+        if isinstance(comp, pg_comp):
             comp = comp.as_dict()
         for e, n in comp.items():
             elems_.append(e)
@@ -45,7 +44,6 @@ class WeightedAvgFeature(BaseFeaturizer):
 
 
 class WeightedSumFeature(BaseFeaturizer):
-
     def __init__(self, n_jobs=-1, elements=None):
         """
 
@@ -65,7 +63,7 @@ class WeightedSumFeature(BaseFeaturizer):
 
     def featurize(self, comp):
         elements_, nums_ = [], []
-        if isinstance(comp, Composition):
+        if isinstance(comp, pg_comp):
             comp = comp.as_dict()
         for e, n in comp.items():
             elements_.append(e)
@@ -80,7 +78,6 @@ class WeightedSumFeature(BaseFeaturizer):
 
 
 class WeightedVarFeature(BaseFeaturizer):
-
     def __init__(self, n_jobs=-1, elements=None):
         """
 
@@ -100,7 +97,7 @@ class WeightedVarFeature(BaseFeaturizer):
 
     def featurize(self, comp):
         elems_, nums_ = [], []
-        if isinstance(comp, Composition):
+        if isinstance(comp, pg_comp):
             comp = comp.as_dict()
         for e, n in comp.items():
             elems_.append(e)
@@ -109,7 +106,7 @@ class WeightedVarFeature(BaseFeaturizer):
         w_nums = nums_ / np.sum(nums_)
         e_mean_ = w_nums.dot(elems_)
         cen_elems = elems_ - e_mean_
-        return w_nums.dot(cen_elems ** 2)
+        return w_nums.dot(cen_elems**2)
 
     @property
     def feature_labels(self):
@@ -117,7 +114,6 @@ class WeightedVarFeature(BaseFeaturizer):
 
 
 class MaxFeature(BaseFeaturizer):
-
     def __init__(self, n_jobs=-1, elements=None):
         """
 
@@ -137,7 +133,7 @@ class MaxFeature(BaseFeaturizer):
 
     def featurize(self, comp):
         elems_, nums_ = [], []
-        if isinstance(comp, Composition):
+        if isinstance(comp, pg_comp):
             comp = comp.as_dict()
         for e, n in comp.items():
             elems_.append(e)
@@ -151,7 +147,6 @@ class MaxFeature(BaseFeaturizer):
 
 
 class MinFeature(BaseFeaturizer):
-
     def __init__(self, n_jobs=-1, elements=None):
         """
 
@@ -171,7 +166,7 @@ class MinFeature(BaseFeaturizer):
 
     def featurize(self, comp):
         elems_, nums_ = [], []
-        if isinstance(comp, Composition):
+        if isinstance(comp, pg_comp):
             comp = comp.as_dict()
         for e, n in comp.items():
             elems_.append(e)
@@ -189,10 +184,7 @@ class Composition(BaseDescriptor):
     Calculate elemental descriptors from compound's composition.
     """
 
-    def __init__(self,
-                 n_jobs=-1,
-                 elemental_info=None
-                 ):
+    def __init__(self, n_jobs=-1, elemental_info=None):
         """
 
         Parameters
@@ -210,7 +202,7 @@ class Composition(BaseDescriptor):
         if elemental_info is not None:
             self.elemental_info = elemental_info
         else:
-            self.elemental_info = Preset().elements_completed
+            self.elemental_info = preset.elements_completed
 
         self.composition = WeightedAvgFeature(n_jobs, self.elemental_info)
         self.composition = WeightedSumFeature(n_jobs, self.elemental_info)

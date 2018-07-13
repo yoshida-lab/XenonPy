@@ -3,8 +3,8 @@
 # license that can be found in the LICENSE file.
 
 __all__ = [
-    'set_env', 'get_data_loc', 'get_conf', 'get_dataset_url', 'get_sha256', 'absolute_path',
-    'timed', 'Timer', 'TimedMetaClass'
+    'set_env', 'get_data_loc', 'get_conf', 'get_dataset_url', 'get_sha256', 'absolute_path', 'Switch',
+    'Timer', 'TimedMetaClass'
 ]
-from .gadget import *
 from .base_class import *
+from .gadget import *

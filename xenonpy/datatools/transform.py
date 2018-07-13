@@ -7,8 +7,9 @@ from pandas import DataFrame, Series
 from scipy.special import inv_boxcox, boxcox
 from scipy.stats import boxcox as bc
 from sklearn.base import BaseEstimator, TransformerMixin
-
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+
+from ..utils import Switch
 
 
 class BoxCox(BaseEstimator, TransformerMixin):
@@ -26,27 +27,41 @@ class BoxCox(BaseEstimator, TransformerMixin):
         Parameters
         ----------
         lmd: list or 1-dim ndarray
-            You might assign each input x a lmd by yourself.
-            Leave None(default) to use a inference value.
+            You might assign each input xs with a specific lmd yourself.
+            Leave None(default) to use a inferred value.
             See `boxcox`_ for detials.
         shift: float
-            Guarantee Xs positive. ``x = x - x.min + shift``
+            Guarantee Xs are positive.
+            BoxCox transform need all data positive.
+            Therefore, a shift xs with their min and a specific shift data series(xs)``x = x - x.min + shift``.
+
         tolerance: tuple
             Tolerance of lmd. Set None to accept any.
-        on_err: None or 'log', 'nan' and 'raise' in string
-            Error handle. Default is None means return input series.
-            Can be set to ``log``, ``nan`` or ``raise``.
+            Default is **(-2, 2)**
+        on_err: None or str
+            Error handle when try to inference lambda. Can be None or **log**, **nan** or **raise** by string.
+            **log** will return the logarithmic transform of xs that have a min shift to 1.
+            **nan** return ``ndarray`` with shape xs.shape filled with``np.nan``.
+            **raise** raise a FloatingPointError. You can catch it yourself.
+            Default(None) will return the input series without scale transform.
 
 
         .. _boxcox:
             https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.boxcox.html
         """
         self._tolerance = tolerance
-        self._shift = shift
+        self._shift = [shift]
         self._lmd = lmd
-        self._min = []
         self._shape = None
         self._on_err = on_err
+
+    @property
+    def shift_(self):
+        return self._shift
+
+    @property
+    def lambda_(self):
+        return self._lmd
 
     def _check_type(self, x, check_shape=True):
         if isinstance(x, list):
@@ -66,34 +81,21 @@ class BoxCox(BaseEstimator, TransformerMixin):
             x = x.reshape(-1, 1)
         return x
 
-    def _positive(self, x):
-        xs = []
-        for i, col in enumerate(x.T):
-            _lmd = self._lmd[i]
-            if _lmd == 0. or _lmd is np.inf:
-                xs.append(col)
-                self._min.append(0.)
-            elif _lmd is np.nan:
-                xs.append(np.array([np.nan] * len(col)))
-                self._min.append(0.)
-            else:
-                col_ = col[~np.isnan(col)]
-                min_ = col_.min()
-                self._min.append(min_)
-                xs.append(col - min_ + self._shift)
-        return xs
-
     def _handle_err(self, e):
-        if self._on_err is None:
-            self._lmd.append(np.inf)
-        elif self._on_err is 'log':
-            self._lmd.append(0.)
-        elif self._on_err is 'nan':
-            self._lmd.append(np.nan)
-        elif self._on_err is 'raise':
-            raise e
-        else:
-            raise RuntimeError('parameter on_err must be None "log", "nan" or "raise"')
+        for c in Switch(self._on_err):
+            if c(None):
+                self._lmd.append(np.inf)
+                break
+            if c('log'):
+                self._lmd.append(0.)
+                break
+            if c('nan'):
+                self._lmd.append(np.nan)
+                break
+            if c('raise'):
+                raise e
+            if c():
+                raise RuntimeError('parameter on_err must be None "log", "nan" or "raise"')
 
     def fit(self, x):
         """
@@ -116,10 +118,12 @@ class BoxCox(BaseEstimator, TransformerMixin):
             return self
 
         self._lmd = []
+        self._shift = self._shift * x.shape[1]
         with np.errstate(all='raise'):
-            for col in x.T:
-                col_ = col[~np.isnan(col)]
-                tmp = col_ - col_.min() + self._shift
+            for i, col in enumerate(x.T):
+                tmp = col[~np.isnan(col)]
+                if not np.all(tmp > 0):
+                    tmp = tmp - tmp.min() + self._shift[i]
                 try:
                     _, lmd = bc(tmp)
                     if self._tolerance:
@@ -144,13 +148,25 @@ class BoxCox(BaseEstimator, TransformerMixin):
             Box-Cox transformed data.
         """
         x = self._check_type(x)
-        x_ = self._positive(x)
         xs = []
-        for col, lmd in zip(x_, self._lmd):
-            if lmd is np.nan or lmd is np.inf:
-                xs.append(col.reshape(-1, 1))
+        for i, col in enumerate(x.T):
+            if np.all(col > 0):
+                self._shift[i] = 0.
             else:
-                xs.append(boxcox(col, lmd).reshape(-1, 1))
+                self._shift[i] -= col[~np.isnan(col)].min()
+
+            _lmd = self._lmd[i]
+            _shift = self._shift[i]
+            for case in Switch(_lmd):
+                if case(np.inf):
+                    x = col
+                    break
+                if case(np.nan):
+                    x = np.full(col.shape, np.nan)
+                    break
+                if case():
+                    x = boxcox(col + _shift, _lmd)
+            xs.append(x.reshape(-1, 1))
         xs = np.concatenate(xs, axis=1)
         return xs.reshape(*self._shape)
 
@@ -170,13 +186,14 @@ class BoxCox(BaseEstimator, TransformerMixin):
         """
         x = self._check_type(x)
         xs = []
-        for col, min_, lmd in zip(x.T, self._min, self._lmd):
-            if lmd is np.nan or lmd is np.inf:
-                xs.append(col.reshape(-1, 1))
-            elif lmd == 0.:
-                xs.append(np.exp(col).reshape(-1, 1))
-            else:
-                xs.append((inv_boxcox(col, lmd) + min_ - self._shift).reshape(-1, 1))
+        for col, shift, lmd in zip(x.T, self._shift, self._lmd):
+            for case in Switch(lmd):
+                if case(np.nan, np.inf):
+                    _x = col
+                    break
+                if case():
+                    _x = inv_boxcox(col, lmd) - shift
+            xs.append(_x.reshape(-1, 1))
         xs = np.concatenate(xs, axis=1)
         if len(self._shape) == 1:
             return xs.ravel()
@@ -224,8 +241,13 @@ class Scaler(BaseEstimator, TransformerMixin):
             used for later scaling along the features axis.
         """
         for s in self._scalers:
-            s.fit(x)
+            x = s.fit_transform(x)
         return self
+
+    def fit_transform(self, x, y=None, **fit_params):
+        for s in self._scalers:
+            x = s.fit_transform(x)
+        return x
 
     def transform(self, x):
         """Scaling features of X according to feature_range.
@@ -244,10 +266,8 @@ class Scaler(BaseEstimator, TransformerMixin):
         return x
 
     def _reset(self):
-        """Reset internal data-dependent state of the scaler, if necessary.
+        """
+        Reset internal data-dependent state of the scaler, if necessary.
         __init__ parameters are not touched.
         """
-
-        # Checking one attribute is enough, becase they are all set together
-        # in partial_fit
         self._scalers = []

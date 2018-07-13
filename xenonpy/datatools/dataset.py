@@ -6,13 +6,13 @@ import re
 from collections import defaultdict
 from datetime import datetime as dt
 from os import remove
-from os.path import getmtime
 from pathlib import Path
 from shutil import rmtree
 from warnings import warn
 
 import pandas as pd
 import requests
+from os.path import getmtime
 from ruamel.yaml import YAML
 from sklearn.externals import joblib
 
@@ -35,20 +35,22 @@ class LocalStorage(object):
         data2 = np.random.randint(5, 5)
 
         # init Saver
-        save = Saver('you_dataset_name')
+        saver = LocalStorage('you_dataset_name')
 
         # save data
-        save(data1, data2)
+        saver(data1, data2)
+        # or
+        saver.save(data1, data2)
 
         # retriever data
-        date = save.last()  # last saved
-        data = save[0]  # by index
-        for data in save:  # as iterator
+        date = saver.last()  # last saved
+        data = saver[0]  # by index
+        for data in saver:  # as iterator
             do_something(data)
 
         # delete data
-        save.delete(0)  # by index
-        save.delete()  # delete 'you_dataset_name' dir
+        save.rm(0)  # by index
+        save.rm()  # delete 'you_dataset_name' dir
 
     See Also: :doc:`dataset`
     """
@@ -58,7 +60,7 @@ class LocalStorage(object):
                  *,
                  path=None,
                  mk_dir=True,
-                 backend=joblib):
+                 backend=None):
         """
         Parameters
         ----------
@@ -69,7 +71,7 @@ class LocalStorage(object):
         mk_dir: bool
             Ignore ``FileNotFoundError``.
         """
-        self._backend = backend
+        self._backend = backend or joblib
         self._name = name
         if path is not None:
             self._path = Path(absolute_path(path, mk_dir)) / name

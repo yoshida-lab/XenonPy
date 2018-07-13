@@ -63,7 +63,7 @@ class Timer(object):
         self.stop()
 
 
-def timed(fn):
+def _timed(fn):
     if isinstance(fn, (types.FunctionType, types.MethodType)):
         @wraps(fn)
         def fn_(self, *args, **kwargs):
@@ -102,7 +102,7 @@ class TimedMetaClass(type):
 
         for name_, value_ in attrs.items():
             if not name_.startswith("__") and isinstance(value_, (types.FunctionType, types.MethodType)):
-                attrs[name_] = timed(value_)
+                attrs[name_] = _timed(value_)
 
         return super(TimedMetaClass, mcs).__new__(mcs, name, bases, attrs)
 

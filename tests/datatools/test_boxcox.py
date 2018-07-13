@@ -24,8 +24,8 @@ def data():
     raw_4x1 = a
     raw_4x4 = np.concatenate((a, a, a, a), axis=1)
 
-    raw_shift = raw - raw.min() + 1e-9
-    a_, _ = boxcox(raw_shift)
+    # raw_shift = raw - raw.min() + 1e-9
+    a_, _ = boxcox(raw)
     a_ = a_.reshape(-1, 1)
     trans_4x1 = a_
     trans_4x4 = np.concatenate((a_, a_, a_, a_), axis=1)
@@ -49,7 +49,19 @@ def test_transform_4x1(data):
     trans = bc.fit_transform(data[0])
     assert np.all(trans == data[2])
     inverse = bc.inverse_transform(trans)
-    assert np.all(inverse == data[0])
+    assert np.allclose(inverse, data[0])
+
+
+def test_transform_4x1_2(data):
+    from scipy.special import boxcox as bc_
+    shift = 1e-5
+    bc = BoxCox(shift=shift)
+    _data = data[0] - 2.
+    trans = bc.fit_transform(_data)
+    tmp = bc_(_data + (shift - _data.min()), bc.lambda_[0])
+    assert np.all(trans == tmp)
+    inverse = bc.inverse_transform(trans)
+    assert np.allclose(inverse, _data)
 
 
 def test_transform_4x1_ravel(data):
@@ -57,7 +69,7 @@ def test_transform_4x1_ravel(data):
     trans = bc.fit_transform(data[0].ravel())
     assert np.all(trans == data[2].ravel())
     inverse = bc.inverse_transform(trans)
-    assert np.all(inverse == data[0].ravel())
+    assert np.allclose(inverse, data[0].ravel())
 
 
 def test_transform_4x4(data):
@@ -65,7 +77,7 @@ def test_transform_4x4(data):
     trans = bc.fit_transform(data[1])
     assert np.all(trans == data[3])
     inverse = bc.inverse_transform(trans)
-    assert np.all(inverse == data[1])
+    assert np.allclose(inverse, data[1])
 
 
 def test_transform_err_4x1(data):
@@ -73,7 +85,6 @@ def test_transform_err_4x1(data):
     trans = bc.fit_transform(data[4])
     assert np.all(trans == data[4])
     inverse = bc.inverse_transform(trans)
-    print(inverse)
     assert np.all(inverse == data[4])
 
 

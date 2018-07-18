@@ -12,3 +12,4 @@
 [DESIGN]
 # custom
 max-attributes=15
+max-line-length=120

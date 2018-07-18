@@ -4,6 +4,7 @@
 
 import types
 from collections import defaultdict
+from collections.abc import Iterable
 from multiprocessing import Pool, cpu_count
 
 import numpy as np
@@ -130,8 +131,8 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         """
 
         # Check inputs
-        if not isinstance(entries, pd.Series):
-            raise Exception("'entries' must be a <pd.Series> object")
+        if not isinstance(entries, Iterable):
+            raise TypeError('parameter "entries" must be a iterable object')
 
         # Special case: Empty list
         if len(entries) is 0:
@@ -144,13 +145,16 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             with Pool(self.n_jobs) as p:
                 ret = p.map(self._wrapper, entries)
 
-        labels = None
         try:
             labels = self.feature_labels
         except NotImplementedError:
-            pass
+            labels = None
 
-        return pd.DataFrame(ret, index=entries.index, columns=labels)
+        if isinstance(entries, pd.Series):
+            return pd.DataFrame(ret, index=entries.index, columns=labels)
+        if isinstance(entries, np.ndarray):
+            return np.array(ret)
+        return ret
 
     def _wrapper(self, x):
         """
@@ -279,13 +283,14 @@ class BaseDescriptor(
 
     def __repr__(self):
         return super().__repr__() + ':\n' + \
-               '\n'.join(['  |- %s:\n  |  |- %s' % (k, '\n  |  |- '.join(map(lambda i: str(i), v))) for k, v in
+               '\n'.join(['  |- %s:\n  |  |- %s' % (k, '\n  |  |- '.join(map(str, v))) for k, v in
                           self.__features__.items()])
 
     def _if_series(self, o):
         if isinstance(o, pd.Series):
-            if len(self.__features__
-                   ) > 1 or not o.name or o.name not in self.__features__:
+            if len(self.__features__) > 1 \
+                or not o.name \
+                or o.name not in self.__features__:
                 raise KeyError(
                     'Pandas Series object must have name corresponding to feature type name'
                 )

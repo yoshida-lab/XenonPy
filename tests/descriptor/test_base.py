@@ -87,7 +87,7 @@ def test_base_feature_1(data):
 
 
 def test_base_feature_2(data):
-    featurizer = data['test_cls']()
+    featurizer = data['featurizer']()
     ret = featurizer.fit_transform([1, 2, 3, 4])
     assert isinstance(ret, list)
     assert ret == [1, 2, 3, 4]

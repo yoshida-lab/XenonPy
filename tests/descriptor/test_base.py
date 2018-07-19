@@ -2,11 +2,13 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
+from multiprocessing import cpu_count
+
 import numpy as np
 import pandas as pd
 import pytest
-from multiprocessing import cpu_count
-from xenonpy.descriptor import BaseFeaturizer, BaseDescriptor
+
+from xenonpy.descriptor import BaseDescriptor, BaseFeaturizer
 
 
 @pytest.fixture(scope='module')
@@ -17,7 +19,7 @@ def data():
     warnings.filterwarnings("ignore", message="numpy.dtype size changed")
     warnings.filterwarnings("ignore", message="numpy.ndarray size changed")
 
-    class _Test(BaseFeaturizer):
+    class _TestFeaturier(BaseFeaturizer):
         def __init__(self, n_jobs=1):
             super().__init__(n_jobs=n_jobs)
 
@@ -28,8 +30,14 @@ def data():
         def feature_labels(self):
             return ['labels']
 
+    class _TestDescriptor(BaseDescriptor):
+        def __init__(self, n_jobs=1):
+            self.g1 = _TestFeaturier()
+            self.g1 = _TestFeaturier()
+            self.g2 = _TestFeaturier()
+
     # prepare test data
-    yield dict(test_cls=_Test)
+    yield dict(featurizer=_TestFeaturier, descriptor=_TestDescriptor)
 
     print('test over')
 
@@ -65,7 +73,7 @@ def test_base_feature_props(data):
 
 
 def test_base_feature_1(data):
-    featurizer = data['test_cls']()
+    featurizer = data['featurizer']()
     assert isinstance(featurizer, BaseFeaturizer)
     assert featurizer.n_jobs == 1
     assert featurizer.featurize(10) == 10
@@ -89,6 +97,14 @@ def test_base_feature_2(data):
     ret = featurizer.fit_transform(pd.Series([1, 2, 3, 4]))
     assert isinstance(ret, pd.DataFrame)
     assert (ret.values.ravel() == np.array([1, 2, 3, 4])).all()
+
+
+def test_base_descriptor_1(data):
+    bd = BaseDescriptor()
+    assert bd.elapsed == 0
+    assert bd.n_jobs == 1
+    assert hasattr(bd, '__features__')
+    assert not bd.__features__
 
 
 if __name__ == "__main__":

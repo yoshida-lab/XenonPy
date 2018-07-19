@@ -272,12 +272,8 @@ class BaseDescriptor(
 
         if '__features__' not in self.__dict__:
             super().__setattr__('__features__', defaultdict(list))
-        if isinstance(value, TransformerMixin):
-            try:
-                if isinstance(value.featurize, types.MethodType):
-                    self.__features__[key].append(value)
-            except AttributeError:
-                super().__setattr__(key, value)
+        if isinstance(value, BaseFeaturizer):
+            self.__features__[key].append(value)
         else:
             super().__setattr__(key, value)
 

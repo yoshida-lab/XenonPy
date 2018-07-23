@@ -1,0 +1,22 @@
+name: xepy36
+channels:
+- defaults
+- pytorch
+dependencies:
+- python=3.6
+- numpy
+- pandas
+- tqdm
+- seaborn
+- requests
+- matplotlib
+- plotly
+- scikit-learn
+- scipy
+- pytorch-cpu
+- pytest
+- pytest-cov
+- pip:
+  - pymatgen
+  - pymonad
+  - ruamel.yaml

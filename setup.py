@@ -142,6 +142,7 @@ if __name__ == "__main__":
         "Operating System :: Unix",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ]
 
     # Read requirements.txt, ignore comments

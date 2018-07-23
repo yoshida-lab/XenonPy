@@ -19,8 +19,11 @@ conda info -a
 if [[ "$PYTHON_VERSION" == "3.5" ]]; then
     conda env create -f travis/environment_py35.yml
     source activate xepy35
-else
+elif [[ "$PYTHON_VERSION" == "3.6" ]]; then
     conda env create -f travis/environment_py36.yml
+    source activate xepy36
+else
+    conda env create -f travis/environment_py37.yml
     source activate xepy36
 fi
 

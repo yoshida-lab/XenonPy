@@ -14,6 +14,7 @@ git:
 env:
   - PYTHON_VERSION=3.5 BACKEND=agg
   - PYTHON_VERSION=3.6 BACKEND=agg
+  - PYTHON_VERSION=3.7 BACKEND=agg
 
 before_install:
   - mkdir -p ~/.xenonpy/dataset

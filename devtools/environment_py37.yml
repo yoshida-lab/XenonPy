@@ -1,0 +1,25 @@
+name: xepy37
+channels:
+- defaults
+- pytorch
+dependencies:
+- python=3.7
+- numpy
+- pandas
+- tqdm
+- seaborn
+- requests
+- plotly
+- scikit-learn
+- scipy
+- pytorch
+- pytest
+- pytest-cov
+- pylint
+- sphinx
+- sphinx_rtd_theme
+- jupyter
+- pip:
+  - pymatgen
+  - pymonad
+  - ruamel.yaml

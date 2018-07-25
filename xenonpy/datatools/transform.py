@@ -168,7 +168,10 @@ class BoxCox(BaseEstimator, TransformerMixin):
                     x = boxcox(col + _shift, _lmd)
             xs.append(x.reshape(-1, 1))
         xs = np.concatenate(xs, axis=1)
-        return xs.reshape(*self._shape)
+
+        if len(self._shape) == 1:
+            return xs.ravel()
+        return xs.reshape(-1, self._shape[1])
 
     def inverse_transform(self, x):
         """
@@ -270,4 +273,3 @@ class Scaler(BaseEstimator, TransformerMixin):
         Reset internal data-dependent state of the scaler, if necessary.
         __init__ parameters are not touched.
         """
-        self._scalers = []

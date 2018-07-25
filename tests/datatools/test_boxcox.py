@@ -44,12 +44,14 @@ def data():
     print('test over')
 
 
-def test_transform_4x1(data):
+def test_transform_4x1_1(data):
     bc = BoxCox()
     trans = bc.fit_transform(data[0])
     assert np.all(trans == data[2])
+    assert trans.shape == data[2].shape
     inverse = bc.inverse_transform(trans)
     assert np.allclose(inverse, data[0])
+    assert inverse.shape == data[0].shape
 
 
 def test_transform_4x1_2(data):
@@ -64,7 +66,18 @@ def test_transform_4x1_2(data):
     assert np.allclose(inverse, _data)
 
 
-def test_transform_4x1_ravel(data):
+def test_transform_4x1_3(data):
+    bc = BoxCox()
+    bc.fit_transform(data[0])
+    trans = bc.transform(data[0][:2])
+    assert trans.shape == data[2][:2].shape
+    assert np.all(trans == data[2][:2])
+    inverse = bc.inverse_transform(trans)
+    assert inverse.shape == data[0][:2].shape
+    assert np.allclose(inverse, data[0][:2])
+
+
+def test_transform_4x1_ravel_1(data):
     bc = BoxCox()
     trans = bc.fit_transform(data[0].ravel())
     assert np.all(trans == data[2].ravel())
@@ -72,7 +85,29 @@ def test_transform_4x1_ravel(data):
     assert np.allclose(inverse, data[0].ravel())
 
 
-def test_transform_4x4(data):
+def test_transform_4x1_ravel_2(data):
+    bc = BoxCox()
+    bc.fit(data[0].ravel())
+    trans = bc.transform((data[0].ravel())[:2])
+    assert trans.shape == (data[2].ravel())[:2].shape
+    assert np.all(trans == (data[2].ravel())[:2])
+    inverse = bc.inverse_transform(trans)
+    assert inverse.shape == (data[0].ravel())[:2].shape
+    assert np.allclose(inverse, (data[0].ravel())[:2])
+
+
+def test_transform_4x4_1(data):
+    bc = BoxCox()
+    bc.fit_transform(data[1])
+    trans = bc.transform(data[1][:2])
+    assert trans.shape == data[3][:2].shape
+    assert np.all(trans == data[3][:2])
+    inverse = bc.inverse_transform(trans)
+    assert inverse.shape == data[1][:2].shape
+    assert np.allclose(inverse, data[1][:2])
+
+
+def test_transform_4x4_2(data):
     bc = BoxCox()
     trans = bc.fit_transform(data[1])
     assert np.all(trans == data[3])

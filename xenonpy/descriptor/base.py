@@ -2,13 +2,12 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-import types
 from collections import defaultdict
-from collections.abc import Iterable
 from multiprocessing import Pool, cpu_count
 
 import numpy as np
 import pandas as pd
+from collections.abc import Iterable
 from sklearn.base import TransformerMixin, BaseEstimator
 
 from ..utils import TimedMetaClass
@@ -228,7 +227,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
 
 
 class BaseDescriptor(
-        BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
+    BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
     """
     Abstract class to organize featurizers.
 
@@ -285,8 +284,8 @@ class BaseDescriptor(
     def _if_series(self, o):
         if isinstance(o, pd.Series):
             if len(self.__features__) > 1 \
-                or not o.name \
-                or o.name not in self.__features__:
+                    or not o.name \
+                    or o.name not in self.__features__:
                 raise KeyError(
                     'Pandas Series object must have name corresponding to feature type name'
                 )

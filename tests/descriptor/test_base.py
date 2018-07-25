@@ -19,7 +19,7 @@ def data():
     warnings.filterwarnings("ignore", message="numpy.dtype size changed")
     warnings.filterwarnings("ignore", message="numpy.ndarray size changed")
 
-    class _TestFeaturier(BaseFeaturizer):
+    class _FakeFeaturier(BaseFeaturizer):
         def __init__(self, n_jobs=1):
             super().__init__(n_jobs=n_jobs)
 
@@ -30,14 +30,14 @@ def data():
         def feature_labels(self):
             return ['labels']
 
-    class _TestDescriptor(BaseDescriptor):
-        def __init__(self, n_jobs=1):
-            self.g1 = _TestFeaturier()
-            self.g1 = _TestFeaturier()
-            self.g2 = _TestFeaturier()
+    class _FakeDescriptor(BaseDescriptor):
+        def __init__(self):
+            self.g1 = _FakeFeaturier()
+            self.g1 = _FakeFeaturier()
+            self.g2 = _FakeFeaturier()
 
     # prepare test data
-    yield dict(featurizer=_TestFeaturier, descriptor=_TestDescriptor)
+    yield dict(featurizer=_FakeFeaturier, descriptor=_FakeDescriptor)
 
     print('test over')
 
@@ -101,10 +101,23 @@ def test_base_feature_2(data):
 
 def test_base_descriptor_1(data):
     bd = BaseDescriptor()
+
+    # test n_jobs
     assert bd.elapsed == 0
     assert bd.n_jobs == 1
+    bd.n_jobs = 100
+    assert bd.n_jobs == cpu_count()
+
+    # test featurizers list
     assert hasattr(bd, '__features__')
     assert not bd.__features__
+
+
+def test_base_descriptor_2(data):
+    bd = data['descriptor']()
+    assert len(bd.__features__) == 2
+    assert 'g1' in bd.__features__.keys()
+    assert 'g2' in bd.__features__.keys()
 
 
 if __name__ == "__main__":

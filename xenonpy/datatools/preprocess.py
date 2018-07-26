@@ -2,18 +2,19 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-
 import numpy as np
 from pandas import DataFrame, Series
 from sklearn.model_selection import train_test_split
 
 
-class DataSplitter(object):
+class Splitter(object):
     """
     Data splitter for train and test
     """
 
-    def __init__(self, total_size, *,
+    def __init__(self,
+                 total_size,
+                 *,
                  test_size=0.2,
                  random_state=None,
                  shuffle=True):
@@ -41,7 +42,8 @@ class DataSplitter(object):
         self._test_size = test_size
         self._test = None
         self._train = None
-        self.re_sample(test_size=test_size, random_state=random_state, shuffle=shuffle)
+        self.re_sample(
+            test_size=test_size, random_state=random_state, shuffle=shuffle)
 
     def re_sample(self, *, test_size=0.2, random_state=None, shuffle=True):
         """
@@ -65,10 +67,11 @@ class DataSplitter(object):
         self._random_state = random_state or self._random_state
         self._test_size = test_size or self._test_size
         self._shuffle = shuffle or self._shuffle
-        self._train, self._test = train_test_split(self._size,
-                                                   test_size=self._test_size,
-                                                   random_state=self._random_state,
-                                                   shuffle=self._shuffle)
+        self._train, self._test = train_test_split(
+            self._size,
+            test_size=self._test_size,
+            random_state=self._random_state,
+            shuffle=self._shuffle)
 
     @property
     def index(self):
@@ -113,7 +116,8 @@ class DataSplitter(object):
             if isinstance(array, (DataFrame, Series)):
                 if array.shape[0] != self._size.size:
                     raise ValueError(
-                        'para `data` must have row size {} but got {}'.format(self._size.size, array.shape[0]))
+                        'para `data` must have row size {} but got {}'.format(
+                            self._size.size, array.shape[0]))
                 if train:
                     ret.append(array.iloc[self._train])
                 if test:
@@ -124,13 +128,16 @@ class DataSplitter(object):
             if isinstance(array, np.ndarray):
                 if array.shape[0] != self._size.size:
                     raise ValueError(
-                        'para `data` must have row size {} but got {}'.format(self._size.size, array.shape[0]))
+                        'para `data` must have row size {} but got {}'.format(
+                            self._size.size, array.shape[0]))
                 if train:
                     ret.append(array[self._train])
                 if test:
                     ret.append(array[self._test])
                 return ret
-            raise TypeError('must be a list or matrix like object but got {}.'.format(array))
+            raise TypeError(
+                'must be a list or matrix like object but got {}.'.format(
+                    array))
 
         if len(arrays) == 1:
             return _split(arrays[0])

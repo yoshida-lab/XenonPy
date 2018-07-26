@@ -2,12 +2,11 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-
 import numpy as np
 import pytest
 from pandas import DataFrame, Series
 
-from xenonpy.datatools.preprocess import DataSplitter
+from xenonpy.datatools.preprocess import Splitter
 
 
 @pytest.fixture(scope='module')
@@ -31,7 +30,7 @@ def data():
 
 
 def test_data_splitter2():
-    ds = DataSplitter(10)
+    ds = Splitter(10)
     assert ds.size == 10
     train, test = ds.index
     assert train.size == 8
@@ -39,7 +38,7 @@ def test_data_splitter2():
 
 
 def test_re_sample1():
-    ds = DataSplitter(10, test_size=0.3)
+    ds = Splitter(10, test_size=0.3)
     train, test = ds.index
     assert train.size == 7
     assert test.size == 3
@@ -50,7 +49,7 @@ def test_re_sample1():
 
 
 def test_re_sample2():
-    ds = DataSplitter(10, test_size=0.3)
+    ds = Splitter(10, test_size=0.3)
     train, test = ds.index
     assert train.size == 7
     assert test.size == 3
@@ -61,7 +60,7 @@ def test_re_sample2():
 
 
 def test_split_data1(data):
-    ds = DataSplitter(10, test_size=0.3)
+    ds = Splitter(10, test_size=0.3)
     train, test = ds.split(data[0])
     for d in train:
         assert d in data[0]
@@ -70,7 +69,7 @@ def test_split_data1(data):
 
 
 def test_split_data2(data):
-    ds = DataSplitter(10, test_size=0.1)
+    ds = Splitter(10, test_size=0.1)
     try:
         ds.split(data[1][1:])
     except ValueError:
@@ -82,7 +81,7 @@ def test_split_data2(data):
 
 
 def test_split_data3(data):
-    ds = DataSplitter(10)
+    ds = Splitter(10)
     try:
         ds.split(data[0])
         ds.split(data[1])
@@ -110,7 +109,7 @@ def test_split_data3(data):
 
 
 def test_split_data4(data):
-    ds = DataSplitter(10)
+    ds = Splitter(10)
     x, x_, y, y_ = ds.split(data[3], data[4])
     assert isinstance(x, DataFrame)
     assert isinstance(y, Series)

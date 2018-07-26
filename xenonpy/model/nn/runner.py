@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from functools import wraps
 from platform import system, version
 
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
@@ -124,6 +125,8 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             self._device = torch.device('cuda', cuda)
         else:
             self._device = torch.device(cuda)
+        if not Path(work_dir).exists():
+            Path(work_dir).mkdir()
         self._verbose = verbose
         self._work_dir = work_dir
         self._model = None
@@ -136,8 +139,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             numpy=np.__version__,
             torch=torch.__version__,
             xenonpy=__version__,
-            structure=str(self._model),
-            running_at=self._work_dir)
+            workspace=work_dir)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._timer.stop()
@@ -220,9 +222,10 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self._checker = Checker(name, self._work_dir)
         self._model = model
         self._model_name = name
+        self.describe(model_struct=str(model), model_name=name)
         self._checker.init_model = model
         self._checker.save(
-            runner=dict(epochs=self._epochs, verbose=self._verbose, work_dir=self._work_dir))
+            runner=dict(epochs=self._epochs, verbose=self._verbose, workspace=self._work_dir))
 
         if kwargs:
             for k, v in kwargs.items():
@@ -410,7 +413,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         ret = cls()
         ret._verbose = runner['verbose']
         ret._epochs = runner['epochs']
-        ret._work_dir = runner['work_dir']
+        ret._work_dir = runner['workspace']
         ret._checker = checker
         ret._model_name = checker.model_name
         if not checkpoint:

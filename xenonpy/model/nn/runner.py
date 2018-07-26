@@ -1,10 +1,11 @@
 # Copyright 2018 TsumiNa. All rights reserved.
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
+import math
 import types
 from datetime import datetime, timedelta
 from functools import wraps
-from platform import version, system
+from platform import system, version
 
 import numpy as np
 import pandas as pd
@@ -14,10 +15,9 @@ import torch.nn.functional as F
 import torch.utils.data as Data
 from sklearn.base import BaseEstimator, RegressorMixin
 
-import math
-from .checker import Checker
 from ..._conf import __version__
 from ...utils import TimedMetaClass
+from .checker import Checker
 
 
 def persist(*args, **kwargs):
@@ -65,6 +65,7 @@ def persist(*args, **kwargs):
             raise TypeError('Name of key must be str')
 
         def _deco(fn_):
+
             @wraps(fn_)
             def _func_1(self, *args_, **kwargs_):
                 self = _checked(self)
@@ -88,6 +89,7 @@ def persist(*args, **kwargs):
             raise RuntimeError('Values must be type')
 
         def _deco(fn_):
+
             @wraps(fn_)
             def _func_2(self, *args_, **kwargs_):
                 self = _checked(self)
@@ -113,9 +115,7 @@ def persist(*args, **kwargs):
 
 class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
 
-    def __init__(self, epochs=2000, *,
-                 cuda: bool or int or str = False,
-                 work_dir='.',
+    def __init__(self, epochs=2000, *, cuda: bool or int or str = False, work_dir='.',
                  verbose=True):
         self._epochs = epochs
         if isinstance(cuda, bool):
@@ -130,11 +130,20 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self._model_name = None
         self._checker = None
         self._logs = []
+        self._describe = dict(
+            python=version(),
+            system=system(),
+            numpy=np.__version__,
+            torch=torch.__version__,
+            xenonpy=__version__,
+            structure=str(self._model),
+            running_at=self._work_dir)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._timer.stop()
         elapsed = str(timedelta(seconds=self.elapsed))
-        self.logger('done runner <%s>: %s' % (self.__class__.__name__, datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
+        self.logger('done runner <%s>: %s' % (self.__class__.__name__,
+                                              datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
         self.logger('total elapsed time: %s' % elapsed)
         logs = '\n'.join(self._logs)
         now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')
@@ -142,7 +151,8 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             f.write(logs)
 
     def __enter__(self):
-        self.logger('start runner <%s> at %s' % (self.__class__.__name__, datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
+        self.logger('start runner <%s> at %s' % (self.__class__.__name__,
+                                                 datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
         self._timer.start()
         return self
 
@@ -211,13 +221,24 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self._model = model
         self._model_name = name
         self._checker.init_model = model
-        self._checker.save(runner=dict(epochs=self._epochs,
-                                       verbose=self._verbose,
-                                       work_dir=self._work_dir))
+        self._checker.save(
+            runner=dict(epochs=self._epochs, verbose=self._verbose, work_dir=self._work_dir))
 
         if kwargs:
             for k, v in kwargs.items():
                 setattr(self, k, v)
+
+    def describe(self, **info):
+        """
+        Add some additional description to runner.
+        Description will be saved automaticly.
+
+        Parameters
+        ----------
+        info: dict
+            Additional information to describe this model training.
+        """
+        self._describe = dict(self._describe, **info)
 
     def persist(self, *args, **kwargs):
         """
@@ -245,6 +266,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
 
     @staticmethod
     def tensor(*data_and_type):
+
         def _tensor(data, torch_type):
             if torch_type is None:
                 torch_type = torch.float
@@ -253,7 +275,8 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             elif isinstance(data, np.ndarray):
                 return torch.from_numpy(data).to(torch_type)
             else:
-                raise TypeError('Need <numpy.ndarray> or <pandas.DataFrame> but got %s' % type(data))
+                raise TypeError(
+                    'Need <numpy.ndarray> or <pandas.DataFrame> but got %s' % type(data))
 
         return tuple([_tensor(data_, type_) for data_, type_ in data_and_type])
 
@@ -263,11 +286,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             return tuple([t.cuda(self._device, True) for t in tensor])
         return tuple([t.cpu() for t in tensor])
 
-    def batch_tensor(self, *data,
-                     batch_size=0.2,
-                     shuffle=True,
-                     num_worker=0,
-                     pin_memory=True):
+    def batch_tensor(self, *data, batch_size=0.2, shuffle=True, num_worker=0, pin_memory=True):
         # batch_size
         if not data:
             return None
@@ -276,11 +295,12 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         if isinstance(batch_size, float):
             batch_size = math.ceil(data[0][0].shape[0] * batch_size)
 
-        return Data.DataLoader(dataset=Data.TensorDataset(*self.tensor(*data)),
-                               batch_size=batch_size,
-                               shuffle=shuffle,
-                               num_workers=num_worker,
-                               pin_memory=pin_memory)
+        return Data.DataLoader(
+            dataset=Data.TensorDataset(*self.tensor(*data)),
+            batch_size=batch_size,
+            shuffle=shuffle,
+            num_workers=num_worker,
+            pin_memory=pin_memory)
 
     def logger(self, *info):
         log = '|> ' + '\n|> '.join(info)
@@ -288,11 +308,13 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         if self._verbose:
             print(log)
 
-    def fit(self, x_train=None, y_train=None, *,
+    def fit(self,
+            x_train=None,
+            y_train=None,
+            *,
             data_loader=None,
             x_dtype=torch.float,
-            y_dtype=torch.float,
-            describe=None):
+            y_dtype=torch.float):
         """
         Fit Neural Network model
 
@@ -309,8 +331,6 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             Detials: https://pytorch.org/docs/stable/tensors.html
         y_dtype: tensor types
             Corresponding dtype in torch tensor. Default is torch.float.
-        describe: dict
-            Additional information to describe this model training.
 
         Returns
         -------
@@ -333,16 +353,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
                         yield y_, self._model(x_), t, i
                 return
 
-        desc = dict(
-            python=version(),
-            system=system(),
-            numpy=np.__version__,
-            torch=torch.__version__,
-            xenonpy=__version__,
-            structure=str(self._model),
-            running_at=self._work_dir,
-            start=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
-        )
+        self.describe(start=datetime.now().strftime('%Y/%m/%d %H:%M:%S'))
 
         # training
         now = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
@@ -359,17 +370,13 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self.logger('done: %s' % now)
         self.logger('elapsed time: %s\n' % elapsed)
 
-        if describe and isinstance(describe, dict):
-            self._checker.save(describe={**desc, **describe, 'done': now})
-        else:
-            self._checker.save(describe={**desc, 'done': now})
+        self.describe(done=now)
+        self._checker.save(describe=self._describe)
         self._checker.trained_model = self._model
 
         return ret
 
-    def predict(self, x_test, y_test, *,
-                x_dtype=torch.float,
-                y_dtype=torch.float):
+    def predict(self, x_test, y_test, *, x_dtype=torch.float, y_dtype=torch.float):
         """
 
         Parameters
@@ -419,13 +426,14 @@ class RegressionRunner(BaseRunner, RegressorMixin):
     Run model.
     """
 
-    def __init__(self, epochs=2000, *,
+    def __init__(self,
+                 epochs=2000,
+                 *,
                  cuda=False,
                  check_step=100,
                  log_step=0,
                  work_dir=None,
-                 verbose=True
-                 ):
+                 verbose=True):
         """
 
         Parameters
@@ -438,18 +446,17 @@ class RegressionRunner(BaseRunner, RegressorMixin):
         verbose: bool
             Print :class:`ModelRunner` environment.
         """
-        super(RegressionRunner, self).__init__(epochs, cuda=cuda, work_dir=work_dir, verbose=verbose)
+        super(RegressionRunner, self).__init__(
+            epochs, cuda=cuda, work_dir=work_dir, verbose=verbose)
         self._check_step = check_step
         self._log_step = log_step
         self._lr = 0.01
         self._lr_scheduler = None
 
-        self.logger('Runner environment:',
-                    'Running dir: {}'.format(self._work_dir),
-                    'Epochs: {}'.format(self._epochs),
-                    'Context: {}'.format(self._device),
-                    'Check step: {}'.format(self._check_step),
-                    'Log step: {}\n'.format(self._log_step))
+        self.logger('Runner environment:', 'Running dir: {}'.format(self._work_dir),
+                    'Epochs: {}'.format(self._epochs), 'Context: {}'.format(self._device),
+                    'Check step: {}'.format(self._check_step), 'Log step: {}\n'.format(
+                        self._log_step))
 
     @property
     def lr(self):
@@ -494,7 +501,8 @@ class RegressionRunner(BaseRunner, RegressorMixin):
             if self._log_step > 0 and t % self._log_step == 0 and i == 1:
                 elapsed = str(timedelta(seconds=self.elapsed - start))
                 start = self.elapsed
-                self.logger('{}/{}, Loss={:.4f}, elapsed time: {}'.format(t, self._epochs, loss, elapsed))
+                self.logger('{}/{}, Loss={:.4f}, elapsed time: {}'.format(
+                    t, self._epochs, loss, elapsed))
             if self._check_step > 0 and t % self._check_step == 0 and i == 1:
                 self.checkpoint(mse_loss=loss.item())
 

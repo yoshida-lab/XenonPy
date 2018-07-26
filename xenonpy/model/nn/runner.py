@@ -478,7 +478,7 @@ class RegressionRunner(BaseRunner, RegressorMixin):
     def lr_scheduler(self, v):
         self._lr_scheduler = v
 
-    @persist('y_true', 'y_pred')
+    # @persist('y_true', 'y_pred')
     def post_predict(self, y_true, y_pred):
         return y_true.cpu().detach().numpy(), y_pred.cpu().detach().numpy()
 

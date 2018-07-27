@@ -5,7 +5,8 @@ import math
 import types
 from datetime import datetime, timedelta
 from functools import wraps
-from platform import system, version
+from platform import version as sys_ver
+from sys import version as py_ver
 
 from pathlib import Path
 import numpy as np
@@ -134,8 +135,8 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self._checker = None
         self._logs = []
         self._describe = dict(
-            python=version(),
-            system=system(),
+            python=py_ver,
+            system=sys_ver(),
             numpy=np.__version__,
             torch=torch.__version__,
             xenonpy=__version__,

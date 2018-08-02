@@ -487,7 +487,7 @@ class RegressionRunner(BaseRunner, RegressorMixin):
 
     # @persist('y_true', 'y_pred')
     def post_predict(self, y_true, y_pred):
-        y_pred.cpu().detach().numpy()
+        y_pred = y_pred.cpu().detach().numpy()
         if y_true is not None:
             return y_true, y_pred
         return y_pred

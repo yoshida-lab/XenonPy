@@ -380,14 +380,14 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
 
         return ret
 
-    def predict(self, x_test, y_test, *, x_dtype=torch.float, y_dtype=torch.float):
+    def predict(self, x_test, y_test=None, *, x_dtype=torch.float, y_dtype=torch.float):
         """
 
         Parameters
         ----------
         x_test: DataFrame, ndarray
             Input data for test..
-        y_test: DataFrame, ndarray
+        y_test: DataFrame, ndarray, optional
             Target data for test.
         x_dtype: tensor type
             Corresponding dtype in torch tensor. Default is torch.float.
@@ -401,7 +401,10 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             Return ::meth:`post_predict` results.
         """
         # prepare data
-        x_test, y_test = self.to_device(*self.tensor((x_test, x_dtype), (y_test, y_dtype)))
+        if y_test:
+            x_test, y_test = self.to_device(*self.tensor((x_test, x_dtype), (y_test, y_dtype)))
+        else:
+            x_test = self.to_device(*self.tensor((x_test, x_dtype)))
 
         # prediction
         self._model.to(self._device)

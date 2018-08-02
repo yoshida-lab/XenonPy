@@ -411,10 +411,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
     @classmethod
     def from_checker(cls, checker, checkpoint=None):
         runner = checker.last('runner')
-        ret = cls()
-        ret._verbose = runner['verbose']
-        ret._epochs = runner['epochs']
-        ret._work_dir = runner['workspace']
+        ret = cls(runner['epochs'], work_dir=runner['workspace'], verbose=runner['verbose'])
         ret._checker = checker
         ret._model_name = checker.model_name
         if not checkpoint:

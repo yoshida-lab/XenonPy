@@ -401,7 +401,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             Return ::meth:`post_predict` results.
         """
         # prepare data
-        x_test = self.to_device(*self.tensor((x_test, x_dtype)))
+        x_test, = self.to_device(*self.tensor((x_test, x_dtype)))
 
         # prediction
         self._model.to(self._device)

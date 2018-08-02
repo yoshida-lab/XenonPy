@@ -401,10 +401,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             Return ::meth:`post_predict` results.
         """
         # prepare data
-        if y_test:
-            x_test, y_test = self.to_device(*self.tensor((x_test, x_dtype), (y_test, y_dtype)))
-        else:
-            x_test = self.to_device(*self.tensor((x_test, x_dtype)))
+        x_test = self.to_device(*self.tensor((x_test, x_dtype)))
 
         # prediction
         self._model.to(self._device)
@@ -481,10 +478,10 @@ class RegressionRunner(BaseRunner, RegressorMixin):
 
     # @persist('y_true', 'y_pred')
     def post_predict(self, y_true, y_pred):
-        if y_pred:
-            y_pred.cpu().detach().numpy()
         y_true.cpu().detach().numpy()
-        return y_true, y_pred
+        if y_true:
+            return y_true, y_pred
+        return y_pred
 
     def optim(self, iter_):
         # optimization

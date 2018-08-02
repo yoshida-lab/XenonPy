@@ -179,7 +179,7 @@ class LocalStorage(object):
         """
         Return last saved data.
 
-        Args
+        Args/
         ----
         name: str
             Data's name. Omit for access temp data
@@ -189,7 +189,7 @@ class LocalStorage(object):
         ret:any python object
             Data stored in `*.pkl` file.
         """
-        if isinstance(name, str):
+        if not isinstance(name, str):
             raise TypeError('para `name` must be string but got %s' % type(name))
         try:
             if name is None:

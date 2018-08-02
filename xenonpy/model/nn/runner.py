@@ -117,8 +117,13 @@ def persist(*args, **kwargs):
 
 class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
 
-    def __init__(self, epochs=2000, *, cuda: bool or int or str = False, work_dir='.',
-                 verbose=True):
+    def __init__(self,
+                 epochs=2000,
+                 *,
+                 cuda: bool or int or str = False,
+                 work_dir='.',
+                 verbose=True,
+                 describe=None):
         self._epochs = epochs
         if isinstance(cuda, bool):
             self._device = torch.device('cuda') if cuda else torch.device('cpu')
@@ -134,7 +139,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self._model_name = None
         self._checker = None
         self._logs = []
-        self._describe = dict(
+        self._describe = describe or dict(
             python=py_ver,
             system=sys_ver(),
             numpy=np.__version__,
@@ -411,7 +416,11 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
     @classmethod
     def from_checker(cls, checker, checkpoint=None):
         runner = checker.last('runner')
-        ret = cls(runner['epochs'], work_dir=runner['workspace'], verbose=runner['verbose'])
+        ret = cls(
+            runner['epochs'],
+            work_dir=runner['workspace'],
+            verbose=runner['verbose'],
+            describe=checker.describe)
         ret._checker = checker
         ret._model_name = checker.model_name
         if not checkpoint:

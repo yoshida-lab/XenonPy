@@ -443,7 +443,8 @@ class RegressionRunner(BaseRunner, RegressorMixin):
                  check_step=100,
                  log_step=0,
                  work_dir=None,
-                 verbose=True):
+                 verbose=True,
+                 describe=None):
         """
 
         Parameters
@@ -457,7 +458,7 @@ class RegressionRunner(BaseRunner, RegressorMixin):
             Print :class:`ModelRunner` environment.
         """
         super(RegressionRunner, self).__init__(
-            epochs, cuda=cuda, work_dir=work_dir, verbose=verbose)
+            epochs, cuda=cuda, work_dir=work_dir, verbose=verbose, describe=describe)
         self._check_step = check_step
         self._log_step = log_step
         self._lr = 0.01

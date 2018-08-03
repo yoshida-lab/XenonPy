@@ -215,6 +215,18 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
     def elapsed(self):
         return self._timer.elapsed
 
+    @property
+    def model(self):
+        return self._model
+
+    @model.setter
+    def model(self, m):
+        if isinstance(m, torch.nn.modules):
+            self._model = m
+        else:
+            raise TypeError(
+                'parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(m))
+
     def __call__(self, model, name=None, **kwargs):
         """"""
         # model must inherit form nn.Module

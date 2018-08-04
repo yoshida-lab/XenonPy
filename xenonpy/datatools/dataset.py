@@ -189,11 +189,11 @@ class LocalStorage(object):
         ret:any python object
             Data stored in `*.pkl` file.
         """
-        if not isinstance(name, str):
-            raise TypeError('para `name` must be string but got %s' % type(name))
         try:
             if name is None:
                 return self._load_data(self._files['unnamed'][-1])
+            if not isinstance(name, str):
+                raise TypeError('para `name` must be string but got %s' % type(name))
             return self._load_data(self._files[name][-1])
         except IndexError:
             return None

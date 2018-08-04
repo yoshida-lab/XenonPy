@@ -215,6 +215,18 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
     def elapsed(self):
         return self._timer.elapsed
 
+    @property
+    def model(self):
+        return self._model
+
+    @model.setter
+    def model(self, m):
+        if isinstance(m, torch.nn.modules):
+            self._model = m
+        else:
+            raise TypeError(
+                'parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(m))
+
     def __call__(self, model, name=None, **kwargs):
         """"""
         # model must inherit form nn.Module
@@ -443,7 +455,8 @@ class RegressionRunner(BaseRunner, RegressorMixin):
                  check_step=100,
                  log_step=0,
                  work_dir=None,
-                 verbose=True):
+                 verbose=True,
+                 describe=None):
         """
 
         Parameters
@@ -457,7 +470,7 @@ class RegressionRunner(BaseRunner, RegressorMixin):
             Print :class:`ModelRunner` environment.
         """
         super(RegressionRunner, self).__init__(
-            epochs, cuda=cuda, work_dir=work_dir, verbose=verbose)
+            epochs, cuda=cuda, work_dir=work_dir, verbose=verbose, describe=describe)
         self._check_step = check_step
         self._log_step = log_step
         self._lr = 0.01
@@ -487,8 +500,8 @@ class RegressionRunner(BaseRunner, RegressorMixin):
 
     # @persist('y_true', 'y_pred')
     def post_predict(self, y_true, y_pred):
-        y_pred.cpu().detach().numpy()
-        if y_true:
+        y_pred = y_pred.cpu().detach().numpy()
+        if y_true is not None:
             return y_true, y_pred
         return y_pred
 

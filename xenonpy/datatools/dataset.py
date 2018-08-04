@@ -55,12 +55,7 @@ class LocalStorage(object):
     See Also: :doc:`dataset`
     """
 
-    def __init__(self,
-                 name=None,
-                 *,
-                 path=None,
-                 mk_dir=True,
-                 backend=None):
+    def __init__(self, name=None, *, path=None, mk_dir=True, backend=None):
         """
         Parameters
         ----------
@@ -117,8 +112,7 @@ class LocalStorage(object):
             # for compatibility
             # fixme: will be removed at future
             if fn == 'unnamed':
-                warn('file like `unnamed.@x` will be renamed to `@x`.',
-                     RuntimeWarning)
+                warn('file like `unnamed.@x` will be renamed to `@x`.', RuntimeWarning)
                 new_name = '.'.join(f.name.split('.')[-3:])
                 new_path = f.parent / new_name
                 f.rename(new_path)
@@ -149,11 +143,7 @@ class LocalStorage(object):
 
         return file
 
-    def dump(self,
-             fpath,
-             *,
-             rename=None,
-             with_datetime=True):
+    def dump(self, fpath, *, rename=None, with_datetime=True):
         """
         Dump last checked dataset to file.
 
@@ -189,7 +179,7 @@ class LocalStorage(object):
         """
         Return last saved data.
 
-        Args
+        Args/
         ----
         name: str
             Data's name. Omit for access temp data
@@ -202,6 +192,8 @@ class LocalStorage(object):
         try:
             if name is None:
                 return self._load_data(self._files['unnamed'][-1])
+            if not isinstance(name, str):
+                raise TypeError('para `name` must be string but got %s' % type(name))
             return self._load_data(self._files[name][-1])
         except IndexError:
             return None
@@ -326,8 +318,7 @@ class LocalStorage(object):
 
         def _get_file_index(fn):
             if len(self._files[fn]) != 0:
-                return int(
-                    re.findall(r'@\d+\.', str(self._files[fn][-1]))[-1][1:-1])
+                return int(re.findall(r'@\d+\.', str(self._files[fn][-1]))[-1][1:-1])
             return 0
 
         num = 0
@@ -374,8 +365,7 @@ class Preset(Singleton):
     #     'elements', 'elements_completed', 'mp_inorganic',
     #     'electron_density', 'sample_A', 'mp_structure'
     # )
-    dataset = ('elements', 'elements_completed', 'mp_inorganic',
-               'mp_structure')
+    dataset = ('elements', 'elements_completed', 'mp_inorganic', 'mp_structure')
     # set to check params
 
     _dataset_dir = Path().home() / __cfg_root__ / 'dataset'
@@ -454,8 +444,9 @@ class Preset(Singleton):
             sha256_ = sha256[data]
 
         if sha256_ != get_conf(data):
-            warn('local data {} is different from the repository version. '
-                 'use `load(data, sync=True)` to fix it.'.format(data), RuntimeWarning)
+            warn(
+                'local data {} is different from the repository version. '
+                'use `load(data, sync=True)` to fix it.'.format(data), RuntimeWarning)
             if sync:
                 url = get_dataset_url(data)
                 print('fetching dataset `{}` from {} because of none data file or outdated. '

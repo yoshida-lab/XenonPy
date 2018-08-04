@@ -11,7 +11,7 @@ What is XenonPy project
     :alt: Build Status
     :target: https://travis-ci.org/yoshida-lab/XenonPy
 
-**XenonPy** is a Python library focus on the material informatics which be designed for material explore based on machine learning.
+**XenonPy** is a Python library focus on material exploration. We use cutting-edge machine learning techniques to to accelerate your business.
 
 The main purpose of this project is to build a complex system to calculate various chem/phys descriptors for machine learning then extend them to explore material space.
 To reach this target, system also provide model training routines and try to re-use pre-trained model by various deep learning methods such as **transfer learning**.

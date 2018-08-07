@@ -3,43 +3,48 @@ language: python
 virtualenv:
   system_site_packages: true
 
-dist: trusty  # use ubuntu 14.04lts
-sudo: false  #  runs each build in a container on a shared host via Docker
-
 # shallow clone
 git:
   depth: 3
 
-# use non-interactive backendV
-env:
-  - PYTHON_VERSION=3.5 BACKEND=agg
-  - PYTHON_VERSION=3.6 BACKEND=agg
-  - PYTHON_VERSION=3.7 BACKEND=agg
+matrix:
+    include:
+        - os: linux
+          dist: trusty  # use ubuntu 14.04lts
+          sudo: false  #  runs each build in a container on a shared host via Docker
+          env: PYNV=py35
+        - os: linux
+          dist: trusty
+          sudo: false
+          env: PYNV=py36
+        - os: linux
+          dist: trusty
+          sudo: false
+          env: PYNV=py37
+        - os: osx
+          language: generic
+          env: PYNV=py35
+        - os: osx
+          language: generic
+          env: PYNV=py36
+        - os: osx
+          language: generic
+          env: PYNV=py37
 
 before_install:
-  - mkdir -p ~/.xenonpy/dataset
-  - mkdir -p ~/.xenonpy/cached
-  - ls ~/.xenonpy
-  - cp travis/matplotlibrc_${BACKEND} matplotlibrc
-  - if [ $BACKEND == "qtagg" ]; then
-    export DISPLAY=:99.0;
-    sh -e /etc/init.d/xvfb start;
-    sleep 3;
-    fi
+  - source travis/before_install.sh
 
-# install miniconda
 install:
-  - source travis/install.sh
   - pip install -e .
 
 script:
- - make unittest
+  - pytest
 
-after_script: conda remove --name xenonpy --all
-#deploy:
-#  provider: pypi
-#  user: "tsumina"
-#  password:
-#    secure: L35FqByerbSDiyGyuzR5An7+OjNy3nSu33y9774ih927tlEKlOM8yYedMmrIvkYpHxDeHp8/MLdfWCRwL8VF2nlspJvP8Mqa+mpzLs/Dv9QU9lKmcc3xaqpaka/cI9+Dueev6M2fSLmEQuY8LQib7GsiIDKiOFfBrDnzf3/nfDwBe/f1m6itybsqXNWOLiFEyrRi3v6YQZC/QUfb0bHx0+5brLH0K250Z3jfDSwyGiuqT7JIMS8fEwium7Abu6Ge16FtOjINk1rZE1DpkNU3w34MTI+c5qCuHkXlUiOAyrMoeZZE0BmkVV6ed6sGk9WeZdgX27oKNww93QCeir0NGzt2N51aY9m0Klj9O9lKiv7BdGcoyafpmCJQknjPxdrntHVlg5KMuUhbmgQ17X1TKXm4tR7yZa4cY/U/oOX4d+flEyZalRMzIgaxj3xVUGVoNSjBL+ZVyuXj+jmUnNB7Bf2gYk8XvxNYi5tB3axqmpgtQdVP40MorqUHYkBojoVEwv45E2bNKw3dnIQomWhrP76VwQt7jdCXVEITvUmI7IUio3Ewhnkyx3O++KQjcwS53hF7JCmF5e7qhGB52IT0MBD7XpaIkHA3wTQkPmMwNP8GccBo5HHUc8p+1z4HcRi8OZPSw/3o5alw0C7nuwfUZiIHbfhG0mcSuk0lPbb5tfg=
-#  on:
-#    tags: true
+deploy:
+  provider: pypi
+  user: tsumina
+  distributions: sdist bdist_wheel
+  password:
+    secure: rDSV7JKnhsiZ5Cdo9LXNDi7rPqmAcOT5B+xL2buhhlWeSbEmeA2MkiVCRIIiQESU7z1IF3Ds7nK7iwaf45xuBTrouteBE9OpQHGcCpXPMLhLOwSMNtOfCwAoLtD8B8r5wYjDfC6wMEkRVuRv+ZjZtchIOJHY01FDeh9VhShV62H1P5TGA2Rpp/7rJBMam2yyNbgVad/ttvvbgn0ZLHKlLOA1nX5pqFNCyf/ZCR0IGZcWeAUoNjGcXNBkVMyEnnMIW813QDJEW+64cO/NFJuRCRWCDlTFOAvtWSBMdw9Ndu72bpe1maGPsRUSD652PebdpKVcnHFbn3i4Lt2bKkULUwKFvinAj2w4ceMXcfwxaXy6VmoFVf3ZHsnYNtLKBBiR6XCToI9u61vYW++uZ46njV4Pz1sHU1+I3QJVGBszOTXM8lirljM/aQNLO+gDanEXQRyjQkMRK9CXshxONMXwWaZtzkj8fr7zNH/fF5uAVieZ+tE82RJyRv9Z+G29hYc3A+7YLi3k7CYAbPi10Ir9PXBph4LorWSGMy1IcmCw5GND9PwMB5/BYgjQMh5ulekxU0JX+5rjWLIlsH9RWvKrz9V1wBIahpfU4jBpDz52hATf7JpZjKgv9pOj+otZfcEEX4cS+R7BGZ5cOE1cae3GZln9xNAqyJso1Cx/IJXUwgE=
+  on:
+    tags: true

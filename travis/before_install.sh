@@ -45,6 +45,7 @@ esac
 
 conda info --envs
 conda install pytest pytest-cov pylint
+pip install codecov
 
 python --version
 python -c "import numpy; print('numpy %s' % numpy.__version__)"

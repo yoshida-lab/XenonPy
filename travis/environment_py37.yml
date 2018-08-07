@@ -1,9 +1,9 @@
-name: xepy36
+name: xepy37
 channels:
 - defaults
 - pytorch
 dependencies:
-- python=3.6
+- python=3.7
 - numpy
 - pandas
 - tqdm
@@ -13,7 +13,7 @@ dependencies:
 - plotly
 - scikit-learn
 - scipy
-- pytorch-cpu
+- pytorch
 - pytest
 - pytest-cov
 - pip:

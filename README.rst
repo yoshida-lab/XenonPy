@@ -10,6 +10,9 @@ What is XenonPy project
 .. image:: https://travis-ci.org/yoshida-lab/XenonPy.svg?branch=master
     :alt: Build Status
     :target: https://travis-ci.org/yoshida-lab/XenonPy
+    
+.. image:: https://codecov.io/gh/yoshida-lab/XenonPy/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/yoshida-lab/XenonPy
 
 .. image:: https://img.shields.io/github/tag/yoshida-lab/XenonPy.svg?maxAge=360
     :alt: Version

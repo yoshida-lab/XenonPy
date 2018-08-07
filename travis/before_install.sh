@@ -43,6 +43,7 @@ case "${PYENV}" in
         ;;
 esac
 
+conda info --envs
 conda install pytest pytest-cov pylint
 
 python --version

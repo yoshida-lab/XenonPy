@@ -38,8 +38,8 @@ case "${PYENV}" in
         source activate xepy36
         ;;
     py37)
-        conda env create -f travis/environment_py36.yml
-        source activate xepy36
+        conda env create -f travis/environment_py37.yml
+        source activate xepy37
         ;;
 esac
 
@@ -49,6 +49,6 @@ python --version
 python -c "import numpy; print('numpy %s' % numpy.__version__)"
 python -c "import scipy; print('scipy %s' % scipy.__version__)"
 python -c "import pandas; print('pandas %s' % pandas.__version__)"
-python -c "import torch; print('pandas %s' % torch.__version__)"
+python -c "import torch; print('pytorch %s' % torch.__version__)"
 
 #python setup.py install

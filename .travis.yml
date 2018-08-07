@@ -38,7 +38,10 @@ install:
   - pip install -e .
 
 script:
-  - pytest
+  - pytest --cov=./
+
+after_success:
+  - codecov
 
 deploy:
   provider: pypi

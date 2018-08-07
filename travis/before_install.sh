@@ -9,25 +9,25 @@ export MPLBACKEN='Agg'
 
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
-    # Install some custom requirements on osx
-    brew update
-    brew upgrade
-    brew cask install miniconda
+    # Download miniconda for osx
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh
 
 else
-    # Install some custom requirements on Linux
+    # Download miniconda for Linux
     wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-    bash miniconda.sh -b -p $HOME/miniconda
-    export PATH="$HOME/miniconda/bin:$PATH"
 fi
 
-# conda test info
+# Install miniconda
+bash miniconda.sh -b -p $HOME/miniconda
+export PATH="$HOME/miniconda/bin:$PATH"
+
+# conda info
 hash -r
 conda config --set always_yes yes --set changeps1 no
 conda update -q conda
 conda info -a
 
-
+# Create conda env from environment files
 case "${PYENV}" in
     py35)
         conda env create -f travis/environment_py35.yml

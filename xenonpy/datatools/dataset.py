@@ -179,7 +179,7 @@ class LocalStorage(object):
         """
         Return last saved data.
 
-        Args/
+        Args
         ----
         name: str
             Data's name. Omit for access temp data

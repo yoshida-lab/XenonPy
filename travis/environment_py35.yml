@@ -17,6 +17,5 @@ dependencies:
 - pytest
 - pytest-cov
 - pip:
-  - pymonad
   - pymatgen
   - ruamel.yaml

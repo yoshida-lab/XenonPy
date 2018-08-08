@@ -44,6 +44,7 @@ after_success:
   - codecov
 
 deploy:
+  skip_cleanup: true
   provider: pypi
   user: tsumina
   distributions: sdist bdist_wheel
@@ -51,3 +52,4 @@ deploy:
     secure: rDSV7JKnhsiZ5Cdo9LXNDi7rPqmAcOT5B+xL2buhhlWeSbEmeA2MkiVCRIIiQESU7z1IF3Ds7nK7iwaf45xuBTrouteBE9OpQHGcCpXPMLhLOwSMNtOfCwAoLtD8B8r5wYjDfC6wMEkRVuRv+ZjZtchIOJHY01FDeh9VhShV62H1P5TGA2Rpp/7rJBMam2yyNbgVad/ttvvbgn0ZLHKlLOA1nX5pqFNCyf/ZCR0IGZcWeAUoNjGcXNBkVMyEnnMIW813QDJEW+64cO/NFJuRCRWCDlTFOAvtWSBMdw9Ndu72bpe1maGPsRUSD652PebdpKVcnHFbn3i4Lt2bKkULUwKFvinAj2w4ceMXcfwxaXy6VmoFVf3ZHsnYNtLKBBiR6XCToI9u61vYW++uZ46njV4Pz1sHU1+I3QJVGBszOTXM8lirljM/aQNLO+gDanEXQRyjQkMRK9CXshxONMXwWaZtzkj8fr7zNH/fF5uAVieZ+tE82RJyRv9Z+G29hYc3A+7YLi3k7CYAbPi10Ir9PXBph4LorWSGMy1IcmCw5GND9PwMB5/BYgjQMh5ulekxU0JX+5rjWLIlsH9RWvKrz9V1wBIahpfU4jBpDz52hATf7JpZjKgv9pOj+otZfcEEX4cS+R7BGZ5cOE1cae3GZln9xNAqyJso1Cx/IJXUwgE=
   on:
     tags: true
+    condition: $TRAVIS_OS_NAME = os && PYENV=py36 

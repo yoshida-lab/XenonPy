@@ -14,6 +14,17 @@ What is XenonPy project
 .. image:: https://travis-ci.org/yoshida-lab/XenonPy.svg?branch=master
     :alt: Build Status
     :target: https://travis-ci.org/yoshida-lab/XenonPy
+    
+.. image:: https://codecov.io/gh/yoshida-lab/XenonPy/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/yoshida-lab/XenonPy
+
+.. image:: https://img.shields.io/github/tag/yoshida-lab/XenonPy.svg?maxAge=360
+    :alt: Version
+    :target: https://github.com/yoshida-lab/XenonPy/releases/latest
+
+.. image:: https://img.shields.io/pypi/pyversions/xenonpy.svg
+    :alt: Python Versions
+    :target: https://pypi.org/project/xenonpy/
 
 **XenonPy** is a high-throughput material exploration framework written in Python.
 This framework is designed for researchers but also can be used in industry.

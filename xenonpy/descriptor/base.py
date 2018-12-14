@@ -226,8 +226,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         return '\n'.join(self.__authors__)
 
 
-class BaseDescriptor(
-    BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
+class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
     """
     Abstract class to organize featurizers.
 
@@ -281,41 +280,48 @@ class BaseDescriptor(
                '\n'.join(['  |- %s:\n  |  |- %s' % (k, '\n  |  |- '.join(map(str, v))) for k, v in
                           self.__features__.items()])
 
-    def _if_series(self, o):
+    def _check_input(self, o):
+        if isinstance(o, (list, np.ndarray)):
+            if len(self.__features__) == 1:
+                return pd.DataFrame(o, columns=[self.__features__.keys()[0]])
+            raise TypeError(
+                'column name of Seriers/DataFrame must corresponding to featurizer name')
+
         if isinstance(o, pd.Series):
-            if len(self.__features__) > 1 \
-                    or not o.name \
-                    or o.name not in self.__features__:
-                raise KeyError(
-                    'Pandas Series object must have name corresponding to feature type name'
-                )
-            return True
+            if o.name in self.__features__:
+                return pd.DataFrame(o)
+            raise KeyError('Pandas Series object must have name corresponding to feature type name')
+
         if isinstance(o, pd.DataFrame):
-            for k in self.__features__:
-                if k not in o:
+            for k in o:
+                if k not in self.__features__:
                     raise KeyError(
-                        'Pandas Series object must have name corresponding to feature <%s>'
-                        % k)
-            return False
-        raise TypeError('X, y must be <pd.DataFrame> or <pd.Series>')
+                        'Pandas Series object must have name corresponding to feature <%s>' % k)
+            return o
+        raise TypeError('X, y must be <list>, <numpy.array>, <pd.DataFrame> or <pd.Series>')
+
+    def _map_name(self, **fit_params):
+        for k in fit_params:
+            if k in self.__features__:
+                print(k)
+                self.__features__[fit_params[k]] = self.__features__.pop(k)
+
+    @property
+    def featurizers(self):
+        return self.__features__.keys()
 
     def fit(self, X, y=None, **fit_params):
+        self._map_name(**fit_params)
 
-        if y is not None and not isinstance(y, pd.Series):
-            raise TypeError('y must be <pd.Series> or None')
-
-        if self._if_series(X):
-            features = self.__features__[X.name]
+        X = self._check_input(X)
+        for k, features in self.__features__.items():
             for f in features:
-                f.fit(X, y, **fit_params)
-        else:
-            for k, features in self.__features__.items():
-                for f in features:
-                    f.fit(X[k], y, **fit_params)
+                f.fit(X[k], y, **fit_params)
 
         return self
 
     def transform(self, X):
+
         def _make_df(feature_, ret_):
             try:
                 labels = feature_.feature_labels()
@@ -328,20 +334,12 @@ class BaseDescriptor(
 
         results = []
 
-        if self._if_series(X):
-            features = self.__features__[X.name]
+        X = self._check_input(X)
+        for k, features in self.__features__.items():
             for f in features:
-                ret = f.transform(X)
+                ret = f.transform(X[k])
                 if isinstance(ret, list):
                     ret = _make_df(f, ret)
                 results.append(ret)
-
-        else:
-            for k, features in self.__features__.items():
-                for f in features:
-                    ret = f.transform(X[k])
-                    if isinstance(ret, list):
-                        ret = _make_df(f, ret)
-                    results.append(ret)
 
         return pd.concat(results, axis=1)

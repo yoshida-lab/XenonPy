@@ -20,6 +20,7 @@ def data():
     warnings.filterwarnings("ignore", message="numpy.ndarray size changed")
 
     class _FakeFeaturier(BaseFeaturizer):
+
         def __init__(self, n_jobs=1):
             super().__init__(n_jobs=n_jobs)
 
@@ -31,6 +32,7 @@ def data():
             return ['labels']
 
     class _FakeDescriptor(BaseDescriptor):
+
         def __init__(self):
             self.g1 = _FakeFeaturier()
             self.g1 = _FakeFeaturier()
@@ -118,6 +120,16 @@ def test_base_descriptor_2(data):
     assert len(bd.__features__) == 2
     assert 'g1' in bd.__features__.keys()
     assert 'g2' in bd.__features__.keys()
+
+
+def test_base_descriptor_3(data):
+    bd = data['descriptor']()
+    try:
+        bd.fit([1, 2, 3, 4])
+    except TypeError:
+        assert True
+    else:
+        assert False, 'allow list only when the number of featurizer is 1'
 
 
 if __name__ == "__main__":

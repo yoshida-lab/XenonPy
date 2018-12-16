@@ -65,11 +65,6 @@ def test_preset_property():
 
 
 # =====================================================================================================
-def test_local_storage5(setup):
-    saver = LocalStorage('dens')
-    saver(list('sdfs'))
-
-
 def test_local_storage1(setup):
     saver = LocalStorage(setup['user_dataset'])
     ret = '<{}> include:'.format(setup['user_dataset'])
@@ -119,6 +114,7 @@ def test_local_storage_last2(setup):
 def test_local_storage_getitem1(setup):
     saver = LocalStorage(setup['user_dataset'])
     item = saver[:]
+    print(item)
     assert item[1] == list('efgh'), 'retriever same data'
     item = saver[1]
     assert item == list('efgh'), 'retriever same data'

@@ -3,11 +3,11 @@
 # license that can be found in the LICENSE file.
 
 from collections import defaultdict
+from collections.abc import Iterable
 from multiprocessing import Pool, cpu_count
 
 import numpy as np
 import pandas as pd
-from collections.abc import Iterable
 from sklearn.base import TransformerMixin, BaseEstimator
 
 from ..utils import TimedMetaClass
@@ -250,6 +250,9 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
     _n_jobs = 1
     """sfesefe"""
 
+    def __init__(self):
+        self.__featurizers__ = defaultdict(list)
+
     @property
     def elapsed(self):
         return self._timer.elapsed
@@ -268,33 +271,36 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
     def __setattr__(self, key, value):
 
-        if '__features__' not in self.__dict__:
-            super().__setattr__('__features__', defaultdict(list))
+        if key == '__featurizers__':
+            if not isinstance(value, defaultdict):
+                raise RuntimeError('Can not set "__featurizers__" yourself')
+            super().__setattr__(key, value)
         if isinstance(value, BaseFeaturizer):
-            self.__features__[key].append(value)
+            self.__featurizers__[key].append(value)
         else:
             super().__setattr__(key, value)
 
     def __repr__(self):
         return super().__repr__() + ':\n' + \
                '\n'.join(['  |- %s:\n  |  |- %s' % (k, '\n  |  |- '.join(map(str, v))) for k, v in
-                          self.__features__.items()])
+                          self.__featurizers__.items()])
 
     def _check_input(self, o):
         if isinstance(o, (list, np.ndarray)):
-            if len(self.__features__) == 1:
-                return pd.DataFrame(o, columns=[self.__features__.keys()[0]])
+            keys = list(self.__featurizers__.keys())
+            if len(keys) == 1:
+                return pd.DataFrame(o, columns=[keys[0]])
             raise TypeError(
                 'column name of Seriers/DataFrame must corresponding to featurizer name')
 
         if isinstance(o, pd.Series):
-            if o.name in self.__features__:
+            if o.name in self.__featurizers__:
                 return pd.DataFrame(o)
             raise KeyError('Pandas Series object must have name corresponding to feature type name')
 
         if isinstance(o, pd.DataFrame):
             for k in o:
-                if k not in self.__features__:
+                if k not in self.__featurizers__:
                     raise KeyError(
                         'Pandas Series object must have name corresponding to feature <%s>' % k)
             return o
@@ -302,19 +308,19 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
     def _map_name(self, **fit_params):
         for k in fit_params:
-            if k in self.__features__:
+            if k in self.__featurizers__:
                 print(k)
-                self.__features__[fit_params[k]] = self.__features__.pop(k)
+                self.__featurizers__[fit_params[k]] = self.__featurizers__.pop(k)
 
     @property
     def featurizers(self):
-        return self.__features__.keys()
+        return self.__featurizers__.keys()
 
     def fit(self, X, y=None, **fit_params):
         self._map_name(**fit_params)
 
         X = self._check_input(X)
-        for k, features in self.__features__.items():
+        for k, features in self.__featurizers__.items():
             for f in features:
                 f.fit(X[k], y, **fit_params)
 
@@ -335,7 +341,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         results = []
 
         X = self._check_input(X)
-        for k, features in self.__features__.items():
+        for k, features in self.__featurizers__.items():
             for f in features:
                 ret = f.transform(X[k])
                 if isinstance(ret, list):

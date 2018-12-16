@@ -111,7 +111,7 @@ class WeightedVarFeature(_CompositionalFeature):
         w_ = nums / np.sum(nums)
         mean_ = w_.dot(elems_)
         var_ = elems_ - mean_
-        return w_.dot(var_**2)
+        return w_.dot(var_ ** 2)
 
     @property
     def feature_labels(self):
@@ -185,6 +185,7 @@ class Composition(BaseDescriptor):
             Column's names of elemental info that should not be used in descriptor calculation.
         """
 
+        super().__init__()
         self.n_jobs = n_jobs
         if elements is None:
             elements = preset.elements_completed

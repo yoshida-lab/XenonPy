@@ -34,6 +34,7 @@ def data():
     class _FakeDescriptor(BaseDescriptor):
 
         def __init__(self):
+            super().__init__()
             self.g1 = _FakeFeaturier()
             self.g1 = _FakeFeaturier()
             self.g2 = _FakeFeaturier()
@@ -111,15 +112,15 @@ def test_base_descriptor_1(data):
     assert bd.n_jobs == cpu_count()
 
     # test featurizers list
-    assert hasattr(bd, '__features__')
-    assert not bd.__features__
+    assert hasattr(bd, '__featurizers__')
+    assert not bd.__featurizers__
 
 
 def test_base_descriptor_2(data):
     bd = data['descriptor']()
-    assert len(bd.__features__) == 2
-    assert 'g1' in bd.__features__.keys()
-    assert 'g2' in bd.__features__.keys()
+    assert len(bd.__featurizers__) == 2
+    assert 'g1' in bd.__featurizers__.keys()
+    assert 'g2' in bd.__featurizers__.keys()
 
 
 def test_base_descriptor_3(data):
@@ -130,6 +131,25 @@ def test_base_descriptor_3(data):
         assert True
     else:
         assert False, 'allow list only when the number of featurizer is 1'
+
+
+def test_base_descriptor_4(data):
+    feature = data['featurizer']
+
+    class _FakeDescriptor(BaseDescriptor):
+
+        def __init__(self):
+            super().__init__()
+            self.g1 = feature()
+            self.g1 = feature()
+
+    bd = _FakeDescriptor()
+    try:
+        bd.fit([1, 2, 3, 4])
+    except TypeError:
+        assert False, 'allow list when the number of featurizer is 1'
+    else:
+        assert True
 
 
 if __name__ == "__main__":

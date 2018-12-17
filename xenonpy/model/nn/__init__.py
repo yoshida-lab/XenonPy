@@ -16,3 +16,4 @@ with warnings.catch_warnings():
         from .model_maker import Generator1d, Sequential
         from .layer import Layer1d
         from . import wrap
+        from .transfer_learning import retrieve_hidden_features

@@ -3,11 +3,11 @@
 # license that can be found in the LICENSE file.
 
 from collections import defaultdict
+from collections.abc import Iterable
 from multiprocessing import Pool, cpu_count
 
 import numpy as np
 import pandas as pd
-from collections.abc import Iterable
 from sklearn.base import TransformerMixin, BaseEstimator
 
 from ..utils import TimedMetaClass
@@ -226,8 +226,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         return '\n'.join(self.__authors__)
 
 
-class BaseDescriptor(
-    BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
+class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
     """
     Abstract class to organize featurizers.
 
@@ -251,6 +250,9 @@ class BaseDescriptor(
     _n_jobs = 1
     """sfesefe"""
 
+    def __init__(self):
+        self.__featurizers__ = defaultdict(list)
+
     @property
     def elapsed(self):
         return self._timer.elapsed
@@ -269,53 +271,63 @@ class BaseDescriptor(
 
     def __setattr__(self, key, value):
 
-        if '__features__' not in self.__dict__:
-            super().__setattr__('__features__', defaultdict(list))
+        if key == '__featurizers__':
+            if not isinstance(value, defaultdict):
+                raise RuntimeError('Can not set "__featurizers__" yourself')
+            super().__setattr__(key, value)
         if isinstance(value, BaseFeaturizer):
-            self.__features__[key].append(value)
+            self.__featurizers__[key].append(value)
         else:
             super().__setattr__(key, value)
 
     def __repr__(self):
         return super().__repr__() + ':\n' + \
                '\n'.join(['  |- %s:\n  |  |- %s' % (k, '\n  |  |- '.join(map(str, v))) for k, v in
-                          self.__features__.items()])
+                          self.__featurizers__.items()])
 
-    def _if_series(self, o):
+    def _check_input(self, o):
+        if isinstance(o, (list, np.ndarray)):
+            keys = list(self.__featurizers__.keys())
+            if len(keys) == 1:
+                return pd.DataFrame(o, columns=[keys[0]])
+            raise TypeError(
+                'column name of Seriers/DataFrame must corresponding to featurizer name')
+
         if isinstance(o, pd.Series):
-            if len(self.__features__) > 1 \
-                    or not o.name \
-                    or o.name not in self.__features__:
-                raise KeyError(
-                    'Pandas Series object must have name corresponding to feature type name'
-                )
-            return True
+            if o.name in self.__featurizers__:
+                return pd.DataFrame(o)
+            raise KeyError('Pandas Series object must have name corresponding to feature type name')
+
         if isinstance(o, pd.DataFrame):
-            for k in self.__features__:
-                if k not in o:
+            for k in o:
+                if k not in self.__featurizers__:
                     raise KeyError(
-                        'Pandas Series object must have name corresponding to feature <%s>'
-                        % k)
-            return False
-        raise TypeError('X, y must be <pd.DataFrame> or <pd.Series>')
+                        'Pandas Series object must have name corresponding to feature <%s>' % k)
+            return o
+        raise TypeError('X, y must be <list>, <numpy.array>, <pd.DataFrame> or <pd.Series>')
+
+    def _map_name(self, **fit_params):
+        for k in fit_params:
+            if k in self.__featurizers__:
+                print(k)
+                self.__featurizers__[fit_params[k]] = self.__featurizers__.pop(k)
+
+    @property
+    def featurizers(self):
+        return self.__featurizers__.keys()
 
     def fit(self, X, y=None, **fit_params):
+        self._map_name(**fit_params)
 
-        if y is not None and not isinstance(y, pd.Series):
-            raise TypeError('y must be <pd.Series> or None')
-
-        if self._if_series(X):
-            features = self.__features__[X.name]
+        X = self._check_input(X)
+        for k, features in self.__featurizers__.items():
             for f in features:
-                f.fit(X, y, **fit_params)
-        else:
-            for k, features in self.__features__.items():
-                for f in features:
-                    f.fit(X[k], y, **fit_params)
+                f.fit(X[k], y, **fit_params)
 
         return self
 
     def transform(self, X):
+
         def _make_df(feature_, ret_):
             try:
                 labels = feature_.feature_labels()
@@ -328,20 +340,12 @@ class BaseDescriptor(
 
         results = []
 
-        if self._if_series(X):
-            features = self.__features__[X.name]
+        X = self._check_input(X)
+        for k, features in self.__featurizers__.items():
             for f in features:
-                ret = f.transform(X)
+                ret = f.transform(X[k])
                 if isinstance(ret, list):
                     ret = _make_df(f, ret)
                 results.append(ret)
-
-        else:
-            for k, features in self.__features__.items():
-                for f in features:
-                    ret = f.transform(X[k])
-                    if isinstance(ret, list):
-                        ret = _make_df(f, ret)
-                    results.append(ret)
 
         return pd.concat(results, axis=1)

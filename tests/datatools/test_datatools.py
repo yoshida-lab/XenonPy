@@ -74,6 +74,7 @@ def test_local_storage1(setup):
 def test_local_storage2(setup):
     saver = LocalStorage(setup['user_dataset'])
     saver(list('abcd'), list('efgh'))
+    print('lcoal_storage2', saver)
     assert len(saver._files['unnamed']) == 2, 'should got 2 files'
 
 
@@ -88,6 +89,7 @@ def test_local_storage3(setup):
 def test_local_storage4(setup):
     saver = LocalStorage(setup['user_dataset'])
     saver(list('asdf'), key1=list('qwer'))
+    print('lcoal_storage4', saver)
     assert len(saver._files['unnamed']) == 3, 'should got 3 files'
     assert len(saver._files['key1']) == 2, 'should got 1 files'
     assert len(saver._files['key2']) == 1, 'should got 1 files'

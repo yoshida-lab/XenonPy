@@ -19,7 +19,7 @@ def data():
 
     # prepare test data
     array = np.arange(10)
-    matrix = np.matrix(np.arange(100).reshape(10, 10))
+    matrix = np.arange(100).reshape(10, 10)
     list_ = list(range(10))
     df = DataFrame(matrix)
     se = Series(array)

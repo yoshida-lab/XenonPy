@@ -1,7 +1,7 @@
 ============
 Installation
 ============
-XenonPy can be used in Python 3.5 and 3.6.
+XenonPy can be used in Python 3.5, 3.6 and 3.7.
 We have no plane to support Python 2.x (also `pymatgen library will discontinuing Python 2 support from 2018 <http://pymatgen.org/#py3k-only-with-effect-from-2019-1-1>`_).
 For some legacy clusters which only come with Python 2.x, a possibility approach is to create an isolated Python 3.5 or 3.6 environment.
 

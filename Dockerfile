@@ -4,8 +4,9 @@ WORKDIR /etc
 RUN echo "backend : Agg" >> matplotlibrc
 
 RUN /opt/conda/bin/conda install -y jupyter scikit-learn pytest pytest-cov matplotlib seaborn pandas &&\
+    /opt/conda/bin/conda install -y -c rdkit rdkit &&\
     /opt/conda/bin/conda clean -ya &&\
-    pip install pymatgen ruamel.yaml jupyterlab openpyxl 
+    pip install pymatgen ruamel.yaml jupyterlab pybtex openpyxl plotly
 
 WORKDIR /opt/xenonpy
 COPY . .

@@ -1,7 +1,6 @@
 numpy
 pandas
 pymatgen
-tqdm
 seaborn
 scikit-learn
 scipy

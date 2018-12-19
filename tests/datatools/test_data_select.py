@@ -55,8 +55,8 @@ def test_re_sample2():
     assert test.size == 3
     ds.re_sample(test_size=0.3)
     train_, test_ = ds.index
-    assert not np.isin(train, train_).all()
-    assert not np.isin(test, test_).all()
+    assert not np.array_equal(train, train_)
+    assert not np.array_equal(test, test_)
 
 
 def test_split_data1(data):
@@ -114,11 +114,11 @@ def test_split_data4(data):
     assert isinstance(x, DataFrame)
     assert isinstance(y, Series)
     _x, _y = ds.split(data[3], data[4], test=False)
-    assert np.isin(x, _x).all()
-    assert np.isin(y, _y).all()
+    assert np.array_equal(x, _x)
+    assert np.array_equal(y, _y)
     _x, _y = ds.split(data[3], data[4], train=False)
-    assert np.isin(x_, _x).all()
-    assert np.isin(y_, _y).all()
+    assert np.array_equal(x_, _x)
+    assert np.array_equal(y_, _y)
 
 
 if __name__ == "__main__":

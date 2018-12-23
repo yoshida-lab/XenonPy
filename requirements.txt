@@ -7,3 +7,4 @@ scipy
 plotly
 requests
 ruamel.yaml
+torch

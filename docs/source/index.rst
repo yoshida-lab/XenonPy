@@ -26,56 +26,23 @@ What is XenonPy project
     :alt: Python Versions
     :target: https://pypi.org/project/xenonpy/
 
-**XenonPy** is a high-throughput material exploration framework written in Python.
-This framework is designed for researchers but also can be used in industry.
-By employ the cutting edge machine learning technologies, we wish to bring the traditional material design a strong acceleration.
-
-
-
-Why this name
-=============
-
-XenonPy named from element Xenon_.
-We did a ``Graphical Lasso`` calculation with our ``build-in`` elemental descriptors to find the relationship between elements.
-Xenon_ got the lowest score when using Bonacich’s centrality calculation, that means Xenon_ is the most isolated element.
-This is very interesting because the name **Xenon** from the Greek word **ξένος [xenos]** also meaning 'foreign(er)', 'strange(r)', or 'guest'!
-
-Maybe it's just a coincidence but the result showed the potential of using ML in material design.
-We all love this story, so we named our package **XenonPy /ˈziːnɒnˈpaɪ/**.
-
-.. figure:: _static/glasso.png
-    :alt: Graphical Lasso
-
 
 Overview
 ========
 
-The main purpose of this project is to build a complex system to generate various chem/phys descriptors for machine learning and use the results to explore material in virtual environment.
-To reach this target, XenonPy planed to provide a lot of modules for:
+**XenonPy** is a Python library that implements a comprehensive set of machine learning tools
+for materials informatics. Its functionalities partially depend on PyTorch and R.
+The current release (v0.2.0, 2018/12/25) is just a prototype version, which provides some limited modules:
 
-* Data saving and retrieving.
-* Descriptor generating.
-* Pre-trained model reusing. such like **transfer learning**.
-* Backward prediction.
+* Interface to public materials database
+* Library of materials descriptors (compositional/structural descriptors)
+* Pretrained model library **Xenon.MDL** (v0.1.0b, 2018/12/25: more than 10,000 modles in 35 properties of small molecules, polymers, and inorganic compounds)
+* Machine learning tools.
+* Transfer learning using the pretrained models in Xenon.MDL
 
-The final goal of this project is to build a **All-In-One** virtual environment for material development come withe:
-
-* **Massive daataset and Pre-trained models out-of-box**
-* **Various methods for descriptor generating and model training**
-* **Combined with deep learning methods seamless**
-* **Visualization tools for analysis and publish ready**
 
 .. image:: _static/xenonpy.png
 
-
-XenonPy built on top of pandas_ and PyTorch_ in order to make various downstream machine learning libraries and high-performance NN training.
-By use XenonPy(**v0.1.0b**) you can:
-
-* Save and retriever your data in a very simple way by using :py:class:`~xenonpy.datatools.Dataset` and :py:class:`~xenonpy.datatools.Loader`.
-* Turn a compound's composition into arrays of numbers representing things such as ``variance``, ``max``, ``min`` etc.
-* Calculate pair distribution from compound's structure(:py:class:`pymatget.core.Structure`).
-* Draw descriptor heatmap.
-* Simple NN model training
 
 .. figure:: _static/heatmap.jpg
     
@@ -86,9 +53,8 @@ By use XenonPy(**v0.1.0b**) you can:
      Prediction with NN. 290 compositional descriptors of 69,640 compounds was used for traine and test.
 
 XenonPy is a `open source project <https://github.com/yoshida-lab/XenonPy>`_ inspired by `matminer <https://hackingmaterials.github.io/matminer>`_.
-This project has just started and a long way to run. We have our plan but very pleased to hear your feedback to make it even better.
-
-Code contributions are also welcomed. See :doc:`contribution` for details.
+This project still under hard working. We appreciate any feedback.
+Code contributions are welcomed. See :doc:`contribution` for details.
 
 
 
@@ -115,10 +81,11 @@ Indices and tables
 
 Copyright and license
 =====================
-Code and documentation © 2017 TsumiNa.
+©Copyright 2018 The XenonPy task force, all rights reserved.
 Released under the `BSD-3 license`_.
 
 .. _pandas: https://pandas.pydata.org
 .. _PyTorch: http://pytorch.org/
 .. _BSD-3 license: https://opensource.org/licenses/BSD-3-Clause
 .. _Xenon: https://en.wikipedia.org/wiki/Xenon
+.. [paper]: Yamada, H., Liu, C., Wu, S., Koyama, Y., Ju, S., Shiomi, J., Morikawa, J., Yoshida, R. Transfer learning: a key driver of accelerating materials discovery with machine learning, in preparation.

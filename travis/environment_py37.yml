@@ -1,21 +1,21 @@
 name: xepy37
 channels:
-- defaults
-- pytorch
+  - defaults
+  - pytorch
+  - rdkit
+  - matsci
 dependencies:
-- python=3.7
-- numpy
-- pandas
-- tqdm
-- seaborn
-- requests
-- matplotlib
-- plotly
-- scikit-learn
-- scipy
-- pytorch
-- pytest
-- pytest-cov
-- pip:
+  - python=3.7
+  - numpy
+  - pandas
+  - seaborn
+  - requests
+  - matplotlib
+  - rdkit
+  - plotly
+  - scikit-learn
+  - scipy
+  - pytorch
+  - pytest
+  - pytest-cov
   - pymatgen
-  - ruamel.yaml

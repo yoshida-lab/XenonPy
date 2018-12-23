@@ -19,5 +19,3 @@ dependencies:
   - pytest
   - pytest-cov
   - pymatgen
-  - pip:
-      - ruamel.yaml

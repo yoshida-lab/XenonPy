@@ -20,6 +20,14 @@ xenonpy.descriptor.composition module
     :undoc-members:
     :show-inheritance:
 
+xenonpy.descriptor.fingerprint module
+-------------------------------------
+
+.. automodule:: xenonpy.descriptor.fingerprint
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xenonpy.descriptor.structure module
 -----------------------------------
 

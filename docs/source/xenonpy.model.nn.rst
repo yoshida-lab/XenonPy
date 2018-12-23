@@ -36,6 +36,14 @@ xenonpy.model.nn.runner module
     :undoc-members:
     :show-inheritance:
 
+xenonpy.model.nn.transfer\_learning module
+------------------------------------------
+
+.. automodule:: xenonpy.model.nn.transfer_learning
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xenonpy.model.nn.wrap module
 ----------------------------
 

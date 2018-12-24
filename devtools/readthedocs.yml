@@ -1,0 +1,22 @@
+name: readthedosc
+channels:
+  - defaults
+  - pytorch
+  - rdkit
+dependencies:
+  - python=3.6
+  - numpy
+  - pandas
+  - seaborn
+  - requests
+  - matplotlib
+  - rdkit
+  - scikit-learn
+  - scipy
+  - pytorch-cpu
+  - pymatgen
+  - sphinx
+  - sphinx_rtd_theme
+  - pip:
+      - ruamel.yaml
+      - pymatgen

@@ -2,7 +2,7 @@ name: xepy35
 channels:
   - defaults
   - pytorch
-  - rdkit
+  - conda-forge
   - matsci
 dependencies:
   - python=3.5
@@ -18,8 +18,10 @@ dependencies:
   - pytorch
   - pytest
   - pytest-cov
-  - pymatgen
   - pylint
   - sphinx
   - sphinx_rtd_theme
   - jupyter
+  - pip:
+      - ruamel.yaml
+      - pymatgen

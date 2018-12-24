@@ -2,7 +2,7 @@ name: xepy37
 channels:
   - defaults
   - pytorch
-  - rdkit
+  - conda-forge
   - matsci
 dependencies:
   - python=3.7

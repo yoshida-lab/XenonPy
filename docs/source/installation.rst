@@ -67,7 +67,7 @@ Docker is a tool designed to make it easier to create, deploy, and run applicati
 Containers allow a developer to package up an application with all of the parts it needs, such as libraries and other dependencies, and ship it all out as one package.
 We provide the `official docker images`_ via the `Docker hub <https://hub.docker.com>`_.
 
-If you don't have installed Docker yet, Follow the `official install tutorial <https://docs.docker.com/install/>`_ to install docker CE on your machine.
+If you have not installed Docker yet, Follow the `official install tutorial <https://docs.docker.com/install/>`_ to install docker CE on your machine.
 Once your docker installation is done, use the following command to boot up XenonPy with jupyterlab_.
 
 .. code-block:: bash

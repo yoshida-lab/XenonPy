@@ -1,3 +1,6 @@
+.. role:: raw-html(raw)
+    :format: html
+
 ============
 Installation
 ============
@@ -8,7 +11,7 @@ Alternately, we recommend you use the `Docker Image`_ if you have no installatio
 We have no plane to support Python 2.x. One of the main reasons is that the ``pymatgen`` library will discontinuing Python 2 support from 2019.
 See this `this link <http://pymatgen.org/#py3k-only-with-effect-from-2019-1-1>`_ for details.
 
-Also note that XenonPy use PyTorch_ as to accelerate the neural network model training.
+Also note that XenonPy use PyTorch_ to accelerate the neural network model training.
 If you instal XenonPy with PyTorch in windows os, some additional tools will be needed.
 We are highly recommend that you install the `Visual C++ Build Tools <http://landinghub.visualstudio.com/visual-cpp-build-tools>`_ before the package installing.
 Also, through the installation screen of Visual C++ Build Tools, you need to check-on the **windows 8.1 / 10 SDK options**.
@@ -24,11 +27,24 @@ and comes with any Python installation. On Ubuntu and Fedora Linux,
 use the system package manager to install the ``python3-pip`` package.
 We suggest you `upgrade pip <https://pip.pypa.io/en/stable/installing/>`_ before using it to install other programs.
 
+Before install XenonPy, You need to install the peerdependencies PyTorch, pymatgen and rdkit_ first.
+The easiest way to install the 3 packages together is to use conda_.
+The following official tutorials will leading you to a successful installation.
+
+PyTorch: https://pytorch.org/get-started/locally/
+:raw-html:`<br />`
+pymatgen: http://pymatgen.org/index.html#getting-pymatgen
+:raw-html:`<br />`
+rdkit: https://www.rdkit.org/docs/Install.html
+
+When you done, the remaining is very simple.
+The following command install XenonPy in your default python environment.
+
 .. code-block:: bash
 
     $ pip install xenonpy
 
-or use the command to install at a user-specified directory:
+Users can use this command to install at a user-specified directory:
 
 .. code-block:: bash
 
@@ -44,6 +60,9 @@ The pre-installed version could be renewed to the latest stable release as
 Use docker
 ==========
 
+.. image:: _static/docker.png
+
+
 Docker is a tool designed to make it easier to create, deploy, and run applications by using containers.
 Containers allow a developer to package up an application with all of the parts it needs, such as libraries and other dependencies, and ship it all out as one package.
 
@@ -53,11 +72,11 @@ Follow the `official documents <https://docs.docker.com/install/>`_ to insstall 
 
 .. code-block:: bash
 
-    $ docker run --rm -it -v <path/to/your/work_space>:/root -p 8888:8888 yoshidalab/xenonpy
+    $ docker run --rm -it -v $HOME/.xenonpy:/root/.xenonpy -v <path/to/your/work_space>:/root -p 8888:8888 yoshidalab/xenonpy
 
 
 Install in development mode
------------------------------
+===========================
 
 To use the latest development version distributed at `Github repository`_,
 just clone the repository to create a local copy:
@@ -99,3 +118,4 @@ Please provide fully detailed information (system specification, Python version,
 .. _issues: https://github.com/yoshida-lab/XenonPy/issues
 .. _Gitter: https://gitter.im/yoshida-lab/XenonPy
 .. _PyTorch: http://pytorch.org/
+.. _rdkit: https://www.rdkit.org/

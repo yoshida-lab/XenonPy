@@ -65,15 +65,16 @@ Use docker
 
 Docker is a tool designed to make it easier to create, deploy, and run applications by using containers.
 Containers allow a developer to package up an application with all of the parts it needs, such as libraries and other dependencies, and ship it all out as one package.
+We provide the `official docker images`_ via the `Docker hub <https://hub.docker.com>`_.
 
-We provided the `official docker images`_ on `Docker hub <https://hub.docker.com>`_.
-After you installed the docker on your machine, use XenonPy with jupyterlab is just a one line command.
-Follow the `official documents <https://docs.docker.com/install/>`_ to insstall docker CE on your machine.
+If you don't have installed Docker yet, Follow the `official install tutorial <https://docs.docker.com/install/>`_ to install docker CE on your machine.
+Once your docker installation is done, use the following command to boot up XenonPy with jupyterlab_.
 
 .. code-block:: bash
 
     $ docker run --rm -it -v $HOME/.xenonpy:/root/.xenonpy -v <path/to/your/work_space>:/root -p 8888:8888 yoshidalab/xenonpy
 
+Then open http://localhost:8888 from your favourite browser.
 
 Install in development mode
 ===========================
@@ -119,3 +120,4 @@ Please provide fully detailed information (system specification, Python version,
 .. _Gitter: https://gitter.im/yoshida-lab/XenonPy
 .. _PyTorch: http://pytorch.org/
 .. _rdkit: https://www.rdkit.org/
+.. _jupyterlab: https://jupyterlab.readthedocs.io/en/stable/

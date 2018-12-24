@@ -14,8 +14,6 @@ dependencies:
   - scikit-learn
   - scipy
   - pytorch-cpu
-  - sphinx
-  - sphinx_rtd_theme
   - pip:
       - ruamel.yaml
       - pymatgen

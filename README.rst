@@ -10,7 +10,7 @@ What is XenonPy project
 .. image:: https://travis-ci.org/yoshida-lab/XenonPy.svg?branch=master
     :alt: Build Status
     :target: https://travis-ci.org/yoshida-lab/XenonPy
-    
+
 .. image:: https://codecov.io/gh/yoshida-lab/XenonPy/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/yoshida-lab/XenonPy
 
@@ -22,24 +22,21 @@ What is XenonPy project
     :alt: Python Versions
     :target: https://pypi.org/project/xenonpy/
 
-**XenonPy** is a Python library focus on material exploration. We use cutting-edge machine learning techniques to to accelerate your business.
+**XenonPy** is a Python library that implements a comprehensive set of machine learning tools
+for materials informatics. Its functionalities partially depend on PyTorch and R.
+The current release (v0.2.0, 2018/12/25) is just a prototype version, which provides some limited modules:
 
-The main purpose of this project is to build a complex system to calculate various chem/phys descriptors for machine learning then extend them to explore material space.
-To reach this target, system also provide model training routines and try to re-use pre-trained model by various deep learning methods such as **transfer learning**.
-
-This project has just started and a long way to run. The final goal of this project is to build a **All-In-One** virtual environment for material development come with:
-
-* **Massive dataset and Pre-trained models out-of-box**
-* **Various descriptor calculation methods**
-* **Model training and re-use**
-* **Combined with deep learning methods seamless**
-* **Visualization tools for analysis and publish ready**
+* Interface to public materials database
+* Library of materials descriptors (compositional/structural descriptors)
+* Pretrained model library **Xenon.MDL** (v0.1.0b, 2018/12/25: more than 10,000 modles in 35 properties of small molecules, polymers, and inorganic compounds)
+* Machine learning tools.
+* Transfer learning using the pretrained models in Xenon.MDL
 
 XenonPy inspired by matminer: https://hackingmaterials.github.io/matminer/.
 
 XenonPy is a open source project https://github.com/yoshida-lab/XenonPy.
 
-See our documents for details: http://xenonpy.readthedocs.io 
+See our documents for details: http://xenonpy.readthedocs.io
 
 
 Contribution guidelines
@@ -62,23 +59,23 @@ When contribute your codes, please do the following
 Changes
 =======
 
-.. include: docs/source/CHANGES.rst
+.. include: docs/source/changes.rst
 
 Contact Us
-========
+==========
 
 * With issues_
 * With Gitter_
 
 
-
 Copyright and license
 =====================
 
-Code and documentation © 2017 TsumiNa.
-Released under the BSD-3 license.
+©Copyright 2018 The XenonPy task force, all rights reserved.
+Released under the `BSD-3 license`_.
 
 .. _issues: https://github.com/yoshida-lab/XenonPy/issues
+.. _BSD-3 license: https://opensource.org/licenses/BSD-3-Clause
 .. _Gitter: https://gitter.im/yoshida-lab/XenonPy
 .. _Numpy style: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 .. _Pylint: https://pylint.readthedocs.io/

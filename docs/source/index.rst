@@ -14,7 +14,7 @@ What is XenonPy project
 .. image:: https://travis-ci.org/yoshida-lab/XenonPy.svg?branch=master
     :alt: Build Status
     :target: https://travis-ci.org/yoshida-lab/XenonPy
-    
+
 .. image:: https://codecov.io/gh/yoshida-lab/XenonPy/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/yoshida-lab/XenonPy
 
@@ -36,25 +36,34 @@ The current release (v0.2.0, 2018/12/25) is just a prototype version, which prov
 
 * Interface to public materials database
 * Library of materials descriptors (compositional/structural descriptors)
-* Pretrained model library **Xenon.MDL** (v0.1.0b, 2018/12/25: more than 10,000 modles in 35 properties of small molecules, polymers, and inorganic compounds)
+* Pretrained model library **XenonPy.MDL** (v0.1.0b, 2018/12/25: more than 10,000 modles in 35 properties of small molecules, polymers, and inorganic compounds)
 * Machine learning tools.
-* Transfer learning using the pretrained models in Xenon.MDL
+* Transfer learning using the pretrained models in XenonPy.MDL
 
 
 .. image:: _static/xenonpy.png
 
 
-.. figure:: _static/heatmap.jpg
-    
-     Heatmap of 290 compositional descriptors of 69,640 compounds in Materials Project(upper: volume Å\ :sup:`3`\ , lower:  density g/cm\ :sup:`3`\  ).
 
-.. figure:: _static/nn.png
+Features
+========
 
-     Prediction with NN. 290 compositional descriptors of 69,640 compounds was used for traine and test.
+XenonPy has a rich set of tools for apply materials informatics rapidly.
+The descriptor generator class can calculate several types of numeric descriptors from ``compositional``, ``structure``.
+By using XenonPy built in visualization function. The relationships between descriptors and target properties can easily be shown in a heatmap.
 
-XenonPy is a `open source project <https://github.com/yoshida-lab/XenonPy>`_ inspired by `matminer <https://hackingmaterials.github.io/matminer>`_.
-This project still under hard working. We appreciate any feedback.
-Code contributions are welcomed. See :doc:`contribution` for details.
+We have a great confidence in transfer learning. To facilitate the widespread use of transfer learning,
+we have developed a comprehensive library of pre-trained models, called **XenonPy.MDL**.
+This library provides simple API to enable users to fetch the models via a http request.
+To play with pre-trained models, some useful functions are also provided.
+
+See :doc:`features` for details
+
+Reference
+=========
+
+Yamada, H., Liu, C., Wu, S., Koyama, Y., Ju, S., Shiomi, J., Morikawa, J., Yoshida, R.
+*Transfer learning: a key driver of accelerating materials discovery with machine learning*, in preparation.
 
 
 
@@ -63,14 +72,25 @@ Sample
 
 Some samples available here: https://github.com/yoshida-lab/XenonPy/tree/master/samples
 
+
+
+Contributing
+============
+XenonPy is a `open source project <https://github.com/yoshida-lab/XenonPy>`_ inspired by `matminer <https://hackingmaterials.github.io/matminer>`_.
+This project still under hard working. We appreciate any feedback.
+Code contributions are welcomed. See :doc:`contribution` for details.
+
+
 .. _user-doc:
 .. toctree::
     :maxdepth: 2
     :caption: User Documentation
 
     installation
+    features
     dataset
     contribution
+    changes
     contact
 
 Indices and tables
@@ -88,4 +108,3 @@ Released under the `BSD-3 license`_.
 .. _PyTorch: http://pytorch.org/
 .. _BSD-3 license: https://opensource.org/licenses/BSD-3-Clause
 .. _Xenon: https://en.wikipedia.org/wiki/Xenon
-.. [paper]: Yamada, H., Liu, C., Wu, S., Koyama, Y., Ju, S., Shiomi, J., Morikawa, J., Yoshida, R. Transfer learning: a key driver of accelerating materials discovery with machine learning, in preparation.

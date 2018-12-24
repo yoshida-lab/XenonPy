@@ -2,7 +2,7 @@ name: xepy36
 channels:
   - defaults
   - pytorch
-  - rdkit
+  - conda-forge
   - matsci
 dependencies:
   - python=3.6

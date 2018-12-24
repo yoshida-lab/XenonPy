@@ -14,7 +14,6 @@ dependencies:
   - scikit-learn
   - scipy
   - pytorch-cpu
-  - pymatgen
   - sphinx
   - sphinx_rtd_theme
   - pip:

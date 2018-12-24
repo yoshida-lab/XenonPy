@@ -1,5 +1,5 @@
 conda:
-  file: devtools/environment_py36.yml
+  file: devtools/readthedocs.yml
 
 build:
   image: latest

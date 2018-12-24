@@ -21,7 +21,7 @@ class APFPFeature(BaseFeaturizer):
         Parameters
         ----------
         nBits: int
-           bit length 
+           Bit length
         """
         super().__init__(n_jobs=n_jobs)
         self.nBits = nBits
@@ -131,6 +131,7 @@ class Desc200Feature(BaseFeaturizer):
     def __init__(self, n_jobs=-1):
         """
         All descriptors in R (length = 200) [Question: maybe include NaN]
+        
         """
         #self.arg = arg # arg[0] = radius, arg[1] = bit length
         super().__init__(n_jobs=n_jobs)
@@ -152,16 +153,13 @@ class RdkitFingerprint(BaseDescriptor):
 
     def __init__(self, n_jobs=-1, *, radius=3, nBits=2048, useFeatures=True):
         """
+
         Parameters
         ----------
-        methods: str
-            Calculation method(s) which to be used must in the :attr:`methods` list.
-        elemental: panda.DataFrame
-            Elements information in `pandas.DataFrame` object. indexed by element symbol.
-        include: list
-            Column's names of elemental info that should be used in descriptor calculation.
-        exclude: list
-            Column's names of elemental info that should not be used in descriptor calculation.
+        radius: int
+        nBits: int
+           bit length.
+        useFeatures: bool
         """
 
         super().__init__()

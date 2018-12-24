@@ -10,7 +10,7 @@ WORKDIR /etc
 RUN echo "backend : Agg" >> matplotlibrc
 
 RUN /opt/conda/bin/conda install -y jupyter scikit-learn pytest pytest-cov matplotlib seaborn pandas &&\
-    /opt/conda/bin/conda install -y -c rdkit rdkit &&\
+    /opt/conda/bin/conda install -y -c conda-forge rdkit &&\
     /opt/conda/bin/conda clean -ya &&\
     pip install pymatgen ruamel.yaml jupyterlab pybtex openpyxl plotly matminer
 

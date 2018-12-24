@@ -248,7 +248,6 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
     """
 
     _n_jobs = 1
-    """sfesefe"""
 
     def __init__(self):
         self.__featurizers__ = defaultdict(list)

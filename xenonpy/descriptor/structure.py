@@ -98,6 +98,7 @@ class OrbitalFieldMatrix(BaseDescriptor):
     matrices for each atom the center atom coordinates with multiplied by a
     distance function (In this case, 1/r times the weight of the coordinating
     atom in the Voronoi.
+    
     """
 
     def __init__(self, n_jobs=-1):
@@ -106,7 +107,11 @@ class OrbitalFieldMatrix(BaseDescriptor):
     def get_element_representation(self, name):
         """
         generate one-hot representation for a element, e.g, si = [0.0, 1.0, 0.0, 0.0, ...]
-        :param name: element symbol
+
+        Parameters
+        ----------
+        name: string
+            element symbol
         """
         element = pm.Element(name)
         general_element_electronic = {
@@ -166,8 +171,7 @@ class OrbitalFieldMatrix(BaseDescriptor):
 
     def struct2ofm(self, struct, is_ofm1=False, is_including_d=True):
         """
-        Generate OFM descriptor from a poscar file
-        :param input_dict = {"filename":path_to_poscar, "is_ofm1":True, is_including_d:True}
+        Generate OFM descriptor
         """
 
         atoms = np.array([site.species_string for site in struct])

@@ -5,11 +5,9 @@ channels:
   - rdkit
 dependencies:
   - python=3.6
-  - numpy
   - pandas
   - seaborn
   - requests
-  - matplotlib
   - rdkit
   - scikit-learn
   - scipy

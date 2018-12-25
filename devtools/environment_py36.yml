@@ -2,15 +2,12 @@ name: xepy36
 channels:
   - defaults
   - pytorch
-  - conda-forge
-  - matsci
+  - rdkit
 dependencies:
   - python=3.6
-  - numpy
   - pandas
   - seaborn
   - requests
-  - matplotlib
   - rdkit
   - plotly
   - scikit-learn
@@ -18,8 +15,10 @@ dependencies:
   - pytorch
   - pytest
   - pytest-cov
-  - pymatgen
   - pylint
   - sphinx
   - sphinx_rtd_theme
   - jupyter
+  - pip:
+      - ruamel.yaml
+      - pymatgen

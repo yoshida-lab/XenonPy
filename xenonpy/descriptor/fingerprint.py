@@ -1,5 +1,3 @@
-import pickle as pk
-
 import numpy as np
 import pandas as pd
 from rdkit import Chem
@@ -43,7 +41,7 @@ class TTFPFeature(BaseFeaturizer):
         Parameters
         ----------
         nBits: int
-           bit length 
+           bit length
 
         """
         super().__init__(n_jobs=n_jobs)
@@ -131,7 +129,7 @@ class Desc200Feature(BaseFeaturizer):
     def __init__(self, n_jobs=-1):
         """
         All descriptors in R (length = 200) [Question: maybe include NaN]
-        
+
         """
         #self.arg = arg # arg[0] = radius, arg[1] = bit length
         super().__init__(n_jobs=n_jobs)

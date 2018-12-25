@@ -3,19 +3,16 @@ channels:
   - defaults
   - pytorch
   - conda-forge
-  - matsci
 dependencies:
   - python=3.5
-  - numpy
   - pandas
   - seaborn
   - requests
-  - matplotlib
   - rdkit
   - plotly
   - scikit-learn
   - scipy
-  - pytorch
+  - pytorch-cpu
   - pytest
   - pytest-cov
   - pip:

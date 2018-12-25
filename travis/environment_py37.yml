@@ -2,19 +2,17 @@ name: xepy37
 channels:
   - defaults
   - pytorch
-  - conda-forge
+  - rdkit
 dependencies:
   - python=3.7
-  - numpy
   - pandas
   - seaborn
   - requests
-  - matplotlib
   - rdkit
   - plotly
   - scikit-learn
   - scipy
-  - pytorch
+  - pytorch-cpu
   - pytest
   - pytest-cov
   - pip:

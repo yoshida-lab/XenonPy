@@ -15,6 +15,7 @@ dependencies:
   - pytorch
   - pytest
   - pytest-cov
+  - pylint
   - pip:
       - ruamel.yaml
       - pymatgen

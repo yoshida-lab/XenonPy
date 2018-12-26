@@ -11,7 +11,7 @@ dependencies:
   - plotly
   - scikit-learn
   - scipy
-  - pytorch-cpu
+  - pytorch
   - pytest
   - pytest-cov
   - pip:

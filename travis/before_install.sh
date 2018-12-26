@@ -28,18 +28,38 @@ conda update -q conda
 conda info -a
 
 # Create conda env from environment files
-case "${PYENV}" in
-    py35)
-        conda env create -f travis/environment_py35.yml
-        source activate xepy35
+case "${TRAVIS_OS_NAME}" in
+    osx)
+        case "${PYENV}" in
+            py35)
+                conda env create -f travis/osx/py35.yml
+                source activate xepy35
+                ;;
+            py36)
+                conda env create -f travis/osx/py36.yml
+                source activate xepy36
+                ;;
+            py37)
+                conda env create -f travis/osx/py37.yml
+                source activate xepy37
+                ;;
+        esac
         ;;
-    py36)
-        conda env create -f travis/environment_py36.yml
-        source activate xepy36
-        ;;
-    py37)
-        conda env create -f travis/environment_py37.yml
-        source activate xepy37
+    linux)
+        case "${PYENV}" in
+            py35)
+                conda env create -f travis/linux/py35.yml
+                source activate xepy35
+                ;;
+            py36)
+                conda env create -f travis/linux/py36.yml
+                source activate xepy36
+                ;;
+            py37)
+                conda env create -f travis/linux/py37.yml
+                source activate xepy37
+                ;;
+        esac
         ;;
 esac
 
@@ -54,5 +74,6 @@ python -c "import pandas; print('pandas %s' % pandas.__version__)"
 python -c "import torch; print('pytorch %s' % torch.__version__)"
 python -c "import rdkit; print('rdkit %s' % rdkit.__version__)"
 python -c "import pymatgen; print('pymatgen %s' % pymatgen.__version__)"
+python -c "from rdkit import Chem; print(Chem)"
 
 #python setup.py install

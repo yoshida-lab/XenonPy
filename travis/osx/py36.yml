@@ -1,10 +1,10 @@
-name: xepy35
+name: xepy36
 channels:
   - defaults
   - pytorch
-  - conda-forge
+  - rdkit
 dependencies:
-  - python=3.5
+  - python=3.6
   - pandas
   - seaborn
   - requests
@@ -12,7 +12,7 @@ dependencies:
   - plotly
   - scikit-learn
   - scipy
-  - pytorch-cpu
+  - pytorch
   - pytest
   - pytest-cov
   - pip:

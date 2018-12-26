@@ -1,10 +1,10 @@
-name: xepy37
+name: xepy36
 channels:
   - defaults
   - pytorch
   - rdkit
 dependencies:
-  - python=3.7
+  - python=3.6
   - pandas
   - seaborn
   - requests
@@ -12,7 +12,7 @@ dependencies:
   - plotly
   - scikit-learn
   - scipy
-  - pytorch-nightly
+  - pytorch
   - pytest
   - pytest-cov
   - pylint
@@ -22,3 +22,5 @@ dependencies:
   - pip:
       - ruamel.yaml
       - pymatgen
+      - jupyterlab
+      - yapf

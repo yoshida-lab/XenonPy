@@ -1,0 +1,20 @@
+name: xepy35
+channels:
+  - defaults
+  - pytorch
+  - rdkit
+dependencies:
+  - python=3.5
+  - pandas
+  - seaborn
+  - requests
+  - rdkit
+  - plotly
+  - scikit-learn
+  - scipy
+  - pytorch
+  - pytest
+  - pytest-cov
+  - pip:
+      - ruamel.yaml
+      - pymatgen

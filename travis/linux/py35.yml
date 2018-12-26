@@ -1,10 +1,10 @@
-name: xepy37
+name: xepy35
 channels:
   - defaults
   - pytorch
   - rdkit
 dependencies:
-  - python=3.7
+  - python=3.5
   - pandas
   - seaborn
   - requests

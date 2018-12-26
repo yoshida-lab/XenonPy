@@ -1,10 +1,9 @@
-name: xepy35
+name: xepy37
 channels:
-  - defaults
   - pytorch
   - conda-forge
 dependencies:
-  - python=3.5
+  - python=3.7
   - pandas
   - seaborn
   - requests
@@ -22,3 +21,5 @@ dependencies:
   - pip:
       - ruamel.yaml
       - pymatgen
+      - jupyterlab
+      - yapf

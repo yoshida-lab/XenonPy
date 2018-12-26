@@ -1,0 +1,19 @@
+name: xepy37
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - python=3.7
+  - pandas
+  - seaborn
+  - requests
+  - rdkit
+  - plotly
+  - scikit-learn
+  - scipy
+  - pytorch-cpu
+  - pytest
+  - pytest-cov
+  - pip:
+      - ruamel.yaml
+      - pymatgen

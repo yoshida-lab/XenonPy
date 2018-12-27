@@ -2,15 +2,16 @@
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
-from operator import itemgetter
 import re
-import pymatgen as pm
-import numpy as np
-from pymatgen.analysis.local_env import VoronoiNN
+
 import numpy as np
 import pandas as pd
+import pymatgen as pm
+from pymatgen.analysis.local_env import VoronoiNN
 from sklearn.base import BaseEstimator, TransformerMixin
+
 from .base import BaseDescriptor
+
 
 # from ..pipeline import combinator
 
@@ -103,6 +104,7 @@ class OrbitalFieldMatrix(BaseDescriptor):
 
     def __init__(self, n_jobs=-1):
         super().__init__()
+        self._n_jobs = n_jobs
 
     def get_element_representation(self, name):
         """
@@ -190,7 +192,7 @@ class OrbitalFieldMatrix(BaseDescriptor):
                 w = nn['weight']
                 site_x_label = site_x.species_string
                 neigh_vector = self.get_element_representation(site_x_label)
-                d = np.sqrt(np.sum((site.coords - site_x.coords)**2))
+                d = np.sqrt(np.sum((site.coords - site_x.coords) ** 2))
                 if is_including_d:
                     env_vector += neigh_vector * w / d
                 else:

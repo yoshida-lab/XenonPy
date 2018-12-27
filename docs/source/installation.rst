@@ -13,7 +13,7 @@ See this `this link <http://pymatgen.org/#py3k-only-with-effect-from-2019-1-1>`_
 
 Also note that XenonPy use PyTorch_ to accelerate the neural network model training.
 If you instal XenonPy with PyTorch in windows os, some additional tools will be needed.
-We are highly recommend that you install the `Visual C++ Build Tools <http://landinghub.visualstudio.com/visual-cpp-build-tools>`_ before the package installing.
+We are highly recommended that you install the `Visual C++ Build Tools <http://landinghub.visualstudio.com/visual-cpp-build-tools>`_ before the package installing.
 Also, through the installation screen of Visual C++ Build Tools, you need to check-on the **windows 8.1 / 10 SDK options**.
 
 
@@ -29,7 +29,7 @@ We suggest you `upgrade pip <https://pip.pypa.io/en/stable/installing/>`_ before
 
 Before install XenonPy, You need to install the peerdependencies PyTorch, pymatgen and rdkit_ first.
 The easiest way to install the 3 packages together is to use conda_.
-The following official tutorials will leading you to a successful installation.
+The following official tutorials will be leading you to a successful installation.
 
 PyTorch: https://pytorch.org/get-started/locally/
 :raw-html:`<br />`

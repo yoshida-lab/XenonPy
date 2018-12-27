@@ -10,11 +10,11 @@ export MPLBACKEN='Agg'
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # Download miniconda for osx
-    wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh
+    wget https://repo.continuum.io/miniconda/Miniconda3-4.5.11-MacOSX-x86_64.sh -O miniconda.sh
 
 else
     # Download miniconda for Linux
-    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+    wget https://repo.continuum.io/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh -O miniconda.sh
 fi
 
 # Install miniconda
@@ -28,29 +28,52 @@ conda update -q conda
 conda info -a
 
 # Create conda env from environment files
-case "${PYENV}" in
-    py35)
-        conda env create -f travis/environment_py35.yml
-        source activate xepy35
+case "${TRAVIS_OS_NAME}" in
+    osx)
+        case "${PYENV}" in
+            py35)
+                conda env create -f travis/osx/py35.yml
+                source activate xepy35
+                ;;
+            py36)
+                conda env create -f travis/osx/py36.yml
+                source activate xepy36
+                ;;
+            py37)
+                conda env create -f travis/osx/py37.yml
+                source activate xepy37
+                ;;
+        esac
         ;;
-    py36)
-        conda env create -f travis/environment_py36.yml
-        source activate xepy36
-        ;;
-    py37)
-        conda env create -f travis/environment_py37.yml
-        source activate xepy37
+    linux)
+        case "${PYENV}" in
+            py35)
+                conda env create -f travis/linux/py35.yml
+                source activate xepy35
+                ;;
+            py36)
+                conda env create -f travis/linux/py36.yml
+                source activate xepy36
+                ;;
+            py37)
+                conda env create -f travis/linux/py37.yml
+                source activate xepy37
+                ;;
+        esac
         ;;
 esac
 
 conda info --envs
-conda install pytest pytest-cov pylint
 pip install codecov
+conda list
 
 python --version
 python -c "import numpy; print('numpy %s' % numpy.__version__)"
 python -c "import scipy; print('scipy %s' % scipy.__version__)"
 python -c "import pandas; print('pandas %s' % pandas.__version__)"
 python -c "import torch; print('pytorch %s' % torch.__version__)"
+python -c "import pymatgen; print('pymatgen %s' % pymatgen.__version__)"
+python -c "import rdkit; print('rdkit %s' % rdkit.__version__)"
+python -c "from rdkit import Chem; print(Chem)"
 
 #python setup.py install

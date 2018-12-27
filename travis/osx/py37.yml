@@ -1,17 +1,20 @@
-name: readthedosc
+name: xepy37
 channels:
-  - defaults
   - pytorch
-  - rdkit
+  - conda-forge
 dependencies:
-  - python=3.6
+  - python=3.7
   - pandas
   - seaborn
   - requests
   - rdkit
+  - plotly
   - scikit-learn
   - scipy
-  - pytorch-cpu
+  - pytorch
+  - pytest
+  - pytest-cov
+  - pylint
   - pip:
       - ruamel.yaml
       - pymatgen

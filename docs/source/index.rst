@@ -36,7 +36,7 @@ The current release (v0.2.0, 2018/12/25) is just a prototype version, which prov
 
 * Interface to public materials database
 * Library of materials descriptors (compositional/structural descriptors)
-* Pretrained model library **XenonPy.MDL** (v0.1.0b, 2018/12/25: more than 10,000 modles in 35 properties of small molecules, polymers, and inorganic compounds)
+* Pretrained model library **XenonPy.MDL** (v0.1.0b, 2018/12/25: more than 10,000 models in 35 properties of small molecules, polymers, and inorganic compounds)
 * Machine learning tools.
 * Transfer learning using the pretrained models in XenonPy.MDL
 
@@ -76,7 +76,7 @@ Some samples available here: https://github.com/yoshida-lab/XenonPy/tree/master/
 
 Contributing
 ============
-XenonPy is a `open source project <https://github.com/yoshida-lab/XenonPy>`_ inspired by `matminer <https://hackingmaterials.github.io/matminer>`_.
+XenonPy is an `open source project <https://github.com/yoshida-lab/XenonPy>`_ inspired by `matminer <https://hackingmaterials.github.io/matminer>`_.
 This project still under hard working. We appreciate any feedback.
 Code contributions are welcomed. See :doc:`contribution` for details.
 

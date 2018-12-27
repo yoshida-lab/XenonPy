@@ -1,25 +1,19 @@
-name: xepy36
+name: xepy37
 channels:
-  - defaults
   - pytorch
   - conda-forge
-  - matsci
 dependencies:
-  - python=3.6
-  - numpy
+  - python=3.7
   - pandas
   - seaborn
   - requests
-  - matplotlib
   - rdkit
   - plotly
   - scikit-learn
   - scipy
-  - pytorch
+  - pytorch-cpu
   - pytest
   - pytest-cov
-  - pymatgen
-  - pylint
-  - sphinx
-  - sphinx_rtd_theme
-  - jupyter
+  - pip:
+      - ruamel.yaml
+      - pymatgen

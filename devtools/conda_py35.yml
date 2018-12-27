@@ -1,15 +1,13 @@
-name: xepy37
+name: xepy35
 channels:
   - defaults
   - pytorch
-  - conda-forge
+  - rdkit
 dependencies:
-  - python=3.7
-  - numpy
+  - python=3.5
   - pandas
   - seaborn
   - requests
-  - matplotlib
   - rdkit
   - plotly
   - scikit-learn
@@ -17,6 +15,12 @@ dependencies:
   - pytorch
   - pytest
   - pytest-cov
+  - pylint
+  - sphinx
+  - sphinx_rtd_theme
+  - jupyter
   - pip:
       - ruamel.yaml
       - pymatgen
+      - jupyterlab
+      - yapf

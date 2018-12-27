@@ -1,4 +1,4 @@
-name: readthedosc
+name: xepy36
 channels:
   - defaults
   - pytorch
@@ -9,9 +9,13 @@ dependencies:
   - seaborn
   - requests
   - rdkit
+  - plotly
   - scikit-learn
   - scipy
-  - pytorch-cpu
+  - pytorch
+  - pytest
+  - pytest-cov
+  - pylint
   - pip:
       - ruamel.yaml
       - pymatgen

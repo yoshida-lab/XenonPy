@@ -19,7 +19,7 @@ class APFPFeature(BaseFeaturizer):
         Parameters
         ----------
         nBits: int
-           Bit length
+           Fixed bit length based on folding.
         """
         super().__init__(n_jobs=n_jobs)
         self.nBits = nBits

@@ -5,24 +5,23 @@ name: 'xenonpy'
 version: '0.1.9'
 db_version: '0.1.2'
 release: ''
-short_description: "material descriptor library"
-license: "BSD (3-clause)"
+short_description: 'material descriptor library'
+license: 'BSD (3-clause)'
 author:
-  - "TsumiNa"
-author_email: "liu.chang.1865@gmail.com"
+  - 'TsumiNa'
+author_email: 'liu.chang.1865@gmail.com'
 maintainer:
-  - "TsumiNa"
-maintainer_email: "liu.chang.1865@gmail.com"
-github_username: "yoshida-lab"
+  - 'TsumiNa'
+maintainer_email: 'liu.chang.1865@gmail.com'
+github_username: 'yoshida-lab'
 
 # sha256 of preset dataset
-elements: 'c9b297e7f74d444a363b786fc451c6e81cf7e5f53a521dfa9824ec6b42d37b52',
-elements_completed: '883c4e766b2cdb62c0bf40a4891528a93c8664c5213431a86bb83af453e47f2d',
-mp_inorganic: '7349d7a8d9ec92e8691e9c456d91539e1745529ab00b630ae48ff97608137b08',
-mp_structure: 'bfaf7ccf960e294aaff918ff4bd988e1b97add570d49f5ba755646ba56ad3d08',
-oqmd_inorganic: 'aaa3228c34c1ef952149685ae511f8f39ca7f7ceabebf2e33c998f7017a343f3',
-oqmd_structure: '731f07c2638afbd8e9fbed51493bc2d79482226b005e8ec64ad1f075ac736218',
-
+elements: 'c9b297e7f74d444a363b786fc451c6e81cf7e5f53a521dfa9824ec6b42d37b52'
+elements_completed: '883c4e766b2cdb62c0bf40a4891528a93c8664c5213431a86bb83af453e47f2d'
+mp_inorganic: '7349d7a8d9ec92e8691e9c456d91539e1745529ab00b630ae48ff97608137b08'
+mp_structure: 'bfaf7ccf960e294aaff918ff4bd988e1b97add570d49f5ba755646ba56ad3d08'
+oqmd_inorganic: 'aaa3228c34c1ef952149685ae511f8f39ca7f7ceabebf2e33c998f7017a343f3'
+oqmd_structure: '731f07c2638afbd8e9fbed51493bc2d79482226b005e8ec64ad1f075ac736218'
 
 #################################
 # user custom
@@ -33,4 +32,3 @@ model_extern_backend: 'sklearn'
 # path
 userdata: '~/.xenonpy/userdata'
 usermodel: '~/.xenonpy/usermodel'
-

@@ -513,6 +513,34 @@ class Preset(Singleton):
         return self._get_prop('mp_structure')
 
     @property
+    def oqmd_inorganic(self):
+        """
+        Inorganic properties summarized from `OQMD`_.
+
+        .. _Materials Projects: http://www.oqmd.org
+
+        Returns
+        -------
+        DataFrame:
+            Properties in pd.DataFrame
+        """
+        return self._get_prop('oqmd_inorganic')
+
+    @property
+    def oqmd_structure(self):
+        """
+        Inorganic structures summarized from `OQMD`_.
+
+        .. _Materials Projects: http://www.oqmd.org
+
+        Returns
+        -------
+        DataFrame:
+            Structures as dict that can be loaded by pymatgen.
+        """
+        return self._get_prop('oqmd_structure')
+
+    @property
     def elements_completed(self):
         """
         Completed element properties. [MICE]_ imputation used

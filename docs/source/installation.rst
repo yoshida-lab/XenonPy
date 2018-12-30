@@ -72,7 +72,7 @@ Once your docker installation is done, use the following command to boot up Xeno
 
 .. code-block:: bash
 
-    $ docker run --rm -it -v $HOME/.xenonpy:/root/.xenonpy -v <path/to/your/work_space>:/root -p 8888:8888 yoshidalab/xenonpy
+    $ docker run --rm -it -v $HOME/.xenonpy:/home/user/.xenonpy -v <path/to/your/work_space>:/workspace -p 8888:8888 yoshidalab/xenonpy
 
 Then open http://localhost:8888 from your favourite browser.
 
@@ -93,11 +93,11 @@ under the cloned folder, run the following to install XenonPy in development mod
     $ cd XenonPy
     $ pip install -e .
 
-To update XenonPy, use ``git fetch $$ git pull`` 
+To update XenonPy, use ``git fetch && git pull`` 
 
 .. code-block:: bash
 
-    $ git fetch $$ git pull
+    $ git fetch && git pull
 
 
 

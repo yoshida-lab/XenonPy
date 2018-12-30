@@ -74,7 +74,7 @@ class MACCS(BaseFeaturizer):
         return ['maccs:' + str(i) for i in range(167)]
 
 
-class MorganFingerprintiWithFeature(BaseFeaturizer):
+class MorganFingerprintWithFeature(BaseFeaturizer):
 
     def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048):
         """
@@ -175,5 +175,5 @@ class Fingerprints(BaseDescriptor):
         self.mol = TopologicalTorsionFingerprint(n_jobs, n_bits=n_bits)
         self.mol = MACCS(n_jobs)
         self.mol = MorganFingerprint(n_jobs, radius=radius, n_bits=n_bits)
-        self.mol = MorganFingerprint(n_jobs, radius=radius, n_bits=n_bits)
+        self.mol = MorganFingerprintWithFeature(n_jobs, radius=radius, n_bits=n_bits)
         # self.rdkit_desc = Desc200Feature(n_jobs)

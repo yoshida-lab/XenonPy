@@ -11,6 +11,11 @@ class AtomPairFingerprint(BaseFeaturizer):
     def __init__(self, n_jobs=-1, *, n_bits=2048):
         """
         Atom Pair fingerprints
+            Returns the atom-pair fingerprint for a molecule.The algorithm used is described here: 
+            R.E. Carhart, D.H. Smith, R. Venkataraghavan; 
+            "Atom Pairs as Molecular Features in Structure-Activity Studies: Definition and Applications" 
+            JCICS 25, 64-73 (1985).
+            This is currently just in binary bits with fixed length after folding.
 
         Parameters
         ----------
@@ -33,11 +38,13 @@ class TopologicalTorsionFingerprint(BaseFeaturizer):
     def __init__(self, n_jobs=-1, *, n_bits=2048):
         """
         Topological Torsion fingerprints
+            Returns the topological-torsion fingerprint for a molecule.
+            This is currently just in binary bits with fixed length after folding.
 
         Parameters
         ----------
         n_bits: int
-           bit length
+           Fixed bit length based on folding.
 
         """
         super().__init__(n_jobs=n_jobs)
@@ -55,7 +62,7 @@ class MACCS(BaseFeaturizer):
 
     def __init__(self, n_jobs=-1):
         """
-        MACCS Keys, length fixed at 167
+        The MACCS keys for a molecule. The result is a 167-bit vector. There are 166 public keys, but to maintain consistency with other software packages they are numbered from 1.
         """
         super().__init__(n_jobs=n_jobs)
 
@@ -72,12 +79,14 @@ class MorganFingerprintiWithFeature(BaseFeaturizer):
     def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048):
         """
         Morgan (Circular) fingerprints + feature-based (FCFP)
+            The algorithm used is described in the paper Rogers, D. & Hahn, M. Extended-Connectivity Fingerprints. JCIM 50:742-54 (2010)
 
         Parameters
         ----------
         radius: int
+            The radius parameter in the Morgan fingerprints, which is roughly half of the diameter parameter in FCFP, i.e., radius=2 is roughly equivalent to FCFP4.
         n_bits: int
-           bit length.
+            Fixed bit length based on folding.
         useFeatures: bool
         """
         super().__init__(n_jobs=n_jobs)
@@ -100,11 +109,14 @@ class MorganFingerprint(BaseFeaturizer):
     def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048):
         """
         Morgan (Circular) fingerprints (ECFP)
+            The algorithm used is described in the paper Rogers, D. & Hahn, M. Extended-Connectivity Fingerprints. JCIM 50:742-54 (2010)
 
         Parameters
         ----------
+        radius: int
+            The radius parameter in the Morgan fingerprints, which is roughly half of the diameter parameter in ECFP, i.e., radius=2 is roughly equivalent to ECFP4.
         n_bits: int
-           bit length.
+            Fixed bit length based on folding.
         """
         super().__init__(n_jobs=n_jobs)
         self.radius = radius
@@ -123,8 +135,8 @@ class MolecularDescriptor(BaseFeaturizer):
 
     def __init__(self, n_jobs=-1):
         """
-        All descriptors in R (length = 200) [Question: maybe include NaN]
-
+        All descriptors in RDKit (length = 200) [may include NaN]
+            see https://www.rdkit.org/docs/GettingStartedInPython.html#list-of-available-descriptors for the full list
         """
         # self.arg = arg # arg[0] = radius, arg[1] = bit length
         super().__init__(n_jobs=n_jobs)
@@ -141,7 +153,7 @@ class MolecularDescriptor(BaseFeaturizer):
 
 class Fingerprints(BaseDescriptor):
     """
-    Calculate elemental descriptors from compound's composition.
+    Calculate fingerprints or descriptors of organic molecules.
     """
 
     def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048):
@@ -150,8 +162,9 @@ class Fingerprints(BaseDescriptor):
         Parameters
         ----------
         radius: int
+            The radius parameter in the Morgan fingerprints, which is roughly half of the diameter parameter in ECFP/FCFP, i.e., radius=2 is roughly equivalent to ECFP4/FCFP4.
         n_bits: int
-           bit length.
+            Fixed bit length based on folding.
         useFeatures: bool
         """
 

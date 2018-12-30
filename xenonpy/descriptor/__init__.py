@@ -3,11 +3,13 @@
 # license that can be found in the LICENSE file.
 
 __all__ = [
-    'BaseDescriptor', 'BaseFeaturizer', 'Composition', 'RadialDistributionFunction',
-    'RdkitFingerprint'
+    'BaseDescriptor', 'BaseFeaturizer', 'Compositions', 'Structures',
+    'Fingerprints'
 ]
 
 from .base import BaseDescriptor, BaseFeaturizer
-from .composition import Composition, WeightedAvgFeature, WeightedSumFeature, WeightedVarFeature, MaxFeature, MinFeature
-from .structure import RadialDistributionFunction, OrbitalFieldMatrix
-from .fingerprint import APFPFeature, TTFPFeature, MACCSFeature, FCFP3Feature, ECFP3Feature, RdkitFingerprint
+from .composition import Compositions, WeightedAvgFeature, WeightedSumFeature, WeightedVarFeature, MaxFeature, \
+    MinFeature
+from .fingerprint import AtomPairFingerprint, TopologicalTorsionFingerprint, MorganFingerprint, MorganFingerprint, \
+    MACCS, Fingerprints
+from .structure import Structures, RadialDistributionFunction, ObitalFieldMatrix

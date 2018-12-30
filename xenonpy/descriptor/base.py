@@ -175,7 +175,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
                 return [float("nan")] * len(self.feature_labels)
             raise e
 
-    def featurize(self, *x):
+    def featurize(self, *x, **kwargs):
         """
         Main featurizer function, which has to be implemented
         in any derived featurizer subclass.

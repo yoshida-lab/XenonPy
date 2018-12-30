@@ -10,7 +10,8 @@ from ..datatools.dataset import preset
 
 
 class _CompositionalFeature(BaseFeaturizer):
-    def __init__(self, n_jobs=-1, *, elements=None, include=None,
+
+    def __init__(self, elements=None, *, n_jobs=-1, include=None,
                  exclude=None):
         """
         Base class for composition feature.
@@ -43,9 +44,18 @@ class _CompositionalFeature(BaseFeaturizer):
     def _func(self, elems, nums):
         raise NotImplementedError
 
+    @property
+    def feature_labels(self):
+        """
+        Generate attribute names.
+        Returns:
+            ([str]) attribute labels.
+        """
+        raise NotImplementedError("feature_labels() is not defined!")
+
 
 class WeightedAvgFeature(_CompositionalFeature):
-    def __init__(self, n_jobs=-1, *, elements=None, include=None,
+    def __init__(self, elements=None, *, n_jobs=-1, include=None,
                  exclude=None):
         """
 
@@ -69,7 +79,7 @@ class WeightedAvgFeature(_CompositionalFeature):
 
 
 class WeightedSumFeature(_CompositionalFeature):
-    def __init__(self, n_jobs=-1, *, elements=None, include=None,
+    def __init__(self, elements=None, *, n_jobs=-1, include=None,
                  exclude=None):
         """
 
@@ -93,7 +103,7 @@ class WeightedSumFeature(_CompositionalFeature):
 
 
 class WeightedVarFeature(_CompositionalFeature):
-    def __init__(self, n_jobs=-1, *, elements=None, include=None,
+    def __init__(self, elements=None, *, n_jobs=-1, include=None,
                  exclude=None):
         """
 
@@ -119,7 +129,7 @@ class WeightedVarFeature(_CompositionalFeature):
 
 
 class MaxFeature(_CompositionalFeature):
-    def __init__(self, n_jobs=-1, *, elements=None, include=None,
+    def __init__(self, elements=None, *, n_jobs=-1, include=None,
                  exclude=None):
         """
 
@@ -142,7 +152,7 @@ class MaxFeature(_CompositionalFeature):
 
 
 class MinFeature(_CompositionalFeature):
-    def __init__(self, n_jobs=-1, *, elements=None, include=None,
+    def __init__(self, elements=None, *, n_jobs=-1, include=None,
                  exclude=None):
         """
 
@@ -164,12 +174,12 @@ class MinFeature(_CompositionalFeature):
         return ['min:' + s for s in self.elements]
 
 
-class Composition(BaseDescriptor):
+class Compositions(BaseDescriptor):
     """
     Calculate elemental descriptors from compound's composition.
     """
 
-    def __init__(self, n_jobs=-1, *, elements=None, include=None,
+    def __init__(self, elements=None, *, n_jobs=-1, include=None,
                  exclude=None):
         """
 
@@ -195,8 +205,8 @@ class Composition(BaseDescriptor):
             elements = elements.drop(exclude, axis=1)
         self.elements = elements
 
-        self.composition = WeightedAvgFeature(n_jobs, elements=elements)
-        self.composition = WeightedSumFeature(n_jobs, elements=elements)
-        self.composition = WeightedVarFeature(n_jobs, elements=elements)
-        self.composition = MaxFeature(n_jobs, elements=elements)
-        self.composition = MinFeature(n_jobs, elements=elements)
+        self.composition = WeightedAvgFeature(elements, n_jobs=n_jobs)
+        self.composition = WeightedSumFeature(elements, n_jobs=n_jobs)
+        self.composition = WeightedVarFeature(elements, n_jobs=n_jobs)
+        self.composition = MaxFeature(elements, n_jobs=n_jobs)
+        self.composition = MinFeature(elements, n_jobs=n_jobs)

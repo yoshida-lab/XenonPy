@@ -5,91 +5,77 @@
 import re
 
 import numpy as np
-import pandas as pd
 import pymatgen as pm
 from pymatgen.analysis.local_env import VoronoiNN
-from sklearn.base import BaseEstimator, TransformerMixin
 
-from .base import BaseDescriptor
-
-
-# from ..pipeline import combinator
+from .base import BaseDescriptor, BaseFeaturizer
 
 
-class RadialDistributionFunction(BaseEstimator, TransformerMixin):
+# class RadialDistributionFunction(BaseEstimator, TransformerMixin):
+
+class RadialDistributionFunction(BaseFeaturizer):
     """
     Calculate pair distribution descriptor for machine learning.
 
     """
 
+    @property
+    def feature_labels(self):
+        return [str(d) for d in self._interval]
+
     def __init__(self,
-                 n_grid: int = 151,
-                 r_max: float = 20.0,
+                 n_bins=201,
+                 r_max=20.0,
                  *,
-                 structure_col: str = 'structure',
-                 verbose: bool = True):
+                 n_jobs=-1
+                 ):
         """
 
         Parameters
         ----------
-        n_grid: int
+        n_bins: int
             Number of radial grid points.
         r_max: float
             Maximum of radial grid (the minimum is always set zero).
-        structure_col: str
-            Column's name contain structure objects.
-        verbose: bool
-            If verbose output.
         """
 
-        assert n_grid >= 1, "ngrid should be greater than 1!"
+        super().__init__(n_jobs=n_jobs)
+        assert n_bins >= 1, "n_bins should be greater than 1!"
+        assert r_max > 0, "r_max should be greater than 0!"
 
-        self.structures = list()
-        self.structure_col = structure_col
-        self.r_max = r_max
-        self.dr = r_max / (n_grid - 1)
-        self.interval = np.arange(self.dr, r_max + self.dr, self.dr)
-        self.verbose = verbose
+        self._r_max = r_max
+        self._dr = r_max / (n_bins - 1)
+        self._interval = np.arange(self._dr, r_max + self._dr, self._dr)
+        self.__authors__ = ['TsumiNa']
 
-    def fit(self, structures):
+    def featurize(self, structure):
         """
-
-        Parameters
-        ----------
-        structures: Structure list
-            pymatgen Structure object list.
-
-        Returns
-        -------
-            self
+        Get RDF of the input structure.
+        Args:
+            structure: Pymatgen Structure object.
+        Returns:
+            rdf, dist: (tuple of arrays) the first element is the
+                    normalized RDF, whereas the second element is
+                    the inner radius of the RDF bin.
         """
-        if self.structure_col not in structures:
-            raise ValueError('need structure to calculate descriptor')
+        if not structure.is_ordered:
+            raise ValueError("Disordered structure support not built yet")
 
-        return self
+        # Get the distances between all atoms
+        neighbors_lst = structure.get_all_neighbors(self._r_max)
+        all_distances = np.concatenate(tuple(map(lambda x: [e[1] for e in x], neighbors_lst)))
 
-    def transform(self, structures):
-        if self.structure_col not in structures:
-            raise ValueError('need structure to calculate descriptor')
+        # Compute a histogram
+        dist_hist, dist_bins = np.histogram(
+            all_distances, bins=np.arange(0, self._r_max + self._dr, self._dr), density=False)
 
-        if self.verbose:
-            import time
-            start = time.time()
-            print('converting {:d} structure'.format(structures.shape[0]))
-
-            ret = structures[self.structure_col].apply(self.pdf).tolist()
-            ret = pd.DataFrame(np.array(ret), index=structures.index, columns=self.interval)
-
-            end = time.time()
-            print('using {:.5f}s'.format(end - start))
-        else:
-            ret = structures[self.structure_col].apply(self.pdf).tolist()
-            ret = pd.DataFrame(np.array(ret), index=structures.index, columns=self.interval)
-
-        return ret
+        # Normalize counts
+        shell_vol = 4.0 / 3.0 * np.pi * (np.power(dist_bins[1:], 3) - np.power(dist_bins[:-1], 3))
+        number_density = structure.num_sites / structure.volume
+        return dist_hist / shell_vol / number_density
 
 
-class OrbitalFieldMatrix(BaseDescriptor):
+class ObitalFieldMatrix(BaseFeaturizer):
     """
     Representation based on the valence shell electrons of neighboring atoms.
 
@@ -99,14 +85,22 @@ class OrbitalFieldMatrix(BaseDescriptor):
     matrices for each atom the center atom coordinates with multiplied by a
     distance function (In this case, 1/r times the weight of the coordinating
     atom in the Voronoi.
-    
+
     """
 
-    def __init__(self, n_jobs=-1):
-        super().__init__()
-        self._n_jobs = n_jobs
+    def __init__(self, including_d=True, *, n_jobs=-1):
+        """
 
-    def get_element_representation(self, name):
+        Parameters
+        ----------
+        including_d: bool
+            If true, add distance information.
+        """
+        super().__init__(n_jobs=n_jobs)
+        self._including_d = including_d
+
+    @staticmethod
+    def get_element_representation(name):
         """
         generate one-hot representation for a element, e.g, si = [0.0, 1.0, 0.0, 0.0, ...]
 
@@ -171,19 +165,24 @@ class OrbitalFieldMatrix(BaseDescriptor):
 
         return np.array([general_element_electronic[key] for key in general_electron_subshells])
 
-    def struct2ofm(self, struct, is_ofm1=False, is_including_d=True):
+    def featurize(self, structure, is_including_d=True):
         """
         Generate OFM descriptor
+
+        Parameters
+        ----------
+        structure: pymatgen.Structure
+            The input structure for OFM calculation.
         """
 
-        atoms = np.array([site.species_string for site in struct])
+        atoms = np.array([site.species_string for site in structure])
         coordinator_finder = VoronoiNN(cutoff=10.0)
 
         local_orbital_field_matrices = []
         for i_atom, atom in enumerate(atoms):
-            neighbors = coordinator_finder.get_nn_info(structure=struct, n=i_atom)
+            neighbors = coordinator_finder.get_nn_info(structure=structure, n=i_atom)
 
-            site = struct[i_atom]
+            site = structure[i_atom]
             center_vector = self.get_element_representation(atom)
             env_vector = np.zeros(32)
 
@@ -193,7 +192,7 @@ class OrbitalFieldMatrix(BaseDescriptor):
                 site_x_label = site_x.species_string
                 neigh_vector = self.get_element_representation(site_x_label)
                 d = np.sqrt(np.sum((site.coords - site_x.coords) ** 2))
-                if is_including_d:
+                if self._including_d:
                     env_vector += neigh_vector * w / d
                 else:
                     env_vector += neigh_vector * w
@@ -202,4 +201,45 @@ class OrbitalFieldMatrix(BaseDescriptor):
             local_matrix = np.ravel(local_matrix)
             local_orbital_field_matrices.append(local_matrix)
 
-        return np.array(local_orbital_field_matrices)
+        return np.array(local_orbital_field_matrices).mean(axis=0)
+
+    @property
+    def feature_labels(self):
+        labels = np.array(['s1', 's2',
+                           'p1', 'p2', 'p3', 'p4', 'p5', 'p6',
+                           'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7', 'd8', 'd9', 'd10',
+                           'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12', 'f13', 'f14'])
+
+        return [i + '_' + j for i in labels for j in labels]
+
+
+class Structures(BaseDescriptor):
+    """
+    Calculate elemental descriptors from compound's composition.
+    """
+
+    def __init__(self,
+                 *,
+                 n_bins=201,
+                 r_max=20.0,
+                 including_d=True,
+                 n_jobs=-1):
+        """
+
+        Parameters
+        ----------
+        methods: str
+            Calculation method(s) which to be used must in the :attr:`methods` list.
+        elemental: panda.DataFrame
+            Elements information in `pandas.DataFrame` object. indexed by element symbol.
+        include: list
+            Column's names of elemental info that should be used in descriptor calculation.
+        exclude: list
+            Column's names of elemental info that should not be used in descriptor calculation.
+        """
+
+        super().__init__()
+        self.n_jobs = n_jobs
+
+        self.structure = RadialDistributionFunction(n_bins, r_max, n_jobs=n_jobs)
+        self.structure = ObitalFieldMatrix(including_d, n_jobs=n_jobs)

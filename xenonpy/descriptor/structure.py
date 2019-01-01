@@ -10,8 +10,8 @@ from pymatgen.analysis.local_env import VoronoiNN
 
 from .base import BaseDescriptor, BaseFeaturizer
 
-
 # class RadialDistributionFunction(BaseEstimator, TransformerMixin):
+
 
 class RadialDistributionFunction(BaseFeaturizer):
     """
@@ -21,16 +21,11 @@ class RadialDistributionFunction(BaseFeaturizer):
 
     @property
     def feature_labels(self):
-        return [str(d) for d in self._interval]
+        return [str(d) for d in self._interval[1:]]
 
-    def __init__(self,
-                 n_bins=201,
-                 r_max=20.0,
-                 *,
-                 n_jobs=-1
-                 ):
+    def __init__(self, n_bins=201, r_max=20.0, *, n_jobs=-1):
         """
-
+        
         Parameters
         ----------
         n_bins: int
@@ -45,7 +40,7 @@ class RadialDistributionFunction(BaseFeaturizer):
 
         self._r_max = r_max
         self._dr = r_max / (n_bins - 1)
-        self._interval = np.arange(self._dr, r_max + self._dr, self._dr)
+        self._interval = np.arange(0.0, r_max + self._dr, self._dr)
         self.__authors__ = ['TsumiNa']
 
     def featurize(self, structure):
@@ -66,8 +61,7 @@ class RadialDistributionFunction(BaseFeaturizer):
         all_distances = np.concatenate(tuple(map(lambda x: [e[1] for e in x], neighbors_lst)))
 
         # Compute a histogram
-        dist_hist, dist_bins = np.histogram(
-            all_distances, bins=np.arange(0, self._r_max + self._dr, self._dr), density=False)
+        dist_hist, dist_bins = np.histogram(all_distances, bins=self._interval, density=False)
 
         # Normalize counts
         shell_vol = 4.0 / 3.0 * np.pi * (np.power(dist_bins[1:], 3) - np.power(dist_bins[:-1], 3))
@@ -191,7 +185,7 @@ class ObitalFieldMatrix(BaseFeaturizer):
                 w = nn['weight']
                 site_x_label = site_x.species_string
                 neigh_vector = self.get_element_representation(site_x_label)
-                d = np.sqrt(np.sum((site.coords - site_x.coords) ** 2))
+                d = np.sqrt(np.sum((site.coords - site_x.coords)**2))
                 if self._including_d:
                     env_vector += neigh_vector * w / d
                 else:
@@ -205,10 +199,11 @@ class ObitalFieldMatrix(BaseFeaturizer):
 
     @property
     def feature_labels(self):
-        labels = np.array(['s1', 's2',
-                           'p1', 'p2', 'p3', 'p4', 'p5', 'p6',
-                           'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7', 'd8', 'd9', 'd10',
-                           'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12', 'f13', 'f14'])
+        labels = np.array([
+            's1', 's2', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6',
+            'd7', 'd8', 'd9', 'd10', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10',
+            'f11', 'f12', 'f13', 'f14'
+        ])
 
         return [i + '_' + j for i in labels for j in labels]
 
@@ -218,12 +213,7 @@ class Structures(BaseDescriptor):
     Calculate elemental descriptors from compound's composition.
     """
 
-    def __init__(self,
-                 *,
-                 n_bins=201,
-                 r_max=20.0,
-                 including_d=True,
-                 n_jobs=-1):
+    def __init__(self, *, n_bins=201, r_max=20.0, including_d=True, n_jobs=-1):
         """
 
         Parameters

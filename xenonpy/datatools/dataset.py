@@ -6,13 +6,13 @@ import re
 from collections import defaultdict
 from datetime import datetime as dt
 from os import remove
+from os.path import getmtime
 from pathlib import Path
 from shutil import rmtree
 from warnings import warn
 
 import pandas as pd
 import requests
-from os.path import getmtime
 from ruamel.yaml import YAML
 from sklearn.externals import joblib
 
@@ -503,8 +503,6 @@ class Preset(Singleton):
         """
         Inorganic structures summarized from `Materials Projects`_.
 
-        .. _Materials Projects: https://www.materialsproject.org/
-
         Returns
         -------
         DataFrame:
@@ -517,7 +515,7 @@ class Preset(Singleton):
         """
         Inorganic properties summarized from `OQMD`_.
 
-        .. _Materials Projects: http://www.oqmd.org
+        .. _OQMD: http://www.oqmd.org
 
         Returns
         -------
@@ -530,8 +528,6 @@ class Preset(Singleton):
     def oqmd_structure(self):
         """
         Inorganic structures summarized from `OQMD`_.
-
-        .. _Materials Projects: http://www.oqmd.org
 
         Returns
         -------

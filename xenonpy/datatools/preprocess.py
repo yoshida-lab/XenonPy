@@ -84,18 +84,6 @@ class Splitter(object):
         return self
 
     @property
-    def index(self):
-        """
-        Return training and testing data index.
-
-        Returns
-        -------
-        tuple
-            A tuple as (train_index, test_index).
-        """
-        return self._train, self._test
-
-    @property
     def size(self):
         return self._sample_size.size
 
@@ -134,6 +122,29 @@ class Splitter(object):
         # raise error
 
     def cv(self, *arrays, less_for_train=False):
+        """
+        Split data with cross-validation.
+
+        Parameters
+        ----------
+        *arrays: DataFrame, Series, ndarray, list
+            Data for split. Must be a Sequence of indexables with same length / shape[0].
+            If None, return the split indices.
+        less_for_train: bool
+            If true, use less data set for train.
+            E.g. ``[1, 2, 3, 4, 5, 6, 7, 8, 9, 0]`` with 5 cv will be split into
+            ``[1, 2]`` and ``[3, 4, 5, 6, 7, 8, 9, 0]``. Usually, ``[1, 2]`` (less one)
+            will be used for validate. With ``less_for_train=True``, ``[1, 2]`` will be
+            used for train. Default is ``False``.
+
+        Yields
+        -------
+        list
+            list containing split of inputs with cv. if inputs are None, only return
+            the indices of split. if ``test_size`` is 0, test data/index will
+            not return.
+        """
+
         def group_cv():
             group = self._cv
             if isinstance(group, (list, np.ndarray)):
@@ -181,7 +192,7 @@ class Splitter(object):
 
     def split(self, *arrays):
         """
-        Split data with index.
+        Split data.
 
         Parameters
         ----------
@@ -192,8 +203,9 @@ class Splitter(object):
         Returns
         -------
         tuple
-            List containing train-test split of inputs.
-            length=2 * len(arrays) or the indices if inputs are None.
+            List containing split of inputs. if inputs are None, only return
+            the indices of split. if ``test_size`` is 0, test data/index will
+            not return.
         """
         if len(arrays) == 0:
             return self._train, self._test

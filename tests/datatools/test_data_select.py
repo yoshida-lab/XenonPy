@@ -33,34 +33,31 @@ def data():
 def test_data_splitter2():
     ds = Splitter(10)
     assert ds.size == 10
-    train, test = ds.index
+    train, test = ds.split()
     assert train.size == 8
     assert test.size == 2
 
 
 def test_roll_1():
     ds = Splitter(10, test_size=0.3)
-    train, test = ds.index
+    train, test = ds.split()
     assert train.size == 7
     assert test.size == 3
     ds.roll(test_size=0.4)
-    train, test = ds.index
+    train, test = ds.split()
     assert train.size == 6
     assert test.size == 4
 
 
 def test_roll_2():
     ds = Splitter(10, test_size=0.3)
-    train, test = ds.index
+    train, test = ds.split()
     assert train.size == 7
     assert test.size == 3
     ds.roll(test_size=0.3)
-    train_, test_ = ds.index
+    train_, test_ = ds.split()
     assert not np.array_equal(train, train_)
     assert not np.array_equal(test, test_)
-    train__, test__ = ds.split()
-    assert np.array_equal(train_, train__)
-    assert np.array_equal(test_, test__)
 
 
 def test_split_1(data):
@@ -168,5 +165,6 @@ def test_cv_3(data):
     tmp = np.sort(tmp)
     assert np.array_equal(tmp, data[0])
 
-    if __name__ == "__main__":
-        pytest.main()
+
+if __name__ == "__main__":
+    pytest.main()

@@ -103,7 +103,7 @@ Here's a description of the Docker command-line options shown above:
   <https://github.com/pytorch/pytorch#docker-image.> **Optional**
 - `--publish="8888:8888"`: Publish container's port 8888 to the host. **Needed**
 - `--volume=$Home/.xenonpy:/home/user/.xenonpy`: Mounts
-  the XenonPy working directory into the container. **Optional, but highly recommended**.
+  the XenonPy root directory into the container. **Optional, but highly recommended**.
 - `--volume=<path/to/your/workspace>:/workspace`: Mounts
   the your working directory into the container. **Optional, but highly recommended**.
 - `-e NVIDIA_VISIBLE_DEVICES=0`: Sets an environment variable to restrict which
@@ -117,5 +117,5 @@ option.
 
 ## Copyright and license
 
-©Copyright 2018 The XenonPy task force, all rights reserved.
+©Copyright 2019 The XenonPy project, all rights reserved.
 Released under the `BSD-3 license`.

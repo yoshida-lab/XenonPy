@@ -19,7 +19,7 @@ def data():
     warnings.filterwarnings("ignore", message="numpy.ndarray size changed")
 
     yield
-    r = glob.glob('*.txt')
+    r = glob.glob('log_*.txt')
     for i in r:
         os.remove(i)
     print('test over')

@@ -6,3 +6,4 @@ from . import wrap
 from .checker import *
 from .layer import Layer1d
 from .runner import *
+from .model_maker import Generator1d

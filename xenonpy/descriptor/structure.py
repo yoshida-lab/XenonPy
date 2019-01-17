@@ -10,6 +10,7 @@ from pymatgen.analysis.local_env import VoronoiNN
 
 from .base import BaseDescriptor, BaseFeaturizer
 
+
 # class RadialDistributionFunction(BaseEstimator, TransformerMixin):
 
 
@@ -152,7 +153,7 @@ class ObitalFieldMatrix(BaseFeaturizer):
         else:
             element_electronic_structure = [
                 ''.join(pair)
-                for pair in re.findall("\.\d(\w+)<sup>(\d+)</sup>", element.electronic_structure)
+                for pair in re.findall(r"\.\d(\w+)<sup>(\d+)</sup>", element.electronic_structure)
             ]
         for eletron_subshell in element_electronic_structure:
             general_element_electronic[eletron_subshell] = 1.0
@@ -185,7 +186,7 @@ class ObitalFieldMatrix(BaseFeaturizer):
                 w = nn['weight']
                 site_x_label = site_x.species_string
                 neigh_vector = self.get_element_representation(site_x_label)
-                d = np.sqrt(np.sum((site.coords - site_x.coords)**2))
+                d = np.sqrt(np.sum((site.coords - site_x.coords) ** 2))
                 if self._including_d:
                     env_vector += neigh_vector * w / d
                 else:

@@ -9,4 +9,5 @@ from .composition import Compositions, WeightedAvgFeature, WeightedSumFeature, W
     MinFeature
 from .fingerprint import AtomPairFingerprint, TopologicalTorsionFingerprint, MorganFingerprint, \
     MorganFingerprintWithFeature, MACCS, Fingerprints
+from .frozen_featurizer import FrozenFeaturizer
 from .structure import Structures, RadialDistributionFunction, ObitalFieldMatrix

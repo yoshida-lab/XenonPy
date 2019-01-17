@@ -138,7 +138,9 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             return []
 
         # Run the actual featurization
-        if self.n_jobs == 1:
+        if self.n_jobs == 0:
+            ret = self.featurize(entries)
+        elif self.n_jobs == 1:
             ret = [self._wrapper(x) for x in entries]
         else:
             with Pool(self.n_jobs) as p:
@@ -149,7 +151,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         except NotImplementedError:
             labels = None
 
-        if isinstance(entries, pd.Series):
+        if isinstance(entries, (pd.Series, pd.DataFrame)):
             return pd.DataFrame(ret, index=entries.index, columns=labels)
         if isinstance(entries, np.ndarray):
             return np.array(ret)

@@ -19,10 +19,10 @@ matrix:
       env:
         - PYENV=py36
         - DEPLOY=true
-    - os: linux
-      dist: trusty
-      sudo: false
-      env: PYENV=py37
+#     - os: linux
+#       dist: trusty
+#       sudo: false
+#       env: PYENV=py37
     - os: osx
       language: generic
       env: PYENV=py35

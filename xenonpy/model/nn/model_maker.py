@@ -18,6 +18,7 @@ class Generator1d(object):
     """
 
     def __init__(self, n_features: int, n_predict: int, *,
+                 output_layer=L1.linear(),
                  n_neuron,
                  drop_out=(0.0,),
                  layer_func=(L1.linear(),),
@@ -31,6 +32,8 @@ class Generator1d(object):
             Input dimension.
         n_predict: int
             Output dimension.
+        output_layer: func
+            Output layer.
         n_neuron: [int]
             Number of neuron.
         drop_out: [float]
@@ -42,10 +45,10 @@ class Generator1d(object):
         batch_normalize: [bool]
             Batch Normalization. such like: :meth:`~.L1.batch_norm`.
         """
+        self.output_layer = output_layer
         self.n_in, self.n_out = n_features, n_predict
 
         # save parameters
-        self.n_neuron = n_neuron
         self.drop_out = drop_out
         self.layer_func = layer_func
         self.act_func = act_func
@@ -114,7 +117,7 @@ class Generator1d(object):
                     layer_ = layer(*((n_in,) + para))._asdict()
                     layers.append(Layer1d(**layer_))
                     n_in = para[0]
-                out_layer = Layer1d(n_in=n_in, n_out=self.n_out, act_func=None, batch_nor=None)
+                out_layer = self.output_layer(n_in, self.n_out)
                 layers.append(out_layer)
 
                 yield Sequential(*layers)
@@ -141,7 +144,7 @@ class Generator1d(object):
                     layer_['n_in'] = n_in
                     layers.append(Layer1d(**layer_))
                     n_in = layer_['n_out']
-                out_layer = Layer1d(n_in=n_in, n_out=self.n_out, act_func=None, batch_nor=None)
+                out_layer = self.output_layer(n_in, self.n_out)
                 layers.append(out_layer)
 
                 yield Sequential(*layers)

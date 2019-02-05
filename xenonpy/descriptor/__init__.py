@@ -7,7 +7,6 @@ __all__ = ['BaseDescriptor', 'BaseFeaturizer', 'Compositions', 'Structures', 'Fi
 from .base import BaseDescriptor, BaseFeaturizer
 from .composition import Compositions, WeightedAvgFeature, WeightedSumFeature, WeightedVarFeature, MaxFeature, \
     MinFeature
-from .fingerprint import AtomPairFingerprint, TopologicalTorsionFingerprint, MorganFingerprint, \
-    MorganFingerprintWithFeature, MACCS, Fingerprints
+from .fingerprint import AtomPairFP, TopologicalTorsionFP, RDKitFP, ECFP, FCFP, MACCS, Fingerprints
 from .frozen_featurizer import FrozenFeaturizer
 from .structure import Structures, RadialDistributionFunction, ObitalFieldMatrix

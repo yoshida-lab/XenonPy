@@ -1,4 +1,5 @@
 from rdkit.Chem import Descriptors
+from rdkit import Chem
 from rdkit.Chem import MACCSkeys as MAC
 from rdkit.Chem import rdMolDescriptors as rdMol
 from rdkit.ML.Descriptors import MoleculeDescriptors
@@ -6,7 +7,24 @@ from rdkit.ML.Descriptors import MoleculeDescriptors
 from .base import BaseDescriptor, BaseFeaturizer
 
 
-class AtomPairFingerprint(BaseFeaturizer):
+class RDKitFP(BaseFeaturizer):
+
+    def __init__(self, n_jobs=-1, *, fp_size=2048):
+        """
+        Base class for composition feature.
+        """
+
+        self.fp_size = fp_size
+
+    def featurize(self, x):
+        return list(Chem.RDKFingerprint(x, fpSize=self.fp_size))
+
+    @property
+    def feature_labels(self):
+        return ["rdkit:" + str(i) for i in range(self.fp_size)]
+
+
+class AtomPairFP(BaseFeaturizer):
 
     def __init__(self, n_jobs=-1, *, n_bits=2048):
         """
@@ -33,7 +51,7 @@ class AtomPairFingerprint(BaseFeaturizer):
         return ['apfp:' + str(i) for i in range(self.n_bits)]
 
 
-class TopologicalTorsionFingerprint(BaseFeaturizer):
+class TopologicalTorsionFP(BaseFeaturizer):
 
     def __init__(self, n_jobs=-1, *, n_bits=2048):
         """
@@ -74,7 +92,7 @@ class MACCS(BaseFeaturizer):
         return ['maccs:' + str(i) for i in range(167)]
 
 
-class MorganFingerprintWithFeature(BaseFeaturizer):
+class FCFP(BaseFeaturizer):
 
     def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048):
         """
@@ -104,7 +122,7 @@ class MorganFingerprintWithFeature(BaseFeaturizer):
         return ['fcfp3:' + str(i) for i in range(self.n_bits)]
 
 
-class MorganFingerprint(BaseFeaturizer):
+class ECFP(BaseFeaturizer):
 
     def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048):
         """
@@ -131,7 +149,7 @@ class MorganFingerprint(BaseFeaturizer):
         return ['ecfp3:' + str(i) for i in range(self.n_bits)]
 
 
-class MolecularDescriptor(BaseFeaturizer):
+class DescriptorFeature(BaseFeaturizer):
 
     def __init__(self, n_jobs=-1):
         """
@@ -156,7 +174,7 @@ class Fingerprints(BaseDescriptor):
     Calculate fingerprints or descriptors of organic molecules.
     """
 
-    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048):
+    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, fp_size=2048):
         """
 
         Parameters
@@ -171,9 +189,10 @@ class Fingerprints(BaseDescriptor):
         super().__init__()
         self.n_jobs = n_jobs
 
-        self.mol = AtomPairFingerprint(n_jobs, n_bits=n_bits)
-        self.mol = TopologicalTorsionFingerprint(n_jobs, n_bits=n_bits)
+        self.mol = RDKitFP(n_jobs, fp_size=fp_size)
+        self.mol = AtomPairFP(n_jobs, n_bits=n_bits)
+        self.mol = TopologicalTorsionFP(n_jobs, n_bits=n_bits)
         self.mol = MACCS(n_jobs)
-        self.mol = MorganFingerprint(n_jobs, radius=radius, n_bits=n_bits)
-        self.mol = MorganFingerprintWithFeature(n_jobs, radius=radius, n_bits=n_bits)
-        # self.rdkit_desc = Desc200Feature(n_jobs)
+        self.mol = ECFP(n_jobs, radius=radius, n_bits=n_bits)
+        self.mol = FCFP(n_jobs, radius=radius, n_bits=n_bits)
+        self.rdkit_desc = DescriptorFeature(n_jobs)

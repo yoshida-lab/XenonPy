@@ -193,7 +193,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             one or more features.
         """
 
-        raise NotImplementedError("featurize() is not defined!")
+        raise NotImplementedError("<featurize> method must be implemented")
 
     @property
     def feature_labels(self):
@@ -202,7 +202,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         Returns:
             ([str]) attribute labels.
         """
-        raise NotImplementedError("feature_labels() is not defined!")
+        raise NotImplementedError("<feature_labels> property be implemented")
 
     @property
     def citations(self):

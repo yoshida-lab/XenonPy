@@ -57,20 +57,20 @@ class SMC(BaseEstimator, metaclass=TimedMetaClass):
         likelihood: numpy.ndarray
         """
 
-        sample_ = init_samples
         if n_sample is None:
             n_sample = len(init_samples)
         if beta is None:
             beta = np.linspace(0.05, 1, 10)
-        _, unq_idx, unq_cnt = np.unique(s0, return_index=True, return_counts=True)
+        unq_smis, unq_cnt = np.unique(init_samples, return_counts=True)
+        # _, unq_idx, unq_cnt = np.unique(s0, return_index=True, return_counts=True)
         for i, step in enumerate(beta):
             # annealed likelihood in log - adjust with copy counts
-            w = self.likelihood(*sample_) * step + np.log(unq_cnt)
+            w = self.likelihood(*unq_smis) * step + np.log(unq_cnt)
             wSum = np.log(sum(np.exp(w - max(w)))) + max(w)  # avoid underflow
 
             idx = np.random.choice(len(w), n_sample, p=np.exp(w - wSum))
 
-            sample_ = [mod_esmi(sample_[x], ngram_tab) for x in idx]
+            sample_ = [mod_esmi(unq_smis[x], ngram_tab) for x in idx]
             # take only unique copies and update unq_cnt
             _, unq_idx, unq_cnt = np.unique([str(x['esmi'].tolist()) for x in sample_], return_index=True,
                                             return_counts=True)
@@ -291,7 +291,7 @@ def del_char(esmi_pd, n_char):
 def reorder_esmi(esmi_pd):
     # convert back to SMILES first, then to rdkit MOL
     m = Chem.MolFromSmiles(esmi2smi(esmi_pd))
-    idx = random.choice(range(len(m.GetAtoms())))
+    idx = random.choice(range(m.GetNumAtoms()))
     # currently assume kekuleSmiles=True, i.e., no small letters but with ':' for aromatic rings
     esmi_pd = smi2esmi(Chem.MolToSmiles(m, rootedAtAtom=idx, kekuleSmiles=True))
     return esmi_pd

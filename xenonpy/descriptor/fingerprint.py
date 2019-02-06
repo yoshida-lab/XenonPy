@@ -9,11 +9,11 @@ from .base import BaseDescriptor, BaseFeaturizer
 
 class RDKitFP(BaseFeaturizer):
 
-    def __init__(self, n_jobs=-1, *, fp_size=2048):
+    def __init__(self, n_jobs=-1, *, fp_size=2048, on_errors='raise'):
         """
         Base class for composition feature.
         """
-        super().__init__(n_jobs=n_jobs)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
         self.fp_size = fp_size
 
     def featurize(self, x):
@@ -26,7 +26,7 @@ class RDKitFP(BaseFeaturizer):
 
 class AtomPairFP(BaseFeaturizer):
 
-    def __init__(self, n_jobs=-1, *, n_bits=2048):
+    def __init__(self, n_jobs=-1, *, n_bits=2048, on_errors='raise'):
         """
         Atom Pair fingerprints.
         Returns the atom-pair fingerprint for a molecule.The algorithm used is described here:
@@ -40,7 +40,7 @@ class AtomPairFP(BaseFeaturizer):
         n_bits: int
            Fixed bit length based on folding.
         """
-        super().__init__(n_jobs=n_jobs)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
         self.n_bits = n_bits
 
     def featurize(self, x):
@@ -53,7 +53,7 @@ class AtomPairFP(BaseFeaturizer):
 
 class TopologicalTorsionFP(BaseFeaturizer):
 
-    def __init__(self, n_jobs=-1, *, n_bits=2048):
+    def __init__(self, n_jobs=-1, *, n_bits=2048, on_errors='raise'):
         """
         Topological Torsion fingerprints.
         Returns the topological-torsion fingerprint for a molecule.
@@ -65,7 +65,7 @@ class TopologicalTorsionFP(BaseFeaturizer):
            Fixed bit length based on folding.
 
         """
-        super().__init__(n_jobs=n_jobs)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
         self.n_bits = n_bits
 
     def featurize(self, x):
@@ -78,12 +78,12 @@ class TopologicalTorsionFP(BaseFeaturizer):
 
 class MACCS(BaseFeaturizer):
 
-    def __init__(self, n_jobs=-1):
+    def __init__(self, n_jobs=-1, *, on_errors='raise'):
         """
         The MACCS keys for a molecule. The result is a 167-bit vector. There are 166 public keys,
         but to maintain consistency with other software packages they are numbered from 1.
         """
-        super().__init__(n_jobs=n_jobs)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
 
     def featurize(self, x):
         return list(MAC.GenMACCSKeys(x))
@@ -95,7 +95,7 @@ class MACCS(BaseFeaturizer):
 
 class FCFP(BaseFeaturizer):
 
-    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048):
+    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, on_errors='raise'):
         """
         Morgan (Circular) fingerprints + feature-based (FCFP)
         The algorithm used is described in the paper Rogers, D. & Hahn, M. Extended-Connectivity Fingerprints.
@@ -110,7 +110,7 @@ class FCFP(BaseFeaturizer):
             Fixed bit length based on folding.
         useFeatures: bool
         """
-        super().__init__(n_jobs=n_jobs)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
         self.radius = radius
         self.n_bits = n_bits
         # self.arg = arg # arg[0] = radius, arg[1] = bit length
@@ -127,7 +127,7 @@ class FCFP(BaseFeaturizer):
 
 class ECFP(BaseFeaturizer):
 
-    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048):
+    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, on_errors='raise'):
         """
         Morgan (Circular) fingerprints (ECFP)
         The algorithm used is described in the paper Rogers, D. & Hahn, M. Extended-Connectivity Fingerprints.
@@ -141,7 +141,7 @@ class ECFP(BaseFeaturizer):
         n_bits: int
             Fixed bit length based on folding.
         """
-        super().__init__(n_jobs=n_jobs)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
         self.radius = radius
         self.n_bits = n_bits
         # self.arg = arg # arg[0] = radius, arg[1] = bit length
@@ -156,13 +156,13 @@ class ECFP(BaseFeaturizer):
 
 class DescriptorFeature(BaseFeaturizer):
 
-    def __init__(self, n_jobs=-1):
+    def __init__(self, n_jobs=-1, *, on_errors='raise'):
         """
         All descriptors in RDKit (length = 200) [may include NaN]
             see https://www.rdkit.org/docs/GettingStartedInPython.html#list-of-available-descriptors for the full list
         """
         # self.arg = arg # arg[0] = radius, arg[1] = bit length
-        super().__init__(n_jobs=n_jobs)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
         nms = [x[0] for x in Descriptors._descList]
         self.calc = MoleculeDescriptors.MolecularDescriptorCalculator(nms)
 
@@ -179,7 +179,7 @@ class Fingerprints(BaseDescriptor):
     Calculate fingerprints or descriptors of organic molecules.
     """
 
-    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, fp_size=2048):
+    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, fp_size=2048, on_errors='raise'):
         """
 
         Parameters
@@ -194,10 +194,10 @@ class Fingerprints(BaseDescriptor):
         super().__init__()
         self.n_jobs = n_jobs
 
-        self.mol = RDKitFP(n_jobs, fp_size=fp_size)
-        self.mol = AtomPairFP(n_jobs, n_bits=n_bits)
-        self.mol = TopologicalTorsionFP(n_jobs, n_bits=n_bits)
-        self.mol = MACCS(n_jobs)
-        self.mol = ECFP(n_jobs, radius=radius, n_bits=n_bits)
-        self.mol = FCFP(n_jobs, radius=radius, n_bits=n_bits)
-        self.rdkit_desc = DescriptorFeature(n_jobs)
+        self.mol = RDKitFP(n_jobs, fp_size=fp_size, on_errors=on_errors)
+        self.mol = AtomPairFP(n_jobs, n_bits=n_bits, on_errors=on_errors)
+        self.mol = TopologicalTorsionFP(n_jobs, n_bits=n_bits, on_errors=on_errors)
+        self.mol = MACCS(n_jobs, on_errors=on_errors)
+        self.mol = ECFP(n_jobs, radius=radius, n_bits=n_bits, on_errors=on_errors)
+        self.mol = FCFP(n_jobs, radius=radius, n_bits=n_bits, on_errors=on_errors)
+        self.rdkit_desc = DescriptorFeature(n_jobs, on_errors=on_errors)

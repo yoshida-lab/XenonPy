@@ -6,18 +6,40 @@ import numpy as np
 import pandas as pd
 import scipy.stats as sps
 from rdkit import Chem
+from sklearn.base import BaseEstimator
 from sklearn.linear_model import BayesianRidge
 
 from ..descriptor import BaseDescriptor
 from ..descriptor import ECFP as FPsCalc
+from ..utils import TimedMetaClass
 
 
-class SMC():
-    def __init__(self, *, likelihood_fn=None, represtation_model=None):
-        """"""
+class SMC(BaseEstimator, metaclass=TimedMetaClass):
+    def __init__(self, *, representation_model=None):
+        """
+        Sequential Monte Carlo runner.
+
+        Parameters
+        ----------
+        likelihood_fn: func
+            Function for likelihood calculation.
+        representation_model: object
+
+        """
         pass
 
-    def run(self, init_samples=50, beta=None):
+    def likelihood(self, *x):
+        """"""
+        raise NotImplementedError('<likelihood> method must be implemented')
+
+    def next(self, *x):
+        raise NotImplementedError('<next> method must be implemented')
+
+    # def __call__(self, init_samples, n_sample=None, beta=None, **kwargs):
+    #     """"""
+    #     pass
+
+    def run(self, *init_samples, n_sample=None, beta=None):
         """
         Run SMC
 
@@ -35,29 +57,26 @@ class SMC():
         likelihood: numpy.ndarray
         """
 
-        init_samples = 10
-        beta = np.linspace(0.05, 1, 10)
-        ini_smis = [cans[x] for x in range(len(cans))
-                    if cans[x][0] == '*'
-                    and data_PG['Glass-Transition-Temperature'].iloc[x] < 300]
-        s0 = np.random.choice(ini_smis, init_samples)
-
-        # pandas values_count maybe faster for n > 5000
+        sample_ = init_samples
+        if n_sample is None:
+            n_sample = len(init_samples)
+        if beta is None:
+            beta = np.linspace(0.05, 1, 10)
         _, unq_idx, unq_cnt = np.unique(s0, return_index=True, return_counts=True)
-        s = [smi2esmi(s0[x]) for x in unq_idx]
-        for i in range(len(beta)):
-            print(i)
-            print([esmi2smi(x) for x in s])
-
-            w = logLikelihood(s) * beta[i] + np.log(unq_cnt)  # annealed likelihood in log - adjust with copy counts
+        for i, step in enumerate(beta):
+            # annealed likelihood in log - adjust with copy counts
+            w = self.likelihood(*sample_) * step + np.log(unq_cnt)
             wSum = np.log(sum(np.exp(w - max(w)))) + max(w)  # avoid underflow
 
-            idx = np.random.choice(len(w), init_samples, p=np.exp(w - wSum))
+            idx = np.random.choice(len(w), n_sample, p=np.exp(w - wSum))
 
-            s = [mod_esmi(s[x], ngram_tab) for x in idx]
+            sample_ = [mod_esmi(sample_[x], ngram_tab) for x in idx]
             # take only unique copies and update unq_cnt
-            _, unq_idx, unq_cnt = np.unique([str(x['esmi'].tolist()) for x in s], return_index=True, return_counts=True)
-            s = [s[x] for x in unq_idx]
+            _, unq_idx, unq_cnt = np.unique([str(x['esmi'].tolist()) for x in sample_], return_index=True,
+                                            return_counts=True)
+            sample_ = [sample_[x] for x in unq_idx]
+
+            yield sample_
 
 
 class RdkitDesc_MOLS(BaseDescriptor):
@@ -389,7 +408,7 @@ s0 = np.random.choice(ini_smis, n)
 # pandas values_count maybe faster for n > 5000
 _, unq_idx, unq_cnt = np.unique(s0, return_index=True, return_counts=True)
 s = [smi2esmi(s0[x]) for x in unq_idx]
-for i in range(len(beta)):
+for i, beta_ in enumerate(beta):
     print(i)
     print([esmi2smi(x) for x in s])
 

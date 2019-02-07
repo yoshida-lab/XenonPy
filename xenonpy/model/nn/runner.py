@@ -1,14 +1,14 @@
-# Copyright 2018 TsumiNa. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
+#  Copyright 2019. TsumiNa. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
 import math
 import types
 from datetime import datetime, timedelta
 from functools import wraps
+from pathlib import Path
 from platform import version as sys_ver
 from sys import version as py_ver
 
-from pathlib import Path
 import numpy as np
 import pandas as pd
 import torch
@@ -17,9 +17,9 @@ import torch.nn.functional as F
 import torch.utils.data as Data
 from sklearn.base import BaseEstimator, RegressorMixin
 
+from .checker import Checker
 from ..._conf import __version__
 from ...utils import TimedMetaClass
-from .checker import Checker
 
 
 def persist(*args, **kwargs):
@@ -479,7 +479,7 @@ class RegressionRunner(BaseRunner, RegressorMixin):
         self.logger('Runner environment:', 'Running dir: {}'.format(self._work_dir),
                     'Epochs: {}'.format(self._epochs), 'Context: {}'.format(self._device),
                     'Check step: {}'.format(self._check_step), 'Log step: {}\n'.format(
-                        self._log_step))
+                self._log_step))
 
     @property
     def lr(self):

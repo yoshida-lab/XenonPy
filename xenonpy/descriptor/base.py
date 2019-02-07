@@ -1,6 +1,6 @@
-# Copyright 2017 TsumiNa. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
+#  Copyright 2019. TsumiNa. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
 
 from collections import defaultdict
 from collections.abc import Iterable
@@ -79,19 +79,23 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
     __citations__ = ['No citations']
     _n_jobs = 1
 
-    def __init__(self, n_jobs=-1, ignore_errors=False):
+    def __init__(self, n_jobs=-1, *, on_errors='raise'):
         """
         Parameters
         ----------
         n_jobs: int
-            The number of jobs to run in parallel for both fit and predict.
-            If -1, then the number of jobs is set to the number of cores.
-        ignore_errors: bool
-            Returns NaN for entries where exceptions are
-            thrown if True. If False, exceptions are thrown as normal.
+            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+            Inputs ``X`` will be split into some blocks then run on each cpu cores.
+            When set to 0, input X will be treated as a block and pass to ``Featurizer.featurize`` directly.
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
         """
         self.n_jobs = n_jobs
-        self.__ignore_errors = ignore_errors
+        self._on_errors = on_errors
 
     @property
     def n_jobs(self):
@@ -173,9 +177,12 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
                 return self.featurize(x)
             return self.featurize(*x)
         except BaseException as e:
-            if self.__ignore_errors:
-                return [float("nan")] * len(self.feature_labels)
-            raise e
+            if self._on_errors == 'nan':
+                return [np.nan] * len(self.feature_labels)
+            elif self._on_errors == 'keep':
+                return [e] * len(self.feature_labels)
+            else:
+                raise e
 
     def featurize(self, *x, **kwargs):
         """

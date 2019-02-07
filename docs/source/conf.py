@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
+#  Copyright 2019. TsumiNa. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
+
 #
 # XenonPy documentation build configuration file, created by
 # sphinx-quickstart on Mon Jan 15 16:41:55 2018.

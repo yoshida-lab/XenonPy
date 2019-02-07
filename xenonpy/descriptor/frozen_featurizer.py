@@ -11,11 +11,11 @@ from .base import BaseFeaturizer
 
 class FrozenFeaturizer(BaseFeaturizer):
 
-    def __init__(self, model=None, cuda=False):
+    def __init__(self, model=None, cuda=False, *, on_errors='raise'):
         """
         Base class for composition feature.
         """
-        super().__init__(n_jobs=0)
+        super().__init__(n_jobs=0, on_errors=on_errors)
         self._model = model
         self._cuda = cuda
         self._ret = []

@@ -1,6 +1,6 @@
-# Copyright 2018 TsumiNa. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
+#  Copyright 2019. TsumiNa. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
 
 from multiprocessing import cpu_count
 
@@ -100,6 +100,43 @@ def test_base_feature_2(data):
     ret = featurizer.fit_transform(pd.Series([1, 2, 3, 4]))
     assert isinstance(ret, pd.DataFrame)
     assert (ret.values.ravel() == np.array([1, 2, 3, 4])).all()
+
+
+def test_base_feature_3(data):
+    class _ErrorFeaturier(BaseFeaturizer):
+
+        def __init__(self, n_jobs=1, on_errors='raise'):
+            super().__init__(n_jobs=n_jobs, on_errors=on_errors)
+
+        def featurize(self, *x):
+            raise ValueError()
+
+        @property
+        def feature_labels(self):
+            return ['labels']
+
+    featurizer = _ErrorFeaturier()
+    assert isinstance(featurizer, BaseFeaturizer)
+    try:
+        featurizer.fit_transform([1, 2, 3, 4])
+    except ValueError:
+        assert True
+    else:
+        assert False
+
+    featurizer = _ErrorFeaturier(on_errors='keep')
+    try:
+        tmp = featurizer.fit_transform([1, 2, 3, 4])
+    except ValueError:
+        assert False
+    assert np.alltrue([isinstance(e[0], ValueError) for e in tmp])
+
+    featurizer = _ErrorFeaturier(on_errors='nan')
+    try:
+        tmp = featurizer.fit_transform([1, 2, 3, 4])
+    except ValueError:
+        assert False
+    assert np.alltrue([np.isnan(e[0]) for e in tmp])
 
 
 def test_base_descriptor_1(data):

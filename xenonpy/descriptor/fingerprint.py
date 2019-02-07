@@ -25,7 +25,7 @@ class RDKitFP(BaseFeaturizer):
 
     @property
     def feature_labels(self):
-        return ["rdkit:" + str(i) for i in range(self.fp_size)]
+        return ["rdkit:" + str(i + 1) for i in range(self.fp_size)]
 
 
 class AtomPairFP(BaseFeaturizer):
@@ -52,7 +52,7 @@ class AtomPairFP(BaseFeaturizer):
 
     @property
     def feature_labels(self):
-        return ['apfp:' + str(i) for i in range(self.n_bits)]
+        return ['apfp:' + str(i + 1) for i in range(self.n_bits)]
 
 
 class TopologicalTorsionFP(BaseFeaturizer):
@@ -77,7 +77,7 @@ class TopologicalTorsionFP(BaseFeaturizer):
 
     @property
     def feature_labels(self):
-        return ['ttfp:' + str(i) for i in range(self.n_bits)]
+        return ['ttfp:' + str(i + 1) for i in range(self.n_bits)]
 
 
 class MACCS(BaseFeaturizer):
@@ -94,7 +94,7 @@ class MACCS(BaseFeaturizer):
 
     @property
     def feature_labels(self):
-        return ['maccs:' + str(i) for i in range(167)]
+        return ['maccs:' + str(i + 1) for i in range(167)]
 
 
 class FCFP(BaseFeaturizer):
@@ -126,7 +126,7 @@ class FCFP(BaseFeaturizer):
 
     @property
     def feature_labels(self):
-        return ['fcfp3:' + str(i) for i in range(self.n_bits)]
+        return ['fcfp3:' + str(i + 1) for i in range(self.n_bits)]
 
 
 class ECFP(BaseFeaturizer):
@@ -155,7 +155,7 @@ class ECFP(BaseFeaturizer):
 
     @property
     def feature_labels(self):
-        return ['ecfp3:' + str(i) for i in range(self.n_bits)]
+        return ['ecfp3:' + str(i + 1) for i in range(self.n_bits)]
 
 
 class DescriptorFeature(BaseFeaturizer):
@@ -175,7 +175,7 @@ class DescriptorFeature(BaseFeaturizer):
 
     @property
     def feature_labels(self):
-        return ['desc200:' + str(i) for i in range(200)]
+        return ['desc200:' + str(i + 1) for i in range(200)]
 
 
 class Fingerprints(BaseDescriptor):

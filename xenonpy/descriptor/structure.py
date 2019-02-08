@@ -24,7 +24,7 @@ class RadialDistributionFunction(BaseFeaturizer):
     def feature_labels(self):
         return [str(d) for d in self._interval[1:]]
 
-    def __init__(self, n_bins=201, r_max=20.0, *, n_jobs=-1):
+    def __init__(self, n_bins=201, r_max=20.0, *, n_jobs=-1, on_errors='raise'):
         """
         
         Parameters
@@ -35,7 +35,7 @@ class RadialDistributionFunction(BaseFeaturizer):
             Maximum of radial grid (the minimum is always set zero).
         """
 
-        super().__init__(n_jobs=n_jobs)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
         assert n_bins >= 1, "n_bins should be greater than 1!"
         assert r_max > 0, "r_max should be greater than 0!"
 
@@ -83,7 +83,7 @@ class ObitalFieldMatrix(BaseFeaturizer):
 
     """
 
-    def __init__(self, including_d=True, *, n_jobs=-1):
+    def __init__(self, including_d=True, *, n_jobs=-1, on_errors='raise'):
         """
 
         Parameters
@@ -91,7 +91,7 @@ class ObitalFieldMatrix(BaseFeaturizer):
         including_d: bool
             If true, add distance information.
         """
-        super().__init__(n_jobs=n_jobs)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
         self._including_d = including_d
 
     @staticmethod
@@ -214,7 +214,7 @@ class Structures(BaseDescriptor):
     Calculate elemental descriptors from compound's composition.
     """
 
-    def __init__(self, *, n_bins=201, r_max=20.0, including_d=True, n_jobs=-1):
+    def __init__(self, n_bins=201, r_max=20.0, including_d=True, *, n_jobs=-1, on_errors='raise'):
         """
 
         Parameters
@@ -232,5 +232,5 @@ class Structures(BaseDescriptor):
         super().__init__()
         self.n_jobs = n_jobs
 
-        self.structure = RadialDistributionFunction(n_bins, r_max, n_jobs=n_jobs)
-        self.structure = ObitalFieldMatrix(including_d, n_jobs=n_jobs)
+        self.structure = RadialDistributionFunction(n_bins, r_max, n_jobs=n_jobs, on_errors=on_errors)
+        self.structure = ObitalFieldMatrix(including_d, n_jobs=n_jobs, on_errors=on_errors)

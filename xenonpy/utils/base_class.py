@@ -1,6 +1,6 @@
-# Copyright 2018 TsumiNa. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
+#  Copyright 2019. yoshida-lab. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
 
 import time
 import types
@@ -63,25 +63,24 @@ class Timer(object):
         self.stop()
 
 
+def _timed(fn):
+    if isinstance(fn, (types.FunctionType, types.MethodType)):
+        @wraps(fn)
+        def fn_(self, *args, **kwargs):
+            self._timer.start(fn.__name__)
+            rt = fn(self, *args, **kwargs)
+            self._timer.stop(fn.__name__)
+            return rt
+
+        return fn_
+    raise TypeError('Need <FunctionType> or <MethodType> but got %s' % type(fn))
+
+
 class TimedMetaClass(type):
     """
     This metaclass replaces each methods of its classes
     with a new function that is timed
     """
-
-    def _timed(fn):
-        if isinstance(fn, (types.FunctionType, types.MethodType)):
-            @wraps(fn)
-            def fn_(self, *args, **kwargs):
-                self._timer.start(fn.__name__)
-                try:
-                    rt = fn(self, *args, **kwargs)
-                finally:
-                    self._timer.stop(fn.__name__)
-                return rt
-
-            return fn_
-        raise TypeError('Need <FunctionType> or <MethodType> but got %s' % type(fn))
 
     def __new__(mcs, name, bases, attrs):
 
@@ -103,7 +102,7 @@ class TimedMetaClass(type):
 
         for name_, value_ in attrs.items():
             if not name_.startswith("__") and isinstance(value_, (types.FunctionType, types.MethodType)):
-                attrs[name_] = TimedMetaClass._timed(value_)
+                attrs[name_] = _timed(value_)
 
         return super(TimedMetaClass, mcs).__new__(mcs, name, bases, attrs)
 

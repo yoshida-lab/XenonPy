@@ -1,6 +1,6 @@
-# Copyright 2017 TsumiNa. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
+#  Copyright 2019. yoshida-lab. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
 
 # change version in there, conf.yml, setup.py
 __all__ = ['descriptor', 'model', 'utils', 'visualization', 'datatools', 'math']

@@ -1,4 +1,4 @@
-#  Copyright 2019. yoshida-lab. All rights reserved.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
@@ -330,7 +330,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         X = self._check_input(X)
         for k, features in self.__featurizers__.items():
             for f in features:
-                f.fit(X[k], y, **fit_params)
+                f.fit(X[k], )
 
         return self
 

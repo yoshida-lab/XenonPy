@@ -6,7 +6,7 @@
 import os
 from pathlib import Path
 
-from xenonpy.utils.gadget import set_env, absolute_path
+from xenonpy.utils import set_env, absolute_path
 
 
 def test_set_env1():

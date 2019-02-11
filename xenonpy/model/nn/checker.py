@@ -8,7 +8,7 @@ import torch
 from sklearn.externals import joblib
 
 from ...datatools.dataset import LocalStorage
-from ...utils.gadget import get_data_loc
+from ...utils import get_data_loc
 
 
 class Checker(LocalStorage):

@@ -17,8 +17,8 @@ from ruamel.yaml import YAML
 from sklearn.externals import joblib
 
 from .._conf import __cfg_root__
-from ..utils.base_class import Singleton
-from ..utils.gadget import get_conf, get_dataset_url, get_data_loc, absolute_path, get_sha256
+from ..utils import Singleton
+from ..utils import get_conf, get_dataset_url, get_data_loc, absolute_path, get_sha256
 
 
 class LocalStorage(object):

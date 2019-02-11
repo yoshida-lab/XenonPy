@@ -260,7 +260,7 @@ class Scaler(BaseEstimator, TransformerMixin):
             Input data that will be transformed.
         """
         for s in self._scalers:
-            x = s.transform(x)
+            x = s.proposal(x)
         return x
 
     def inverse_transform(self, x):

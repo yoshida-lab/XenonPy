@@ -1,6 +1,6 @@
-# Copyright 2018 TsumiNa. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
 
 from multiprocessing import cpu_count
 
@@ -163,7 +163,7 @@ def test_base_descriptor_2(data):
 def test_base_descriptor_3(data):
     bd = data['descriptor']()
     try:
-        bd.fit([1, 2, 3, 4])
+        bd.fit([1, 2, 3, 4], )
     except TypeError:
         assert True
     else:

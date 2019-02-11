@@ -1,4 +1,4 @@
-#  Copyright 2019. yoshida-lab. All rights reserved.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
@@ -13,10 +13,12 @@ from numpy import random
 from rdkit import Chem
 from sklearn.base import RegressorMixin, TransformerMixin
 
-from .base_smc import BaseSMC
+from .base import BaseLogLikelihood, BaseModifier
+from ..smc import BaseSMC
 
 
 class IQSPR(BaseSMC):
+
     def __init__(self, target, estimator, modifier):
         """
         SMC iQDPR runner.
@@ -27,9 +29,9 @@ class IQSPR(BaseSMC):
         estimator : RegressorMixin
         modifier : TransformerMixin
         """
-        if not isinstance(estimator, RegressorMixin):
+        if not isinstance(estimator, BaseLogLikelihood):
             raise TypeError('<estimator> must be a subClass of  <BaseLogLikelihood>')
-        if not isinstance(modifier, TransformerMixin):
+        if not isinstance(modifier, BaseModifier):
             raise TypeError('<modifier> must be a subClass of  <BaseProposer>')
         self._modifier = modifier
         self._estimator = estimator
@@ -68,8 +70,10 @@ class IQSPR(BaseSMC):
 
         esmi_list = smi_list + ['!']
         substr_list = []  # list of all contracted substrings (include current char.)
-        br_list = []  # list of whether open branch exist at current character position (include current char.)
-        ring_list = []  # list of number of open ring at current character position (include current char.)
+        br_list = [
+        ]  # list of whether open branch exist at current character position (include current char.)
+        ring_list = [
+        ]  # list of number of open ring at current character position (include current char.)
         v_substr = []  # list of temporary contracted substrings
         v_ringn = []  # list of numbering of open rings
         c_br = 0  # tracking open branch steps for recording contracted substrings
@@ -111,7 +115,12 @@ class IQSPR(BaseSMC):
             br_list.append(n_br)
             ring_list.append(len(v_ringn))
 
-        return pd.DataFrame({'esmi': esmi_list, 'n_br': br_list, 'n_ring': ring_list, 'substr': substr_list})
+        return pd.DataFrame({
+            'esmi': esmi_list,
+            'n_br': br_list,
+            'n_ring': ring_list,
+            'substr': substr_list
+        })
 
     # may add error check here in the future?
     @classmethod
@@ -168,40 +177,12 @@ class IQSPR(BaseSMC):
         np.put(ll, idx, tmp)
         return ll
 
-    def update_ngram(self, esmi_pd):
-        for iB in [False, True]:
-            # index for open/closed branches char. position, remove last row for '!'
-            idx_B = esmi_pd.iloc[:-1].index[(esmi_pd['n_br'].iloc[:-1] > 0) == iB]
-            list_R = esmi_pd['n_ring'][idx_B].unique().tolist()
-            if len(list_R) > 0:
-                if len(self._modifier[0][iB]) < (max(list_R) + 1):  # expand list of dataframe for max. num-of-ring + 1
-                    for ii in range(len(self._modifier)):
-                        self._modifier[ii][iB].extend(
-                            [pd.DataFrame() for i in range((max(list_R) + 1) - len(self._modifier[ii][iB]))])
-                for iR in list_R:
-                    idx_R = idx_B[esmi_pd['n_ring'][idx_B] == iR]  # index for num-of-open-ring char. pos.
-                    tar_char = esmi_pd['esmi'][
-                        idx_R + 1].tolist()  # shift one down for 'next character given substring'
-                    tar_substr = esmi_pd['substr'][idx_R].tolist()
-                    for iO in range(len(self._modifier)):
-                        idx_O = [x for x in range(len(tar_substr)) if
-                                 len(tar_substr[x]) > iO]  # index for char with substring length not less than order
-                        for iC in idx_O:
-                            if not tar_char[iC] in self._modifier[iO][iB][iR].columns.tolist():
-                                self._modifier[iO][iB][iR][tar_char[iC]] = 0
-                            tmp_row = str(tar_substr[iC][-(iO + 1):])
-                            if not tmp_row in self._modifier[iO][iB][iR].index.tolist():
-                                self._modifier[iO][iB][iR].loc[tmp_row] = 0
-                            self._modifier[iO][iB][iR].loc[
-                                tmp_row, tar_char[iC]] += 1  # somehow 'at' not ok with mixed char and int column names
-
-        # return self._ngram_tab #maybe not needed?
-
     def proposal(self, x, size, p=None):
         if self.n_gram_table is None:
             raise ValueError(
                 'Must have a pre-trained n-gram table,',
-                'you can set one your already had or train a new one by using <update_ngram> method')
+                'you can set one your already had or train a new one by using <update_ngram> method'
+            )
         pass
 
     # get probability vector for sampling next character, return character list and corresponding probability in numpy.array (normalized)
@@ -212,7 +193,8 @@ class IQSPR(BaseSMC):
     def get_prob(self, tmp_str, iB, iR):
         # right now we use back-off method, an alternative is Kneser–Nay smoothing
         for iO in range(len(self._modifier) - 1, -1, -1):
-            if (len(tmp_str) > iO) & (str(tmp_str[-(iO + 1):]) in self._modifier[iO][iB][iR].index.tolist()):
+            if (len(tmp_str) > iO) & (str(
+                    tmp_str[-(iO + 1):]) in self._modifier[iO][iB][iR].index.tolist()):
                 cand_char = self._modifier[iO][iB][iR].columns.tolist()
                 cand_prob = np.array(self._modifier[iO][iB][iR].loc[str(tmp_str[-(iO + 1):])])
                 break
@@ -240,7 +222,8 @@ class IQSPR(BaseSMC):
             #        idx = next((x for x in range(len(new_pd_row['substr'])-1,-1,-1) if new_pd_row['substr'][x] == '('), None)
             # find index of the last unclosed '('
             tmp_c = 1
-            for x in range(len(new_pd_row['substr']) - 2, -1, -1):  # exclude the already added "next_char"
+            for x in range(len(new_pd_row['substr']) - 2, -1,
+                           -1):  # exclude the already added "next_char"
                 if new_pd_row['substr'][x] == '(':
                     tmp_c -= 1
                 elif new_pd_row['substr'][x] == ')':
@@ -292,7 +275,8 @@ class IQSPR(BaseSMC):
             for i in num_close:
                 num_open.pop(i)
             # delete all irrelevant rows and reconstruct esmi
-            esmi_pd = self.smi2esmi(self.esmi2smi(esmi_pd.drop(esmi_pd.index[num_open]).reset_index(drop=True)))
+            esmi_pd = self.smi2esmi(
+                self.esmi2smi(esmi_pd.drop(esmi_pd.index[num_open]).reset_index(drop=True)))
         #    if esmi_pd['n_ring'].iloc[-1] > 0:
         #        if random.getrandbits(1): # currently 50% change adding
         #            # add a character
@@ -334,7 +318,8 @@ class IQSPR(BaseSMC):
         # number of add/delete (n) with probability of add = p
         n_add = sum(np.random.choice([False, True], n, p=[1 - p, p]))
         # first delete then add
-        esmi_pd = self.del_char(esmi_pd, min(n - n_add + 1, len(esmi_pd) - 1))  # at least leave 1 character
+        esmi_pd = self.del_char(esmi_pd, min(n - n_add + 1,
+                                             len(esmi_pd) - 1))  # at least leave 1 character
         for i in range(n_add):
             esmi_pd, _ = self.sample_next_char(esmi_pd, self._modifier)
             if esmi_pd['esmi'].iloc[-1] == '!':
@@ -343,5 +328,10 @@ class IQSPR(BaseSMC):
         print(esmi_pd)
         print("-----")
         esmi_pd = self.valid_esmi(esmi_pd, self._modifier)
-        new_pd_row = {'esmi': '!', 'n_br': 0, 'n_ring': 0, 'substr': esmi_pd['substr'].iloc[-1] + ['!']}
+        new_pd_row = {
+            'esmi': '!',
+            'n_br': 0,
+            'n_ring': 0,
+            'substr': esmi_pd['substr'].iloc[-1] + ['!']
+        }
         return esmi_pd.append(new_pd_row, ignore_index=True)

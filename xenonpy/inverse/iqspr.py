@@ -11,27 +11,49 @@ import pandas as pd
 import scipy.stats as sps
 from numpy import random
 from rdkit import Chem
+from sklearn.base import RegressorMixin, TransformerMixin
 
-from . import BaseSMC
-from ..descriptor import BaseDescriptor
+from .base_smc import BaseSMC
 
 
 class IQSPR(BaseSMC):
-    def __init__(self, target, descriptor_gen, ngram_table=None):
-        """"""
-        self._ngram_tab = deepcopy(ngram_table)
-        if not isinstance(descriptor_gen, BaseDescriptor):
-            raise TypeError('<descriptor_gen> must be a instance of <xenonpy.descriptor.BaseDescriptor>')
-        self.descriptor_gen = descriptor_gen
+    def __init__(self, target, estimator, modifier):
+        """
+        SMC iQDPR runner.
+
+        Parameters
+        ----------
+        target : object
+        estimator : RegressorMixin
+        modifier : TransformerMixin
+        """
+        if not isinstance(estimator, RegressorMixin):
+            raise TypeError('<estimator> must be a subClass of  <BaseLogLikelihood>')
+        if not isinstance(modifier, TransformerMixin):
+            raise TypeError('<modifier> must be a subClass of  <BaseProposer>')
+        self._modifier = modifier
+        self._estimator = estimator
         self.target = target
 
     @property
-    def ngram_table(self):
-        return self._ngram_tab
+    def modifier(self):
+        return self._modifier
 
-    @ngram_table.setter
-    def ngram_table(self, table):
-        self._ngram_tab = deepcopy(table)
+    @modifier.setter
+    def modifier(self, value):
+        if not isinstance(value, RegressorMixin):
+            raise TypeError('<modifier> must implement  <RegressorMixin>')
+        self._modifier = value
+
+    @property
+    def estimator(self):
+        return self._estimator
+
+    @estimator.setter
+    def estimator(self, value):
+        if not isinstance(value, TransformerMixin):
+            raise TypeError('<modifier> must immplement  <TransformerMixin>')
+        self._estimator = value
 
     @classmethod
     def smi2list(cls, smi_str):
@@ -123,7 +145,7 @@ class IQSPR(BaseSMC):
             return [self.esmi2smi(x_) for x_ in x]
         return [self.smi2esmi(x_) for x_ in x]
 
-    def loglikelihood(self, x):
+    def log_likelihood(self, x):
         # target molecule with Tg > tar_min_Tg
 
         ll = np.repeat(-1000.0, len(x))  # note: the constant will determine the vector type!
@@ -141,7 +163,7 @@ class IQSPR(BaseSMC):
         idx = [idx[i] for i in range(len(idx)) if ~tmp[i]]
         tar_fps.dropna(inplace=True)
         # predict Tg values and calc. log-likelihood
-        tar_mean, tar_std = mdl.predict(tar_fps, return_std=True)
+        tar_mean, tar_std = self._estimator.predict(tar_fps, return_std=True)
         tmp = sps.norm.logcdf(-self.target, loc=-np.asarray(tar_mean), scale=np.asarray(tar_std))
         np.put(ll, idx, tmp)
         return ll
@@ -152,25 +174,25 @@ class IQSPR(BaseSMC):
             idx_B = esmi_pd.iloc[:-1].index[(esmi_pd['n_br'].iloc[:-1] > 0) == iB]
             list_R = esmi_pd['n_ring'][idx_B].unique().tolist()
             if len(list_R) > 0:
-                if len(self._ngram_tab[0][iB]) < (max(list_R) + 1):  # expand list of dataframe for max. num-of-ring + 1
-                    for ii in range(len(self._ngram_tab)):
-                        self._ngram_tab[ii][iB].extend(
-                            [pd.DataFrame() for i in range((max(list_R) + 1) - len(self._ngram_tab[ii][iB]))])
+                if len(self._modifier[0][iB]) < (max(list_R) + 1):  # expand list of dataframe for max. num-of-ring + 1
+                    for ii in range(len(self._modifier)):
+                        self._modifier[ii][iB].extend(
+                            [pd.DataFrame() for i in range((max(list_R) + 1) - len(self._modifier[ii][iB]))])
                 for iR in list_R:
                     idx_R = idx_B[esmi_pd['n_ring'][idx_B] == iR]  # index for num-of-open-ring char. pos.
                     tar_char = esmi_pd['esmi'][
                         idx_R + 1].tolist()  # shift one down for 'next character given substring'
                     tar_substr = esmi_pd['substr'][idx_R].tolist()
-                    for iO in range(len(self._ngram_tab)):
+                    for iO in range(len(self._modifier)):
                         idx_O = [x for x in range(len(tar_substr)) if
                                  len(tar_substr[x]) > iO]  # index for char with substring length not less than order
                         for iC in idx_O:
-                            if not tar_char[iC] in self._ngram_tab[iO][iB][iR].columns.tolist():
-                                self._ngram_tab[iO][iB][iR][tar_char[iC]] = 0
+                            if not tar_char[iC] in self._modifier[iO][iB][iR].columns.tolist():
+                                self._modifier[iO][iB][iR][tar_char[iC]] = 0
                             tmp_row = str(tar_substr[iC][-(iO + 1):])
-                            if not tmp_row in self._ngram_tab[iO][iB][iR].index.tolist():
-                                self._ngram_tab[iO][iB][iR].loc[tmp_row] = 0
-                            self._ngram_tab[iO][iB][iR].loc[
+                            if not tmp_row in self._modifier[iO][iB][iR].index.tolist():
+                                self._modifier[iO][iB][iR].loc[tmp_row] = 0
+                            self._modifier[iO][iB][iR].loc[
                                 tmp_row, tar_char[iC]] += 1  # somehow 'at' not ok with mixed char and int column names
 
         # return self._ngram_tab #maybe not needed?
@@ -189,10 +211,10 @@ class IQSPR(BaseSMC):
     # Warning: may need to add worst case that no pattern found at all?
     def get_prob(self, tmp_str, iB, iR):
         # right now we use back-off method, an alternative is Kneser–Nay smoothing
-        for iO in range(len(self._ngram_tab) - 1, -1, -1):
-            if (len(tmp_str) > iO) & (str(tmp_str[-(iO + 1):]) in self._ngram_tab[iO][iB][iR].index.tolist()):
-                cand_char = self._ngram_tab[iO][iB][iR].columns.tolist()
-                cand_prob = np.array(self._ngram_tab[iO][iB][iR].loc[str(tmp_str[-(iO + 1):])])
+        for iO in range(len(self._modifier) - 1, -1, -1):
+            if (len(tmp_str) > iO) & (str(tmp_str[-(iO + 1):]) in self._modifier[iO][iB][iR].index.tolist()):
+                cand_char = self._modifier[iO][iB][iR].columns.tolist()
+                cand_prob = np.array(self._modifier[iO][iB][iR].loc[str(tmp_str[-(iO + 1):])])
                 break
         return (cand_char, cand_prob / sum(cand_prob))
 
@@ -200,7 +222,7 @@ class IQSPR(BaseSMC):
     def sample_next_char(self, esmi_pd):
         iB = esmi_pd['n_br'].iloc[-1] > 0
         iR = esmi_pd['n_ring'].iloc[-1]
-        cand_char, cand_prob = self.get_prob(esmi_pd['substr'].iloc[-1], self._ngram_tab, iB, iR)
+        cand_char, cand_prob = self.get_prob(esmi_pd['substr'].iloc[-1], self._modifier, iB, iR)
         # here we assume cand_char is not empty
         tmp = random.choices(range(len(cand_char)), weights=cand_prob)
         esmi_pd = self.add_char(esmi_pd, cand_char[tmp[0]])
@@ -257,7 +279,7 @@ class IQSPR(BaseSMC):
         for i in range(len(esmi_pd)):  # max to double the length of current SMILES
             if flag_ring and (random.random() < 0.7):  # 50/50 for adding two new char.
                 # add a character
-                esmi_pd, _ = self.sample_next_char(esmi_pd, self._ngram_tab)
+                esmi_pd, _ = self.sample_next_char(esmi_pd, self._modifier)
                 flag_ring = esmi_pd['n_ring'].iloc[-1] > 0
             else:
                 break
@@ -314,12 +336,12 @@ class IQSPR(BaseSMC):
         # first delete then add
         esmi_pd = self.del_char(esmi_pd, min(n - n_add + 1, len(esmi_pd) - 1))  # at least leave 1 character
         for i in range(n_add):
-            esmi_pd, _ = self.sample_next_char(esmi_pd, self._ngram_tab)
+            esmi_pd, _ = self.sample_next_char(esmi_pd, self._modifier)
             if esmi_pd['esmi'].iloc[-1] == '!':
                 return esmi_pd  # stop when hitting '!', assume must be valid SMILES
         print(self.esmi2smi(esmi_pd))
         print(esmi_pd)
         print("-----")
-        esmi_pd = self.valid_esmi(esmi_pd, self._ngram_tab)
+        esmi_pd = self.valid_esmi(esmi_pd, self._modifier)
         new_pd_row = {'esmi': '!', 'n_br': 0, 'n_ring': 0, 'substr': esmi_pd['substr'].iloc[-1] + ['!']}
         return esmi_pd.append(new_pd_row, ignore_index=True)

@@ -26,7 +26,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             def featurize(self, *x):
                 return <xenonpy_featurizer>.featurize(*x)
 
-    .. _matminer BaseFeaturizer: https://github.com/hackingmaterials/matminer/blob/master/matminer/featurizers/base.py
+    .. _matminer BaseFeaturizer: https://github.com/hackingmaterials/matminer/blob/master/matminer/featurizers/base_smc.py
 
     **Using a BaseFeaturizer Class**
 

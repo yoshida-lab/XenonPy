@@ -2,7 +2,6 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-# %%
 import numpy as np
 from sklearn.base import BaseEstimator
 
@@ -11,7 +10,7 @@ from ..utils import TimedMetaClass
 
 class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
 
-    def loglikelihood(self, x):
+    def log_likelihood(self, x):
         """
         Likelihood function.
 
@@ -117,8 +116,8 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
         samples = self.translator(samples)
         for i, step in enumerate(beta):
             # annealed likelihood in log - adjust with copy counts
-            # todo: maybe user have no need to know that likelihood function should return log scaled values
-            w = self.loglikelihood(samples) * step + np.log(frequency)
+            ll = self.log_likelihood(samples)
+            w = ll * step + np.log(frequency)
             wSum = np.log(sum(np.exp(w - max(w)))) + max(w)  # avoid underflow
             probs = np.exp(w - wSum)
             samples = self.proposal(samples, size, p=probs)

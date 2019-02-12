@@ -15,12 +15,26 @@ class BaseLogLikelihood(BaseEstimator, ABC):
     def fit(self, X, y=None, **kwargs):
         return self
 
-    def __call__(self, *args, **kwargs):
-        return self.log_likelihood(*args, **kwargs)
+    def __call__(self, X, target):
+        return self.log_likelihood(X, target)
 
     @abstractmethod
-    def log_likelihood(self, X, *, target):
-        """"""
+    def log_likelihood(self, X, target):
+        """
+        Log likelihood
+
+        Parameters
+        ----------
+        X: list of object
+            Input samples for likelihood calculation.
+        target: float
+            Target area.
+
+        Returns
+        -------
+        log_likelihood: np.ndarray of float
+            Estimated likelihood of each samples.
+        """
         pass
 
 
@@ -28,43 +42,60 @@ class BaseProposer(BaseEstimator, ABC):
     def fit(self, X, y, **kwargs):
         return self
 
-    def __call__(self, *args, **kwargs):
-        return self.proposal(*args, **kwargs)
+    def __call__(self, X, size, *, p=None):
+        return self.proposal(X, size, p=p)
 
     @abstractmethod
-    def proposal(self, X, size, p=None):
-        """"""
+    def proposal(self, X, size, *, p=None):
+        """
+        Proposal new samples based on the input samples.
+
+        Parameters
+        ----------
+        X: list of object
+            Samples for generate next samples
+        size: int
+            Sampling size.
+        p: list of float
+            A 1-D array-like object.
+            The probabilities associated with each entry in x. Should be a 1-D array-like object.
+
+        Returns
+        -------
+        samples: list of object
+            Generated samples from input samples.
+        """
         pass
 
 
 class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
     _log_likelihood = None
     _proposer = None
+    _target = None
 
-    def log_likelihood(self, X, *, target):
+    def log_likelihood(self, X, target):
         """
         Likelihood function.
 
         Parameters
         ----------
-        target
         X: list of object
             Samples for likelihood calculation.
-
+        target : float
+            Search Target
         Returns
         -------
-        log_likelihood: list of float
+        log_likelihood: np.ndarray of float
             Log scaled likelihood values.
-        frequency: list of float
-            Number of times each of the unique sample comes up in the original samples.
         """
         if self._log_likelihood is None:
             raise NotImplementedError('user need to implement <likelihood> method'
                                       'or set <self._log_likelihood> to a instance of <BaseLogLikelihood>')
-        return self._log_likelihood(X, target=target)
+        return self._log_likelihood(X, target)
 
-    def proposal(self, X, size, p=None):
+    def proposal(self, X, size, *, p=None):
         """
+        Proposal new samples based on the input samples.
 
         Parameters
         ----------
@@ -84,10 +115,27 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
         if self._proposer is None:
             raise NotImplementedError('user need to implement <proposal> method'
                                       'or set <self._proposer> to a instance of <BaseProposer>')
-        return self._proposer(X, size, p)
+        return self._proposer(X, size, p=p)
 
     def on_errors(self, ite, samples, target, error):
         raise error
+
+    def unique(self, X):
+        """
+
+        Parameters
+        ----------
+        X: list of object
+            Input samples.
+
+        Returns
+        -------
+        unique: list of object
+            The sorted unique values.
+        unique_counts: np.ndarray of int
+            The number of times each of the unique values comes up in the original array
+        """
+        return np.unique(X, return_counts=True)
 
     def __setattr__(self, key, value):
         if key is '_log_likelihood' and not isinstance(value, BaseLogLikelihood):
@@ -96,7 +144,7 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
             raise TypeError('must be a subClass of <BaseProposer>')
         object.__setattr__(self, key, value)
 
-    def __call__(self, samples, beta, target, size=None, yield_llh=False, yield_weight=False):
+    def __call__(self, samples, beta, *, target=None, size=None, yield_lpf=False):
         """
         Run SMC
 
@@ -107,47 +155,70 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
         beta: list of float
             Annealing parameters for each step.
             Should be a 1-D array-like object.
+        target : float
+            Search Target
         size: int
             Sample size for each draw.
-        yield_llh : bool
-            Yield estimated log likelihood of each samples. Default is ``False``.
-        yield_weight : bool
-            Yield estimated weight of each samples. Default is ``False``.
+        yield_lpf : bool
+            Yield estimated log likelihood, probability and frequency of each samples. Default is ``False``.
 
         Yields
         -------
         samples: list of object
             New samples in each SMC iteration.
-        llh: list of float
-            Estimated log likelihood of each samples.
-            Only yield when ``yield_llh=Ture``.
-        weight: list of float
-            Estimated weight of each samples.
-            Only yield when ``yield_weight=Ture``.
+        llh: np.ndarray float
+            Estimated values of log-likelihood of each samples.
+            Only yield when ``yield_lpf=Ture``.
+        p: np.ndarray of float
+            Estimated probabilities of each samples.
+            Only yield when ``yield_lpf=Ture``.
+        freq: np.ndarray of float
+            The number of unique samples in original samples.
+            Only yield when ``yield_lpf=Ture``.
         """
 
         # sample size will be set to the length of init_samples if None
         if size is None:
             size = len(samples)
 
+        if target is not None:
+            self._target = target
+        else:
+            if self._target is None:
+                raise ValueError('must set a <target>')
+
         # translate between input representation and execute environment representation.
         for i, step in enumerate(beta):
+            unique, frequency = self.unique(samples)
             try:
                 # annealed likelihood in log - adjust with copy counts
-                ll, frequency = self.log_likelihood(samples, target=target)
+                ll = self.log_likelihood(unique, self._target)
                 w = ll * step + np.log(frequency)
-                wSum = np.log(sum(np.exp(w - max(w)))) + max(w)  # avoid underflow
-                probs = np.exp(w - wSum)
-                samples = self.proposal(samples, size, p=probs)
+                w_sum = np.log(sum(np.exp(w - max(w)))) + max(w)  # avoid underflow
+                p = np.exp(w - w_sum)
+                tmp = (unique,)
+                if yield_lpf:
+                    tmp += (ll, p, frequency)
+                if len(tmp) > 1:
+                    yield tmp
+                else:
+                    yield unique
+                samples = self.proposal(unique, size, p=p)
             except BaseException as e:
                 self.on_errors(i, samples, target, e)
 
-            tmp = (samples,)
-            if yield_llh:
-                tmp += (ll,)
-            if yield_weight:
-                tmp += (w,)
+        try:
+            unique, frequency = self.unique(samples)
+            tmp = (unique,)
+            if yield_lpf:
+                ll = self.log_likelihood(unique, self._target)
+                w = ll + np.log(frequency)
+                w_sum = np.log(sum(np.exp(w - max(w)))) + max(w)  # avoid underflow
+                p = np.exp(w - w_sum)
+                tmp += (ll, p, frequency)
             if len(tmp) > 1:
                 yield tmp
             else:
-                yield samples
+                yield unique
+        except BaseException as e:
+            self.on_errors(i + 1, samples, target, e)

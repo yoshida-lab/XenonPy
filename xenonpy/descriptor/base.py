@@ -351,7 +351,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         X = self._check_input(X)
         for k, features in self.__featurizers__.items():
             for f in features:
-                ret = f.proposal(X[k])
+                ret = f.transform(X[k])
                 if isinstance(ret, list):
                     ret = _make_df(f, ret)
                 results.append(ret)

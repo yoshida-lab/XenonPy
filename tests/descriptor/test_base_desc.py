@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from xenonpy.descriptor import BaseDescriptor, BaseFeaturizer
+from xenonpy.descriptor.base import BaseDescriptor, BaseFeaturizer
 
 
 @pytest.fixture(scope='module')

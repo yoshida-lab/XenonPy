@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 from rdkit import Chem
 
-from inverse.base import BaseProposer
+from ..base import BaseProposer
 
 
 class NGram(BaseProposer):
@@ -22,31 +22,25 @@ class NGram(BaseProposer):
             self._table = [[[], []] for i in range(order)]
             self._order = order
 
-    def modify(self, ext_smis, n=8, p=0.5):
-        def _modify_one(ext_smi):
+    def modify(self, ext_smi, n=8, p=0.5):
 
-            # esmi_pd = reorder_esmi(esmi_pd)
-            # number of add/delete (n) with probability of add = p
-            n_add = sum(np.random.choice([False, True], n, p=[1 - p, p]))
-            # first delete then add
-            ext_smi = self.del_char(ext_smi, min(n - n_add + 1, len(ext_smi) - 1))  # at least leave 1 character
-            for i in range(n_add):
-                ext_smi, _ = self.sample_next_char(ext_smi)
-                if ext_smi['esmi'].iloc[-1] == '!':
-                    return ext_smi  # stop when hitting '!', assume must be valid SMILES
-            print(self.esmi2smi(ext_smi))
-            print(ext_smi)
-            print("-----")
-            ext_smi = self.valid_esmi(ext_smi)
-            new_pd_row = {
-                'esmi': '!',
-                'n_br': 0,
-                'n_ring': 0,
-                'substr': ext_smi['substr'].iloc[-1] + ['!']
-            }
-            return ext_smi.append(new_pd_row, ignore_index=True)
-
-        return [_modify_one(es) for es in ext_smis]
+        # esmi_pd = reorder_esmi(esmi_pd)
+        # number of add/delete (n) with probability of add = p
+        n_add = sum(np.random.choice([False, True], n, p=[1 - p, p]))
+        # first delete then add
+        ext_smi = self.del_char(ext_smi, min(n - n_add + 1, len(ext_smi) - 1))  # at least leave 1 character
+        for i in range(n_add):
+            ext_smi, _ = self.sample_next_char(ext_smi)
+            if ext_smi['esmi'].iloc[-1] == '!':
+                return ext_smi  # stop when hitting '!', assume must be valid SMILES
+        ext_smi = self.validator(ext_smi)
+        new_pd_row = {
+            'esmi': '!',
+            'n_br': 0,
+            'n_ring': 0,
+            'substr': ext_smi['substr'].iloc[-1] + ['!']
+        }
+        return ext_smi.append(new_pd_row, ignore_index=True)
 
     @classmethod
     def smi2list(cls, smiles):
@@ -139,7 +133,7 @@ class NGram(BaseProposer):
             smi_list.pop()  # remove the final '!'
         return ''.join(smi_list)
 
-    def fit(self, ext_smi, **kwargs):
+    def fit(self, smis, **kwargs):
         def _fit_one(ext_smi):
             for iB in [False, True]:
                 # index for open/closed branches char. position, remove last row for '!'
@@ -154,22 +148,30 @@ class NGram(BaseProposer):
                                 for i in range((max(list_R) + 1) - len(self._table[ii][iB]))
                             ])
                     for iR in list_R:
-                        idx_R = idx_B[ext_smi['n_ring'][idx_B] ==
-                                      iR]  # index for num-of-open-ring char. pos.
-                        tar_char = ext_smi['esmi'][
-                            idx_R + 1].tolist()  # shift one down for 'next character given substring'
+                        # index for num-of-open-ring char. pos.
+                        idx_R = idx_B[ext_smi['n_ring'][idx_B] == iR]
+
+                        # shift one down for 'next character given substring'
+                        tar_char = ext_smi['esmi'][idx_R + 1].tolist()
                         tar_substr = ext_smi['substr'][idx_R].tolist()
+
                         for iO in range(len(self._table)):
-                            idx_O = [x for x in range(len(tar_substr)) if len(tar_substr[x]) > iO
-                                     ]  # index for char with substring length not less than order
+                            # index for char with substring length not less than order
+                            idx_O = [x for x in range(len(tar_substr)) if len(tar_substr[x]) > iO]
                             for iC in idx_O:
                                 if not tar_char[iC] in self._table[iO][iB][iR].columns.tolist():
                                     self._table[iO][iB][iR][tar_char[iC]] = 0
                                 tmp_row = str(tar_substr[iC][-(iO + 1):])
-                                if not tmp_row in self._table[iO][iB][iR].index.tolist():
+                                if tmp_row not in self._table[iO][iB][iR].index.tolist():
                                     self._table[iO][iB][iR].loc[tmp_row] = 0
-                                self._table[iO][iB][iR].loc[tmp_row, tar_char[
-                                    iC]] += 1  # somehow 'at' not ok with mixed char and int column names
+
+                                # somehow 'at' not ok with mixed char and int column names
+                                self._table[iO][iB][iR].loc[tmp_row, tar_char[iC]] += 1
+
+        for smi in smis:
+            _fit_one(self.smi2esmi(smi))
+
+        return self
 
     # get probability vector for sampling next character, return character list and corresponding probability in numpy.array (normalized)
     # may cause error if empty string list is fed into 'tmp_str'
@@ -227,8 +229,8 @@ class NGram(BaseProposer):
         return ext_smi.append(new_pd_row, ignore_index=True)
 
     @classmethod
-    def del_char(cls, esmi_pd, n_char):
-        return esmi_pd[:-n_char]
+    def del_char(cls, ext_smi, n_char):
+        return ext_smi[:-n_char]
 
     # need to make sure esmi_pd is a completed SMILES to use this function
     @classmethod
@@ -240,60 +242,46 @@ class NGram(BaseProposer):
         ext_smi = cls.smi2esmi(Chem.MolToSmiles(m, rootedAtAtom=idx, kekuleSmiles=True))
         return ext_smi
 
-    def valid_esmi(self, esmi_pd):
+    def validator(self, ext_smi):
         # delete all ending '(' or '&'
-        for i in range(len(esmi_pd)):
-            if not ((esmi_pd['esmi'].iloc[-1] == '(') | (esmi_pd['esmi'].iloc[-1] == '&')):
+        for i in range(len(ext_smi)):
+            if not ((ext_smi['esmi'].iloc[-1] == '(') | (ext_smi['esmi'].iloc[-1] == '&')):
                 break
-            esmi_pd = self.del_char(esmi_pd, 1)
+            ext_smi = self.del_char(ext_smi, 1)
         # delete or fill in ring closing
-        flag_ring = esmi_pd['n_ring'].iloc[-1] > 0
-        for i in range(len(esmi_pd)):  # max to double the length of current SMILES
+        flag_ring = ext_smi['n_ring'].iloc[-1] > 0
+        for i in range(len(ext_smi)):  # max to double the length of current SMILES
             if flag_ring and (np.random.random() < 0.7):  # 50/50 for adding two new char.
                 # add a character
-                esmi_pd, _ = self.sample_next_char(esmi_pd)
-                flag_ring = esmi_pd['n_ring'].iloc[-1] > 0
+                ext_smi, _ = self.sample_next_char(ext_smi)
+                flag_ring = ext_smi['n_ring'].iloc[-1] > 0
             else:
                 break
         if flag_ring:
             # prepare for delete (1st letter shall not be '&')
-            tmp_idx = esmi_pd.iloc[1:].index
-            tmp_count = np.array(esmi_pd['n_ring'].iloc[1:]) - np.array(esmi_pd['n_ring'].iloc[:-1])
+            tmp_idx = ext_smi.iloc[1:].index
+            tmp_count = np.array(ext_smi['n_ring'].iloc[1:]) - np.array(ext_smi['n_ring'].iloc[:-1])
             num_open = tmp_idx[tmp_count == 1]
-            num_close = esmi_pd['esmi'][tmp_count == -1]
+            num_close = ext_smi['esmi'][tmp_count == -1]
             for i in num_close:
                 num_open.pop(i)
             # delete all irrelevant rows and reconstruct esmi
-            esmi_pd = self.smi2esmi(
-                self.esmi2smi(esmi_pd.drop(esmi_pd.index[num_open]).reset_index(drop=True)))
+            ext_smi = self.smi2esmi(
+                self.esmi2smi(ext_smi.drop(ext_smi.index[num_open]).reset_index(drop=True)))
         # fill in branch closing (last letter shall not be '(')
-        for i in range(esmi_pd['n_br'].iloc[-1]):
-            esmi_pd = self.add_char(esmi_pd, ')')
-        #    # change back some lower letter to upper letter (this is wrong cause letter before ring starts will also get converted)
-        #    tmp_ring = (np.array(esmi_pd['n_ring'].iloc[:-1]) + np.array(esmi_pd['n_ring'].iloc[1:])) == 0
-        #    tmp_low = np.array([x.islower() if not isinstance(x, int) else False for x in esmi_pd['esmi'].iloc[:-1]])
-        #    tmp_idx = esmi_pd.iloc[:-1].index
-        #    esmi_pd.loc[tmp_idx[tmp_low & tmp_ring],'esmi'] = esmi_pd['esmi'][tmp_idx[tmp_low & tmp_ring]].str.upper()
-        #    if not isinstance(esmi_pd['esmi'].iloc[-1],int):
-        #        if (esmi_pd['esmi'].iloc[-1].islower()) & (esmi_pd['n_ring'].iloc[-1] == 0):
-        #            #will have warning here, but no solution found yet... both .loc or .at doesn't work (add '-1' row)
-        #            esmi_pd['esmi'].iloc[-1] = esmi_pd['esmi'].iloc[-1].upper()
-        return esmi_pd
+        for i in range(ext_smi['n_br'].iloc[-1]):
+            ext_smi = self.add_char(ext_smi, ')')
 
-    def proposal(self, X):
-        new_smiles = self.modify(X)
-        ll = np.repeat(-1000.0, len(X))  # note: the constant will determine the vector type!
-        mols = []
-        idx = []
-        for i in range(len(X)):
-            try:
-                mols.append(Chem.MolFromSmiles(self.esmi2smi(X[i])))
-                idx.append(i)
-            except BaseException:
-                pass
-        # convert extended SMILES to fingerprints
-        tar_fps = self.descriptor_gen.proposal(mols)
-        tmp = tar_fps.isna().any(axis=1)
-        idx = [idx[i] for i in range(len(idx)) if ~tmp[i]]
-        tar_fps.dropna(inplace=True)
-        pass
+        return ext_smi
+
+    def proposal(self, smis, size, *, p=None):
+        smis = np.random.choice(smis, size, p=p)
+        new_smis = []
+        for i, smi in enumerate(smis):
+            ext_smi = self.smi2esmi(smi)
+            new_ext_smi = self.modify(ext_smi)
+            new_smi = self.esmi2smi(new_ext_smi)
+            if Chem.MolFromSmiles(new_smi) is not None:
+                new_smis.append(new_smi)
+
+        return new_smis

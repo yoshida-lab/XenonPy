@@ -11,9 +11,6 @@ from pymatgen.analysis.local_env import VoronoiNN
 from .base import BaseDescriptor, BaseFeaturizer
 
 
-# class RadialDistributionFunction(BaseEstimator, TransformerMixin):
-
-
 class RadialDistributionFunction(BaseFeaturizer):
     """
     Calculate pair distribution descriptor for machine learning.

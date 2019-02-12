@@ -8,17 +8,9 @@ import pytest
 from xenonpy.descriptor import Compositions
 
 
-@pytest.fixture(scope='module')
-def setup():
-    # prepare path
-    print('Test start')
-    yield test
-    print('Test over')
-
-
 def test_comp_descripotor():
     desc = Compositions(n_jobs=1)
-    ret = desc.fit_transform(pd.Series([{'H': 2}], name='composition'))
+    desc.fit_transform(pd.Series([{'H': 2}], name='composition'))
 
 
 if __name__ == "__main__":

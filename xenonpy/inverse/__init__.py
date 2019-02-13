@@ -2,6 +2,7 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-__all__ = ['IQSPR']
+__all__ = ['iqspr']
 
-from .iqspr import IQSPR
+from . import base
+from . import iqspr

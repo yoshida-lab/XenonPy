@@ -29,13 +29,17 @@ The following table list some core packages in XenonPy images.
 
 | Package        | Version    |
 | -------------- | ---------- |
-| `PyTorch`      | 1.0.0      |
-| `pymatgen`     | 2018.12.12 |
-| `scipy`        | 1.1.0      |
-| `scikit-learn` | 0.20.1     |
-| `pandas`       | 0.23.4     |
+| `PyTorch`      | 1.0.1      |
+| `pymatgen`     | 2019.2.4   |
+| `matminer`     | 0.5.1      |
+| `scipy`        | 1.2.0      |
+| `scikit-learn` | 0.20.2     |
+| `pandas`       | 0.24.1     |
 | `rdkit`        | 2018.09.1  |
 | `jupyter`      | 1.0.0      |
+| `seaborn`      | 0.9.0      |
+| `matplotlib`   | 3.0.2      |
+| `plotly`       | 3.5.0      |
 
 ## Requirements
 

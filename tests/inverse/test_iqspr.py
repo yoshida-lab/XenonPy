@@ -1,4 +1,4 @@
-#  Copyright 2019. TsumiNa. All rights reserved.
+#  Copyright (c) 2019. TsumiNa. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
@@ -26,10 +26,8 @@ def data():
 
 def test_base_bayesian_ridge(data):
     br = BayesianRidgeEstimator(descriptor=data['desc'])
-    
+
     X = np.array([1, 2, 3, 3, 4, 4])
-    ll = llh(X, 10)
-    assert np.all(ll == np.array([1, 2, 3, 3, 4, 4]) * 10)
 
 
 if __name__ == "__main__":

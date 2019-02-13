@@ -5,7 +5,7 @@
 import numpy as np
 import pytest
 
-from xenonpy.inverse.base import BaseLogLikelihood, BaseProposer, BaseSMC
+from xenonpy.inverse.base import BaseLogLikelihood, BaseProposal, BaseSMC
 
 
 @pytest.fixture(scope='module')
@@ -20,17 +20,17 @@ def data():
         def log_likelihood(self, X, target):
             return X * target
 
-    class Proposer(BaseProposer):
+    class Proposal(BaseProposal):
         def proposal(self, X, size, *, p=None):
             return np.random.choice(X, size=size, p=p)
 
     class SMC(BaseSMC):
         def __init__(self):
             self._log_likelihood = LLH()
-            self._proposer = Proposer()
+            self._proposal = Proposal()
 
     # prepare test data
-    yield dict(llh=LLH, prop=Proposer, smc=SMC)
+    yield dict(llh=LLH, prop=Proposal, smc=SMC)
 
     print('test over')
 
@@ -98,14 +98,14 @@ def test_base_smc2(data):
         assert True
 
     try:
-        smc._proposer = 1
+        smc._proposal = 1
     except TypeError:
         assert True
     else:
         assert False, 'should got TypeError'
 
     try:
-        smc._proposer = proposer
+        smc._proposal = proposer
     except TypeError:
         assert False, 'should got TypeError'
     else:

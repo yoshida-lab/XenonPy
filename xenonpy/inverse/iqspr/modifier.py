@@ -10,17 +10,18 @@ import numpy as np
 import pandas as pd
 from rdkit import Chem
 
-from ..base import BaseProposer
+from ..base import BaseProposal
 
 
-class NGram(BaseProposer):
-    def __init__(self, *, ngram_tab=None, order=10):
+class NGram(BaseProposal):
+    def __init__(self, *, ngram_tab=None, train_order=10):
         if ngram_tab is not None:
             self._table = deepcopy(ngram_tab)
-            self._order = len(ngram_tab)
+            self._train_order = len(ngram_tab)
         else:
-            self._table = [[[], []] for i in range(order)]
-            self._order = order
+            self._table = [[[], []] for i in range(train_order)]
+            self._train_order = train_order
+        self._sample_order = self._train_order
 
     def modify(self, ext_smi, n=8, p=0.5):
 
@@ -42,10 +43,33 @@ class NGram(BaseProposer):
         }
         return ext_smi.append(new_pd_row, ignore_index=True)
 
+    def modify_v2(self, esmi_pd, del_range=[1, 10], max_len=1000, reorder_prob=0):
+        # reorder for a given probability
+        if random.random() < reorder_prob:
+            esmi_pd = self.reorder_esmi(esmi_pd)
+        # number of deletion (randomly pick from given range)
+        if len(del_range) == 1:
+            n_del = random.randrange(1, del_range + 1)
+        else:
+            n_del = random.randrange(del_range[0], del_range[1] + 1)
+        # first delete then add
+        esmi_pd = self.del_char(esmi_pd, min(n_del + 1, len(esmi_pd) - 1))  # at least leave 1 character
+        # add until reaching '!' or a given max value
+        for i in range(max_len - len(esmi_pd)):
+            esmi_pd, _ = self.sample_next_char(esmi_pd)
+            if esmi_pd['esmi'].iloc[-1] == '!':
+                return esmi_pd  # stop when hitting '!', assume must be valid SMILES
+        # check incomplete esmi
+        esmi_pd = self.validator(esmi_pd)
+        # fill in the '!'
+        new_pd_row = {'esmi': '!', 'n_br': 0, 'n_ring': 0, 'substr': esmi_pd['substr'].iloc[-1] + ['!']}
+        return esmi_pd.append(new_pd_row, ignore_index=True)
+
     @classmethod
     def smi2list(cls, smiles):
-        # smi_pat = '(=\[.*?\]|#\[.*?\]|\[.*?\]|=Br|#Br|=Cl|#Cl|Br|Cl|=.|#.|\%[0-9][0-9]|\w|\W)'
-        smi_pat = r'(\[.*?\]|Br|Cl|\%[0-9][0-9]|\w|\W)'
+        smi_pat = r'(-\[.*?\]|=\[.*?\]|#\[.*?\]|\[.*?\]|-Br|=Br|#Br|-Cl|=Cl|#Cl|Br|Cl|-.|=.|#.|\%[0-9][0-9]|\w|\W)'
+        # smi_pat = r'(=\[.*?\]|#\[.*?\]|\[.*?\]|=Br|#Br|=Cl|#Cl|Br|Cl|=.|#.|\%[0-9][0-9]|\w|\W)'
+        # smi_pat = r'(\[.*?\]|Br|Cl|\%[0-9][0-9]|\w|\W)'
         smi_list = list(filter(None, re.split(smi_pat, smiles)))
         return smi_list
 
@@ -178,14 +202,17 @@ class NGram(BaseProposer):
     # Warning: maybe can reduce the input of iB and iR - directly input the reduced list of self._ngram_tab (?)
     # Warning: may need to update this function with bisection search for faster speed (?)
     # Warning: may need to add worst case that no pattern found at all?
+
     def get_prob(self, tmp_str, iB, iR):
         # right now we use back-off method, an alternative is Kneser–Nay smoothing
-        for iO in range(len(self._table) - 1, -1, -1):
-            if (len(tmp_str) > iO) & (str(
-                    tmp_str[-(iO + 1):]) in self._table[iO][iB][iR].index.tolist()):
+        cand_char = []
+        for iO in range(self._sample_order - 1, -1, -1):
+            if (len(tmp_str) > iO) & (str(tmp_str[-(iO + 1):]) in self._table[iO][iB][iR].index.tolist()):
                 cand_char = self._table[iO][iB][iR].columns.tolist()
                 cand_prob = np.array(self._table[iO][iB][iR].loc[str(tmp_str[-(iO + 1):])])
                 break
+        if len(cand_char) == 0:
+            raise IndexError('get_prob: No substring pattern found in given n-gram!')
         return cand_char, cand_prob / sum(cand_prob)
 
     # get the next character, return the probability value
@@ -233,13 +260,14 @@ class NGram(BaseProposer):
         return ext_smi[:-n_char]
 
     # need to make sure esmi_pd is a completed SMILES to use this function
+    # todo: kekuleSmiles?
     @classmethod
     def reorder_esmi(cls, ext_smi):
         # convert back to SMILES first, then to rdkit MOL
         m = Chem.MolFromSmiles(cls.esmi2smi(ext_smi))
         idx = np.random.choice(range(m.GetNumAtoms()))
         # currently assume kekuleSmiles=True, i.e., no small letters but with ':' for aromatic rings
-        ext_smi = cls.smi2esmi(Chem.MolToSmiles(m, rootedAtAtom=idx, kekuleSmiles=True))
+        ext_smi = cls.smi2esmi(Chem.MolToSmiles(m, rootedAtAtom=idx))
         return ext_smi
 
     def validator(self, ext_smi):
@@ -264,16 +292,24 @@ class NGram(BaseProposer):
             num_open = tmp_idx[tmp_count == 1]
             num_close = ext_smi['esmi'][tmp_count == -1]
             for i in num_close:
-                num_open.pop(i)
+                num_open.pop(ext_smi['esmi'].iloc[i])
             # delete all irrelevant rows and reconstruct esmi
             ext_smi = self.smi2esmi(
                 self.esmi2smi(ext_smi.drop(ext_smi.index[num_open]).reset_index(drop=True)))
+            ext_smi = ext_smi.iloc[:-1]  # remove the '!'
+
+            # delete ':' that are not inside a ring
+        # tmp_idx = esmi_pd.index[(esmi_pd['esmi'] == ':') & (esmi_pd['n_ring'] < 1)]
+        # if len(tmp_idx) > 0:
+        #     esmi_pd = smi2esmi(esmi2smi(esmi_pd.drop(tmp_idx).reset_index(drop=True)))
+        #     esmi_pd = esmi_pd.iloc[:-1] # remove the '!'
         # fill in branch closing (last letter shall not be '(')
         for i in range(ext_smi['n_br'].iloc[-1]):
             ext_smi = self.add_char(ext_smi, ')')
 
         return ext_smi
 
+    # fixme: move choice to smc
     def proposal(self, smis, size, *, p=None):
         smis = np.random.choice(smis, size, p=p)
         new_smis = []

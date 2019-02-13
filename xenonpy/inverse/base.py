@@ -38,7 +38,7 @@ class BaseLogLikelihood(BaseEstimator, ABC):
         pass
 
 
-class BaseProposer(BaseEstimator, ABC):
+class BaseProposal(BaseEstimator, ABC):
     def fit(self, X, y, **kwargs):
         return self
 
@@ -70,7 +70,7 @@ class BaseProposer(BaseEstimator, ABC):
 
 class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
     _log_likelihood = None
-    _proposer = None
+    _proposal = None
     _target = None
 
     def log_likelihood(self, X, target):
@@ -112,10 +112,10 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
         samples: list of object
             Generated samples from input samples.
         """
-        if self._proposer is None:
+        if self._proposal is None:
             raise NotImplementedError('user need to implement <proposal> method'
-                                      'or set <self._proposer> to a instance of <BaseProposer>')
-        return self._proposer(X, size, p=p)
+                                      'or set <self._proposal> to a instance of <BaseProposal>')
+        return self._proposal(X, size, p=p)
 
     def on_errors(self, ite, samples, target, error):
         raise error
@@ -140,8 +140,8 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
     def __setattr__(self, key, value):
         if key is '_log_likelihood' and not isinstance(value, BaseLogLikelihood):
             raise TypeError('must be a subClass of <BaseLogLikelihood>')
-        if key is '_proposer' and not isinstance(value, BaseProposer):
-            raise TypeError('must be a subClass of <BaseProposer>')
+        if key is '_proposal' and not isinstance(value, BaseProposal):
+            raise TypeError('must be a subClass of <BaseProposal>')
         object.__setattr__(self, key, value)
 
     def __call__(self, samples, beta, *, target=None, size=None, yield_lpf=False):
@@ -194,13 +194,10 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
                 # annealed likelihood in log - adjust with copy counts
                 ll = self.log_likelihood(unique, self._target)
                 w = ll * step + np.log(frequency)
-                w_sum = np.log(sum(np.exp(w - max(w)))) + max(w)  # avoid underflow
+                w_sum = np.log(np.sum(np.exp(w - np.max(w)))) + np.max(w)  # avoid underflow
                 p = np.exp(w - w_sum)
-                tmp = (unique,)
                 if yield_lpf:
-                    tmp += (ll, p, frequency)
-                if len(tmp) > 1:
-                    yield tmp
+                    yield unique, ll, p, frequency
                 else:
                     yield unique
                 samples = self.proposal(unique, size, p=p)
@@ -209,15 +206,12 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
 
         try:
             unique, frequency = self.unique(samples)
-            tmp = (unique,)
             if yield_lpf:
                 ll = self.log_likelihood(unique, self._target)
                 w = ll + np.log(frequency)
-                w_sum = np.log(sum(np.exp(w - max(w)))) + max(w)  # avoid underflow
+                w_sum = np.log(np.sum(np.exp(w - np.max(w)))) + np.max(w)  # avoid underflow
                 p = np.exp(w - w_sum)
-                tmp += (ll, p, frequency)
-            if len(tmp) > 1:
-                yield tmp
+                yield unique, ll, p, frequency
             else:
                 yield unique
         except BaseException as e:

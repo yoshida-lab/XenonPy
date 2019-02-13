@@ -12,7 +12,7 @@ from ...descriptor.base import BaseDescriptor, BaseFeaturizer
 
 class BayesianRidgeEstimator(BaseLogLikelihood):
     def __init__(self, descriptor):
-        self._mdl = BayesianRidge(compute_score=True)
+        self._mdl = [BayesianRidge(compute_score=True)]
         if not isinstance(descriptor, (BaseFeaturizer, BaseDescriptor)):
             raise TypeError('<descriptor> must be a subclass of <BaseFeaturizer> or <BaseDescriptor>')
         self._descriptor = descriptor
@@ -32,7 +32,10 @@ class BayesianRidgeEstimator(BaseLogLikelihood):
         tmp = tar_fps.isna().any(axis=1)
         idx = [i for i in range(len(smis)) if ~tmp[i]]
         tar_fps.dropna(inplace=True)
-        mean, std = self._mdl.predict(tar_fps, return_std=True)
-        tmp = norm.logcdf(target, loc=-np.asarray(mean), scale=np.asarray(std))
+        w = []
+        for m in self._mdl:
+            mean, std = self._mdl.predict(tar_fps, return_std=True)
+            w.append(norm.logcdf(target, loc=-np.asarray(mean), scale=np.asarray(std)))
+        tmp = np.log(np.sum(np.exp(w - np.max(w)))) + np.max(w)  # avoid underflow
         np.put(ll, idx, tmp)
         return ll

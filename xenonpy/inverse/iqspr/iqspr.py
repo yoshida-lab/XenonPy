@@ -4,7 +4,7 @@
 
 # import necessary libraries
 
-from ..base import BaseSMC, BaseProposer, BaseLogLikelihood
+from ..base import BaseSMC, BaseProposal, BaseLogLikelihood
 
 
 class IQSPR(BaseSMC):
@@ -16,19 +16,19 @@ class IQSPR(BaseSMC):
         Parameters
         ----------
         estimator : BaseLogLikelihood
-        modifier : BaseProposer
+        modifier : BaseProposal
         """
-        self._proposer = modifier
+        self._proposal = modifier
         self._log_likelihood = estimator
         self._target = target
 
     @property
     def modifier(self):
-        return self._proposer
+        return self._proposal
 
     @modifier.setter
     def modifier(self, value):
-        self._proposer = value
+        self._proposal = value
 
     @property
     def estimator(self):

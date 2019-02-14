@@ -1,4 +1,4 @@
-#  Copyright (c) 2019. TsumiNa. All rights reserved.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
@@ -309,9 +309,7 @@ class NGram(BaseProposal):
 
         return ext_smi
 
-    # fixme: move choice to smc
-    def proposal(self, smis, size, *, p=None):
-        smis = np.random.choice(smis, size, p=p)
+    def proposal(self, X):
         new_smis = []
         for i, smi in enumerate(smis):
             ext_smi = self.smi2esmi(smi)

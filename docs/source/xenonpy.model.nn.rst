@@ -4,6 +4,14 @@ xenonpy.model.nn package
 Submodules
 ----------
 
+xenonpy.model.nn.base module
+----------------------------
+
+.. automodule:: xenonpy.model.nn.base
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xenonpy.model.nn.checker module
 -------------------------------
 
@@ -32,14 +40,6 @@ xenonpy.model.nn.runner module
 ------------------------------
 
 .. automodule:: xenonpy.model.nn.runner
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-xenonpy.model.nn.transfer\_learning module
-------------------------------------------
-
-.. automodule:: xenonpy.model.nn.transfer_learning
     :members:
     :undoc-members:
     :show-inheritance:

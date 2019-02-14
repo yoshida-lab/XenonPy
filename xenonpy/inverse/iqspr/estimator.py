@@ -1,8 +1,9 @@
-#  Copyright (c) 2019. TsumiNa. All rights reserved.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
 import numpy as np
+import pandas as pd
 from scipy.stats import norm
 from sklearn.linear_model import BayesianRidge
 
@@ -11,31 +12,76 @@ from ...descriptor.base import BaseDescriptor, BaseFeaturizer
 
 
 class BayesianRidgeEstimator(BaseLogLikelihood):
-    def __init__(self, descriptor):
-        self._mdl = [BayesianRidge(compute_score=True)]
+    def __init__(self, descriptor, **models):
+        if models:
+            self._mdl = models
+        else:
+            self._mdl = {}
         if not isinstance(descriptor, (BaseFeaturizer, BaseDescriptor)):
             raise TypeError('<descriptor> must be a subclass of <BaseFeaturizer> or <BaseDescriptor>')
         self._descriptor = descriptor
 
-    def fit(self, X, y, **kwargs):
+    # todo: implement scale function
+    def fit(self, X, y=None, *, X_scaler=None, y_scaler=None):
         """
         Parameters
         ----------
-        **kwargs
+        X: list of string
+            SMILES for training.
+        y: pd.DataFrame
+            Target properties for training.
+        y_scaler: Scaler (optional)
+            Scaler.
+        X_scaler: Scaler (optional)
+            Scaler.
         """
         desc = self._descriptor.transform(X)
-        self._mdl.fit(desc, y)
 
-    def log_likelihood(self, smis, target):
+        if not isinstance(y, pd.DataFrame):
+            raise TypeError('please package all properties into a pd.DataFrame')
+
+        for c in y:
+            y_ = y[c].values
+            mdl = BayesianRidge(compute_score=True)
+            mdl.fit(desc, y_)
+            self._mdl[c] = mdl
+
+    def log_likelihood(self, smis, **targets):
+        def _avoid_overflow(ll_):
+            # log(exp(log(UP) - log(C)) - exp(log(LOW) - log(C))) + log(C)
+            # where C = max(log(UP), max(LOW))
+            ll_c = np.max(ll_)
+            ll_ = np.log(np.exp(ll_[1] - ll_c) - np.exp(ll_[0] - ll_c)) + ll_c
+            return ll_
+
         ll = np.repeat(-1000.0, len(smis))
         tar_fps = self._descriptor.transform(smis)
         tmp = tar_fps.isna().any(axis=1)
         idx = [i for i in range(len(smis)) if ~tmp[i]]
         tar_fps.dropna(inplace=True)
-        w = []
-        for m in self._mdl:
-            mean, std = self._mdl.predict(tar_fps, return_std=True)
-            w.append(norm.logcdf(target, loc=-np.asarray(mean), scale=np.asarray(std)))
-        tmp = np.log(np.sum(np.exp(w - np.max(w)))) + np.max(w)  # avoid underflow
+
+        # calculate likelihood
+        ll_mat = []
+        for k, (low, up) in targets.items():  # k: target; v: (low, up)
+
+            # predict mean, std for all smiles
+            mean, std = self._mdl[k].predict(tar_fps, return_std=True)
+
+            # calculate low likelihood
+            low_ll = norm.logcdf(low, loc=np.asarray(mean), scale=np.asarray(std))
+
+            # calculate up likelihood
+            up_ll = norm.logcdf(up, loc=np.asarray(mean), scale=np.asarray(std))
+
+            # zip low and up likelihood to a 1-dim array then save it.
+            # like: [(tar_low_smi1, tar_up_smi1),  (tar_low_smi2, tar_up_smi2), ..., (tar_low_smiN, tar_up_smiN)]
+            lls = zip(low_ll, up_ll)
+            ll_mat.append(list(lls))
+
+        # sum all ll along each smiles
+        # ll_sum = [[sum_low_smi1, sum_up_smi1], [sum_low_smi2, sum_up_smi2],...,[sum_low_smiN, sum_up_smiN],]
+        ll_sum = np.sum(np.array(ll_mat), axis=0)
+        tmp = np.array([*map(_avoid_overflow, ll_sum)])
+
         np.put(ll, idx, tmp)
         return ll

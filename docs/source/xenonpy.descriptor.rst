@@ -28,6 +28,14 @@ xenonpy.descriptor.fingerprint module
     :undoc-members:
     :show-inheritance:
 
+xenonpy.descriptor.frozen\_featurizer module
+--------------------------------------------
+
+.. automodule:: xenonpy.descriptor.frozen_featurizer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xenonpy.descriptor.structure module
 -----------------------------------
 

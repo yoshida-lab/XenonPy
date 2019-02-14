@@ -1,8 +1,10 @@
-#  Copyright (c) 2019. TsumiNa. All rights reserved.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
 # import necessary libraries
+
+import numpy as np
 
 from ..base import BaseSMC, BaseProposal, BaseLogLikelihood
 
@@ -11,7 +13,7 @@ class IQSPR(BaseSMC):
 
     def __init__(self, *, target, estimator, modifier):
         """
-        SMC iQDPR runner.
+        SMC iqspr runner.
 
         Parameters
         ----------
@@ -21,6 +23,9 @@ class IQSPR(BaseSMC):
         self._proposal = modifier
         self._log_likelihood = estimator
         self._target = target
+
+    def resample(self, X, size, p):
+        return np.random.choice(sims, size=size, p=p)
 
     @property
     def modifier(self):

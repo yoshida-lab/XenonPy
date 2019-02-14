@@ -1,8 +1,9 @@
-#  Copyright (c) 2019. TsumiNa. All rights reserved.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
 from abc import ABC, abstractmethod
+from copy import deepcopy
 
 import numpy as np
 from sklearn.base import BaseEstimator
@@ -12,14 +13,14 @@ from ..utils import TimedMetaClass
 
 class BaseLogLikelihood(BaseEstimator, ABC):
 
-    def fit(self, X, y=None, **kwargs):
+    def fit(self, X, y, **kwargs):
         return self
 
-    def __call__(self, X, target):
-        return self.log_likelihood(X, target)
+    def __call__(self, X, **targets):
+        return self.log_likelihood(X, **targets)
 
     @abstractmethod
-    def log_likelihood(self, X, target):
+    def log_likelihood(self, X, **targets):
         """
         Log likelihood
 
@@ -27,8 +28,10 @@ class BaseLogLikelihood(BaseEstimator, ABC):
         ----------
         X: list of object
             Input samples for likelihood calculation.
-        target: float
+        targets: tuple[float, float]
             Target area.
+            Should be a tuple which have down and up boundary.
+            e.g: ``target1=(10, 20)`` equal to ``target1 should in range [10, 20]``.
 
         Returns
         -------
@@ -38,15 +41,46 @@ class BaseLogLikelihood(BaseEstimator, ABC):
         pass
 
 
+class BaseResample(BaseEstimator, ABC):
+
+    def fit(self, X, y=None, **kwargs):
+        return self
+
+    def __call__(self, X, size, p):
+        return self.resample(X, size, p)
+
+    @abstractmethod
+    def resample(self, X, size, p):
+        """
+        Re-sample from given samples.
+
+        Parameters
+        ----------
+        X: list of object
+            Input samples for likelihood calculation.
+        size: int
+            Resample size.
+        p: np.ndarray of float
+            The probabilities associated with each entry in X.
+            If not given the sample assumes a uniform distribution over all entries.
+
+        Returns
+        -------
+        new_sample: list of object
+            Re-sampling result.
+        """
+        pass
+
+
 class BaseProposal(BaseEstimator, ABC):
     def fit(self, X, y, **kwargs):
         return self
 
-    def __call__(self, X, size, *, p=None):
-        return self.proposal(X, size, p=p)
+    def __call__(self, X):
+        return self.proposal(X)
 
     @abstractmethod
-    def proposal(self, X, size, *, p=None):
+    def proposal(self, X):
         """
         Proposal new samples based on the input samples.
 
@@ -54,11 +88,6 @@ class BaseProposal(BaseEstimator, ABC):
         ----------
         X: list of object
             Samples for generate next samples
-        size: int
-            Sampling size.
-        p: list of float
-            A 1-D array-like object.
-            The probabilities associated with each entry in x. Should be a 1-D array-like object.
 
         Returns
         -------
@@ -71,29 +100,53 @@ class BaseProposal(BaseEstimator, ABC):
 class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
     _log_likelihood = None
     _proposal = None
-    _target = None
+    _resample = None
+    _targets = None
 
-    def log_likelihood(self, X, target):
+    def log_likelihood(self, X):
         """
-        Likelihood function.
+        Log likelihood
 
         Parameters
         ----------
         X: list of object
-            Samples for likelihood calculation.
-        target : float
-            Search Target
+            Input samples for likelihood calculation.
+
         Returns
         -------
         log_likelihood: np.ndarray of float
-            Log scaled likelihood values.
+            Estimated likelihood of each samples.
         """
         if self._log_likelihood is None:
-            raise NotImplementedError('user need to implement <likelihood> method'
-                                      'or set <self._log_likelihood> to a instance of <BaseLogLikelihood>')
-        return self._log_likelihood(X, target)
+            raise NotImplementedError('user need to implement <log_likelihood> method or'
+                                      'set <self._log_likelihood> to a instance of <BaseLogLikelihood>')
+        return self._log_likelihood(X, **self._targets)
 
-    def proposal(self, X, size, *, p=None):
+    def resample(self, X, size, p):
+        """
+        Re-sample from given samples.
+
+        Parameters
+        ----------
+        X: list of object
+            Input samples for likelihood calculation.
+        size: int
+            Resample size.
+        p: np.ndarray of float
+            The probabilities associated with each entry in X.
+            If not given the sample assumes a uniform distribution over all entries.
+
+        Returns
+        -------
+        re-sample: list of object
+            Re-sampling result.
+        """
+        if self._resample is None:
+            raise NotImplementedError('user need to implement <resample> method or'
+                                      'set <self._resample> to a instance of <BaseResample>')
+        return self._resample(X, size, p)
+
+    def proposal(self, X):
         """
         Proposal new samples based on the input samples.
 
@@ -101,11 +154,6 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
         ----------
         X: list of object
             Samples for generate next samples
-        size: int
-            Sampling size.
-        p: list of float
-            A 1-D array-like object.
-            The probabilities associated with each entry in x. Should be a 1-D array-like object.
 
         Returns
         -------
@@ -113,9 +161,9 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
             Generated samples from input samples.
         """
         if self._proposal is None:
-            raise NotImplementedError('user need to implement <proposal> method'
-                                      'or set <self._proposal> to a instance of <BaseProposal>')
-        return self._proposal(X, size, p=p)
+            raise NotImplementedError('user need to implement <proposal> method or'
+                                      'set <self._proposal> to a instance of <BaseProposal>')
+        return self._proposal(X)
 
     def on_errors(self, ite, samples, target, error):
         raise error
@@ -137,14 +185,41 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
         """
         return np.unique(X, return_counts=True)
 
+    @property
+    def targets(self):
+        return deepcopy(self._targets)
+
+    def update_targets(self, *, reset=False, **targets):
+        """
+        Update/set the target area.
+
+        Parameters
+        ----------
+        reset: bool
+            If ``true``, reset target area.
+        targets: tuple[float, float]
+            Target area.
+            Should be a tuple which have down and up boundary.
+            e.g: ``target1=(10, 20)`` equal to ``target1 should in range [10, 20]``.
+
+        """
+        if not self._targets or reset:
+            self._targets = {}
+        for k, v in targets.items():
+            if not isinstance(v, tuple) or len(v) != 2 or v[1] <= v[0]:
+                raise ValueError('must be a tuple with (low, up) boundary')
+            self._targets[k] = v
+
     def __setattr__(self, key, value):
         if key is '_log_likelihood' and not isinstance(value, BaseLogLikelihood):
-            raise TypeError('must be a subClass of <BaseLogLikelihood>')
+            raise TypeError('<self._log_likelihood> must be a subClass of <BaseLogLikelihood>')
         if key is '_proposal' and not isinstance(value, BaseProposal):
-            raise TypeError('must be a subClass of <BaseProposal>')
+            raise TypeError('<self._proposal> must be a subClass of <BaseProposal>')
+        if key is '_resample' and not isinstance(value, BaseResample):
+            raise TypeError('<self._resample> must be a subClass of <BaseResample>')
         object.__setattr__(self, key, value)
 
-    def __call__(self, samples, beta, *, target=None, size=None, yield_lpf=False):
+    def __call__(self, samples, beta, *, size=None, yield_lpf=False, **targets):
         """
         Run SMC
 
@@ -155,12 +230,14 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
         beta: list of float
             Annealing parameters for each step.
             Should be a 1-D array-like object.
-        target : float
-            Search Target
         size: int
             Sample size for each draw.
         yield_lpf : bool
             Yield estimated log likelihood, probability and frequency of each samples. Default is ``False``.
+        targets: tuple[float, float]
+            Target area.
+            Should be a tuple which have down and up boundary.
+            e.g: ``target1=(10, 20)`` equal to ``target1 should in range [10, 20]``.
 
         Yields
         -------
@@ -181,18 +258,18 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
         if size is None:
             size = len(samples)
 
-        if target is not None:
-            self._target = target
+        if targets:
+            self.update_targets(**targets)
         else:
-            if self._target is None:
-                raise ValueError('must set a <target>')
+            if not self._targets:
+                raise ValueError('must set targets area')
 
         # translate between input representation and execute environment representation.
         for i, step in enumerate(beta):
             unique, frequency = self.unique(samples)
             try:
                 # annealed likelihood in log - adjust with copy counts
-                ll = self.log_likelihood(unique, self._target)
+                ll = self.log_likelihood(unique)
                 w = ll * step + np.log(frequency)
                 w_sum = np.log(np.sum(np.exp(w - np.max(w)))) + np.max(w)  # avoid underflow
                 p = np.exp(w - w_sum)
@@ -200,14 +277,16 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
                     yield unique, ll, p, frequency
                 else:
                     yield unique
-                samples = self.proposal(unique, size, p=p)
+
+                re_samples = self.resample(unique, size, p)
+                samples = self.proposal(re_samples)
             except BaseException as e:
-                self.on_errors(i, samples, target, e)
+                self.on_errors(i, samples, targets, e)
 
         try:
             unique, frequency = self.unique(samples)
             if yield_lpf:
-                ll = self.log_likelihood(unique, self._target)
+                ll = self.log_likelihood(unique)
                 w = ll + np.log(frequency)
                 w_sum = np.log(np.sum(np.exp(w - np.max(w)))) + np.max(w)  # avoid underflow
                 p = np.exp(w - w_sum)
@@ -215,4 +294,4 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
             else:
                 yield unique
         except BaseException as e:
-            self.on_errors(i + 1, samples, target, e)
+            self.on_errors(i + 1, samples, targets, e)

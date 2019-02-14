@@ -30,7 +30,7 @@ def data():
     print('test over')
 
 
-def test_data_splitter2():
+def test_data_splitter_2():
     ds = Splitter(10)
     assert ds.size == 10
     train, test = ds.split()

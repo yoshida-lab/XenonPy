@@ -44,28 +44,28 @@ def data():
     print('test over')
 
 
-def test_base_loglikelihood1(data):
+def test_base_loglikelihood_1(data):
     llh = data['llh']()
     X = np.array([1, 2, 3, 3, 4, 4])
     ll = llh(X, tar1=(5, 10), tar2=(1, 5))
     assert np.all(ll == np.array([9, 18, 27, 27, 36, 36]))
 
 
-def test_base_proposer1(data):
+def test_base_proposer_1(data):
     proposer = data['prop']()
     X = np.array([1, 2, 3, 4, 5])
     x = proposer(X)
     assert np.all(x == X)
 
 
-def test_base_resammple1(data):
+def test_base_resammple_1(data):
     res = data['resample']()
     X = np.array([1, 2, 3, 4, 5])
     x = res(X, 4, p=[0, 0, 1, 0, 0])
     assert np.all(x == [3, 3, 3, 3])
 
 
-def test_base_smc1():
+def test_base_smc_1():
     samples = [1, 2, 3, 4, 5]
     beta = np.linspace(0.05, 1, 5)
 
@@ -114,7 +114,7 @@ def test_base_smc1():
         assert False, 'should got ValueError'
 
 
-def test_base_smc2(data):
+def test_base_smc_2(data):
     class SMC(BaseSMC):
         pass
 
@@ -150,7 +150,7 @@ def test_base_smc2(data):
         assert True
 
 
-def test_base_smc3(data):
+def test_base_smc_3(data):
     smc = data['smc']()
 
     samples = [1, 2, 100, 4, 5]

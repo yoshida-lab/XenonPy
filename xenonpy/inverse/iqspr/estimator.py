@@ -22,7 +22,7 @@ class BayesianRidgeEstimator(BaseLogLikelihood):
         self._descriptor = descriptor
 
     # todo: implement scale function
-    def fit(self, X, y=None, *, X_scaler=None, y_scaler=None):
+    def fit(self, X, y=None, *, X_scaler=None, y_scaler=None, **kwargs):
         """
         Parameters
         ----------
@@ -30,20 +30,33 @@ class BayesianRidgeEstimator(BaseLogLikelihood):
             SMILES for training.
         y: pd.DataFrame
             Target properties for training.
-        y_scaler: Scaler (optional)
-            Scaler.
         X_scaler: Scaler (optional)
-            Scaler.
+            Scaler for transform X.
+        y_scaler: Scaler (optional)
+            Scaler for transform y.
+        kwargs: dict
+            Parameters pass to BayesianRidge initialization.
         """
-        desc = self._descriptor.transform(X)
 
         if not isinstance(y, pd.DataFrame):
             raise TypeError('please package all properties into a pd.DataFrame')
 
+        # remove NaN fromm X
+        desc = self._descriptor.transform(X)
+        desc = pd.DataFrame(data=desc).reset_index(drop=True)
+        y = y.reset_index(drop=True)
+        desc.dropna(inplace=True)
+        y = y.loc[desc.index]
+
         for c in y:
-            y_ = y[c].values
-            mdl = BayesianRidge(compute_score=True)
-            mdl.fit(desc, y_)
+            y_ = y[c]  # get target property.
+            # remove NaN from y_
+            y_.dropna(inplace=True)
+            desc_ = desc.loc[y_.index]
+            desc_ = desc_.values
+
+            mdl = BayesianRidge(compute_score=True, **kwargs)
+            mdl.fit(desc_, y_)
             self._mdl[c] = mdl
 
     def log_likelihood(self, smis, **targets):
@@ -56,6 +69,7 @@ class BayesianRidgeEstimator(BaseLogLikelihood):
 
         ll = np.repeat(-1000.0, len(smis))
         tar_fps = self._descriptor.transform(smis)
+        tar_fps = pd.DataFrame(data=tar_fps).reset_index(drop=True)
         tmp = tar_fps.isna().any(axis=1)
         idx = [i for i in range(len(smis)) if ~tmp[i]]
         tar_fps.dropna(inplace=True)

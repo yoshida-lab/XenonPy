@@ -23,7 +23,7 @@ class NGram(BaseProposal):
             self._train_order = train_order
         self._sample_order = self._train_order
 
-    def modify(self, ext_smi, n=8, p=0.5):
+    def modify_old(self, ext_smi, n=8, p=0.5):
 
         # esmi_pd = reorder_esmi(esmi_pd)
         # number of add/delete (n) with probability of add = p
@@ -43,27 +43,27 @@ class NGram(BaseProposal):
         }
         return ext_smi.append(new_pd_row, ignore_index=True)
 
-    def modify_v2(self, esmi_pd, del_range=[1, 10], max_len=1000, reorder_prob=0):
+    def modify(self, ext_smi, del_range=[1, 10], max_len=1000, reorder_prob=0):
         # reorder for a given probability
         if random.random() < reorder_prob:
-            esmi_pd = self.reorder_esmi(esmi_pd)
+            ext_smi = self.reorder_esmi(ext_smi)
         # number of deletion (randomly pick from given range)
         if len(del_range) == 1:
             n_del = random.randrange(1, del_range + 1)
         else:
             n_del = random.randrange(del_range[0], del_range[1] + 1)
         # first delete then add
-        esmi_pd = self.del_char(esmi_pd, min(n_del + 1, len(esmi_pd) - 1))  # at least leave 1 character
+        ext_smi = self.del_char(ext_smi, min(n_del + 1, len(ext_smi) - 1))  # at least leave 1 character
         # add until reaching '!' or a given max value
-        for i in range(max_len - len(esmi_pd)):
-            esmi_pd, _ = self.sample_next_char(esmi_pd)
-            if esmi_pd['esmi'].iloc[-1] == '!':
-                return esmi_pd  # stop when hitting '!', assume must be valid SMILES
+        for i in range(max_len - len(ext_smi)):
+            ext_smi, _ = self.sample_next_char(ext_smi)
+            if ext_smi['esmi'].iloc[-1] == '!':
+                return ext_smi  # stop when hitting '!', assume must be valid SMILES
         # check incomplete esmi
-        esmi_pd = self.validator(esmi_pd)
+        ext_smi = self.validator(ext_smi)
         # fill in the '!'
-        new_pd_row = {'esmi': '!', 'n_br': 0, 'n_ring': 0, 'substr': esmi_pd['substr'].iloc[-1] + ['!']}
-        return esmi_pd.append(new_pd_row, ignore_index=True)
+        new_pd_row = {'esmi': '!', 'n_br': 0, 'n_ring': 0, 'substr': ext_smi['substr'].iloc[-1] + ['!']}
+        return ext_smi.append(new_pd_row, ignore_index=True)
 
     @classmethod
     def smi2list(cls, smiles):
@@ -309,7 +309,7 @@ class NGram(BaseProposal):
 
         return ext_smi
 
-    def proposal(self, X):
+    def proposal(self, smis):
         new_smis = []
         for i, smi in enumerate(smis):
             ext_smi = self.smi2esmi(smi)

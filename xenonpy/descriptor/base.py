@@ -330,7 +330,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         X = self._check_input(X)
         for k, features in self.__featurizers__.items():
             for f in features:
-                f.fit(X[k], ),
+                f.fit(X[k]),
 
         return self
 

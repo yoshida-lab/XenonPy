@@ -2,9 +2,13 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
+from copy import deepcopy
+from types import MethodType
+
 import numpy as np
 import pandas as pd
 from scipy.stats import norm
+from sklearn.base import BaseEstimator
 from sklearn.linear_model import BayesianRidge
 
 from ..base import BaseLogLikelihood
@@ -12,27 +16,51 @@ from ...descriptor.base import BaseDescriptor, BaseFeaturizer
 
 
 class BayesianRidgeEstimator(BaseLogLikelihood):
-    def __init__(self, descriptor, **models):
-        if models:
-            self._mdl = models
+    def __init__(self, descriptor, **estimators):
+        """
+        Bayesian Ridge Estimator.
+
+        Parameters
+        ----------
+        descriptor: BaseFeaturizer or BaBaseDescriptorse
+            Descriptor generator.
+        estimators: BaseEstimator
+            Bayesian estimators in scikit-learn style.
+            When pass ``return_std=True`` to Estimator's ``predict`` method,
+            ``y_std`` should be returned at second. e.g: ``BayesianRidge`` in scikit-learn.
+        """
+        if estimators:
+            self._mdl = deepcopy(estimators)
         else:
             self._mdl = {}
         if not isinstance(descriptor, (BaseFeaturizer, BaseDescriptor)):
             raise TypeError('<descriptor> must be a subclass of <BaseFeaturizer> or <BaseDescriptor>')
         self._descriptor = descriptor
 
+    @property
+    def estimators(self):
+        return self._mdl
+
+    def __getitem__(self, item):
+        return self._mdl[item]
+
+    def __setitem__(self, key, value):
+        if not (hasattr(value, 'predict') and isinstance(value.predict, MethodType)):
+            raise TypeError('estimator must be a regressor in scikit-learn style')
+        self._mdl[key] = deepcopy(value)
+
     # todo: implement scale function
-    def fit(self, X, y=None, *, X_scaler=None, y_scaler=None, **kwargs):
+    def fit(self, smiles, y=None, *, X_scaler=None, y_scaler=None, **kwargs):
         """
         Parameters
         ----------
-        X: list of string
+        smiles: list of string
             SMILES for training.
         y: pd.DataFrame
             Target properties for training.
-        X_scaler: Scaler (optional)
+        X_scaler: Scaler (optional, not implement)
             Scaler for transform X.
-        y_scaler: Scaler (optional)
+        y_scaler: Scaler (optional, not implement)
             Scaler for transform y.
         kwargs: dict
             Parameters pass to BayesianRidge initialization.
@@ -42,7 +70,7 @@ class BayesianRidgeEstimator(BaseLogLikelihood):
             raise TypeError('please package all properties into a pd.DataFrame')
 
         # remove NaN fromm X
-        desc = self._descriptor.transform(X)
+        desc = self._descriptor.transform(smiles)
         desc = pd.DataFrame(data=desc).reset_index(drop=True)
         y = y.reset_index(drop=True)
         desc.dropna(inplace=True)

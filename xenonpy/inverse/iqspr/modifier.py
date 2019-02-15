@@ -14,48 +14,54 @@ from ..base import BaseProposal
 
 
 class NGram(BaseProposal):
-    def __init__(self, *, ngram_tab=None, train_order=10):
+    def __init__(self, *, ngram_tab=None, del_range=(1, 10), max_len=1000, reorder_prob=0):
+        """
+        N-Garm
+
+        Parameters
+        ----------
+        ngram_tab: N-Gram table
+            N-Gram table for modify SMILES.
+        del_range: tuple[int, int]
+            Docs
+        max_len: int
+            Docs
+        reorder_prob: float
+            Docs
+        """
+        self.reorder_prob = reorder_prob
+        self.max_len = max_len
+        self.del_range = del_range
         if ngram_tab is not None:
             self._table = deepcopy(ngram_tab)
             self._train_order = len(ngram_tab)
+            self._sample_order = self._train_order  # fixme: what the sample order mean
         else:
-            self._table = [[[], []] for i in range(train_order)]
-            self._train_order = train_order
-        self._sample_order = self._train_order
+            self._table = None
+            self._train_order = None
+            self._sample_order = None
 
-    def modify_old(self, ext_smi, n=8, p=0.5):
+    @property
+    def ngram_table(self):
+        return self._table
 
-        # esmi_pd = reorder_esmi(esmi_pd)
-        # number of add/delete (n) with probability of add = p
-        n_add = sum(np.random.choice([False, True], n, p=[1 - p, p]))
-        # first delete then add
-        ext_smi = self.del_char(ext_smi, min(n - n_add + 1, len(ext_smi) - 1))  # at least leave 1 character
-        for i in range(n_add):
-            ext_smi, _ = self.sample_next_char(ext_smi)
-            if ext_smi['esmi'].iloc[-1] == '!':
-                return ext_smi  # stop when hitting '!', assume must be valid SMILES
-        ext_smi = self.validator(ext_smi)
-        new_pd_row = {
-            'esmi': '!',
-            'n_br': 0,
-            'n_ring': 0,
-            'substr': ext_smi['substr'].iloc[-1] + ['!']
-        }
-        return ext_smi.append(new_pd_row, ignore_index=True)
+    @ngram_table.setter
+    def ngram_table(self, value):
+        self._table = deepcopy(value)
 
-    def modify(self, ext_smi, del_range=[1, 10], max_len=1000, reorder_prob=0):
+    def modify(self, ext_smi):
         # reorder for a given probability
-        if random.random() < reorder_prob:
+        if random.random() < self.reorder_prob:
             ext_smi = self.reorder_esmi(ext_smi)
         # number of deletion (randomly pick from given range)
-        if len(del_range) == 1:
-            n_del = random.randrange(1, del_range + 1)
+        if len(self.del_range) == 1:
+            n_del = random.randrange(1, self.del_range + 1)
         else:
-            n_del = random.randrange(del_range[0], del_range[1] + 1)
+            n_del = random.randrange(self.del_range[0], self.del_range[1] + 1)
         # first delete then add
         ext_smi = self.del_char(ext_smi, min(n_del + 1, len(ext_smi) - 1))  # at least leave 1 character
         # add until reaching '!' or a given max value
-        for i in range(max_len - len(ext_smi)):
+        for i in range(self.max_len - len(ext_smi)):
             ext_smi, _ = self.sample_next_char(ext_smi)
             if ext_smi['esmi'].iloc[-1] == '!':
                 return ext_smi  # stop when hitting '!', assume must be valid SMILES
@@ -79,10 +85,12 @@ class NGram(BaseProposal):
 
         esmi_list = smi_list + ['!']
         substr_list = []  # list of all contracted substrings (include current char.)
-        br_list = [
-        ]  # list of whether open branch exist at current character position (include current char.)
-        ring_list = [
-        ]  # list of number of open ring at current character position (include current char.)
+
+        # list of whether open branch exist at current character position (include current char.)
+        br_list = []
+
+        # list of number of open ring at current character position (include current char.)
+        ring_list = []
         v_substr = []  # list of temporary contracted substrings
         v_ringn = []  # list of numbering of open rings
         c_br = 0  # tracking open branch steps for recording contracted substrings
@@ -108,7 +116,7 @@ class NGram(BaseProposal):
                     esmi_list[i] = v_ringn.index(esmi_list[i])
                     v_ringn.pop(esmi_list[i])
                 else:
-                    v_ringn.insert(0,esmi_list[i])
+                    v_ringn.insert(0, esmi_list[i])
                     esmi_list[i] = '&'
             elif esmi_list[i].isdigit():
                 esmi_list[i] = int(esmi_list[i])
@@ -116,7 +124,7 @@ class NGram(BaseProposal):
                     esmi_list[i] = v_ringn.index(esmi_list[i])
                     v_ringn.pop(esmi_list[i])
                 else:
-                    v_ringn.insert(0,esmi_list[i])
+                    v_ringn.insert(0, esmi_list[i])
                     esmi_list[i] = '&'
 
             tmp_ss.append(esmi_list[i])
@@ -157,15 +165,29 @@ class NGram(BaseProposal):
             smi_list.pop()  # remove the final '!'
         return ''.join(smi_list)
 
-    def fit(self, smis, **kwargs):
+    def fit(self, smiles, *, train_order=10):
+        """
+
+        Parameters
+        ----------
+        smiles: list of string
+            SMILES for training.
+        train_order: int
+            Order when train a N-Gram table.
+
+        Returns
+        -------
+
+        """
+
         def _fit_one(ext_smi):
-            for iB in [False, True]:
+            for iB in [0, 1]:
                 # index for open/closed branches char. position, remove last row for '!'
                 idx_B = ext_smi.iloc[:-1].index[(ext_smi['n_br'].iloc[:-1] > 0) == iB]
                 list_R = ext_smi['n_ring'][idx_B].unique().tolist()
                 if len(list_R) > 0:
-                    if len(self._table[0][iB]) < (
-                            max(list_R) + 1):  # expand list of dataframe for max. num-of-ring + 1
+                    # expand list of dataframe for max. num-of-ring + 1
+                    if len(self._table[0][iB]) < (max(list_R) + 1):
                         for ii in range(len(self._table)):
                             self._table[ii][iB].extend([
                                 pd.DataFrame()
@@ -192,7 +214,10 @@ class NGram(BaseProposal):
                                 # somehow 'at' not ok with mixed char and int column names
                                 self._table[iO][iB][iR].loc[tmp_row, tar_char[iC]] += 1
 
-        for smi in smis:
+        self._table = [[[], []] for i in range(train_order)]
+        self._train_order = train_order
+        self._sample_order = train_order
+        for smi in smiles:
             _fit_one(self.smi2esmi(smi))
 
         return self
@@ -206,13 +231,15 @@ class NGram(BaseProposal):
     def get_prob(self, tmp_str, iB, iR):
         # right now we use back-off method, an alternative is Kneser–Nay smoothing
         cand_char = []
+        iB = int(iB)
         for iO in range(self._sample_order - 1, -1, -1):
-            if (len(tmp_str) > iO) & (str(tmp_str[-(iO + 1):]) in self._table[iO][iB][iR].index.tolist()):
+            # if (len(tmp_str) > iO) & (str(tmp_str[-(iO + 1):]) in self._table[iO][iB][iR].index.tolist()):
+            if len(tmp_str) > iO and str(tmp_str[-(iO + 1):]) in self._table[iO][iB][iR].index.tolist():
                 cand_char = self._table[iO][iB][iR].columns.tolist()
                 cand_prob = np.array(self._table[iO][iB][iR].loc[str(tmp_str[-(iO + 1):])])
                 break
         if len(cand_char) == 0:
-            raise IndexError('get_prob: %s not found in n-gram, iB=%i, iR=%i' % (tmp_str,iB,iR))
+            raise IndexError('get_prob: %s not found in n-gram, iB=%i, iR=%i' % (tmp_str, iB, iR))
         return cand_char, cand_prob / sum(cand_prob)
 
     # get the next character, return the probability value
@@ -264,16 +291,17 @@ class NGram(BaseProposal):
     @classmethod
     def reorder_esmi(cls, ext_smi):
         # convert back to SMILES first, then to rdkit MOL
-        m = Chem.MolFromSmiles(cls.esmi2smi(ext_smi))
-        idx = np.random.choice(range(m.GetNumAtoms()))
+        mol = Chem.MolFromSmiles(cls.esmi2smi(ext_smi))
+        idx = np.random.choice(range(mol.GetNumAtoms())).item()
         # currently assume kekuleSmiles=True, i.e., no small letters but with ':' for aromatic rings
-        ext_smi = cls.smi2esmi(Chem.MolToSmiles(m, rootedAtAtom=idx))
+        ext_smi = cls.smi2esmi(Chem.MolToSmiles(mol, rootedAtAtom=idx))
+
         return ext_smi
 
     def validator(self, ext_smi):
         # delete all ending '(' or '&'
         for i in range(len(ext_smi)):
-            if not ((ext_smi['esmi'].iloc[-1] == '(') | (ext_smi['esmi'].iloc[-1] == '&')):
+            if not ((ext_smi['esmi'].iloc[-1] == '(') and (ext_smi['esmi'].iloc[-1] == '&')):
                 break
             ext_smi = self.del_char(ext_smi, 1)
         # delete or fill in ring closing
@@ -309,9 +337,22 @@ class NGram(BaseProposal):
 
         return ext_smi
 
-    def proposal(self, smis):
+    def proposal(self, smiles):
+        """
+        Proposal new SMILES based on the given SMILES.
+
+        Parameters
+        ----------
+        smiles: list of SMILES
+            Given SMILES for modification.
+
+        Returns
+        -------
+        new_smiles: list of SMILES
+            The proposed SMILES from the given SMILES.
+        """
         new_smis = []
-        for i, smi in enumerate(smis):
+        for i, smi in enumerate(smiles):
             ext_smi = self.smi2esmi(smi)
             new_ext_smi = self.modify(ext_smi)
             new_smi = self.esmi2smi(new_ext_smi)

@@ -108,7 +108,7 @@ class NGram(BaseProposal):
                     esmi_list[i] = v_ringn.index(esmi_list[i])
                     v_ringn.pop(esmi_list[i])
                 else:
-                    v_ringn.append(esmi_list[i])
+                    v_ringn.insert(0,esmi_list[i])
                     esmi_list[i] = '&'
             elif esmi_list[i].isdigit():
                 esmi_list[i] = int(esmi_list[i])
@@ -116,7 +116,7 @@ class NGram(BaseProposal):
                     esmi_list[i] = v_ringn.index(esmi_list[i])
                     v_ringn.pop(esmi_list[i])
                 else:
-                    v_ringn.append(esmi_list[i])
+                    v_ringn.insert(0,esmi_list[i])
                     esmi_list[i] = '&'
 
             tmp_ss.append(esmi_list[i])
@@ -212,7 +212,7 @@ class NGram(BaseProposal):
                 cand_prob = np.array(self._table[iO][iB][iR].loc[str(tmp_str[-(iO + 1):])])
                 break
         if len(cand_char) == 0:
-            raise IndexError('get_prob: No substring pattern found in given n-gram!')
+            raise IndexError('get_prob: %s not found in n-gram, iB=%i, iR=%i' % (tmp_str,iB,iR))
         return cand_char, cand_prob / sum(cand_prob)
 
     # get the next character, return the probability value

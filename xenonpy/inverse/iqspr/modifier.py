@@ -2,7 +2,6 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-import random
 import re
 from copy import deepcopy
 
@@ -22,7 +21,7 @@ class NGram(BaseProposal):
         ----------
         ngram_tab: N-Gram table
             N-Gram table for modify SMILES.
-        del_range: tuple[int, int]
+        del_range: tuple[int, int] or int
             Docs
         max_len: int
             Docs
@@ -51,13 +50,13 @@ class NGram(BaseProposal):
 
     def modify(self, ext_smi):
         # reorder for a given probability
-        if random.random() < self.reorder_prob:
+        if np.random.random() < self.reorder_prob:
             ext_smi = self.reorder_esmi(ext_smi)
         # number of deletion (randomly pick from given range)
-        if len(self.del_range) == 1:
-            n_del = random.randrange(1, self.del_range + 1)
+        if isinstance(self.del_range, int):
+            n_del = np.random.randint(1, self.del_range + 1)
         else:
-            n_del = random.randrange(self.del_range[0], self.del_range[1] + 1)
+            n_del = np.random.randint(self.del_range[0], self.del_range[1] + 1)
         # first delete then add
         ext_smi = self.del_char(ext_smi, min(n_del + 1, len(ext_smi) - 1))  # at least leave 1 character
         # add until reaching '!' or a given max value
@@ -231,6 +230,7 @@ class NGram(BaseProposal):
     def get_prob(self, tmp_str, iB, iR):
         # right now we use back-off method, an alternative is Kneser–Nay smoothing
         cand_char = []
+        cand_prob = 1
         iB = int(iB)
         for iO in range(self._sample_order - 1, -1, -1):
             # if (len(tmp_str) > iO) & (str(tmp_str[-(iO + 1):]) in self._table[iO][iB][iR].index.tolist()):
@@ -240,7 +240,7 @@ class NGram(BaseProposal):
                 break
         if len(cand_char) == 0:
             raise IndexError('get_prob: %s not found in n-gram, iB=%i, iR=%i' % (tmp_str, iB, iR))
-        return cand_char, cand_prob / sum(cand_prob)
+        return cand_char, cand_prob / np.sum(cand_prob)
 
     # get the next character, return the probability value
     def sample_next_char(self, ext_smi):
@@ -248,9 +248,10 @@ class NGram(BaseProposal):
         iR = ext_smi['n_ring'].iloc[-1]
         cand_char, cand_prob = self.get_prob(ext_smi['substr'].iloc[-1], iB, iR)
         # here we assume cand_char is not empty
-        tmp = random.choices(range(len(cand_char)), weights=cand_prob)
-        ext_smi = self.add_char(ext_smi, cand_char[tmp[0]])
-        return ext_smi, cand_prob[tmp[0]]
+        idx = np.random.choice(range(len(cand_char)), p=cand_prob)
+        next_char = cand_char[idx]
+        ext_smi = self.add_char(ext_smi, next_char)
+        return ext_smi, cand_prob[idx]
 
     @classmethod
     def add_char(cls, ext_smi, next_char):
@@ -265,8 +266,7 @@ class NGram(BaseProposal):
             # idx = next((x for x in range(len(new_pd_row['substr'])-1,-1,-1) if new_pd_row['substr'][x] == '('), None)
             # find index of the last unclosed '('
             tmp_c = 1
-            for x in range(len(new_pd_row['substr']) - 2, -1,
-                           -1):  # exclude the already added "next_char"
+            for x in range(len(new_pd_row['substr']) - 2, -1, -1):  # exclude the already added "next_char"
                 if new_pd_row['substr'][x] == '(':
                     tmp_c -= 1
                 elif new_pd_row['substr'][x] == ')':

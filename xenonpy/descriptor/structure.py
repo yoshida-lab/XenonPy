@@ -1,6 +1,6 @@
-# Copyright 2017 TsumiNa. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
 
 import re
 
@@ -9,9 +9,6 @@ import pymatgen as pm
 from pymatgen.analysis.local_env import VoronoiNN
 
 from .base import BaseDescriptor, BaseFeaturizer
-
-
-# class RadialDistributionFunction(BaseEstimator, TransformerMixin):
 
 
 class RadialDistributionFunction(BaseFeaturizer):

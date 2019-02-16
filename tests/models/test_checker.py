@@ -1,6 +1,6 @@
-# Copyright 2017 TsumiNa. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
 
 from copy import deepcopy
 from pathlib import Path
@@ -67,7 +67,7 @@ def test_checker_assign_path(setup):
     assert checker.name == setup['name'] + '@1'
 
 
-def test_checker_init_model1(setup):
+def test_checker_init_model_1(setup):
     checker = Checker(setup['name'])
     try:
         checker.init_model = None
@@ -77,7 +77,7 @@ def test_checker_init_model1(setup):
         assert False, 'should got error'
 
 
-def test_checker_init_model2(setup):
+def test_checker_init_model_2(setup):
     checker = Checker(setup['name'])
     try:
         checker.init_model = setup['model']
@@ -85,13 +85,13 @@ def test_checker_init_model2(setup):
         assert False, 'should not got error'
 
 
-def test_checker_init_model3(setup):
+def test_checker_init_model_3(setup):
     checker = Checker(setup['name'])
     checker.init_model = setup['model']
     assert str(checker.init_model) == str(setup['model'])
 
 
-def test_checker_trained_model1(setup):
+def test_checker_trained_model_1(setup):
     checker = Checker(setup['name'])
     try:
         checker.trained_model = None
@@ -101,7 +101,7 @@ def test_checker_trained_model1(setup):
         assert False, 'should got error'
 
 
-def test_checker_trained_model2(setup):
+def test_checker_trained_model_2(setup):
     checker = Checker(setup['name'])
     try:
         checker.trained_model = setup['model']
@@ -109,13 +109,13 @@ def test_checker_trained_model2(setup):
         assert False, 'should not got error'
 
 
-def test_checker_trained_model3(setup):
+def test_checker_trained_model_3(setup):
     checker = Checker(setup['name'])
     checker.trained_model = setup['model']
     assert str(checker.trained_model) == str(setup['model'])
 
 
-def test_checker_call1(setup):
+def test_checker_call(setup):
     checker = Checker(setup['name'])
     checker(**setup['cp'])
     assert (Path(checker.path) / checker.name / 'checkpoints').exists()

@@ -1,6 +1,6 @@
-# Copyright 2017 TsumiNa. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
 
 import pytest
 import torch as tc
@@ -14,21 +14,21 @@ def test_layer():
     assert isinstance(layer, tc.nn.Module)
 
 
-def test_generator1d1():
+def test_generator1d_1():
     g = Generator1d(290, 1, n_neuron=(100, 70, 50), drop_out=(0.2, 0.3, 0.4),
                     batch_normalize=(None, L1.batch_norm()))
     m = g(1)
     assert len(list(m)) == 18, '3x3x2'
 
 
-def test_generator1d2():
+def test_generator1d_2():
     g = Generator1d(290, 1, n_neuron=[100, 70, 50], drop_out=(0.2, 0.3, 0.4),
                     batch_normalize=(None, L1.batch_norm()))
     m = g(1, n_models=10)
     assert len(list(m)) == 10, '0 < n_models <= 3x3x2'
 
 
-def test_generator1d3():
+def test_generator1d_3():
     g = Generator1d(290, 1, n_neuron=[100, 70, 50], drop_out=(0.2, 0.3, 0.4),
                     batch_normalize=(None, L1.batch_norm()))
     m = g(1, n_models=20)
@@ -40,7 +40,7 @@ def test_generator1d3():
         assert False, 'should got ValueError:'
 
 
-def test_generator1d4():
+def test_generator1d_4():
     g = Generator1d(290, 1, n_neuron=[100, 90, 80, 70, 60, 50], drop_out=(0.2, 0.3, 0.4),
                     batch_normalize=(None, L1.batch_norm()))
     m = g(5, n_models=20, replace=True)

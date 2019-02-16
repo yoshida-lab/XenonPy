@@ -1,6 +1,6 @@
-# Copyright 2017 TsumiNa. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
 
 from pathlib import Path
 
@@ -8,7 +8,7 @@ import torch
 from sklearn.externals import joblib
 
 from ...datatools.dataset import LocalStorage
-from ...utils.gadget import get_data_loc
+from ...utils import get_data_loc
 
 
 class Checker(LocalStorage):

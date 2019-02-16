@@ -1,6 +1,6 @@
-# Copyright 2018 TsumiNa. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
 
 
 from itertools import product
@@ -28,7 +28,7 @@ def data():
     print('test over')
 
 
-def test_product1(data):
+def test_product_1(data):
     abcd = list(product(*data))
     p = Product(*data)
     assert p.size == len(abcd), 'should have same length'
@@ -47,7 +47,7 @@ def test_product1(data):
         assert False, 'should got IndexError'
 
 
-def test_product2(data):
+def test_product_2(data):
     try:
         Product(data[0], repeat=1.5)
     except ValueError:
@@ -56,7 +56,7 @@ def test_product2(data):
         assert False, 'should got ValueError'
 
 
-def test_product3(data):
+def test_product_3(data):
     abcd = list(product(data[0], repeat=1))
     p = Product(data[0], repeat=1)
     assert p.size == len(abcd), 'should have same length'
@@ -65,7 +65,7 @@ def test_product3(data):
     assert p[2] == abcd[2]
 
 
-def test_product4(data):
+def test_product_4(data):
     abcd = list(product(data[0], repeat=3))
     p = Product(data[0], repeat=3)
     assert p.size == len(abcd), 'should have same length'
@@ -76,7 +76,7 @@ def test_product4(data):
     print(p.paras)
 
 
-def test_product5(data):
+def test_product_5(data):
     abcd = list(product(product(*data), repeat=2))
     p = Product(Product(*data), repeat=2)
     assert p.size == len(abcd), 'should have same length'

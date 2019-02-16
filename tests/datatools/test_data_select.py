@@ -1,6 +1,6 @@
-# Copyright 2018 TsumiNa. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
 
 import numpy as np
 import pytest
@@ -30,7 +30,7 @@ def data():
     print('test over')
 
 
-def test_data_splitter2():
+def test_data_splitter_2():
     ds = Splitter(10)
     assert ds.size == 10
     train, test = ds.split()

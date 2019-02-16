@@ -1,4 +1,4 @@
-#  Copyright 2019. TsumiNa. All rights reserved.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
@@ -34,7 +34,7 @@ def data():
     print('test over')
 
 
-def test_ecfp1(data):
+def test_ecfp_1(data):
     fps = ECFP(n_jobs=1)
 
     try:
@@ -52,7 +52,7 @@ def test_ecfp1(data):
         assert False, 'should not got error'
 
 
-def test_ecfp2(data):
+def test_ecfp_2(data):
     fps = ECFP(n_jobs=1, input_type='smiles')
     try:
         fps.transform(data['mols'])
@@ -69,7 +69,7 @@ def test_ecfp2(data):
         assert True
 
 
-def test_ecfp3(data):
+def test_ecfp_3(data):
     fps = ECFP(n_jobs=1, input_type='any')
     try:
         fps.transform(data['mols'] + data['smis'])
@@ -80,7 +80,7 @@ def test_ecfp3(data):
         assert True
 
 
-def test_ecfp4(data):
+def test_ecfp_4(data):
     fps = ECFP(n_jobs=1, input_type='any')
     try:
         fps.transform(data['err_smis'])
@@ -101,7 +101,7 @@ def test_ecfp4(data):
         assert True
 
 
-def test_fcfp1(data):
+def test_fcfp_1(data):
     fps = FCFP(n_jobs=1)
 
     try:
@@ -119,7 +119,7 @@ def test_fcfp1(data):
         assert False, 'should not got error'
 
 
-def test_fcfp2(data):
+def test_fcfp_2(data):
     fps = FCFP(n_jobs=1, input_type='smiles')
     try:
         fps.transform(data['mols'])
@@ -136,7 +136,7 @@ def test_fcfp2(data):
         assert True
 
 
-def test_fcfp3(data):
+def test_fcfp_3(data):
     fps = FCFP(n_jobs=1, input_type='any')
     try:
         fps.transform(data['mols'] + data['smis'])
@@ -147,7 +147,7 @@ def test_fcfp3(data):
         assert True
 
 
-def test_fcfp4(data):
+def test_fcfp_4(data):
     fps = FCFP(n_jobs=1, input_type='any')
     try:
         fps.transform(data['err_smis'])
@@ -168,7 +168,7 @@ def test_fcfp4(data):
         assert True
 
 
-def test_apfp1(data):
+def test_apfp_1(data):
     fps = AtomPairFP(n_jobs=1)
 
     try:
@@ -186,7 +186,7 @@ def test_apfp1(data):
         assert False, 'should not got error'
 
 
-def test_apfp2(data):
+def test_apfp_2(data):
     fps = AtomPairFP(n_jobs=1, input_type='smiles')
     try:
         fps.transform(data['mols'])
@@ -203,7 +203,7 @@ def test_apfp2(data):
         assert True
 
 
-def test_apfp3(data):
+def test_apfp_3(data):
     fps = AtomPairFP(n_jobs=1, input_type='any')
     try:
         fps.transform(data['mols'] + data['smis'])
@@ -214,7 +214,7 @@ def test_apfp3(data):
         assert True
 
 
-def test_apfp4(data):
+def test_apfp_4(data):
     fps = AtomPairFP(n_jobs=1, input_type='any')
     try:
         fps.transform(data['err_smis'])
@@ -235,7 +235,7 @@ def test_apfp4(data):
         assert True
 
 
-def test_rdfp1(data):
+def test_rdfp_1(data):
     fps = RDKitFP(n_jobs=1)
 
     try:
@@ -253,7 +253,7 @@ def test_rdfp1(data):
         assert False, 'should not got error'
 
 
-def test_rdfp2(data):
+def test_rdfp_2(data):
     fps = RDKitFP(n_jobs=1, input_type='smiles')
     try:
         fps.transform(data['mols'])
@@ -270,7 +270,7 @@ def test_rdfp2(data):
         assert True
 
 
-def test_rdfp3(data):
+def test_rdfp_3(data):
     fps = RDKitFP(n_jobs=1, input_type='any')
     try:
         fps.transform(data['mols'] + data['smis'])
@@ -281,7 +281,7 @@ def test_rdfp3(data):
         assert True
 
 
-def test_rdfp4(data):
+def test_rdfp_4(data):
     fps = RDKitFP(n_jobs=1, input_type='any')
     try:
         fps.transform(data['err_smis'])
@@ -302,7 +302,7 @@ def test_rdfp4(data):
         assert True
 
 
-def test_maccs1(data):
+def test_maccs_1(data):
     fps = MACCS(n_jobs=1)
 
     try:
@@ -320,7 +320,7 @@ def test_maccs1(data):
         assert False, 'should not got error'
 
 
-def test_maccs2(data):
+def test_maccs_2(data):
     fps = MACCS(n_jobs=1, input_type='smiles')
     try:
         fps.transform(data['mols'])
@@ -337,7 +337,7 @@ def test_maccs2(data):
         assert True
 
 
-def test_maccs3(data):
+def test_maccs_3(data):
     fps = MACCS(n_jobs=1, input_type='any')
     try:
         fps.transform(data['mols'] + data['smis'])
@@ -369,7 +369,7 @@ def test_maccs4(data):
         assert True
 
 
-def test_fps1(data):
+def test_fps_1(data):
     fps = Fingerprints(n_jobs=1)
 
     try:
@@ -387,7 +387,7 @@ def test_fps1(data):
         assert False, 'should not got error'
 
 
-def test_fps2(data):
+def test_fps_2(data):
     fps = Fingerprints(n_jobs=1, input_type='smiles')
     try:
         fps.transform(data['mols'])
@@ -405,7 +405,7 @@ def test_fps2(data):
         assert True
 
 
-def test_fps3(data):
+def test_fps_3(data):
     fps = Fingerprints(n_jobs=1, input_type='any')
     try:
         fps.transform(data['mols'] + data['smis'])
@@ -416,7 +416,7 @@ def test_fps3(data):
         assert True
 
 
-def test_fps4(data):
+def test_fps_4(data):
     fps = Fingerprints(n_jobs=1, input_type='any')
     try:
         fps.transform(data['err_smis'])

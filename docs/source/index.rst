@@ -101,7 +101,7 @@ Indices and tables
 
 Copyright and license
 =====================
-©Copyright 2018 The XenonPy task force, all rights reserved.
+©Copyright 2019 The XenonPy task force, all rights reserved.
 Released under the `BSD-3 license`_.
 
 .. _pandas: https://pandas.pydata.org

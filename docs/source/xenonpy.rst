@@ -8,11 +8,23 @@ Subpackages
 
     xenonpy.datatools
     xenonpy.descriptor
+    xenonpy.inverse
     xenonpy.math
     xenonpy.model
     xenonpy.pipeline
-    xenonpy.utils
     xenonpy.visualization
+
+Submodules
+----------
+
+xenonpy.utils module
+--------------------
+
+.. automodule:: xenonpy.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

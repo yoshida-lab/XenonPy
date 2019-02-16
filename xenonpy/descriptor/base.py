@@ -1,6 +1,6 @@
-# Copyright 2017 TsumiNa. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
 
 from collections import defaultdict
 from collections.abc import Iterable
@@ -26,7 +26,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             def featurize(self, *x):
                 return <xenonpy_featurizer>.featurize(*x)
 
-    .. _matminer BaseFeaturizer: https://github.com/hackingmaterials/matminer/blob/master/matminer/featurizers/base.py
+    .. _matminer BaseFeaturizer: https://github.com/hackingmaterials/matminer/blob/master/matminer/featurizers/base_smc.py
 
     **Using a BaseFeaturizer Class**
 
@@ -200,7 +200,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             one or more features.
         """
 
-        raise NotImplementedError("featurize() is not defined!")
+        raise NotImplementedError("<featurize> method must be implemented")
 
     @property
     def feature_labels(self):
@@ -209,7 +209,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         Returns:
             ([str]) attribute labels.
         """
-        raise NotImplementedError("feature_labels() is not defined!")
+        raise NotImplementedError("<feature_labels> property be implemented")
 
     @property
     def citations(self):
@@ -330,7 +330,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         X = self._check_input(X)
         for k, features in self.__featurizers__.items():
             for f in features:
-                f.fit(X[k], y, **fit_params)
+                f.fit(X[k]),
 
         return self
 

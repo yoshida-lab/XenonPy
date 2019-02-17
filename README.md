@@ -77,10 +77,10 @@ Docker image tags .
 
 | Image tag | CUDA | PyTorch |
 | --------- | ---- | ------- |
-| `latest`  | 10.0 | 1.0.0   |
-| `cpu`     | None | 1.0.0   |
-| `cuda10`  | 10.0 | 1.0.0   |
-| `cuda9`   | 9.0  | 1.0.0   |
+| `latest`  | 10.0 | 1.0.1   |
+| `cpu`     | None | 1.0.1   |
+| `cuda10`  | 10.0 | 1.0.1   |
+| `cuda9`   | 9.0  | 1.0.1   |
 
 ### Running XenonPy
 

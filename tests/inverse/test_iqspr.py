@@ -95,6 +95,7 @@ def test_ngram_1(data):
     assert ngram.max_len == 1000
     assert ngram.del_range == (1, 10)
     assert ngram.reorder_prob == 0
+    assert ngram.sample_order == 10
     assert ngram._train_order is None
 
     ngram.set_params(max_len=500, reorder_prob=0.2)
@@ -103,10 +104,10 @@ def test_ngram_1(data):
     assert ngram.del_range == (1, 10)
     assert ngram.reorder_prob == 0.2
 
-    ngram.fit(data['pg'][0][:20], train_order=10)
+    ngram.fit(data['pg'][0][:20], train_order=5)
 
-    assert ngram._train_order == 10
-    assert ngram._sample_order == 10
+    assert ngram._train_order == 5
+    assert ngram.sample_order == 5
     assert ngram.ngram_table is not None
 
     try:

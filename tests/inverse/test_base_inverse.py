@@ -163,5 +163,31 @@ def test_base_smc_3(data):
     assert f == 5
 
 
+def test_not_implement():
+    base = BaseLogLikelihood()
+    try:
+        base.log_likelihood([1, 2], a=1, b=1)
+    except NotImplementedError:
+        assert True
+    else:
+        assert False
+
+    base = BaseResample()
+    try:
+        base.resample([1, 2], size=10, p=[.5, .5])
+    except NotImplementedError:
+        assert True
+    else:
+        assert False
+
+    base = BaseProposal()
+    try:
+        base.proposal([1, 2])
+    except NotImplementedError:
+        assert True
+    else:
+        assert False
+
+
 if __name__ == "__main__":
     pytest.main()

@@ -2,6 +2,8 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
+import warnings
+
 import numpy as np
 import pandas as pd
 import torch as tc
@@ -11,17 +13,17 @@ from .base import BaseFeaturizer
 
 class FrozenFeaturizer(BaseFeaturizer):
 
-    def __init__(self, model=None, cuda=False, *, on_errors='raise'):
+    def __init__(self, model, *, cuda=False, depth=None, on_errors='raise', return_type='any'):
         """
         Base class for composition feature.
         """
-        super().__init__(n_jobs=0, on_errors=on_errors)
+        super().__init__(n_jobs=0, on_errors=on_errors, return_type=return_type)
+        self.depth = depth
         self._model = model
         self._cuda = cuda
         self._ret = []
-        self._depth = None
 
-    def featurize(self, descriptor, depth=None):
+    def featurize(self, descriptor, *, depth=None):
         hlayers = []
         if isinstance(descriptor, pd.DataFrame):
             descriptor = descriptor.values
@@ -36,12 +38,15 @@ class FrozenFeaturizer(BaseFeaturizer):
             x_ = l.layer(x_)
             hlayers.append(x_.data)
 
+        if depth is None:
+            depth = self.depth
         if depth is not None:
-            ret = hlayers[-depth - 1:-1]
-            self._depth = depth
+            ret = hlayers[-(depth + 1):-1]
+            if depth > len(ret):
+                warnings.warn('<depth> is greater than the max depth of hidden layers')
         else:
             ret = hlayers[:-1]
-            self._depth = len(ret)
+            self.depth = len(ret)
         if self._cuda:
             ret = [l.cpu().numpy() for l in ret]
         else:
@@ -51,8 +56,9 @@ class FrozenFeaturizer(BaseFeaturizer):
 
     @property
     def feature_labels(self):
-        if len(self._ret) == 0:
+        depth = len(self._ret)
+        if depth == 0:
             raise ValueError('Can not generate labels before transform.')
-        return ['L(' + str(i - self._depth) + ')_' + str(j + 1)
+        return ['L(' + str(i - depth) + ')_' + str(j + 1)
                 for i in range(len(self._ret))
                 for j in range(self._ret[i].shape[1])]

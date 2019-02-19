@@ -221,7 +221,7 @@ class NGram(BaseProposal):
                                 # somehow 'at' not ok with mixed char and int column names
                                 self._table[iO][iB][iR].loc[tmp_row, tar_char[iC]] += 1
 
-        self._table = [[[], []] for i in range(train_order)]
+        self._table = [[[], []] for _ in range(train_order)]
         self._train_order = train_order
         self._fit_sample_order()
         for smi in smiles:

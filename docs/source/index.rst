@@ -32,7 +32,7 @@ Overview
 
 **XenonPy** is a Python library that implements a comprehensive set of machine learning tools
 for materials informatics. Its functionalities partially depend on PyTorch and R.
-The current release (v0.2.0, 2018/12/25) is just a prototype version, which provides some limited modules:
+The current release (v0.2.1, 2019/2/20) is just a prototype version, which provides some limited modules:
 
 * Interface to public materials database
 * Library of materials descriptors (compositional/structural descriptors)

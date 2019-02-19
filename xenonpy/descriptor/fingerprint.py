@@ -13,7 +13,7 @@ from .base import BaseDescriptor, BaseFeaturizer
 
 class RDKitFP(BaseFeaturizer):
 
-    def __init__(self, n_jobs=-1, *, fp_size=2048, input_type='mol', on_errors='raise'):
+    def __init__(self, n_jobs=-1, *, fp_size=2048, input_type='mol', on_errors='raise', return_type='any'):
         """
         RDKit fingerprint.
 
@@ -37,7 +37,7 @@ class RDKitFP(BaseFeaturizer):
             When 'keep', return a column with exception objects.
             The default is 'raise' which will raise up the exception.
         """
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.input_type = input_type
         self.fp_size = fp_size
 
@@ -63,7 +63,7 @@ class RDKitFP(BaseFeaturizer):
 
 class AtomPairFP(BaseFeaturizer):
 
-    def __init__(self, n_jobs=-1, *, n_bits=2048, input_type='mol', on_errors='raise'):
+    def __init__(self, n_jobs=-1, *, n_bits=2048, input_type='mol', on_errors='raise', return_type='any'):
         """
         Atom Pair fingerprints.
         Returns the atom-pair fingerprint for a molecule.The algorithm used is described here:
@@ -92,7 +92,7 @@ class AtomPairFP(BaseFeaturizer):
             When 'keep', return a column with exception objects.
             The default is 'raise' which will raise up the exception.
         """
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.input_type = input_type
         self.n_bits = n_bits
 
@@ -117,7 +117,7 @@ class AtomPairFP(BaseFeaturizer):
 
 class TopologicalTorsionFP(BaseFeaturizer):
 
-    def __init__(self, n_jobs=-1, *, n_bits=2048, input_type='mol', on_errors='raise'):
+    def __init__(self, n_jobs=-1, *, n_bits=2048, input_type='mol', on_errors='raise', return_type='any'):
         """
         Topological Torsion fingerprints.
         Returns the topological-torsion fingerprint for a molecule.
@@ -143,7 +143,7 @@ class TopologicalTorsionFP(BaseFeaturizer):
             When 'keep', return a column with exception objects.
             The default is 'raise' which will raise up the exception.
         """
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.input_type = input_type
         self.n_bits = n_bits
 
@@ -168,7 +168,7 @@ class TopologicalTorsionFP(BaseFeaturizer):
 
 class MACCS(BaseFeaturizer):
 
-    def __init__(self, n_jobs=-1, *, input_type='mol', on_errors='raise'):
+    def __init__(self, n_jobs=-1, *, input_type='mol', on_errors='raise', return_type='any'):
         """
         The MACCS keys for a molecule. The result is a 167-bit vector. There are 166 public keys,
         but to maintain consistency with other software packages they are numbered from 1.
@@ -191,7 +191,7 @@ class MACCS(BaseFeaturizer):
             When 'keep', return a column with exception objects.
             The default is 'raise' which will raise up the exception.
         """
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.input_type = input_type
 
     def featurize(self, x):
@@ -215,7 +215,7 @@ class MACCS(BaseFeaturizer):
 
 class FCFP(BaseFeaturizer):
 
-    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, input_type='mol', on_errors='raise'):
+    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, input_type='mol', on_errors='raise', return_type='any'):
         """
         Morgan (Circular) fingerprints + feature-based (FCFP)
         The algorithm used is described in the paper Rogers, D. & Hahn, M. Extended-Connectivity Fingerprints.
@@ -244,7 +244,7 @@ class FCFP(BaseFeaturizer):
             When 'keep', return a column with exception objects.
             The default is 'raise' which will raise up the exception.
         """
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.input_type = input_type
         self.radius = radius
         self.n_bits = n_bits
@@ -273,7 +273,7 @@ class FCFP(BaseFeaturizer):
 
 class ECFP(BaseFeaturizer):
 
-    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, input_type='mol', on_errors='raise'):
+    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, input_type='mol', on_errors='raise', return_type='any'):
         """
         Morgan (Circular) fingerprints (ECFP)
         The algorithm used is described in the paper Rogers, D. & Hahn, M. Extended-Connectivity Fingerprints.
@@ -302,7 +302,7 @@ class ECFP(BaseFeaturizer):
             When 'keep', return a column with exception objects.
             The default is 'raise' which will raise up the exception.
         """
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.input_type = input_type
         self.radius = radius
         self.n_bits = n_bits
@@ -329,7 +329,7 @@ class ECFP(BaseFeaturizer):
 
 class DescriptorFeature(BaseFeaturizer):
 
-    def __init__(self, n_jobs=-1, *, input_type='mol', on_errors='raise'):
+    def __init__(self, n_jobs=-1, *, input_type='mol', on_errors='raise', return_type='any'):
         """
         All descriptors in RDKit (length = 200) [may include NaN]
             see https://www.rdkit.org/docs/GettingStartedInPython.html#list-of-available-descriptors for the full list
@@ -353,7 +353,7 @@ class DescriptorFeature(BaseFeaturizer):
             The default is 'raise' which will raise up the exception.
         """
         # self.arg = arg # arg[0] = radius, arg[1] = bit length
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.input_type = input_type
         nms = [x[0] for x in Descriptors._descList]
         self.calc = MoleculeDescriptors.MolecularDescriptorCalculator(nms)
@@ -382,7 +382,8 @@ class Fingerprints(BaseDescriptor):
     Calculate fingerprints or descriptors of organic molecules.
     """
 
-    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, fp_size=2048, input_type='mol', on_errors='raise'):
+    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, fp_size=2048, input_type='mol', on_errors='raise',
+                 return_type='any'):
         """
 
         Parameters
@@ -413,10 +414,14 @@ class Fingerprints(BaseDescriptor):
         super().__init__()
         self.n_jobs = n_jobs
 
-        self.mol = RDKitFP(n_jobs, fp_size=fp_size, input_type=input_type, on_errors=on_errors)
-        self.mol = AtomPairFP(n_jobs, n_bits=n_bits, input_type=input_type, on_errors=on_errors)
-        self.mol = TopologicalTorsionFP(n_jobs, n_bits=n_bits, input_type=input_type, on_errors=on_errors)
-        self.mol = MACCS(n_jobs, input_type=input_type, on_errors=on_errors)
-        self.mol = ECFP(n_jobs, radius=radius, n_bits=n_bits, input_type=input_type, on_errors=on_errors)
-        self.mol = FCFP(n_jobs, radius=radius, n_bits=n_bits, input_type=input_type, on_errors=on_errors)
-        self.mol = DescriptorFeature(n_jobs, input_type=input_type, on_errors=on_errors)
+        self.mol = RDKitFP(n_jobs, fp_size=fp_size, input_type=input_type, on_errors=on_errors, return_type=return_type)
+        self.mol = AtomPairFP(n_jobs, n_bits=n_bits, input_type=input_type, on_errors=on_errors,
+                              return_type=return_type)
+        self.mol = TopologicalTorsionFP(n_jobs, n_bits=n_bits, input_type=input_type, on_errors=on_errors,
+                                        return_type=return_type)
+        self.mol = MACCS(n_jobs, input_type=input_type, on_errors=on_errors, return_type=return_type)
+        self.mol = ECFP(n_jobs, radius=radius, n_bits=n_bits, input_type=input_type, on_errors=on_errors,
+                        return_type=return_type)
+        self.mol = FCFP(n_jobs, radius=radius, n_bits=n_bits, input_type=input_type, on_errors=on_errors,
+                        return_type=return_type)
+        self.mol = DescriptorFeature(n_jobs, input_type=input_type, on_errors=on_errors, return_type=return_type)

@@ -12,7 +12,7 @@ from ..datatools.dataset import preset
 class _CompositionalFeature(BaseFeaturizer):
 
     def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='raise'):
+                 exclude=None, on_errors='raise', return_type='any'):
         """
         Base class for composition feature.
         """
@@ -20,7 +20,7 @@ class _CompositionalFeature(BaseFeaturizer):
         if include and exclude:
             raise ValueError(
                 'Paratemer "include" and "exclude" are mutually exclusive.')
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
 
         if elements is None:
             elements = preset.elements_completed
@@ -56,7 +56,7 @@ class _CompositionalFeature(BaseFeaturizer):
 
 class WeightedAvgFeature(_CompositionalFeature):
     def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='raise'):
+                 exclude=None, on_errors='raise', return_type='any'):
         """
 
         Parameters
@@ -66,7 +66,8 @@ class WeightedAvgFeature(_CompositionalFeature):
         """
 
         super().__init__(
-            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors)
+            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors,
+            return_type=return_type)
 
     def _func(self, elems, nums):
         elems_ = self.elements.loc[elems, :]
@@ -80,7 +81,7 @@ class WeightedAvgFeature(_CompositionalFeature):
 
 class WeightedSumFeature(_CompositionalFeature):
     def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='raise'):
+                 exclude=None, on_errors='raise', return_type='any'):
         """
 
         Parameters
@@ -90,7 +91,8 @@ class WeightedSumFeature(_CompositionalFeature):
         """
 
         super().__init__(
-            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors)
+            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors,
+            return_type=return_type)
 
     def _func(self, elems, nums):
         elems_ = self.elements.loc[elems, :]
@@ -104,7 +106,7 @@ class WeightedSumFeature(_CompositionalFeature):
 
 class WeightedVarFeature(_CompositionalFeature):
     def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='raise'):
+                 exclude=None, on_errors='raise', return_type='any'):
         """
 
         Parameters
@@ -114,7 +116,8 @@ class WeightedVarFeature(_CompositionalFeature):
         """
 
         super().__init__(
-            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors)
+            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors,
+            return_type=return_type)
 
     def _func(self, elems, nums):
         elems_ = self.elements.loc[elems, :]
@@ -130,7 +133,7 @@ class WeightedVarFeature(_CompositionalFeature):
 
 class MaxFeature(_CompositionalFeature):
     def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='raise'):
+                 exclude=None, on_errors='raise', return_type='any'):
         """
 
         Parameters
@@ -140,7 +143,8 @@ class MaxFeature(_CompositionalFeature):
         """
 
         super().__init__(
-            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors)
+            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors,
+            return_type=return_type)
 
     def _func(self, elems, _):
         elems_ = self.elements.loc[elems, :]
@@ -153,7 +157,7 @@ class MaxFeature(_CompositionalFeature):
 
 class MinFeature(_CompositionalFeature):
     def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='raise'):
+                 exclude=None, on_errors='raise', return_type='any'):
         """
 
         Parameters
@@ -163,7 +167,8 @@ class MinFeature(_CompositionalFeature):
         """
 
         super().__init__(
-            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors)
+            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors,
+            return_type=return_type)
 
     def _func(self, elems, _):
         elems_ = self.elements.loc[elems, :]
@@ -180,7 +185,7 @@ class Compositions(BaseDescriptor):
     """
 
     def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='raise'):
+                 exclude=None, on_errors='raise', return_type='any'):
         """
 
         Parameters
@@ -205,8 +210,8 @@ class Compositions(BaseDescriptor):
             elements = elements.drop(exclude, axis=1)
         self.elements = elements
 
-        self.composition = WeightedAvgFeature(elements, n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = WeightedSumFeature(elements, n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = WeightedVarFeature(elements, n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = MaxFeature(elements, n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = MinFeature(elements, n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = WeightedAvgFeature(elements, n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        self.composition = WeightedSumFeature(elements, n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        self.composition = WeightedVarFeature(elements, n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        self.composition = MaxFeature(elements, n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        self.composition = MinFeature(elements, n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)

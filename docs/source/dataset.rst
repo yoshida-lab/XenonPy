@@ -2,13 +2,13 @@
 Dataset
 =======
 
-XenonPy embed with ``elements`` and ``elements_completed`` dataset for descriptors calculation.
-These data are summarized from `mendeleev`_, `pymatgen`_, `CRC Hand Book`_ and `Magpie`_.
+XenonPy has ``elements`` and ``elements_completed`` dataset for descriptors calculation.
+These data are summarized in `mendeleev`_, `pymatgen`_, `CRC Hand Book`_ and `Magpie`_.
 
-``elements`` dataset contains 118 elements with 74 elemental features(incomplete).
-``elements_completed`` is imputed version by use multiple imputation chained equation [1]_.
+``elements`` dataset contains 118 elements with 74 elemental features (incomplete).
+``elements_completed`` is an imputed version of ``elements`` using multiple imputation by chained equation [1]_.
 
-Because a large number of missing data in high atomic number elements lead to difficulty impute.
+The imputation is difficult because of a large number of missing data in high atomic number elements.
 The ``elements_completed`` dataset only have 94 elements from `H` to `Pu` with 58 features.
 
 .. _CRC Hand Book: http://hbcponline.com/faces/contents/ContentsSearch.xhtml
@@ -33,7 +33,7 @@ The followig data are currently available in ``elements``:
 ``atomic_weight``                   The mass of an atom.
 ``icsd_volume``                     Atom volume in ICSD database.
 ``lattice_constant``                Physical dimension of unit cells in a crystal lattice.
-``vdw_radius``                      Van der Waals radiusis.
+``vdw_radius``                      Van der Waals radius.
 ``vdw_radius_alvarez``              Van der Waals radius according to Alvarez.
 ``vdw_radius_batsanov``             Van der Waals radius according to Batsanov.
 ``vdw_radius_bondi``                Van der Waals radius according to Bondi.
@@ -54,7 +54,7 @@ The followig data are currently available in ``elements``:
 ``proton_affinity``                 Proton affinity.
 ``dipole_polarizability``           Dipole polarizability.
 ``electron_affinity``               Electron affinity.
-``electron_negativity``             Tendency of an atom to attract a shared pair of electronsElectron affinity.
+``electron_negativity``             Tendency of an atom to attract a shared pair of electrons' electron affinity.
 ``en_allen``                        Allen's scale of electronegativity.
 ``en_ghosh``                        Ghosh's scale of electronegativity.
 ``en_pauling``                      Mulliken's scale of electronegativity.
@@ -66,7 +66,7 @@ The followig data are currently available in ``elements``:
 ``gs_volume_per``                   DFT volume per atom of T=0K ground state.
 ``hhi_p``                           Herfindahl−Hirschman Index (HHI) production values
 ``hhi_r``                           Herfindahl−Hirschman Index (HHI) reserves values
-``specific_heat``                   Specific heat at 20 C.
+``specific_heat``                   Specific heat at 20oC.
 ``gas_basicity``                    Gas basicity.
 ``first_ion_en``                    First ionisation energy.
 ``fusion_enthalpy``                 Fusion heat.

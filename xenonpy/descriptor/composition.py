@@ -63,6 +63,22 @@ class WeightedAvgFeature(_CompositionalFeature):
         ----------
         elements: panda.DataFrame
             Elements information in `pandas.DataFrame` object. indexed by element symbol.
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
+            Inputs ``X`` will be split into some blocks then run on each cpu cores.
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            Default is ``any``
         """
 
         super().__init__(
@@ -88,6 +104,22 @@ class WeightedSumFeature(_CompositionalFeature):
         ----------
         elements: panda.DataFrame
             Elements information in `pandas.DataFrame` object. indexed by element symbol.
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
+            Inputs ``X`` will be split into some blocks then run on each cpu cores.
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            Default is ``any``
         """
 
         super().__init__(
@@ -113,6 +145,22 @@ class WeightedVarFeature(_CompositionalFeature):
         ----------
         elements: panda.DataFrame
             Elements information in `pandas.DataFrame` object. indexed by element symbol.
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
+            Inputs ``X`` will be split into some blocks then run on each cpu cores.
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            Default is ``any``
         """
 
         super().__init__(
@@ -140,6 +188,22 @@ class MaxFeature(_CompositionalFeature):
         ----------
         elements: panda.DataFrame
             Elements information in `pandas.DataFrame` object. indexed by element symbol.
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
+            Inputs ``X`` will be split into some blocks then run on each cpu cores.
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            Default is ``any``
         """
 
         super().__init__(
@@ -164,6 +228,22 @@ class MinFeature(_CompositionalFeature):
         ----------
         elements: panda.DataFrame
             Elements information in `pandas.DataFrame` object. indexed by element symbol.
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
+            Inputs ``X`` will be split into some blocks then run on each cpu cores.
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            Default is ``any``
         """
 
         super().__init__(
@@ -185,19 +265,27 @@ class Compositions(BaseDescriptor):
     """
 
     def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='raise', return_type='any'):
+                 exclude=None, on_errors='raise'):
         """
 
         Parameters
         ----------
-        methods: str
-            Calculation method(s) which to be used must in the :attr:`methods` list.
-        elemental: panda.DataFrame
+        elements: panda.DataFrame
             Elements information in `pandas.DataFrame` object. indexed by element symbol.
         include: list
             Column's names of elemental info that should be used in descriptor calculation.
         exclude: list
             Column's names of elemental info that should not be used in descriptor calculation.
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
+            Inputs ``X`` will be split into some blocks then run on each cpu cores.
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
         """
 
         super().__init__()
@@ -210,8 +298,8 @@ class Compositions(BaseDescriptor):
             elements = elements.drop(exclude, axis=1)
         self.elements = elements
 
-        self.composition = WeightedAvgFeature(elements, n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
-        self.composition = WeightedSumFeature(elements, n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
-        self.composition = WeightedVarFeature(elements, n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
-        self.composition = MaxFeature(elements, n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
-        self.composition = MinFeature(elements, n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        self.composition = WeightedAvgFeature(elements, n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = WeightedSumFeature(elements, n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = WeightedVarFeature(elements, n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = MaxFeature(elements, n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = MinFeature(elements, n_jobs=n_jobs, on_errors=on_errors)

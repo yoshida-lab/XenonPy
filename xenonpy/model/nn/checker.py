@@ -2,6 +2,7 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
+from functools import partial
 from pathlib import Path
 
 import torch
@@ -17,7 +18,7 @@ class Checker(LocalStorage):
     """
 
     class __SL(object):
-        load = torch.load
+        load = partial(torch.load, map_location=torch.device('cpu'))
         dump = torch.save
 
     def __init__(self, name, path=None, *, increment=True):
@@ -45,8 +46,9 @@ class Checker(LocalStorage):
         super().__init__(self._name, path=path)
 
     @classmethod
-    def load(cls, name, path=None):
-        return cls(name, path, increment=False)
+    def load(cls, model_path):
+        p = Path(model_path)
+        return cls(p.stem, str(p.parent), increment=False)
 
     @property
     def model_name(self):

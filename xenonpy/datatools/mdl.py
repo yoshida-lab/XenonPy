@@ -8,6 +8,7 @@ import os
 import tarfile
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import requests
 from requests import HTTPError
@@ -26,12 +27,13 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
         ----------
         save_to: str
             Path to save models.
+            If set to ``None``, only return query result.
         api_key: str
             Not implement yet.
         """
-        self._save_to = save_to
+        self.save_to = save_to
         self._url = 'http://xenon.ism.ac.jp/api'
-        self._api_key = api_key
+        self.api_key = api_key
         self._headers = {'Accept': 'application/json', "content-type": "application/json"}
 
     def query(self, query, variables):
@@ -104,6 +106,13 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
             regress
             transferred
             succeed
+            ...on Regression {
+              mae
+              r
+            }
+            ...on Classification {
+              accuracy
+            }
           }
         }
         '''
@@ -120,7 +129,8 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
         )
         return self.query(query, variables)['queryModels']
 
-    def __call__(self, modelset_has, save=True, *,
+    def __call__(self, modelset_has, *,
+                 save_to='.',
                  property_has='',
                  descriptor_has='',
                  method_has='',
@@ -136,6 +146,10 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
         modelset_has: str
             The part of a model set's name.
             For example, ``modelset_has='test`` will hit ``*test*``
+        save_to: str or bool
+            Path to save models.
+            If ``False``, only return query results.
+            This is a temporary change that only have effect in the current fetch.
         property_has: str
             A part of the name of property.
         descriptor_has: str
@@ -171,20 +185,27 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
         if not ret:
             return None
         ret_ = pd.DataFrame(ret)
-        if save:
-            path_list = []
-            for m in tqdm(ret):
-                url = m['url']
-                path = '/'.join(url.split('/')[-5:])
-                filename = '{}/{}'.format(absolute_path(self._save_to), path)
-                Path(filename).parent.mkdir(parents=True, exist_ok=True)
-                r = requests.get(url=url)
-                with open(filename, 'wb') as f:
-                    f.write(r.content)
-                path = filename[:-7]
-                tarfile.open(filename).extractall(path=path)
-                os.remove(filename)
-                path_list.append(path)
-            ret_['save_path'] = path_list
+        if save_to is None:
+            save_to = self.save_to
+        if save_to:
+            ret_['save_path'] = self.pull(ret_['url'], save_to=save_to)
 
         return ret_.set_index('id', drop=True)
+
+    @classmethod
+    def pull(cls, urls, save_to='.'):
+        path_list = []
+        if isinstance(urls, (np.ndarray, pd.Series)):
+            urls = urls.tolist()
+        for url in tqdm(urls):
+            path = '/'.join(url.split('/')[-5:])
+            filename = '{}/{}'.format(absolute_path(save_to), path)
+            Path(filename).parent.mkdir(parents=True, exist_ok=True)
+            r = requests.get(url=url)
+            with open(filename, 'wb') as f:
+                f.write(r.content)
+            path = filename[:-7]
+            tarfile.open(filename).extractall(path=path)
+            os.remove(filename)
+            path_list.append(path)
+        return path_list

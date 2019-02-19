@@ -102,7 +102,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         """
         self.return_type = return_type
         self.n_jobs = n_jobs
-        self._on_errors = on_errors
+        self.on_errors = on_errors
         self._kwargs = {}
 
     @property
@@ -233,9 +233,9 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
                 return self.featurize(x, **self._kwargs)
             return self.featurize(*x, **self._kwargs)
         except BaseException as e:
-            if self._on_errors == 'nan':
+            if self.on_errors == 'nan':
                 return [np.nan] * len(self.feature_labels)
-            elif self._on_errors == 'keep':
+            elif self.on_errors == 'keep':
                 return [e] * len(self.feature_labels)
             else:
                 raise e

@@ -20,7 +20,8 @@ class RDKitFP(BaseFeaturizer):
         Parameters
         ----------
         n_jobs: int
-            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
         fp_size: int
             Fingerprint size.
         input_type: string
@@ -75,7 +76,8 @@ class AtomPairFP(BaseFeaturizer):
         Parameters
         ----------
         n_jobs: int
-            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
         n_bits: int
            Fixed bit length based on folding.
         input_type: string
@@ -382,8 +384,7 @@ class Fingerprints(BaseDescriptor):
     Calculate fingerprints or descriptors of organic molecules.
     """
 
-    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, fp_size=2048, input_type='mol', on_errors='raise',
-                 return_type='any'):
+    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, fp_size=2048, input_type='mol', on_errors='raise'):
         """
 
         Parameters
@@ -414,14 +415,10 @@ class Fingerprints(BaseDescriptor):
         super().__init__()
         self.n_jobs = n_jobs
 
-        self.mol = RDKitFP(n_jobs, fp_size=fp_size, input_type=input_type, on_errors=on_errors, return_type=return_type)
-        self.mol = AtomPairFP(n_jobs, n_bits=n_bits, input_type=input_type, on_errors=on_errors,
-                              return_type=return_type)
-        self.mol = TopologicalTorsionFP(n_jobs, n_bits=n_bits, input_type=input_type, on_errors=on_errors,
-                                        return_type=return_type)
-        self.mol = MACCS(n_jobs, input_type=input_type, on_errors=on_errors, return_type=return_type)
-        self.mol = ECFP(n_jobs, radius=radius, n_bits=n_bits, input_type=input_type, on_errors=on_errors,
-                        return_type=return_type)
-        self.mol = FCFP(n_jobs, radius=radius, n_bits=n_bits, input_type=input_type, on_errors=on_errors,
-                        return_type=return_type)
-        self.mol = DescriptorFeature(n_jobs, input_type=input_type, on_errors=on_errors, return_type=return_type)
+        self.mol = RDKitFP(n_jobs, fp_size=fp_size, input_type=input_type, on_errors=on_errors)
+        self.mol = AtomPairFP(n_jobs, n_bits=n_bits, input_type=input_type, on_errors=on_errors)
+        self.mol = TopologicalTorsionFP(n_jobs, n_bits=n_bits, input_type=input_type, on_errors=on_errors)
+        self.mol = MACCS(n_jobs, input_type=input_type, on_errors=on_errors)
+        self.mol = ECFP(n_jobs, radius=radius, n_bits=n_bits, input_type=input_type, on_errors=on_errors)
+        self.mol = FCFP(n_jobs, radius=radius, n_bits=n_bits, input_type=input_type, on_errors=on_errors)
+        self.mol = DescriptorFeature(n_jobs, input_type=input_type, on_errors=on_errors)

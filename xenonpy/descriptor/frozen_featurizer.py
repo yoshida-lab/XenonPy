@@ -59,18 +59,18 @@ class FrozenFeaturizer(BaseFeaturizer):
         else:
             x_.cpu()
             self.model.cpu()
-        for l in self.model:
+        for l in self.model[:-1]:
             x_ = l.layer(x_)
             hlayers.append(x_.data)
 
         if depth is None:
             depth = self.depth
         if depth is not None:
-            ret = hlayers[-(depth + 1):-1]
+            ret = hlayers[-depth:]
             if depth > len(ret):
                 warnings.warn('<depth> is greater than the max depth of hidden layers')
         else:
-            ret = hlayers[:-1]
+            ret = hlayers
             self.depth = len(ret)
         if self.cuda:
             ret = [l.cpu().numpy() for l in ret]

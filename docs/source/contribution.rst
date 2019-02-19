@@ -10,10 +10,10 @@ Contribution guidelines
 
 When contribute your codes, please do the following
 
-* Discussion with others
-* Docstring use `Numpy style`_.
+* Discuss with others
+* Use `Numpy style`_ for Docstring.
 * Check codes with Pylint_
-* Writing tests if possible
+* Write tests if possible
 
 
 .. _Numpy style: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt

@@ -6,30 +6,30 @@ Installation
 ============
 
 XenonPy can be installed using pip_ in Python 3.5, 3.6 and 3.7 on Mac, Linux and Windows.
-Alternately, we recommend you use the `Docker Image`_ if you have no installation preference.
+Alternatively, we recommend using the `Docker Image`_ if you have no installation preference.
 
-We have no plane to support Python 2.x. One of the main reasons is that the ``pymatgen`` library will discontinuing Python 2 support from 2019.
-See this `this link <http://pymatgen.org/#py3k-only-with-effect-from-2019-1-1>`_ for details.
+We have no plan to support Python 2.x. One of the main reasons is that the ``pymatgen`` library will not support Python 2 from 2019.
+See `this link <http://pymatgen.org/#py3k-only-with-effect-from-2019-1-1>`_ for details.
 
-Also note that XenonPy use PyTorch_ to accelerate the neural network model training.
-If you instal XenonPy with PyTorch in windows os, some additional tools will be needed.
-We are highly recommended that you install the `Visual C++ Build Tools <http://landinghub.visualstudio.com/visual-cpp-build-tools>`_ before the package installing.
-Also, through the installation screen of Visual C++ Build Tools, you need to check-on the **windows 8.1 / 10 SDK options**.
+Also, note that XenonPy uses PyTorch_ to accelerate the neural network model training.
+If you install XenonPy with PyTorch in windows os, additional tools will be needed.
+We highly recommend you to install the `Visual C++ Build Tools <http://landinghub.visualstudio.com/visual-cpp-build-tools>`_ before installing our packages.
+Through the installation screen of Visual C++ Build Tools, you need to check the **windows 8.1 / 10 SDK options**.
 
 
 .. _install_xenonpy:
 
-Use pip
+Using pip
 =======
 
 pip is a package management system for installing and updating Python packages,
-and comes with any Python installation. On Ubuntu and Fedora Linux,
-use the system package manager to install the ``python3-pip`` package.
-We suggest you `upgrade pip <https://pip.pypa.io/en/stable/installing/>`_ before using it to install other programs.
+which comes with any Python installation. On Ubuntu and Fedora Linux,
+please use the system package manager to install the ``python3-pip`` package.
+We suggest you to `upgrade pip <https://pip.pypa.io/en/stable/installing/>`_ before using it to install other packages.
 
-Before install XenonPy, You need to install the peerdependencies PyTorch, pymatgen and rdkit_ first.
-The easiest way to install the 3 packages together is to use conda_.
-The following official tutorials will be leading you to a successful installation.
+Before installing XenonPy, You need to install the peer dependencies PyTorch, pymatgen and rdkit_ first.
+The easiest way to install all 3 packages is to use conda_.
+The following official tutorials will guide you through a successful installation.
 
 PyTorch: https://pytorch.org/get-started/locally/
 :raw-html:`<br />`
@@ -37,46 +37,46 @@ pymatgen: http://pymatgen.org/index.html#getting-pymatgen
 :raw-html:`<br />`
 rdkit: https://www.rdkit.org/docs/Install.html
 
-When you done, the remaining is very simple.
-The following command install XenonPy in your default python environment.
+When you reach this point, the remaining steps are very simple.
+The following command will install XenonPy in your default python environment.
 
 .. code-block:: bash
 
     $ pip install xenonpy
 
-Users can use this command to install at a user-specified directory:
+Users can use the following command to install the package at a user-specified directory.
 
 .. code-block:: bash
 
     $ pip install xenonpy --user
 
-The pre-installed version could be renewed to the latest stable release as
+The pre-installed version could be updated to the latest stable release as follow.
 
 .. code-block:: bash
 
     $ pip install --upgrade xenonpy
 
 
-Use docker
+Using docker
 ==========
 
 .. image:: _static/docker.png
 
 
-Docker is a tool designed to make it easier to create, deploy, and run applications by using containers.
-Containers allow a developer to package up an application with all of the parts it needs, such as libraries and other dependencies, and ship it all out as one package.
+Docker is a tool designed to easily create, deploy, and run applications across multiple platforms using containers.
+Containers allow a developer to pack up an application with all of the parts it needs, such as libraries and other dependencies, into a single package.
 We provide the `official docker images`_ via the `Docker hub <https://hub.docker.com>`_.
 
-If you have not installed Docker yet, Follow the `official install tutorial <https://docs.docker.com/install/>`_ to install docker CE on your machine.
+If you have not installed Docker yet, follow the `official installation tutorial <https://docs.docker.com/install/>`_ to install docker CE on your machine.
 Once your docker installation is done, use the following command to boot up XenonPy with jupyterlab_.
 
 .. code-block:: bash
 
     $ docker run --rm -it -v $HOME/.xenonpy:/home/user/.xenonpy -v <path/to/your/work_space>:/workspace -p 8888:8888 yoshidalab/xenonpy
 
-Then open http://localhost:8888 from your favourite browser.
+Then, open http://localhost:8888 from your favourite browser.
 
-Install in development mode
+Installing in development mode
 ===========================
 
 To use the latest development version distributed at `Github repository`_,
@@ -101,12 +101,12 @@ To update XenonPy, use ``git fetch && git pull``
 
 
 
-Troubleshooting/Issues
+Troubleshooting/issues
 ======================
 
 Contact us at issues_ and Gitter_ when you have a trouble.
 
-Please provide fully detailed information (system specification, Python version, and input/output log, and so on).
+Please provide detailed information (system specification, Python version, and input/output log, and so on).
 
 -----------------------------------------------------------------------------------------------------------
 

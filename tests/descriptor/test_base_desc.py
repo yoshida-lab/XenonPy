@@ -93,7 +93,10 @@ def test_base_feature_2(data):
     featurizer = data['featurizer']()
     ret = featurizer.fit_transform([1, 2, 3, 4])
     assert isinstance(ret, list)
-    assert ret == [1, 2, 3, 4]
+    ret = featurizer.fit_transform([1, 2, 3, 4], return_type='array')
+    assert isinstance(ret, np.ndarray)
+    ret = featurizer.fit_transform([1, 2, 3, 4], return_type='df')
+    assert isinstance(ret, pd.DataFrame)
     ret = featurizer.fit_transform(np.array([1, 2, 3, 4]))
     assert isinstance(ret, np.ndarray)
     assert (ret == np.array([1, 2, 3, 4])).all()

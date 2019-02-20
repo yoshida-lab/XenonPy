@@ -3,6 +3,7 @@
 #  license that can be found in the LICENSE file.
 
 import re
+import warnings
 from copy import deepcopy
 
 import numpy as np
@@ -13,7 +14,7 @@ from ..base import BaseProposal
 
 
 class NGram(BaseProposal):
-    def __init__(self, *, ngram_tab=None, del_range=(1, 10), max_len=1000, reorder_prob=0):
+    def __init__(self, *, ngram_tab=None, sample_order=10, del_range=(1, 10), max_len=1000, reorder_prob=0):
         """
         N-Garm
 
@@ -28,17 +29,24 @@ class NGram(BaseProposal):
         reorder_prob: float
             Docs
         """
+        self.sample_order = sample_order
         self.reorder_prob = reorder_prob
         self.max_len = max_len
         self.del_range = del_range
         if ngram_tab is not None:
             self._table = deepcopy(ngram_tab)
             self._train_order = len(ngram_tab)
-            self._sample_order = self._train_order  # fixme: what the sample order mean
         else:
             self._table = None
             self._train_order = None
-            self._sample_order = None
+
+        self._fit_sample_order()
+
+    def _fit_sample_order(self):
+        if self._train_order and self._train_order < self.sample_order:
+            warnings.warn('<sample_order> is greater than <train_order>,'
+                          '<sample_order> will be reduced to <train_order>', RuntimeWarning)
+            self.sample_order = self._train_order
 
     @property
     def ngram_table(self):
@@ -213,9 +221,9 @@ class NGram(BaseProposal):
                                 # somehow 'at' not ok with mixed char and int column names
                                 self._table[iO][iB][iR].loc[tmp_row, tar_char[iC]] += 1
 
-        self._table = [[[], []] for i in range(train_order)]
+        self._table = [[[], []] for _ in range(train_order)]
         self._train_order = train_order
-        self._sample_order = train_order
+        self._fit_sample_order()
         for smi in smiles:
             _fit_one(self.smi2esmi(smi))
 
@@ -232,7 +240,7 @@ class NGram(BaseProposal):
         cand_char = []
         cand_prob = 1
         iB = int(iB)
-        for iO in range(self._sample_order - 1, -1, -1):
+        for iO in range(self.sample_order - 1, -1, -1):
             # if (len(tmp_str) > iO) & (str(tmp_str[-(iO + 1):]) in self._table[iO][iB][iR].index.tolist()):
             if len(tmp_str) > iO and str(tmp_str[-(iO + 1):]) in self._table[iO][iB][iR].index.tolist():
                 cand_char = self._table[iO][iB][iR].columns.tolist()

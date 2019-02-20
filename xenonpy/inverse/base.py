@@ -2,7 +2,6 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from abc import ABC, abstractmethod
 from copy import deepcopy
 
 import numpy as np
@@ -11,7 +10,7 @@ from sklearn.base import BaseEstimator
 from ..utils import TimedMetaClass
 
 
-class BaseLogLikelihood(BaseEstimator, ABC):
+class BaseLogLikelihood(BaseEstimator, metaclass=TimedMetaClass):
 
     def fit(self, X, y, **kwargs):
         return self
@@ -19,7 +18,6 @@ class BaseLogLikelihood(BaseEstimator, ABC):
     def __call__(self, X, **targets):
         return self.log_likelihood(X, **targets)
 
-    @abstractmethod
     def log_likelihood(self, X, **targets):
         """
         Log likelihood
@@ -38,10 +36,11 @@ class BaseLogLikelihood(BaseEstimator, ABC):
         log_likelihood: np.ndarray of float
             Estimated likelihood of each samples.
         """
-        pass
+        # raise NotImplementedError('<log_likelihood> have no implementation')
+        raise NotImplementedError('<log_likelihood> method must be implemented')
 
 
-class BaseResample(BaseEstimator, ABC):
+class BaseResample(BaseEstimator, metaclass=TimedMetaClass):
 
     def fit(self, X, y=None, **kwargs):
         return self
@@ -49,7 +48,6 @@ class BaseResample(BaseEstimator, ABC):
     def __call__(self, X, size, p):
         return self.resample(X, size, p)
 
-    @abstractmethod
     def resample(self, X, size, p):
         """
         Re-sample from given samples.
@@ -69,17 +67,16 @@ class BaseResample(BaseEstimator, ABC):
         new_sample: list of object
             Re-sampling result.
         """
-        pass
+        raise NotImplementedError('<resample> method must be implemented')
 
 
-class BaseProposal(BaseEstimator, ABC):
+class BaseProposal(BaseEstimator, metaclass=TimedMetaClass):
     def fit(self, X, y, **kwargs):
         return self
 
     def __call__(self, X):
         return self.proposal(X)
 
-    @abstractmethod
     def proposal(self, X):
         """
         Proposal new samples based on the input samples.
@@ -94,7 +91,7 @@ class BaseProposal(BaseEstimator, ABC):
         samples: list of object
             Generated samples from input samples.
         """
-        pass
+        raise NotImplementedError('<proposal> method must be implemented')
 
 
 class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):

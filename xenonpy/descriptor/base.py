@@ -79,7 +79,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
     __citations__ = ['No citations']
     _n_jobs = 1
 
-    def __init__(self, n_jobs=-1, *, on_errors='raise'):
+    def __init__(self, n_jobs=-1, *, on_errors='raise', return_type='any'):
         """
         Parameters
         ----------
@@ -93,9 +93,17 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             The length of column corresponding to the number of feature labs.
             When 'keep', return a column with exception objects.
             The default is 'raise' which will raise up the exception.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            Default is ``any``
         """
+        self.return_type = return_type
         self.n_jobs = n_jobs
-        self._on_errors = on_errors
+        self.on_errors = on_errors
+        self._kwargs = {}
 
     @property
     def n_jobs(self):
@@ -118,7 +126,36 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             """
         return self
 
-    def transform(self, entries):
+    def fit_transform(self, X, y=None, **fit_params):
+        """Fit to data, then transform it.
+
+        Fits transformer to X and y with optional parameters fit_params
+        and returns a transformed version of X.
+
+        Parameters
+        ----------
+        X : numpy array of shape [n_samples, n_features]
+            Training set.
+
+        y : numpy array of shape [n_samples]
+            Target values.
+
+        Returns
+        -------
+        X_new : numpy array of shape [n_samples, n_features_new]
+            Transformed array.
+
+        """
+        # non-optimized default implementation; override when a better
+        # method is possible for a given clustering algorithm
+        if y is None:
+            # fit method of arity 1 (unsupervised transformation)
+            return self.fit(X, **fit_params).transform(X, **fit_params)
+        else:
+            # fit method of arity 2 (supervised transformation)
+            return self.fit(X, y, **fit_params).transform(X, **fit_params)
+
+    def transform(self, entries, *, return_type=None, **kwargs):
         """
         Featurize a list of entries.
         If `featurize` takes multiple inputs, supply inputs as a list of tuples.
@@ -126,12 +163,20 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         ----
         entries: list-like
             A list of entries to be featurized.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            This is a temporary change that only have effect in the current transform.
+            Default is ``None``.
 
         Returns
         -------
             DataFrame
                 features for each entry.
         """
+        self._kwargs = kwargs
 
         # Check inputs
         if not isinstance(entries, Iterable):
@@ -143,7 +188,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
 
         # Run the actual featurization
         if self.n_jobs == 0:
-            ret = self.featurize(entries)
+            ret = self.featurize(entries, **kwargs)
         elif self.n_jobs == 1:
             ret = [self._wrapper(x) for x in entries]
         else:
@@ -155,11 +200,22 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         except NotImplementedError:
             labels = None
 
-        if isinstance(entries, (pd.Series, pd.DataFrame)):
-            return pd.DataFrame(ret, index=entries.index, columns=labels)
-        if isinstance(entries, np.ndarray):
+        if return_type is None:
+            return_type = self.return_type
+        if return_type == 'any':
+            if isinstance(entries, (pd.Series, pd.DataFrame)):
+                return pd.DataFrame(ret, index=entries.index, columns=labels)
+            if isinstance(entries, np.ndarray):
+                return np.array(ret)
+            return ret
+
+        if return_type == 'array':
             return np.array(ret)
-        return ret
+
+        if return_type == 'df':
+            if isinstance(entries, (pd.Series, pd.DataFrame)):
+                return pd.DataFrame(ret, index=entries.index, columns=labels)
+            return pd.DataFrame(ret, columns=labels)
 
     def _wrapper(self, x):
         """
@@ -174,12 +230,12 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         try:
             # Successful featurization returns nan for an error.
             if not isinstance(x, (tuple, list, np.ndarray)):
-                return self.featurize(x)
-            return self.featurize(*x)
+                return self.featurize(x, **self._kwargs)
+            return self.featurize(*x, **self._kwargs)
         except BaseException as e:
-            if self._on_errors == 'nan':
+            if self.on_errors == 'nan':
                 return [np.nan] * len(self.feature_labels)
-            elif self._on_errors == 'keep':
+            elif self.on_errors == 'keep':
                 return [e] * len(self.feature_labels)
             else:
                 raise e
@@ -281,7 +337,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
         if key == '__featurizers__':
             if not isinstance(value, defaultdict):
-                raise RuntimeError('Can not set "__featurizers__" yourself')
+                raise RuntimeError('Can not set "self.__featurizers__" by yourself')
             super().__setattr__(key, value)
         if isinstance(value, BaseFeaturizer):
             self.__featurizers__[key].append(value)

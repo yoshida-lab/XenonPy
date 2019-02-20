@@ -21,7 +21,7 @@ class RadialDistributionFunction(BaseFeaturizer):
     def feature_labels(self):
         return [str(d) for d in self._interval[1:]]
 
-    def __init__(self, n_bins=201, r_max=20.0, *, n_jobs=-1, on_errors='raise'):
+    def __init__(self, n_bins=201, r_max=20.0, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
         
         Parameters
@@ -30,15 +30,30 @@ class RadialDistributionFunction(BaseFeaturizer):
             Number of radial grid points.
         r_max: float
             Maximum of radial grid (the minimum is always set zero).
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            Default is ``any``
         """
 
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         assert n_bins >= 1, "n_bins should be greater than 1!"
         assert r_max > 0, "r_max should be greater than 0!"
 
-        self._r_max = r_max
-        self._dr = r_max / (n_bins - 1)
-        self._interval = np.arange(0.0, r_max + self._dr, self._dr)
+        self.n_bins = n_bins
+        self.r_max = r_max
+        self.dr = r_max / (n_bins - 1)
+        self._interval = np.arange(0.0, r_max + self.dr, self.dr)
         self.__authors__ = ['TsumiNa']
 
     def featurize(self, structure):
@@ -55,7 +70,7 @@ class RadialDistributionFunction(BaseFeaturizer):
             raise ValueError("Disordered structure support not built yet")
 
         # Get the distances between all atoms
-        neighbors_lst = structure.get_all_neighbors(self._r_max)
+        neighbors_lst = structure.get_all_neighbors(self.r_max)
         all_distances = np.concatenate(tuple(map(lambda x: [e[1] for e in x], neighbors_lst)))
 
         # Compute a histogram
@@ -80,15 +95,29 @@ class ObitalFieldMatrix(BaseFeaturizer):
 
     """
 
-    def __init__(self, including_d=True, *, n_jobs=-1, on_errors='raise'):
+    def __init__(self, including_d=True, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
         Parameters
         ----------
         including_d: bool
             If true, add distance information.
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            Default is ``any``
         """
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self._including_d = including_d
 
     @staticmethod
@@ -208,7 +237,7 @@ class ObitalFieldMatrix(BaseFeaturizer):
 
 class Structures(BaseDescriptor):
     """
-    Calculate elemental descriptors from compound's composition.
+    Calculate structure descriptors from compound's structure.
     """
 
     def __init__(self, n_bins=201, r_max=20.0, including_d=True, *, n_jobs=-1, on_errors='raise'):
@@ -216,16 +245,21 @@ class Structures(BaseDescriptor):
 
         Parameters
         ----------
-        methods: str
-            Calculation method(s) which to be used must in the :attr:`methods` list.
-        elemental: panda.DataFrame
-            Elements information in `pandas.DataFrame` object. indexed by element symbol.
-        include: list
-            Column's names of elemental info that should be used in descriptor calculation.
-        exclude: list
-            Column's names of elemental info that should not be used in descriptor calculation.
+        n_bins: int
+            Number of radial grid points.
+        r_max: float
+            Maximum of radial grid (the minimum is always set zero).
+        including_d: bool
+            If true, add distance information.
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
         """
-
         super().__init__()
         self.n_jobs = n_jobs
 

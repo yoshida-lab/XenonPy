@@ -12,7 +12,7 @@ from ..datatools.dataset import preset
 class _CompositionalFeature(BaseFeaturizer):
 
     def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='raise'):
+                 exclude=None, on_errors='raise', return_type='any'):
         """
         Base class for composition feature.
         """
@@ -20,7 +20,7 @@ class _CompositionalFeature(BaseFeaturizer):
         if include and exclude:
             raise ValueError(
                 'Paratemer "include" and "exclude" are mutually exclusive.')
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
 
         if elements is None:
             elements = preset.elements_completed
@@ -56,17 +56,34 @@ class _CompositionalFeature(BaseFeaturizer):
 
 class WeightedAvgFeature(_CompositionalFeature):
     def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='raise'):
+                 exclude=None, on_errors='raise', return_type='any'):
         """
 
         Parameters
         ----------
         elements: panda.DataFrame
             Elements information in `pandas.DataFrame` object. indexed by element symbol.
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
+            Inputs ``X`` will be split into some blocks then run on each cpu cores.
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            Default is ``any``
         """
 
         super().__init__(
-            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors)
+            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors,
+            return_type=return_type)
 
     def _func(self, elems, nums):
         elems_ = self.elements.loc[elems, :]
@@ -80,17 +97,34 @@ class WeightedAvgFeature(_CompositionalFeature):
 
 class WeightedSumFeature(_CompositionalFeature):
     def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='raise'):
+                 exclude=None, on_errors='raise', return_type='any'):
         """
 
         Parameters
         ----------
         elements: panda.DataFrame
             Elements information in `pandas.DataFrame` object. indexed by element symbol.
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
+            Inputs ``X`` will be split into some blocks then run on each cpu cores.
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            Default is ``any``
         """
 
         super().__init__(
-            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors)
+            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors,
+            return_type=return_type)
 
     def _func(self, elems, nums):
         elems_ = self.elements.loc[elems, :]
@@ -104,17 +138,34 @@ class WeightedSumFeature(_CompositionalFeature):
 
 class WeightedVarFeature(_CompositionalFeature):
     def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='raise'):
+                 exclude=None, on_errors='raise', return_type='any'):
         """
 
         Parameters
         ----------
         elements: panda.DataFrame
             Elements information in `pandas.DataFrame` object. indexed by element symbol.
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
+            Inputs ``X`` will be split into some blocks then run on each cpu cores.
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            Default is ``any``
         """
 
         super().__init__(
-            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors)
+            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors,
+            return_type=return_type)
 
     def _func(self, elems, nums):
         elems_ = self.elements.loc[elems, :]
@@ -130,17 +181,34 @@ class WeightedVarFeature(_CompositionalFeature):
 
 class MaxFeature(_CompositionalFeature):
     def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='raise'):
+                 exclude=None, on_errors='raise', return_type='any'):
         """
 
         Parameters
         ----------
         elements: panda.DataFrame
             Elements information in `pandas.DataFrame` object. indexed by element symbol.
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
+            Inputs ``X`` will be split into some blocks then run on each cpu cores.
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            Default is ``any``
         """
 
         super().__init__(
-            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors)
+            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors,
+            return_type=return_type)
 
     def _func(self, elems, _):
         elems_ = self.elements.loc[elems, :]
@@ -153,17 +221,34 @@ class MaxFeature(_CompositionalFeature):
 
 class MinFeature(_CompositionalFeature):
     def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='raise'):
+                 exclude=None, on_errors='raise', return_type='any'):
         """
 
         Parameters
         ----------
         elements: panda.DataFrame
             Elements information in `pandas.DataFrame` object. indexed by element symbol.
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
+            Inputs ``X`` will be split into some blocks then run on each cpu cores.
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            Default is ``any``
         """
 
         super().__init__(
-            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors)
+            n_jobs=n_jobs, elements=elements, include=include, exclude=exclude, on_errors=on_errors,
+            return_type=return_type)
 
     def _func(self, elems, _):
         elems_ = self.elements.loc[elems, :]
@@ -185,14 +270,22 @@ class Compositions(BaseDescriptor):
 
         Parameters
         ----------
-        methods: str
-            Calculation method(s) which to be used must in the :attr:`methods` list.
-        elemental: panda.DataFrame
+        elements: panda.DataFrame
             Elements information in `pandas.DataFrame` object. indexed by element symbol.
         include: list
             Column's names of elemental info that should be used in descriptor calculation.
         exclude: list
             Column's names of elemental info that should not be used in descriptor calculation.
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
+            Inputs ``X`` will be split into some blocks then run on each cpu cores.
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
         """
 
         super().__init__()

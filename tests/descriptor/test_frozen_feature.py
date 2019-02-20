@@ -36,6 +36,10 @@ def test_frozen_featurizer_1(data):
     ff = FrozenFeaturizer(data[0])
     ff_features = ff.fit_transform(data[1])
     assert ff_features.shape == (10, 11)
+    ff_features = ff.fit_transform(data[1], depth=1)
+    assert ff_features.shape == (10, 4)
+    ff_features = ff.fit_transform(data[1])
+    assert ff_features.shape == (10, 11)
 
 
 def test_frozen_featurizer_2(data):

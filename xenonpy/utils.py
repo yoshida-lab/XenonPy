@@ -185,7 +185,7 @@ class Switch(object):
 
 
 class Timer(object):
-    class __Timer:
+    class _Timer:
         def __init__(self):
             self.start = None
             self.times = []
@@ -203,7 +203,7 @@ class Timer(object):
 
     def __init__(self, time_func=time.perf_counter):
         self._func = time_func
-        self._timers = defaultdict(self.__Timer)
+        self._timers = defaultdict(self._Timer)
 
     def __call__(self, *args, **kwargs):
         self.timed(*args, **kwargs)

@@ -31,8 +31,8 @@ Overview
 ========
 
 **XenonPy** is a Python library that implements a comprehensive set of machine learning tools
-for materials informatics. Its functionalities partially depend on PyTorch and R.
-The current release (v0.2.1, 2019/2/20) is just a prototype version, which provides some limited modules:
+for materials informatics. Its functionalities partially depend on Python (PyTorch) and R (MXNet).
+The current release (v0.2.1, 2019/2/20) is a prototype version, which provides some limited modules:
 
 * Interface to public materials database
 * Library of materials descriptors (compositional/structural descriptors)
@@ -48,14 +48,15 @@ The current release (v0.2.1, 2019/2/20) is just a prototype version, which provi
 Features
 ========
 
-XenonPy has a rich set of tools for apply materials informatics rapidly.
+XenonPy has a rich set of tools for various materials informatics applications.
 The descriptor generator class can calculate several types of numeric descriptors from ``compositional``, ``structure``.
-By using XenonPy built in visualization function. The relationships between descriptors and target properties can easily be shown in a heatmap.
+By using XenonPy's built-in visualization functions, the relationships between descriptors and target properties can be easily shown in a heatmap.
 
-We have a great confidence in transfer learning. To facilitate the widespread use of transfer learning,
+Transfer learning is an important tool for efficient application of machine learning methods to materials informatics. 
+To facilitate the widespread use of transfer learning,
 we have developed a comprehensive library of pre-trained models, called **XenonPy.MDL**.
-This library provides simple API to enable users to fetch the models via a http request.
-To play with pre-trained models, some useful functions are also provided.
+This library provides simple API that allows users to fetch the models via a http request.
+For the ease of using the pre-trained models, some useful functions are also provided.
 
 See :doc:`features` for details
 
@@ -70,15 +71,15 @@ Yamada, H., Liu, C., Wu, S., Koyama, Y., Ju, S., Shiomi, J., Morikawa, J., Yoshi
 Sample
 ======
 
-Some samples available here: https://github.com/yoshida-lab/XenonPy/tree/master/samples
+Some samples are available here: https://github.com/yoshida-lab/XenonPy/tree/master/samples
 
 
 
 Contributing
 ============
 XenonPy is an `open source project <https://github.com/yoshida-lab/XenonPy>`_ inspired by `matminer <https://hackingmaterials.github.io/matminer>`_.
-This project still under hard working. We appreciate any feedback.
-Code contributions are welcomed. See :doc:`contribution` for details.
+This project is under on-going development. We would appreciate any feedback from the users.
+Code contributions are also very welcomed. See :doc:`contribution` for more details.
 
 
 .. _user-doc:

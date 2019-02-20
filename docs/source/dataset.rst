@@ -54,7 +54,7 @@ The followig data are currently available in ``elements``:
 ``proton_affinity``                 Proton affinity.
 ``dipole_polarizability``           Dipole polarizability.
 ``electron_affinity``               Electron affinity.
-``electron_negativity``             Tendency of an atom to attract a shared pair of electrons' electron affinity.
+``electron_negativity``             Tendency of an atom to attract a shared pair of electrons.
 ``en_allen``                        Allen's scale of electronegativity.
 ``en_ghosh``                        Ghosh's scale of electronegativity.
 ``en_pauling``                      Mulliken's scale of electronegativity.

@@ -23,7 +23,7 @@ def data():
 
 def test_query_properties(data):
     mdl = data
-    ret = mdl.query_properties('test', query_symbol=True)
+    ret = mdl.query_properties('test')
     assert isinstance(ret, list)
 
 

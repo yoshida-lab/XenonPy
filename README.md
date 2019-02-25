@@ -30,8 +30,11 @@ The following table list some core packages in XenonPy images.
 | Package        | Version    |
 | -------------- | ---------- |
 | `PyTorch`      | 1.0.1      |
+| `tensorly`     | 0.4.3      |
+| `chainer`      | 5.2.0      |
 | `pymatgen`     | 2019.2.4   |
 | `matminer`     | 0.5.1      |
+| `mordred`      | 1.1.2      |
 | `scipy`        | 1.2.0      |
 | `scikit-learn` | 0.20.2     |
 | `pandas`       | 0.24.1     |

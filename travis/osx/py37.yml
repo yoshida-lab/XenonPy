@@ -17,5 +17,5 @@ dependencies:
   - pylint
   - pip:
       - ruamel.yaml
-      - pymatgen
+      - pymatgen==2019.2.4
       - tqdm

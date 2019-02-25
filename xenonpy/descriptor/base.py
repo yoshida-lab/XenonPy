@@ -167,9 +167,9 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             Specific the return type.
             Can be ``any``, ``array`` and ``df``.
             ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
-            If ``any``, the return type dependent on the input type.
+            If ``any``, the return type depend on the input type.
             This is a temporary change that only have effect in the current transform.
-            Default is ``None``.
+            Default is ``None`` for no changes.
 
         Returns
         -------
@@ -349,31 +349,41 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
                '\n'.join(['  |- %s:\n  |  |- %s' % (k, '\n  |  |- '.join(map(str, v))) for k, v in
                           self.__featurizers__.items()])
 
-    def _check_input(self, o):
-        if isinstance(o, (list, np.ndarray)):
+    def _check_input(self, X, y=None):
+        def _reformat(x):
+            if x is None:
+                return x
+
             keys = list(self.__featurizers__.keys())
             if len(keys) == 1:
-                return pd.DataFrame(o, columns=[keys[0]])
-            raise TypeError(
-                'column name of Seriers/DataFrame must corresponding to featurizer name')
+                if isinstance(x, list):
+                    return pd.DataFrame(x, columns=keys)
 
-        if isinstance(o, pd.Series):
-            if o.name in self.__featurizers__:
-                return pd.DataFrame(o)
-            raise KeyError('Pandas Series object must have name corresponding to feature type name')
+                if isinstance(x, np.ndarray):
+                    if len(x.shape) == 1:
+                        return pd.DataFrame(x, columns=keys)
 
-        if isinstance(o, pd.DataFrame):
-            for k in o:
-                if k not in self.__featurizers__:
+                if isinstance(x, pd.Series):
+                    return pd.DataFrame(x.values, columns=keys)
+
+            if isinstance(x, pd.Series):
+                x = pd.DataFrame(x)
+
+            if isinstance(x, pd.DataFrame):
+                if set(keys).isdisjoint(set(x.columns)):
                     raise KeyError(
-                        'Pandas Series object must have name corresponding to feature <%s>' % k)
-            return o
-        raise TypeError('X, y must be <list>, <numpy.array>, <pd.DataFrame> or <pd.Series>')
+                        'name of columns do not match any feature set')
+                return x
 
-    def _map_name(self, **fit_params):
+            raise TypeError(
+                'you can not ues a array-like input'
+                'because there are multiply feature sets or the dim of input is not 1')
+
+        return _reformat(X), _reformat(y)
+
+    def _rename(self, **fit_params):
         for k in fit_params:
             if k in self.__featurizers__:
-                print(k)
                 self.__featurizers__[fit_params[k]] = self.__featurizers__.pop(k)
 
     @property
@@ -381,35 +391,30 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         return self.__featurizers__.keys()
 
     def fit(self, X, y=None, **fit_params):
-        self._map_name(**fit_params)
+        self._rename(**fit_params)
 
-        X = self._check_input(X)
+        X, y = self._check_input(X, y)
         for k, features in self.__featurizers__.items():
-            for f in features:
-                f.fit(X[k]),
+            if k in X:
+                for f in features:
+                    if y is not None and k in y:
+                        f.fit(X[k], y[k], **fit_params)
+                    else:
+                        f.fit(X[k], **fit_params)
 
         return self
 
-    def transform(self, X):
-
-        def _make_df(feature_, ret_):
-            try:
-                labels = feature_.feature_labels()
-            except NotImplementedError:
-                labels = None
-            return pd.DataFrame(ret_, index=X.index, columns=labels)
-
+    def transform(self, X, **kwargs):
         if len(X) is 0:
             return None
 
         results = []
 
-        X = self._check_input(X)
+        X, _ = self._check_input(X)
         for k, features in self.__featurizers__.items():
-            for f in features:
-                ret = f.transform(X[k])
-                if isinstance(ret, list):
-                    ret = _make_df(f, ret)
-                results.append(ret)
+            if k in X:
+                for f in features:
+                    ret = f.transform(X[k], return_type='df', **kwargs)
+                    results.append(ret)
 
         return pd.concat(results, axis=1)

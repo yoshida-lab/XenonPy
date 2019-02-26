@@ -40,8 +40,13 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
         payload = json.dumps({'query': query, 'variables': variables})
         ret = requests.post(url=self._url, headers=self._headers, data=payload)
         if ret.status_code != 200:
+            try:
+                message = ret.json()
+            except json.JSONDecodeError:
+                message = "Server did not responce."
+
             raise HTTPError('status_code: %s, %s' %
-                            (ret.status_code, ret.json()))
+                            (ret.status_code, message))
         ret = ret.json()['data']
         return ret
 

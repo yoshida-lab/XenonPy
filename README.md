@@ -24,7 +24,7 @@ See our documents for details: http://xenonpy.readthedocs.io
 
 ## XenonPy images
 
-XenonPy images packed a lot of useful package for materials informatics using.
+XenonPy images packed a lot of useful packages for materials informatics using.
 The following table list some core packages in XenonPy images.
 
 | Package        | Version    |

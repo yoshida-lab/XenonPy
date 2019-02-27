@@ -159,8 +159,8 @@ def test_base_descriptor_1(data):
 def test_base_descriptor_2(data):
     bd = data['descriptor']()
     assert len(bd.__featurizers__) == 2
-    assert 'g1' in bd.__featurizers__.keys()
-    assert 'g2' in bd.__featurizers__.keys()
+    assert 'g1' in bd.__featurizers__
+    assert 'g2' in bd.__featurizers__
 
 
 def test_base_descriptor_3(data):
@@ -190,6 +190,45 @@ def test_base_descriptor_4(data):
         assert False, 'allow list when the number of featurizer is 1'
     else:
         assert True
+
+
+def test_base_descriptor_5(data):
+    bd = data['descriptor']()
+    x = pd.DataFrame({'g1': [1, 2, 3, 4], 'g3': [1, 2, 3, 4]})
+    try:
+        bd.fit(x),
+    except TypeError:
+        assert False, 'allow input have additional columns'
+    else:
+        assert True
+
+    tmp = bd.transform(x)
+    assert isinstance(tmp, pd.DataFrame)
+    assert np.all(tmp.values == np.array([[1, 1], [2, 2], [3, 3], [4, 4]]))
+
+    x = pd.Series([1, 2, 3, 4], name='g1')
+    tmp = bd.transform(x)
+    assert isinstance(tmp, pd.DataFrame)
+    assert np.all(tmp.values == np.array([[1, 1], [2, 2], [3, 3], [4, 4]]))
+
+
+def test_base_descriptor_6(data):
+    bd = data['descriptor']()
+    x = pd.DataFrame({'g3': [1, 2, 3, 4], 'g4': [1, 2, 3, 4]})
+    try:
+        bd.fit_transform(x)
+    except KeyError:
+        assert True
+    else:
+        assert False, 'all columns did not match any feature sets'
+
+    x = pd.Series([1, 2, 3, 4], name='g3')
+    try:
+        bd.fit_transform(x)
+    except KeyError:
+        assert True
+    else:
+        assert False, 'all columns did not match any feature sets'
 
 
 if __name__ == "__main__":

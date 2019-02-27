@@ -40,31 +40,25 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
         payload = json.dumps({'query': query, 'variables': variables})
         ret = requests.post(url=self._url, headers=self._headers, data=payload)
         if ret.status_code != 200:
+            try:
+                message = ret.json()
+            except json.JSONDecodeError:
+                message = "Server did not responce."
+
             raise HTTPError('status_code: %s, %s' %
-                            (ret.status_code, ret.json()))
+                            (ret.status_code, message))
         ret = ret.json()['data']
         return ret
 
-    def query_properties(self, name_has, *,
-                         query_fullname=False,
-                         query_symbol=False,
-                         query_models=False,
-                         query_unit=False):
-        query_fullname = 'fullname' if query_fullname else ''
-        query_symbol = 'symbol' if query_symbol else ''
-        query_unit = 'unit' if query_unit else ''
-        query_models = 'models' if query_models else ''
+    def query_properties(self, name_has):
         query = '''
         query ($name: String!){
           queryProperties(name: $name){
             name
-            %s
-            %s
-            %s
-            %s
+            describe
           }
         }
-        ''' % (query_fullname, query_symbol, query_unit, query_models)
+        '''
 
         variables = {"name": name_has}
         return self.query(query, variables)['queryProperties']
@@ -96,7 +90,7 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
                transferred: $transferred
                succeed: $succeed)
           {
-            id
+            mId
             url
             modelSet
             property

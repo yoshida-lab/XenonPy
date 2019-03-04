@@ -2,6 +2,7 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
+import types
 from pathlib import Path
 
 import numpy as np
@@ -10,7 +11,7 @@ import pytest
 from sklearn.linear_model import BayesianRidge
 
 from xenonpy.descriptor import ECFP
-from xenonpy.inverse.iqspr import BayesianRidgeEstimator, NGram, IQSPR
+from xenonpy.inverse.iqspr import BayesianRidgeEstimator, NGram, IQSPR, GetProbError
 
 
 @pytest.fixture(scope='module')
@@ -104,18 +105,29 @@ def test_ngram_1(data):
     assert ngram.del_range == (1, 10)
     assert ngram.reorder_prob == 0.2
 
+    def on_errors(self, error, smi):
+        raise error
+
     ngram.fit(data['pg'][0][:20], train_order=5)
 
     assert ngram._train_order == 5
     assert ngram.sample_order == 5
     assert ngram.ngram_table is not None
 
+    np.random.seed(123456)
     try:
-        ngram.proposal(data['pg'][0][:5])
-    except IndexError:
-        pass
-    except BaseException:
+        ngram.proposal(data['pg'][0][60:65])
+    except GetProbError:
         assert False
+
+    ngram.on_errors = types.MethodType(on_errors, ngram)
+    np.random.seed(123456)
+    try:
+        ngram.proposal(data['pg'][0][60:65])
+    except GetProbError:
+        assert True
+    else:
+        assert False, 'shoulud got GetProbError'
 
 
 def test_iqspr_1(data):

@@ -10,7 +10,17 @@ import numpy as np
 import pandas as pd
 from rdkit import Chem
 
-from ..base import BaseProposal
+from ..base import BaseProposal, ProposalError
+
+
+class GetProbError(ProposalError):
+
+    def __init__(self, tmp_str, iB, iR):
+        self.tmp_str = tmp_str
+        self.iB = iB
+        self.iR = iR
+
+        super().__init__('get_prob: %s not found in n-gram, iB=%i, iR=%i' % (tmp_str, iB, iR))
 
 
 class NGram(BaseProposal):
@@ -47,6 +57,9 @@ class NGram(BaseProposal):
             warnings.warn('<sample_order> is greater than <train_order>,'
                           '<sample_order> will be reduced to <train_order>', RuntimeWarning)
             self.sample_order = self._train_order
+
+    def on_errors(self, error, smi):
+        return smi
 
     @property
     def ngram_table(self):
@@ -247,7 +260,7 @@ class NGram(BaseProposal):
                 cand_prob = np.array(self._table[iO][iB][iR].loc[str(tmp_str[-(iO + 1):])])
                 break
         if len(cand_char) == 0:
-            raise IndexError('get_prob: %s not found in n-gram, iB=%i, iR=%i' % (tmp_str, iB, iR))
+            raise GetProbError(tmp_str, iB, iR)
         return cand_char, cand_prob / np.sum(cand_prob)
 
     # get the next character, return the probability value
@@ -362,8 +375,11 @@ class NGram(BaseProposal):
         new_smis = []
         for i, smi in enumerate(smiles):
             ext_smi = self.smi2esmi(smi)
-            new_ext_smi = self.modify(ext_smi)
-            new_smi = self.esmi2smi(new_ext_smi)
+            try:
+                new_ext_smi = self.modify(ext_smi)
+                new_smi = self.esmi2smi(new_ext_smi)
+            except GetProbError as e:
+                new_smi = self.on_errors(e, smi)
             if Chem.MolFromSmiles(new_smi) is not None:
                 new_smis.append(new_smi)
 

@@ -12,7 +12,7 @@ dependencies:
   - plotly
   - scikit-learn
   - scipy
-  - pytorch
+  - pytorch==1.0.1
   - pytest
   - pytest-cov
   - pylint

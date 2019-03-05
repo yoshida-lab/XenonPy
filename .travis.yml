@@ -10,29 +10,29 @@ git:
 matrix:
   include:
     - os: linux
-      dist: trusty # use ubuntu 14.04lts
+      dist: xenial # use ubuntu 14.04lts
       sudo: false #  runs each build in a container on a shared host via Docker
       env: PYENV=py35
     - os: linux
-      dist: trusty
+      dist: xenial
       sudo: false
       env:
         - PYENV=py36
         - DEPLOY=true
-#     - os: linux
-#       dist: trusty
-#       sudo: false
-#       env: PYENV=py37
+    - os: linux
+      dist: xenial
+      sudo: false
+      env: PYENV=py37
     - os: osx
       language: generic
       env: PYENV=py35
     - os: osx
       language: generic
       env: PYENV=py36
-    # - os: osx
-    #   skip: true
-    #   language: generic
-    #   env: PYENV=py37
+    - os: osx
+      #       skip: true
+      language: generic
+      env: PYENV=py37
 
 before_install:
   - source travis/before_install.sh

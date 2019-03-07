@@ -19,8 +19,9 @@ Through the installation screen of Visual C++ Build Tools, you need to check the
 
 .. _install_xenonpy:
 
+---------
 Using pip
-=======
+---------
 
 pip is a package management system for installing and updating Python packages,
 which comes with any Python installation. On Ubuntu and Fedora Linux,
@@ -57,8 +58,9 @@ The pre-installed version could be updated to the latest stable release as follo
     $ pip install --upgrade xenonpy
 
 
+------------
 Using docker
-==========
+------------
 
 .. image:: _static/docker.png
 
@@ -76,8 +78,10 @@ Once your docker installation is done, use the following command to boot up Xeno
 
 Then, open http://localhost:8888 from your favourite browser.
 
+
+------------------------------
 Installing in development mode
-===========================
+------------------------------
 
 To use the latest development version distributed at `Github repository`_,
 just clone the repository to create a local copy:
@@ -101,8 +105,9 @@ To update XenonPy, use ``git fetch && git pull``
 
 
 
+----------------------
 Troubleshooting/issues
-======================
+----------------------
 
 Contact us at issues_ and Gitter_ when you have a trouble.
 

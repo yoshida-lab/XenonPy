@@ -44,7 +44,7 @@ class BaseLogLikelihood(BaseEstimator, metaclass=TimedMetaClass):
 
         Parameters
         ----------
-        X: list of object
+        X: list[object]
             Input samples for likelihood calculation.
         targets: tuple[float, float]
             Target area.
@@ -145,11 +145,11 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
 
         Parameters
         ----------
-        X: list of object
+        X: list[object]
             Input samples for likelihood calculation.
         size: int
             Resample size.
-        p: np.ndarray of float
+        p: numpy.ndarray[float]
             The probabilities associated with each entry in X.
             If not given the sample assumes a uniform distribution over all entries.
 

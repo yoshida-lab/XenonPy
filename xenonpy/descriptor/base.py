@@ -159,6 +159,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         """
         Featurize a list of entries.
         If `featurize` takes multiple inputs, supply inputs as a list of tuples.
+        
         Args
         ----
         entries: list-like

@@ -52,7 +52,6 @@ class LocalStorage(object):
         save.rm(0)  # by index
         save.rm()  # delete 'you_dataset_name' dir
 
-    See Also: :doc:`dataset`
     """
 
     def __init__(self, name=None, *, path=None, mk_dir=True, backend=None):
@@ -470,7 +469,7 @@ class Preset(Singleton):
         Element properties from embed dataset.
         These properties are summarized from `mendeleev`_, `pymatgen`_, `CRC Handbook`_ and `magpie`_.
 
-        See Also: :doc:`dataset`
+        See Also: :ref:`features`
 
         .. _mendeleev: https://mendeleev.readthedocs.io
         .. _pymatgen: http://pymatgen.org/
@@ -539,14 +538,9 @@ class Preset(Singleton):
     @property
     def elements_completed(self):
         """
-        Completed element properties. [MICE]_ imputation used
+        Completed element properties. MICE imputation used
 
-        .. [MICE] `Int J Methods Psychiatr Res. 2011 Mar 1; 20(1): 40–49.`__
-                    doi: `10.1002/mpr.329 <10.1002/mpr.329>`_
-
-        .. __: https://www.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=pubmed&retmode=ref&cmd=prlinks&id=21499542
-
-        See Also: :doc:`dataset`
+        See Also: :doc:`features`
 
         Returns
         -------

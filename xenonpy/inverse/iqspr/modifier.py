@@ -190,7 +190,7 @@ class NGram(BaseProposal):
 
         Parameters
         ----------
-        smiles: list of string
+        smiles: list[str]
             SMILES for training.
         train_order: int
             Order when train a N-Gram table.

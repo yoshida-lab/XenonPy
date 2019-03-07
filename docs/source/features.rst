@@ -11,11 +11,11 @@ Preset data
 -----------
 .. _preset-data:
 
-XenonPy provides a preset data system to simple users' data loading.
-If pickled files are registered to XenonPy, user can load these data in a very simple way.
+XenonPy provides a simple platform to load data using a **preset data system**.
+If pickled files are **registered** to XenonPy, users can load these data in a very simple way.
 
-XenonPy also uses this system to provide some built-in data.
-Currently, two sets of element-level properties data are provided, out-of-the-box (``elements`` and ``elements_completed`` (imputed version of ``elements``)).
+XenonPy also uses this system to **provide some built-in data**.
+Currently, two sets of pre-calculated element-level **properties data** are available out-of-the-box (``elements`` and ``elements_completed`` (imputed version of ``elements``)).
 These data were collected from `mendeleev`_, `pymatgen`_, `CRC Hand Book`_ and `Magpie`_.
 
 .. _CRC Hand Book: http://hbcponline.com/faces/contents/ContentsSearch.xhtml
@@ -109,7 +109,7 @@ the ``elements_completed`` data set provides only 58 features of the 94 elements
     ``num_s_valence``                   Valance electron in d shell.
     =================================   ===================================================================================
 
-Also see the :doc:`tutorial/1-preset` to understand the preset data system.
+Also see :doc:`tutorial/1-preset` to understand the preset data system.
 
 **Reference**
 
@@ -123,8 +123,8 @@ Descriptor calculation
 Compositional descriptors
 -------------------------
 
-XenonPy calculates 290 compositional features for a given chemical composition.
-This calculation uses the additional information of 58 element-level features recorded in the built-in ``elements_completed``.
+XenonPy can calculate 290 compositional features for a given chemical composition.
+This calculation uses the additional information of the 58 element-level **features** recorded in the built-in ``elements_completed``.
 For example, let us consider a binary compound, :math:`A_{w_A}B_{w_B}`, whose element-level features are denoted by :math:`f_{A,i}` and :math:`f_{B,i} (i = 1, …, 58)`. Then, the 290 compositional descriptors are calculated: for :math:`i = 1, …, 58`,
 
 * Weighted average (abbr: ave): :math:`f_{ave, i} = w_{A}^* f_{A,i} + w_{B}^* f_{B,i}`,
@@ -133,16 +133,16 @@ For example, let us consider a binary compound, :math:`A_{w_A}B_{w_B}`, whose el
 * Min-pooling (abbr: min): :math:`f_{min, i} = min{f_{A,i}, f_{B,i}}`,
 * Weighted sum (abbr: sum): :math:`f_{sum, i} = w_{A} f_{A,i} + w_{B} f_{B,i}`,
 
-where :math:`w_{A}^*` and :math:`w_{B}^*` denote the normalized composition summing up to one.
+where :math:`w_{A}^*` and :math:`w_{B}^*` **denote the normalized composition summing up to one**.
 
 
 Structural descriptors
 ----------------------
 Currently, XenonPy implements RDF (radial distribution function) and OFM (orbital field matrix [2]_) descriptors of crystalline structures.
 We also provide compatible API to use the structural descriptors of `matminer <https://hackingmaterials.github.io/matminer/>`_.
-Follow this link to check the `Table of Featurizers <https://hackingmaterials.github.io/matminer/featurizer_summary.html>`_ in matminer.
+You may check the summary table of featurizers in matminer `here <https://hackingmaterials.github.io/matminer/featurizer_summary.html>`_.
 
-The tutorials at :doc:`tutorial/2-descriptor` demonstrate how to calculate descriptors by using ``XenonPy.descriptor`` classes.
+The tutorials at :doc:`tutorial/2-descriptor` demonstrate how to calculate descriptors using ``XenonPy.descriptor`` classes.
 
 **Reference**
 
@@ -178,21 +178,21 @@ XenonPy.MDL
 XenonPy.MDL is a library of pre-trained models that were obtained by feeding diverse materials data on structure-property relationships into neural networks and some other supervised learning algorithms.
 The current release (version 0.1.0) contains more than 100,000 models (include private models) on physical, chemical, electronic, thermodynamic, or mechanical properties of small organic molecules (15 properties), polymers/polymer composites (18), and inorganic compounds (12).
 Pre-trained neural networks are distributed as either the R (MXNet) or Python (PyTorch) model objects.
-For details of all information of XenonPy.MDL, a list of models, properties, source data used for training, and so on are prepared in this paper [3]_.
+Detailed information of XenonPy.MDL, such as, a list of models, properties, source data used for training, and so on, are prepared in this paper [3]_.
 
-The following lists contain the information of currently available pre-trained models and properties.
+The following lists contain the information of current available pre-trained models and properties.
 
 .. table:: Information of model sets
 
     +-----------+-----------------------------------+-------------------------------------------------------------------+
     |  sId      |  name                             |  description                                                      |
     +===========+===================================+===================================================================+
-    |           | | Stable inorganic compounds      | | Models in this set are trained on about 20,000 stable inorganic |
-    |  ``S1``   | | in materials project (MP)       | | compounds which are selected from the materials project.        |
+    |           | | Stable inorganic compounds      | | Models in this set are trained on ~20,000 stable inorganic      |
+    |  ``S1``   | | in materials project (MP)       | | compounds selected from the materials project.                  |
     |           |                                   |                                                                   |
     +-----------+-----------------------------------+-------------------------------------------------------------------+
-    |           | | All inorganic compounds         | | Models in this set are trained on about 70,000 inorganic        |
-    |  ``S2``   | | in materials project (MP)       | | compounds which are selected from the materials project.        |
+    |           | | All inorganic compounds         | | Models in this set are trained on ~70,000 inorganic compounds   |
+    |  ``S2``   | | in materials project (MP)       | | selected from the materials project.                            |
     |           |                                   |                                                                   |
     +-----------+-----------------------------------+-------------------------------------------------------------------+
     |           | | QM9 Dataset from                | | Quantum-Machine project can be access                           |
@@ -203,7 +203,7 @@ The following lists contain the information of currently available pre-trained m
     |  ``S4``   |                                   | | names and physical properties for over 41,000 chemicals.        |
     |           |                                   |                                                                   |
     +-----------+-----------------------------------+-------------------------------------------------------------------+
-    |           | | Jean-Claude Bradley Open        | | Jean-Claude Bradley's Legacy Dataset of Open Melting Points.    |
+    |           | | Jean-Claude Bradley Open        | | Jean-Claude Bradley's dataset of Open Melting Points.           |
     |  ``S5``   | | Melting Point Dataset           |                                                                   |
     |           |                                   |                                                                   |
     +-----------+-----------------------------------+-------------------------------------------------------------------+
@@ -259,25 +259,25 @@ The following lists contain the information of currently available pre-trained m
            Formation Energy Per Atom   Inorganic Crystal      inorganic.crystal.formation_energy_per_atom
     ================================ =================== ================================================
 
-XenonPy.MDL provide a rich-set of APIs to give users the abilities to interact with pre-trained model database.
-By using APIs, users can search models by keywords to get a specific subset of models and download them via http.
-The tutorials at :doc:`tutorial/5-mdl` will show you how to interact with database in XenonPy (via the API querying).
+XenonPy.MDL provides a rich-set of APIs to give users the abilities to interact with pre-trained model database.
+Through the APIs, users can search for a specific subset of models by keywords and download them via http.
+The tutorials at :doc:`tutorial/5-mdl` will show you how to interact with the database in XenonPy (via the API querying).
 
 
 -----------------
 Transfer learning
 -----------------
 
-Transfer learning is an increasingly popular framework of machine learning that covers a broad range of methodologies for
-which a model trained on one task is re-purposed on another related task [4]_ [5]_.
+Transfer learning is an increasingly popular framework in machine learning that covers a broad range of methodologies for
+which a model trained for one task is re-purposed to another related task [4]_ [5]_.
 In general, the need for transfer learning occurs when there is a limited supply of training data, but there are many other
 promising applications in materials science as described in [3]_.
 
-XenonPy offers a simple-to-use tool chain to seamlessly perform transfer learning with the given pre-trained models.
-Given a target property, by using the transfer learning module of XenonPy, the models can be used as the machine learning
+XenonPy offers a simple-to-use **tool chain** to seamlessly perform transfer learning with the given pre-trained models.
+Given a target property, by using the transfer learning module of XenonPy, the **models** can be used as the machine learning
 acquired descriptors (the neural descriptors) as demonstrated in [3]_.
 
-See tutorials at :doc:`tutorial/6-transfer-learning` to learning how to do the frozen feature transfer learning in XenonPy.
+See tutorials at :doc:`tutorial/6-transfer-learning` for learning how to do the frozen feature transfer learning in XenonPy.
 
 
 

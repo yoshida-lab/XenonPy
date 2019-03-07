@@ -22,7 +22,7 @@ class BayesianRidgeEstimator(BaseLogLikelihood):
 
         Parameters
         ----------
-        descriptor: BaseFeaturizer or BaBaseDescriptorse
+        descriptor: BaseFeaturizer or BaseDescriptor
             Descriptor generator.
         estimators: BaseEstimator
             Bayesian estimators in scikit-learn style.
@@ -54,9 +54,9 @@ class BayesianRidgeEstimator(BaseLogLikelihood):
         """
         Parameters
         ----------
-        smiles: list of string
+        smiles: list[str]
             SMILES for training.
-        y: pd.DataFrame
+        y: pandas.DataFrame
             Target properties for training.
         X_scaler: Scaler (optional, not implement)
             Scaler for transform X.

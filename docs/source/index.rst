@@ -27,9 +27,9 @@ What is XenonPy project
     :target: https://pypi.org/project/xenonpy/
 
 
+--------
 Overview
-========
-
+--------
 **XenonPy** is a Python library that implements a comprehensive set of machine learning tools
 for materials informatics. Its functionalities partially depend on Python (PyTorch) and R (MXNet).
 The current release (v0.2.1, 2019/2/20) is a prototype version, which provides some limited modules:
@@ -44,10 +44,9 @@ The current release (v0.2.1, 2019/2/20) is a prototype version, which provides s
 .. image:: _static/xenonpy.png
 
 
-
+--------
 Features
-========
-
+--------
 XenonPy has a rich set of tools for various materials informatics applications.
 The descriptor generator class can calculate several types of numeric descriptors from ``compositional``, ``structure``.
 By using XenonPy's built-in visualization functions, the relationships between descriptors and target properties can be easily shown in a heatmap.
@@ -60,26 +59,11 @@ For the ease of using the pre-trained models, some useful functions are also pro
 
 See :doc:`features` for details
 
-Reference
-=========
 
-Yamada, H., Liu, C., Wu, S., Koyama, Y., Ju, S., Shiomi, J., Morikawa, J., Yoshida, R.
-*Transfer learning: a key driver of accelerating materials discovery with machine learning*, in preparation.
-
-
-
+------
 Sample
-======
-
+------
 Some samples are available here: https://github.com/yoshida-lab/XenonPy/tree/master/samples
-
-
-
-Contributing
-============
-XenonPy is an `open source project <https://github.com/yoshida-lab/XenonPy>`_ inspired by `matminer <https://hackingmaterials.github.io/matminer>`_.
-This project is under on-going development. We would appreciate any feedback from the users.
-Code contributions are also very welcomed. See :doc:`contribution` for more details.
 
 
 .. _user-doc:
@@ -87,25 +71,35 @@ Code contributions are also very welcomed. See :doc:`contribution` for more deta
     :maxdepth: 2
     :caption: User Documentation
 
+    copyright
     installation
     features
-    dataset
+    tutorial
+    api
     contribution
     changes
     contact
 
-Indices and tables
-==================
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
-Copyright and license
-=====================
-©Copyright 2019 The XenonPy task force, all rights reserved.
-Released under the `BSD-3 license`_.
+---------
+Reference
+---------
+
+Yamada, H., Liu, C., Wu, S., Koyama, Y., Ju, S., Shiomi, J., Morikawa, J., Yoshida, R.
+*Transfer learning: a key driver of accelerating materials discovery with machine learning*, in preparation.
+
+
+------------
+Contributing
+------------
+
+XenonPy is an `open source project <https://github.com/yoshida-lab/XenonPy>`_ inspired by `matminer <https://hackingmaterials.github.io/matminer>`_.
+:raw-html:`<br/>`
+This project is under on-going development. We would appreciate any feedback from the users.
+:raw-html:`<br/>`
+Code contributions are also very welcomed. See :doc:`contribution` for more details.
+
 
 .. _pandas: https://pandas.pydata.org
 .. _PyTorch: http://pytorch.org/
-.. _BSD-3 license: https://opensource.org/licenses/BSD-3-Clause
 .. _Xenon: https://en.wikipedia.org/wiki/Xenon

@@ -9,13 +9,12 @@ Features
 -----------
 Preset data
 -----------
-.. _preset-data:
+.. _Data-access:
 
-XenonPy provides a simple platform to load data using a **preset data system**.
-If pickled files are **registered** to XenonPy, users can load these data in a very simple way.
+XenonPy provides a simple platform to exchange data using a ``preset`` system.
 
-XenonPy also uses this system to **provide some built-in data**.
-Currently, two sets of pre-calculated element-level **properties data** are available out-of-the-box (``elements`` and ``elements_completed`` (imputed version of ``elements``)).
+First of all, XenonPy uses this system to provide some built-in data.
+Currently, two sets of element-level property data are available out-of-the-box (``elements`` and ``elements_completed`` (imputed version of ``elements``)).
 These data were collected from `mendeleev`_, `pymatgen`_, `CRC Hand Book`_ and `Magpie`_.
 
 .. _CRC Hand Book: http://hbcponline.com/faces/contents/ContentsSearch.xhtml
@@ -24,11 +23,11 @@ These data were collected from `mendeleev`_, `pymatgen`_, `CRC Hand Book`_ and `
 .. _pymatgen: http://pymatgen.org/
 
 ``elements`` contains 74 element-level properties of 118 elements. Their missing values
-were statistically imputed by performing the multiple imputation method [1]_ to give ``elements_completed``.
+were statistically imputed by performing the multiple imputation method [1]_ and stored as ``elements_completed``.
 Because of the statistical unreliability of the impution for a subset of properties and heavier atoms that contains many missing values in elements,
-the ``elements_completed`` data set provides only 58 features of the 94 elements from **H** to **Pu**. The following table shows the currently available elemental information.
+the ``elements_completed`` data set provides only 58 properties of 94 elements (from **H** to **Pu**). The following table shows the currently available elemental information.
 
-.. table:: Element-evel properties
+.. table:: Element-level properties
 
     =================================   ===================================================================================
         feature                             description
@@ -109,7 +108,9 @@ the ``elements_completed`` data set provides only 58 features of the 94 elements
     ``num_s_valence``                   Valance electron in d shell.
     =================================   ===================================================================================
 
-Also see :doc:`tutorial/1-preset` to understand the preset data system.
+Users can also register new data set to XenonPy (requires approval from the developers), which can be easily loaded through the ``preset`` system later. For more details on the ``preset`` system, see :doc:`tutorial/1-preset`.
+
+
 
 **Reference**
 
@@ -124,7 +125,7 @@ Compositional descriptors
 -------------------------
 
 XenonPy can calculate 290 compositional features for a given chemical composition.
-This calculation uses the additional information of the 58 element-level **features** recorded in the built-in ``elements_completed``.
+This calculation uses information of the 58 element-level property data recorded in ``elements_completed``.
 For example, let us consider a binary compound, :math:`A_{w_A}B_{w_B}`, whose element-level features are denoted by :math:`f_{A,i}` and :math:`f_{B,i} (i = 1, …, 58)`. Then, the 290 compositional descriptors are calculated: for :math:`i = 1, …, 58`,
 
 * Weighted average (abbr: ave): :math:`f_{ave, i} = w_{A}^* f_{A,i} + w_{B}^* f_{B,i}`,
@@ -133,7 +134,7 @@ For example, let us consider a binary compound, :math:`A_{w_A}B_{w_B}`, whose el
 * Min-pooling (abbr: min): :math:`f_{min, i} = min{f_{A,i}, f_{B,i}}`,
 * Weighted sum (abbr: sum): :math:`f_{sum, i} = w_{A} f_{A,i} + w_{B} f_{B,i}`,
 
-where :math:`w_{A}^*` and :math:`w_{B}^*` **denote the normalized composition summing up to one**.
+where :math:`w_{A}^*` and :math:`w_{B}^*` denote the normalized composition summing up to one.
 
 
 Structural descriptors
@@ -143,6 +144,15 @@ We also provide compatible API to use the structural descriptors of `matminer <h
 You may check the summary table of featurizers in matminer `here <https://hackingmaterials.github.io/matminer/featurizer_summary.html>`_.
 
 The tutorials at :doc:`tutorial/2-descriptor` demonstrate how to calculate descriptors using ``XenonPy.descriptor`` classes.
+
+
+RDKit descriptors
+----------------------
+XenonPy also supports molecular descriptors available in the `RDKit`_ python package, including 6 sets of fingerprints, each contains corresponding options.
+
+.. _RDKit: https://www.rdkit.org/
+
+
 
 **Reference**
 
@@ -273,9 +283,8 @@ which a model trained for one task is re-purposed to another related task [4]_ [
 In general, the need for transfer learning occurs when there is a limited supply of training data, but there are many other
 promising applications in materials science as described in [3]_.
 
-XenonPy offers a simple-to-use **tool chain** to seamlessly perform transfer learning with the given pre-trained models.
-Given a target property, by using the transfer learning module of XenonPy, the **models** can be used as the machine learning
-acquired descriptors (the neural descriptors) as demonstrated in [3]_.
+XenonPy offers a simple-to-use toolchain to seamlessly perform transfer learning with the given pre-trained models.
+Given a target property, by using the transfer learning module of XenonPy, a source model can be treated as a generator of machine learning acquired descriptors, so-called the neural descriptors, as demonstrated in [3]_.
 
 See tutorials at :doc:`tutorial/6-transfer-learning` for learning how to do the frozen feature transfer learning in XenonPy.
 

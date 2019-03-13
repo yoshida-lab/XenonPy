@@ -26,20 +26,12 @@ def test_compositional_feature_1():
 
     assert isinstance(tmp, list)
 
-    try:
+    with pytest.raises(KeyError):
         desc.fit_transform([{'Bl': 2}])
-    except KeyError:
-        assert True
-    else:
-        assert False
 
     desc = FakeFeature(n_jobs=1, on_errors='nan')
-    try:
-        tmp = desc.fit_transform([{'Bl': 2}])
-    except KeyError:
-        assert False
-    else:
-        assert np.all(np.isnan(tmp[0]))
+    tmp = desc.fit_transform([{'Bl': 2}])
+    assert np.all(np.isnan(tmp[0]))
 
 
 def test_comp_descriptor_1():

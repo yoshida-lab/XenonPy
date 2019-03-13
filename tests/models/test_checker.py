@@ -69,20 +69,13 @@ def test_checker_assign_path(setup):
 
 def test_checker_init_model_1(setup):
     checker = Checker(setup['name'])
-    try:
+    with pytest.raises(TypeError):
         checker.init_model = None
-    except TypeError:
-        assert True
-    else:
-        assert False, 'should got error'
 
 
 def test_checker_init_model_2(setup):
     checker = Checker(setup['name'])
-    try:
-        checker.init_model = setup['model']
-    except TypeError:
-        assert False, 'should not got error'
+    checker.init_model = setup['model']
 
 
 def test_checker_init_model_3(setup):
@@ -93,20 +86,13 @@ def test_checker_init_model_3(setup):
 
 def test_checker_trained_model_1(setup):
     checker = Checker(setup['name'])
-    try:
+    with pytest.raises(TypeError):
         checker.trained_model = None
-    except TypeError:
-        assert True
-    else:
-        assert False, 'should got error'
 
 
 def test_checker_trained_model_2(setup):
     checker = Checker(setup['name'])
-    try:
-        checker.trained_model = setup['model']
-    except TypeError:
-        assert False, 'should not got error'
+    checker.trained_model = setup['model']
 
 
 def test_checker_trained_model_3(setup):

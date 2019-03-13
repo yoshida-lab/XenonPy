@@ -73,23 +73,15 @@ def test_base_smc_1():
         pass
 
     smc = SMC()
-    try:
+    with pytest.raises(ValueError):
         for s in smc(samples, beta=beta):
             assert s
-    except ValueError:
-        assert True
-    else:
-        assert False, 'should got ValueError'
     assert not smc.targets
 
-    try:
+    with pytest.raises(NotImplementedError):
         for s in smc(samples, beta=beta, tar1=(5, 10), tar2=(1, 5)):
             assert s
 
-    except NotImplementedError:
-        assert True
-    else:
-        assert False, 'should got NotImplementedError'
     assert smc.targets
 
     class SMC(BaseSMC):
@@ -105,13 +97,9 @@ def test_base_smc_1():
 
     smc = SMC()
     assert not smc.targets
-    try:
+    with pytest.raises(ValueError):
         for s in smc(samples, beta=beta):
             assert s
-    except ValueError:
-        assert True
-    else:
-        assert False, 'should got ValueError'
 
 
 def test_base_smc_2(data):
@@ -121,33 +109,13 @@ def test_base_smc_2(data):
     smc = SMC()
     llh = data['llh']()
     proposer = data['prop']()
-    try:
+    with pytest.raises(TypeError):
         smc._log_likelihood = 1
-    except TypeError:
-        assert True
-    else:
-        assert False, 'should got TypeError'
+    smc._log_likelihood = llh
 
-    try:
-        smc._log_likelihood = llh
-    except TypeError:
-        assert False, 'should got TypeError'
-    else:
-        assert True
-
-    try:
+    with pytest.raises(TypeError):
         smc._proposal = 1
-    except TypeError:
-        assert True
-    else:
-        assert False, 'should got TypeError'
-
-    try:
-        smc._proposal = proposer
-    except TypeError:
-        assert False, 'should got TypeError'
-    else:
-        assert True
+    smc._proposal = proposer
 
 
 def test_base_smc_3(data):
@@ -165,28 +133,16 @@ def test_base_smc_3(data):
 
 def test_not_implement():
     base = BaseLogLikelihood()
-    try:
+    with pytest.raises(NotImplementedError):
         base.log_likelihood([1, 2], a=1, b=1)
-    except NotImplementedError:
-        assert True
-    else:
-        assert False
 
     base = BaseResample()
-    try:
+    with pytest.raises(NotImplementedError):
         base.resample([1, 2], size=10, p=[.5, .5])
-    except NotImplementedError:
-        assert True
-    else:
-        assert False
 
     base = BaseProposal()
-    try:
+    with pytest.raises(NotImplementedError):
         base.proposal([1, 2])
-    except NotImplementedError:
-        assert True
-    else:
-        assert False
 
 
 if __name__ == "__main__":

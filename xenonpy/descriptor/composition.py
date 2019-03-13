@@ -265,7 +265,7 @@ class Compositions(BaseDescriptor):
     """
 
     def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='raise'):
+                 exclude=None, on_errors='nan'):
         """
 
         Parameters
@@ -285,7 +285,7 @@ class Compositions(BaseDescriptor):
             When 'nan', return a column with ``np.nan``.
             The length of column corresponding to the number of feature labs.
             When 'keep', return a column with exception objects.
-            The default is 'raise' which will raise up the exception.
+            The default is 'nan' which will raise up the exception.
         """
 
         super().__init__()

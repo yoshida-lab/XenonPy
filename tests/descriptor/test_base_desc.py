@@ -139,7 +139,8 @@ def test_base_feature_3(data):
         tmp = featurizer.fit_transform([1, 2, 3, 4])
     except ValueError:
         assert False
-    assert np.alltrue([np.isnan(e[0]) for e in tmp])
+    else:
+        assert np.alltrue([np.isnan(e[0]) for e in tmp])
 
 
 def test_base_descriptor_1(data):

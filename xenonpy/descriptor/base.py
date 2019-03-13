@@ -88,7 +88,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             Inputs ``X`` will be split into some blocks then run on each cpu cores.
             When set to 0, input X will be treated as a block and pass to ``Featurizer.featurize`` directly.
         on_errors: string
-            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            How to handle the exceptions in a feature calculations. Can be 'nan', 'keep', 'raise'.
             When 'nan', return a column with ``np.nan``.
             The length of column corresponding to the number of feature labs.
             When 'keep', return a column with exception objects.
@@ -232,7 +232,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             if not isinstance(x, (tuple, list, np.ndarray)):
                 return self.featurize(x, **self._kwargs)
             return self.featurize(*x, **self._kwargs)
-        except BaseException as e:
+        except Exception as e:
             if self.on_errors == 'nan':
                 return [np.nan] * len(self.feature_labels)
             elif self.on_errors == 'keep':
@@ -357,7 +357,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
             keys = list(self.__featurizers__.keys())
             if len(keys) == 1:
                 if isinstance(x, list):
-                    return pd.DataFrame(x, columns=keys)
+                    return pd.DataFrame(pd.Series(x), columns=keys)
 
                 if isinstance(x, np.ndarray):
                     if len(x.shape) == 1:
@@ -391,6 +391,9 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         return self.__featurizers__.keys()
 
     def fit(self, X, y=None, **fit_params):
+        if not isinstance(X, Iterable):
+            raise TypeError('parameter "entries" must be a iterable object')
+
         self._rename(**fit_params)
 
         X, y = self._check_input(X, y)
@@ -405,6 +408,9 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         return self
 
     def transform(self, X, **kwargs):
+        if not isinstance(X, Iterable):
+            raise TypeError('parameter "entries" must be a iterable object')
+        
         if len(X) is 0:
             return None
 

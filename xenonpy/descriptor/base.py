@@ -126,6 +126,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             """
         return self
 
+    # todo: Dose fit_transform need to pass paras to transform?
     def fit_transform(self, X, y=None, **fit_params):
         """Fit to data, then transform it.
 
@@ -314,7 +315,15 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
     _n_jobs = 1
 
-    def __init__(self):
+    def __init__(self, *, featurizers=None):
+        """
+
+        Parameters
+        ----------
+        featurizers: list[str]
+            Featurizers that will be used.
+        """
+        self._featurizers = featurizers
         self.__featurizers__ = defaultdict(list)
 
     @property
@@ -349,7 +358,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
                '\n'.join(['  |- %s:\n  |  |- %s' % (k, '\n  |  |- '.join(map(str, v))) for k, v in
                           self.__featurizers__.items()])
 
-    def _check_input(self, X, y=None):
+    def _check_input(self, X, y=None, **kwargs):
         def _reformat(x):
             if x is None:
                 return x
@@ -370,7 +379,8 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
                 x = pd.DataFrame(x)
 
             if isinstance(x, pd.DataFrame):
-                if set(keys).isdisjoint(set(x.columns)):
+                tmp = set(x.columns) | set(kwargs.keys())
+                if set(keys).isdisjoint(tmp):
                     raise KeyError(
                         'name of columns do not match any feature set')
                 return x
@@ -382,42 +392,44 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         return _reformat(X), _reformat(y)
 
     def _rename(self, **fit_params):
-        for k in fit_params:
+        for k, v in fit_params.items():
             if k in self.__featurizers__:
-                self.__featurizers__[fit_params[k]] = self.__featurizers__.pop(k)
+                self.__featurizers__[v] = self.__featurizers__.pop(k)
 
     @property
     def featurizers(self):
-        return self.__featurizers__.keys()
+        return list(self.__featurizers__.keys())
 
-    def fit(self, X, y=None, **fit_params):
+    def fit(self, X, y=None, **kwargs):
         if not isinstance(X, Iterable):
             raise TypeError('parameter "entries" must be a iterable object')
 
-        self._rename(**fit_params)
+        self._rename(**kwargs)
 
         X, y = self._check_input(X, y)
         for k, features in self.__featurizers__.items():
             if k in X:
                 for f in features:
                     if y is not None and k in y:
-                        f.fit(X[k], y[k], **fit_params)
+                        f.fit(X[k], y[k], **kwargs)
                     else:
-                        f.fit(X[k], **fit_params)
+                        f.fit(X[k], **kwargs)
 
         return self
 
     def transform(self, X, **kwargs):
         if not isinstance(X, Iterable):
             raise TypeError('parameter "entries" must be a iterable object')
-        
+
         if len(X) is 0:
             return None
 
         results = []
 
-        X, _ = self._check_input(X)
+        X, _ = self._check_input(X, **kwargs)
         for k, features in self.__featurizers__.items():
+            if k in kwargs:
+                k = kwargs[k]
             if k in X:
                 for f in features:
                     ret = f.transform(X[k], return_type='df', **kwargs)

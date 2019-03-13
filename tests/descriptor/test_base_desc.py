@@ -24,7 +24,7 @@ def data():
         def __init__(self, n_jobs=1):
             super().__init__(n_jobs=n_jobs)
 
-        def featurize(self, *x):
+        def featurize(self, *x, **kwargs):
             return x[0]
 
         @property
@@ -178,11 +178,38 @@ def test_base_descriptor_6(data):
     bd = data['descriptor']()
     x = pd.DataFrame({'g3': [1, 2, 3, 4], 'g4': [1, 2, 3, 4]})
     with pytest.raises(KeyError):
-        bd.fit_transform(x)
+        bd.fit(x)
+    with pytest.raises(KeyError):
+        bd.transform(x)
+    bd.fit(x, g1='g3', g2='g4')
+    bd.transform(x)
 
+    x = pd.DataFrame({'g1': [1, 2, 3, 4], 'g2': [1, 2, 3, 4]})
+    with pytest.raises(KeyError):
+        bd.transform(x)
+    bd.transform(x, g3='g1', g4='g2')
+    with pytest.raises(KeyError):
+        bd.transform(x)
+    bd.fit_transform(x, g3='g1', g4='g2')
+
+
+def test_base_descriptor_7(data):
+    bd = data['descriptor']()
     x = pd.Series([1, 2, 3, 4], name='g3')
     with pytest.raises(KeyError):
-        bd.fit_transform(x)
+        bd.fit(x)
+    with pytest.raises(KeyError):
+        bd.transform(x)
+    bd.fit(x, g1='g3')
+    bd.transform(x)
+
+    x = pd.Series([1, 2, 3, 4], name='g1')
+    with pytest.raises(KeyError):
+        bd.transform(x)
+    bd.transform(x, g3='g1')
+    with pytest.raises(KeyError):
+        bd.transform(x)
+    bd.fit_transform(x, g3='g1')
 
 
 if __name__ == "__main__":

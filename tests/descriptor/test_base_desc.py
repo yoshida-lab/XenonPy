@@ -60,19 +60,11 @@ def test_base_feature_props(data):
     assert bf.authors == 'anonymous'
 
     # test labels, featurize
-    try:
+    with pytest.raises(NotImplementedError):
         bf.featurize(1)
-    except NotImplementedError:
-        assert True
-    else:
-        assert False, 'should got NotImplementedError'
 
-    try:
+    with pytest.raises(NotImplementedError):
         bf.feature_labels
-    except NotImplementedError:
-        assert True
-    else:
-        assert False, 'should got NotImplementedError'
 
 
 def test_base_feature_1(data):
@@ -81,12 +73,8 @@ def test_base_feature_1(data):
     assert featurizer.n_jobs == 1
     assert featurizer.featurize(10) == 10
     assert featurizer.feature_labels == ['labels']
-    try:
+    with pytest.raises(TypeError):
         featurizer.fit_transform(56)
-    except TypeError:
-        assert True
-    else:
-        assert False
 
 
 def test_base_feature_2(data):
@@ -120,25 +108,15 @@ def test_base_feature_3(data):
 
     featurizer = _ErrorFeaturier()
     assert isinstance(featurizer, BaseFeaturizer)
-    try:
+    with pytest.raises(ValueError):
         featurizer.fit_transform([1, 2, 3, 4])
-    except ValueError:
-        assert True
-    else:
-        assert False
 
     featurizer = _ErrorFeaturier(on_errors='keep')
-    try:
-        tmp = featurizer.fit_transform([1, 2, 3, 4])
-    except ValueError:
-        assert False
+    tmp = featurizer.fit_transform([1, 2, 3, 4])
     assert np.alltrue([isinstance(e[0], ValueError) for e in tmp])
 
     featurizer = _ErrorFeaturier(on_errors='nan')
-    try:
-        tmp = featurizer.fit_transform([1, 2, 3, 4])
-    except ValueError:
-        assert False
+    tmp = featurizer.fit_transform([1, 2, 3, 4])
     assert np.alltrue([np.isnan(e[0]) for e in tmp])
 
 
@@ -165,12 +143,8 @@ def test_base_descriptor_2(data):
 
 def test_base_descriptor_3(data):
     bd = data['descriptor']()
-    try:
+    with pytest.raises(TypeError):
         bd.fit([1, 2, 3, 4]),
-    except TypeError:
-        assert True
-    else:
-        assert False, 'allow list only when the number of featurizer is 1'
 
 
 def test_base_descriptor_4(data):
@@ -184,25 +158,13 @@ def test_base_descriptor_4(data):
             self.g1 = feature()
 
     bd = _FakeDescriptor()
-    try:
-        bd.fit([1, 2, 3, 4])
-    except TypeError:
-        assert False, 'allow list when the number of featurizer is 1'
-    else:
-        assert True
+    bd.fit([1, 2, 3, 4])
 
 
 def test_base_descriptor_5(data):
     bd = data['descriptor']()
     x = pd.DataFrame({'g1': [1, 2, 3, 4], 'g3': [1, 2, 3, 4]})
-    try:
-        bd.fit(x),
-    except TypeError:
-        assert False, 'allow input have additional columns'
-    else:
-        assert True
-
-    tmp = bd.transform(x)
+    tmp = bd.fit_transform(x)
     assert isinstance(tmp, pd.DataFrame)
     assert np.all(tmp.values == np.array([[1, 1], [2, 2], [3, 3], [4, 4]]))
 
@@ -215,20 +177,12 @@ def test_base_descriptor_5(data):
 def test_base_descriptor_6(data):
     bd = data['descriptor']()
     x = pd.DataFrame({'g3': [1, 2, 3, 4], 'g4': [1, 2, 3, 4]})
-    try:
+    with pytest.raises(KeyError):
         bd.fit_transform(x)
-    except KeyError:
-        assert True
-    else:
-        assert False, 'all columns did not match any feature sets'
 
     x = pd.Series([1, 2, 3, 4], name='g3')
-    try:
+    with pytest.raises(KeyError):
         bd.fit_transform(x)
-    except KeyError:
-        assert True
-    else:
-        assert False, 'all columns did not match any feature sets'
 
 
 if __name__ == "__main__":

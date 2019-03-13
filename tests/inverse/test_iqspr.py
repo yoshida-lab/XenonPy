@@ -59,35 +59,15 @@ def test_base_bayesian_ridge_1(data):
                             bandgap=(7, 8),
                             glass_transition_temperature=(300, 400))
     assert len(ll) == 10
+    assert isinstance(bre['bandgap'], BayesianRidge)
+    assert isinstance(bre['density'], BayesianRidge)
 
-    try:
-        assert isinstance(bre['bandgap'], BayesianRidge)
-        assert isinstance(bre['density'], BayesianRidge)
-    except IndexError:
-        assert False
-    else:
-        assert True
-
-    try:
+    with pytest.raises(KeyError):
         bre['other']
-    except KeyError:
-        assert True
-    else:
-        assert False
 
-    try:
+    with pytest.raises(TypeError):
         bre['other'] = 1
-    except TypeError:
-        assert True
-    else:
-        assert False
-
-    try:
-        bre['other'] = BayesianRidge()
-    except TypeError:
-        assert False
-    else:
-        assert True
+    bre['other'] = BayesianRidge()
 
 
 def test_ngram_1(data):
@@ -115,19 +95,12 @@ def test_ngram_1(data):
     assert ngram.ngram_table is not None
 
     np.random.seed(123456)
-    try:
-        ngram.proposal(data['pg'][0][60:65])
-    except GetProbError:
-        assert False
+    ngram.proposal(data['pg'][0][60:65])
 
     ngram.on_errors = types.MethodType(on_errors, ngram)
     np.random.seed(123456)
-    try:
+    with pytest.raises(GetProbError):
         ngram.proposal(data['pg'][0][60:65])
-    except GetProbError:
-        assert True
-    else:
-        assert False, 'shoulud got GetProbError'
 
 
 def test_iqspr_1(data):

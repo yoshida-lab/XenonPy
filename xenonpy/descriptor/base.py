@@ -315,15 +315,19 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
     _n_jobs = 1
 
-    def __init__(self, *, featurizers=None):
+    def __init__(self, *, featurizers='all'):
         """
 
         Parameters
         ----------
-        featurizers: list[str]
+        featurizers: dict[list[str]] or 'all'
             Featurizers that will be used.
+            Default is 'all'.
         """
-        self._featurizers = featurizers
+        if featurizers is not 'all':
+            self._featurizers = featurizers
+        else:
+            self._featurizers = defaultdict(list)
         self.__featurizers__ = defaultdict(list)
 
     @property
@@ -400,15 +404,21 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
     def featurizers(self):
         return list(self.__featurizers__.keys())
 
-    def fit(self, X, y=None, **kwargs):
+    def fit(self, X, y=None, *, featurizers=None, **kwargs):
         if not isinstance(X, Iterable):
             raise TypeError('parameter "entries" must be a iterable object')
+        if featurizers is None:
+            featurizers = self._featurizers
+        else:
+            if not isinstance(X, dict):
+                raise TypeError('parameter "entries" must be a dict')
+            self._featurizers = featurizers
 
         self._rename(**kwargs)
 
         X, y = self._check_input(X, y)
         for k, features in self.__featurizers__.items():
-            if k in X:
+            if k in X and k in self._featurizers:
                 for f in features:
                     if y is not None and k in y:
                         f.fit(X[k], y[k], **kwargs)

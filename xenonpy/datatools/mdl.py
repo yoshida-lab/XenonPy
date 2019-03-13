@@ -47,8 +47,11 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
 
             raise HTTPError('status_code: %s, %s' %
                             (ret.status_code, message))
-        ret = ret.json()['data']
-        return ret
+        ret = ret.json()
+        if 'errors' in ret:
+            raise ValueError(ret['errors'][0]['message'])
+        else:
+            return ret['data']
 
     def query_properties(self, name_has):
         query = '''

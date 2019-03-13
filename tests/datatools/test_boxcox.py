@@ -161,12 +161,8 @@ def test_transform_err_4x4_3(data):
 
 def test_transform_err():
     bc = BoxCox(on_err='raise')
-    try:
+    with pytest.raises(FloatingPointError):
         bc.fit_transform([1, 1, 1])
-    except FloatingPointError:
-        assert True
-    else:
-        assert False, 'should got FloatingPointError'
 
 
 if __name__ == "__main__":

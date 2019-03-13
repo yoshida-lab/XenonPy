@@ -71,42 +71,26 @@ def test_split_1(data):
 
 def test_split_2(data):
     ds = Splitter(10, test_size=0.1)
-    try:
+    with pytest.raises(ValueError):
         ds.split(data[1][1:])
-    except ValueError:
-        assert True
-    else:
-        assert False, 'should got ValueError'
     _, test = ds.split(data[1])
     assert test[0] in data[1]
 
 
 def test_split_3(data):
     ds = Splitter(10)
-    try:
-        ds.split(data[0])
-        ds.split(data[1])
-        ds.split(data[2])
-        ds.split(data[3])
-        ds.split(data[4])
-    except TypeError:
-        assert False, 'should not got TypeError'
-    else:
-        assert True
+    ds.split(data[0])
+    ds.split(data[1])
+    ds.split(data[2])
+    ds.split(data[3])
+    ds.split(data[4])
 
-    try:
+    with pytest.raises(ValueError):
         ds.split([1])
-    except ValueError:
-        assert True
-    else:
-        assert False, 'should got ValueError'
 
-    try:
+    with pytest.raises(TypeError):
+        ds.split(data[0])
         ds.split('ss')
-    except TypeError:
-        assert True
-    else:
-        assert False, 'should got TypeError'
 
 
 def test_split_4(data):

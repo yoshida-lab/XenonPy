@@ -39,21 +39,13 @@ def test_product_1(data):
     assert p[22] == abcd[22]
     assert p[33] == abcd[33]
 
-    try:
+    with pytest.raises(IndexError):
         p[36]
-    except IndexError:
-        assert True
-    else:
-        assert False, 'should got IndexError'
 
 
 def test_product_2(data):
-    try:
+    with pytest.raises(ValueError):
         Product(data[0], repeat=1.5)
-    except ValueError:
-        assert True
-    else:
-        assert False, 'should got ValueError'
 
 
 def test_product_3(data):

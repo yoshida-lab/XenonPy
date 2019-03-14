@@ -19,7 +19,31 @@ def data():
     warnings.filterwarnings("ignore", message="numpy.dtype size changed")
     warnings.filterwarnings("ignore", message="numpy.ndarray size changed")
 
-    class _FakeFeaturier(BaseFeaturizer):
+    class _FakeFeaturier1(BaseFeaturizer):
+
+        def __init__(self, n_jobs=1):
+            super().__init__(n_jobs=n_jobs)
+
+        def featurize(self, *x, **kwargs):
+            return x[0]
+
+        @property
+        def feature_labels(self):
+            return ['labels']
+
+    class _FakeFeaturier2(BaseFeaturizer):
+
+        def __init__(self, n_jobs=1):
+            super().__init__(n_jobs=n_jobs)
+
+        def featurize(self, *x, **kwargs):
+            return x[0]
+
+        @property
+        def feature_labels(self):
+            return ['labels']
+
+    class _FakeFeaturier3(BaseFeaturizer):
 
         def __init__(self, n_jobs=1):
             super().__init__(n_jobs=n_jobs)
@@ -33,14 +57,14 @@ def data():
 
     class _FakeDescriptor(BaseDescriptor):
 
-        def __init__(self):
-            super().__init__()
-            self.g1 = _FakeFeaturier()
-            self.g1 = _FakeFeaturier()
-            self.g2 = _FakeFeaturier()
+        def __init__(self, featurizers='all'):
+            super().__init__(featurizers=featurizers)
+            self.g1 = _FakeFeaturier1()
+            self.g1 = _FakeFeaturier2()
+            self.g2 = _FakeFeaturier3()
 
     # prepare test data
-    yield dict(featurizer=_FakeFeaturier, descriptor=_FakeDescriptor)
+    yield dict(featurizer=_FakeFeaturier1, descriptor=_FakeDescriptor)
 
     print('test over')
 
@@ -131,14 +155,14 @@ def test_base_descriptor_1(data):
 
     # test featurizers list
     assert hasattr(bd, '__featurizers__')
-    assert not bd.__featurizers__
+    assert not bd.__featurizer_sets__
 
 
 def test_base_descriptor_2(data):
     bd = data['descriptor']()
-    assert len(bd.__featurizers__) == 2
-    assert 'g1' in bd.__featurizers__
-    assert 'g2' in bd.__featurizers__
+    assert len(bd.all_featurizers) == 3
+    assert 'g1' in bd.__featurizer_sets__
+    assert 'g2' in bd.__featurizer_sets__
 
 
 def test_base_descriptor_3(data):
@@ -148,17 +172,17 @@ def test_base_descriptor_3(data):
 
 
 def test_base_descriptor_4(data):
-    feature = data['featurizer']
+    ff = data['featurizer']
 
-    class _FakeDescriptor(BaseDescriptor):
+    class FakeDescriptor(BaseDescriptor):
 
         def __init__(self):
             super().__init__()
-            self.g1 = feature()
-            self.g1 = feature()
+            self.g1 = ff()
+            self.g1 = ff()
 
-    bd = _FakeDescriptor()
-    bd.fit([1, 2, 3, 4])
+    with pytest.raises(RuntimeError):
+        FakeDescriptor()
 
 
 def test_base_descriptor_5(data):
@@ -210,6 +234,37 @@ def test_base_descriptor_7(data):
     with pytest.raises(KeyError):
         bd.transform(x)
     bd.fit_transform(x, g3='g1')
+
+
+def test_base_descriptor_8(data):
+    x = pd.DataFrame({'g1': [1, 2, 3, 4], 'g2': [1, 2, 3, 4]})
+
+    bd = data['descriptor'](featurizers=['_FakeFeaturier1', '_FakeFeaturier3'])
+    tmp = bd.transform(x)
+    assert bd.featurizers == ['_FakeFeaturier1', '_FakeFeaturier3']
+    assert np.all(tmp.values == np.array([[1, 1], [2, 2], [3, 3], [4, 4]]))
+
+    bd = data['descriptor']()
+
+    # use all featurizers
+    tmp = bd.fit_transform(x)
+    assert np.all(tmp.values == np.array([[1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4]]))
+
+    # use '_FakeFeaturier1' and '_FakeFeaturier3' temporarily
+    tmp = bd.transform(x, featurizers=['_FakeFeaturier1', '_FakeFeaturier3'])
+    assert np.all(tmp.values == np.array([[1, 1], [2, 2], [3, 3], [4, 4]]))
+    tmp = bd.transform(x)
+    assert np.all(tmp.values == np.array([[1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4]]))
+
+    # use '_FakeFeaturier1' and '_FakeFeaturier3' from now ony
+    bd.fit(x, featurizers=['_FakeFeaturier1', '_FakeFeaturier3'])
+    tmp = bd.transform(x)
+    assert np.all(tmp.values == np.array([[1, 1], [2, 2], [3, 3], [4, 4]]))
+
+    # reset
+    bd.fit(x, featurizers='all')
+    tmp = bd.transform(x)
+    assert np.all(tmp.values == np.array([[1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4]]))
 
 
 if __name__ == "__main__":

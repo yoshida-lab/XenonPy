@@ -43,10 +43,14 @@ def test_comp_descriptor_1():
     tmp1 = desc.fit_transform(pd.Series([{'H': 2}], name='other'), composition='other')
     tmp2 = desc.fit_transform([{'H': 2}])
 
+    assert tmp1.shape == (1, 290)
     assert isinstance(tmp1, pd.DataFrame)
     assert isinstance(tmp2, pd.DataFrame)
 
     assert np.all(tmp1.values == tmp2.values)
+
+    tmp = desc.transform([{'H': 2}], featurizers=['WeightedAvgFeature'])
+    assert tmp.shape == (1, 58)
 
 
 if __name__ == "__main__":

@@ -264,22 +264,20 @@ class Compositions(BaseDescriptor):
     Calculate elemental descriptors from compound's composition.
     """
 
-    def __init__(self, elements=None, *, n_jobs=-1, include=None,
-                 exclude=None, on_errors='nan'):
+    def __init__(self, elements=None, *, n_jobs=-1, featurizers='all', on_errors='nan'):
         """
 
         Parameters
         ----------
         elements: panda.DataFrame
             Elements information in `pandas.DataFrame` object. indexed by element symbol.
-        include: list
-            Column's names of elemental info that should be used in descriptor calculation.
-        exclude: list
-            Column's names of elemental info that should not be used in descriptor calculation.
         n_jobs: int
             The number of jobs to run in parallel for both fit and predict.
             Set -1 to use all cpu cores (default).
             Inputs ``X`` will be split into some blocks then run on each cpu cores.
+        featurizers: list[str] or 'all'
+            Featurizers that will be used.
+            Default is 'all'.
         on_errors: string
             How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
             When 'nan', return a column with ``np.nan``.
@@ -288,15 +286,10 @@ class Compositions(BaseDescriptor):
             The default is 'nan' which will raise up the exception.
         """
 
-        super().__init__()
+        super().__init__(featurizers=featurizers)
         self.n_jobs = n_jobs
         if elements is None:
             elements = preset.elements_completed
-        if include is not None:
-            elements = elements[include]
-        if exclude is not None:
-            elements = elements.drop(exclude, axis=1)
-        self.elements = elements
 
         self.composition = WeightedAvgFeature(elements, n_jobs=n_jobs, on_errors=on_errors)
         self.composition = WeightedSumFeature(elements, n_jobs=n_jobs, on_errors=on_errors)

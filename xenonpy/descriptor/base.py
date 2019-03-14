@@ -4,6 +4,7 @@
 
 from collections import defaultdict
 from collections.abc import Iterable
+from copy import copy
 from multiprocessing import Pool, cpu_count
 
 import numpy as np
@@ -320,15 +321,13 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
         Parameters
         ----------
-        featurizers: dict[list[str]] or 'all'
+        featurizers: list[str] or 'all'
             Featurizers that will be used.
             Default is 'all'.
         """
-        if featurizers is not 'all':
-            self._featurizers = featurizers
-        else:
-            self._featurizers = defaultdict(list)
-        self.__featurizers__ = defaultdict(list)
+        self.featurizers = featurizers
+        self.__featurizers__ = set()
+        self.__featurizer_sets__ = defaultdict(list)
 
     @property
     def elapsed(self):
@@ -348,26 +347,29 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
     def __setattr__(self, key, value):
 
-        if key == '__featurizers__':
+        if key == '__featurizer_sets__':
             if not isinstance(value, defaultdict):
-                raise RuntimeError('Can not set "self.__featurizers__" by yourself')
+                raise RuntimeError('Can not set "self.__featurizer_sets__" by yourself')
             super().__setattr__(key, value)
         if isinstance(value, BaseFeaturizer):
-            self.__featurizers__[key].append(value)
+            if value.__class__.__name__ in self.__featurizers__:
+                raise RuntimeError('Duplicated featurizer <%s>' % value.__class__.__name__)
+            self.__featurizer_sets__[key].append(value)
+            self.__featurizers__.add(value.__class__.__name__)
         else:
             super().__setattr__(key, value)
 
     def __repr__(self):
         return super().__repr__() + ':\n' + \
                '\n'.join(['  |- %s:\n  |  |- %s' % (k, '\n  |  |- '.join(map(str, v))) for k, v in
-                          self.__featurizers__.items()])
+                          self.__featurizer_sets__.items()])
 
     def _check_input(self, X, y=None, **kwargs):
         def _reformat(x):
             if x is None:
                 return x
 
-            keys = list(self.__featurizers__.keys())
+            keys = list(self.__featurizer_sets__.keys())
             if len(keys) == 1:
                 if isinstance(x, list):
                     return pd.DataFrame(pd.Series(x), columns=keys)
@@ -397,29 +399,30 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
     def _rename(self, **fit_params):
         for k, v in fit_params.items():
-            if k in self.__featurizers__:
-                self.__featurizers__[v] = self.__featurizers__.pop(k)
+            if k in self.__featurizer_sets__:
+                self.__featurizer_sets__[v] = self.__featurizer_sets__.pop(k)
 
     @property
-    def featurizers(self):
-        return list(self.__featurizers__.keys())
+    def all_featurizers(self):
+        return list(self.__featurizers__)
 
-    def fit(self, X, y=None, *, featurizers=None, **kwargs):
+    def fit(self, X, y=None, **kwargs):
         if not isinstance(X, Iterable):
             raise TypeError('parameter "entries" must be a iterable object')
-        if featurizers is None:
-            featurizers = self._featurizers
-        else:
-            if not isinstance(X, dict):
-                raise TypeError('parameter "entries" must be a dict')
-            self._featurizers = featurizers
+        if 'featurizers' in kwargs:
+            featurizers = kwargs['featurizers']
+            if featurizers != 'all' and not isinstance(featurizers, list):
+                raise TypeError('parameter "featurizers" must be a list')
+            self.featurizers = copy(featurizers)
 
         self._rename(**kwargs)
 
         X, y = self._check_input(X, y)
-        for k, features in self.__featurizers__.items():
-            if k in X and k in self._featurizers:
+        for k, features in self.__featurizer_sets__.items():
+            if k in X:
                 for f in features:
+                    if self.featurizers != 'all' and f.__class__.__name__ not in self.featurizers:
+                        continue
                     if y is not None and k in y:
                         f.fit(X[k], y[k], **kwargs)
                     else:
@@ -434,14 +437,23 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         if len(X) is 0:
             return None
 
+        if 'featurizers' in kwargs:
+            featurizers = kwargs['featurizers']
+            if featurizers != 'all' and not isinstance(featurizers, list):
+                raise TypeError('parameter "featurizers" must be a list')
+        else:
+            featurizers = self.featurizers
+
         results = []
 
         X, _ = self._check_input(X, **kwargs)
-        for k, features in self.__featurizers__.items():
+        for k, features in self.__featurizer_sets__.items():
             if k in kwargs:
                 k = kwargs[k]
             if k in X:
                 for f in features:
+                    if featurizers != 'all' and f.__class__.__name__ not in featurizers:
+                        continue
                     ret = f.transform(X[k], return_type='df', **kwargs)
                     results.append(ret)
 

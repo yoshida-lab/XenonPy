@@ -384,7 +384,8 @@ class Fingerprints(BaseDescriptor):
     Calculate fingerprints or descriptors of organic molecules.
     """
 
-    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, fp_size=2048, input_type='mol', on_errors='raise'):
+    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, fp_size=2048, input_type='mol', featurizers='all',
+                 on_errors='raise'):
         """
 
         Parameters
@@ -397,6 +398,9 @@ class Fingerprints(BaseDescriptor):
             i.e., radius=2 is roughly equivalent to ECFP4/FCFP4.
         n_bits: int
             Fixed bit length based on folding.
+        featurizers: list[str] or 'all'
+            Featurizers that will be used.
+            Default is 'all'.
         input_type: string
             Set the specific type of transform input.
             Set to ``mol`` (default) to ``rdkit.Chem.rdchem.Mol`` objects as input.
@@ -412,7 +416,7 @@ class Fingerprints(BaseDescriptor):
             The default is 'raise' which will raise up the exception.
         """
 
-        super().__init__()
+        super().__init__(featurizers=featurizers)
         self.n_jobs = n_jobs
 
         self.mol = RDKitFP(n_jobs, fp_size=fp_size, input_type=input_type, on_errors=on_errors)

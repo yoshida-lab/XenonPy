@@ -240,7 +240,7 @@ class Structures(BaseDescriptor):
     Calculate structure descriptors from compound's structure.
     """
 
-    def __init__(self, n_bins=201, r_max=20.0, including_d=True, *, n_jobs=-1, on_errors='raise'):
+    def __init__(self, n_bins=201, r_max=20.0, including_d=True, *, n_jobs=-1, featurizers='all', on_errors='raise'):
         """
 
         Parameters
@@ -253,6 +253,9 @@ class Structures(BaseDescriptor):
             If true, add distance information.
         n_jobs: int
             The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+        featurizers: list[str] or 'all'
+            Featurizers that will be used.
+            Default is 'all'.
         on_errors: string
             How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
             When 'nan', return a column with ``np.nan``.
@@ -260,7 +263,7 @@ class Structures(BaseDescriptor):
             When 'keep', return a column with exception objects.
             The default is 'raise' which will raise up the exception.
         """
-        super().__init__()
+        super().__init__(featurizers=featurizers)
         self.n_jobs = n_jobs
 
         self.structure = RadialDistributionFunction(n_bins, r_max, n_jobs=n_jobs, on_errors=on_errors)

@@ -49,19 +49,20 @@ def set_env(**kwargs):
             os.environ[k] = v
 
 
-def get_conf(key: str):
+def config(*keys, **key_vals):
     """
     Return config value with key or all config.
 
     Parameters
     ----------
-    key: str
-        Key of config item.
-
+    keys: str
+        Keys of config item.
+    key_vals: **any
+        Set item's value by key.
     Returns
     -------
-    object
-        key value in ``conf.yml`` file.
+    any
+        The value corresponding to the key.
     """
     yaml = YAML(typ='safe')
     yaml.indent(mapping=2, sequence=4, offset=2)
@@ -70,18 +71,35 @@ def get_conf(key: str):
     cfg_file = dir_ / 'conf.yml'
 
     # from user local
-    with open(str(cfg_file)) as f:
+    with open(str(cfg_file), 'r') as f:
         conf = yaml.load(f)
 
-    # if no key locally, use default
-    if key not in conf:
-        with open(str(Path(__file__).parents[1] / 'conf.yml')) as f:
-            conf_ = yaml.load(f)
-            conf[key] = conf_[key]
+    ret = {}
+
+    # getter
+    for k in keys:
+        if k in conf:
+            ret[k] = conf[k]
+        else:
+            tmp = Path(__file__).parent / 'conf.yml'
+            with open(str(tmp)) as f:
+                conf_ = yaml.load(f)
+
+            if k not in conf_:
+                raise RuntimeError('No item(s) named %s in configurations' % k)
+
+            ret[k] = conf_[k]
+
+    # setter  
+    for k, v in key_vals.items():
+        conf[k] = v
+        ret[k] = v
+
+    if key_vals:
         with open(str(cfg_file), 'w') as f:
             yaml.dump(conf, f)
 
-    return conf[key]
+    return ret
 
 
 def get_dataset_url(name: str):
@@ -110,7 +128,7 @@ def get_data_loc(name):
         raise ValueError('{} not in {}'.format(name, scheme))
     if getenv(name):
         return str(Path(getenv(name)).expanduser())
-    return str(Path(get_conf(name)).expanduser())
+    return str(Path(config(name)[name]).expanduser())
 
 
 def absolute_path(path, ignore_err=True):

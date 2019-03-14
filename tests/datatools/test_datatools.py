@@ -9,7 +9,7 @@ from shutil import rmtree
 import pytest
 from sklearn.externals import joblib as jl
 
-from xenonpy.datatools.dataset import Preset, LocalStorage, preset
+from xenonpy.datatools.dataset import Preset, SafeStorage, preset
 
 
 @pytest.fixture(scope='module')
@@ -21,7 +21,7 @@ def setup():
         'https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/travis/fetch_test.txt',
         test_dir='test_dir',
         user_dataset='test_user_data',
-        saver=LocalStorage('test_user_data'))
+        saver=SafeStorage('test_user_data'))
 
     # ignore numpy warning
     import warnings

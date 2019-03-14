@@ -34,7 +34,7 @@ def __init(force=False):
     from pathlib import Path
 
     if version_info[0] != 3 or version_info[1] < 5:
-        raise SystemError("Python 3.5 or 3.6 needed")
+        raise SystemError("Python version must be greater than or equal to 3.5")
 
     yaml = YAML(typ='safe')
     yaml.indent(mapping=2, sequence=4, offset=2)
@@ -61,8 +61,9 @@ def __init(force=False):
     # init dirs
     dataset_dir = root_dir / 'dataset'
     cached_dir = root_dir / 'cached'
-    user_data_dir = Path(utils.get_conf('userdata')).expanduser()
-    user_model_dir = Path(utils.get_conf('usermodel')).expanduser()
+    config = utils.config('userdata', 'usermodel')
+    user_data_dir = Path(config['userdata']).expanduser()
+    user_model_dir = Path(config['usermodel']).expanduser()
 
     # create dirs
     dataset_dir.mkdir(parents=True, exist_ok=True)

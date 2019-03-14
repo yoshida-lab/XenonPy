@@ -17,11 +17,10 @@ from ruamel.yaml import YAML
 from sklearn.externals import joblib
 
 from .._conf import __cfg_root__
-from ..utils import Singleton
-from ..utils import get_conf, get_dataset_url, get_data_loc, absolute_path, get_sha256
+from ..utils import config, get_dataset_url, get_data_loc, absolute_path, get_sha256
 
 
-class LocalStorage(object):
+class SafeStorage(object):
     """
     Save data in a convenient way:
 
@@ -260,7 +259,7 @@ class LocalStorage(object):
         -------
         self
         """
-        sub_set = LocalStorage(name, path=str(self._path), backend=self._backend)
+        sub_set = SafeStorage(name, path=str(self._path), backend=self._backend)
         setattr(self, name, sub_set)
         return sub_set
 
@@ -335,7 +334,7 @@ class LocalStorage(object):
             self._files[k].append(f)
 
 
-class Preset(Singleton):
+class Preset(object):
     """
     Load data from embed dataset in XenonPy's or user create data saved in ``~/.xenonpy/cached`` dir.
     Also can fetch data by http request.
@@ -361,11 +360,7 @@ class Preset(Singleton):
         ...
     """
 
-    # dataset = (
-    #     'elements', 'elements_completed', 'mp_inorganic',
-    #     'electron_density', 'sample_A', 'mp_structure'
-    # )
-    dataset = ('elements', 'elements_completed', 'mp_inorganic', 'mp_structure')
+    dataset = ('elements', 'elements_completed')
     # set to check params
 
     _dataset_dir = Path().home() / __cfg_root__ / 'dataset'
@@ -374,7 +369,7 @@ class Preset(Singleton):
     _yaml.indent(mapping=2, sequence=4, offset=2)
 
     @classmethod
-    def _http_data(cls, url, params=None, save_to=None, **kwargs):
+    def from_http(cls, url, save_to=None, chunk_size=256 * 1024, *, params=None, **kwargs):
         r = requests.get(url, params, **kwargs)
         r.raise_for_status()
 
@@ -386,7 +381,7 @@ class Preset(Singleton):
         if save_to is None:
             save_to = str(cls._cached_dir / filename)
         with open(save_to, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=256 * 1024):
+            for chunk in r.iter_content(chunk_size=chunk_size):
                 if chunk:  # filter out keep-alive new chunks
                     f.write(chunk)
 
@@ -429,7 +424,7 @@ class Preset(Singleton):
                   'If you can\'t download it automatically, '
                   'just download it manually from the url above and '
                   'put it under `~/.xenonpy/dataset/`'.format(data, url))
-            cls._http_data(url, save_to=str(dataset))
+            cls.from_http(url, save_to=str(dataset))
 
         # check sha256 value
         sha256_file.touch()  # make sure sha256_file file exist.
@@ -443,7 +438,7 @@ class Preset(Singleton):
         else:
             sha256_ = sha256[data]
 
-        if sha256_ != get_conf(data):
+        if sha256_ != config(data)[data]:
             warn(
                 'local data {} is different from the repository version. '
                 'use `load(data, sync=True)` to fix it.'.format(data), RuntimeWarning)
@@ -452,17 +447,13 @@ class Preset(Singleton):
                 print('fetching dataset `{}` from {} because of none data file or outdated. '
                       'you can download it manually from this url '
                       'then put it under `~/.xenonpy/dataset/`'.format(data, url))
-                cls._http_data(url, save_to=str(dataset))
+                cls.from_http(url, save_to=str(dataset))
                 sha256_ = get_sha256(str(dataset))
                 sha256[data] = sha256_
                 cls._yaml.dump(sha256, sha256_file)
 
         # return preset data
         return pd.read_pickle(str(dataset))
-
-    @classmethod
-    def _get_prop(cls, name):
-        return cls.load(name)
 
     @property
     def elements(self):
@@ -482,59 +473,7 @@ class Preset(Singleton):
         DataFrame:
             element properties in pd.DataFrame
         """
-        return self._get_prop('elements')
-
-    @property
-    def mp_inorganic(self):
-        """
-        Inorganic properties summarized from `Materials Projects`_.
-
-        .. _Materials Projects: https://www.materialsproject.org/
-
-        Returns
-        -------
-        DataFrame:
-            Properties in pd.DataFrame
-        """
-        return self._get_prop('mp_inorganic')
-
-    @property
-    def mp_structure(self):
-        """
-        Inorganic structures summarized from `Materials Projects`_.
-
-        Returns
-        -------
-        DataFrame:
-            Structures as dict that can be loaded by pymatgen.
-        """
-        return self._get_prop('mp_structure')
-
-    @property
-    def oqmd_inorganic(self):
-        """
-        Inorganic properties summarized from `OQMD`_.
-
-        .. _OQMD: http://www.oqmd.org
-
-        Returns
-        -------
-        DataFrame:
-            Properties in pd.DataFrame
-        """
-        return self._get_prop('oqmd_inorganic')
-
-    @property
-    def oqmd_structure(self):
-        """
-        Inorganic structures summarized from `OQMD`_.
-
-        Returns
-        -------
-        DataFrame:
-            Structures as dict that can be loaded by pymatgen.
-        """
-        return self._get_prop('oqmd_structure')
+        return self.load('elements')
 
     @property
     def elements_completed(self):
@@ -552,7 +491,7 @@ class Preset(Singleton):
         -------
             imputed element properties in pd.DataFrame
         """
-        return self._get_prop('elements_completed')
+        return self.load('elements_completed')
 
 
 preset = Preset()

@@ -5,13 +5,6 @@
 # change version in there, conf.yml, setup.py
 __all__ = ['descriptor', 'model', 'utils', 'visualization', 'datatools', 'math']
 
-from . import datatools
-from . import descriptor
-from . import math
-from . import model
-# from . import pipeline
-from . import utils
-from . import visualization
 from ._conf import *
 
 
@@ -59,10 +52,11 @@ def __init(force=False):
             yaml.dump(pack_cfg, user_cfg_file)
 
     # init dirs
+    user_cfg = yaml.load(user_cfg_file)
     dataset_dir = root_dir / 'dataset'
     cached_dir = root_dir / 'cached'
-    user_data_dir = Path(utils.config('userdata')).expanduser()
-    user_model_dir = Path(utils.config('usermodel')).expanduser()
+    user_data_dir = Path(user_cfg['userdata']).expanduser().absolute()
+    user_model_dir = Path(user_cfg['usermodel']).expanduser().absolute()
 
     # create dirs
     dataset_dir.mkdir(parents=True, exist_ok=True)
@@ -72,3 +66,11 @@ def __init(force=False):
 
 
 __init()
+
+from . import datatools
+from . import descriptor
+from . import math
+from . import model
+# from . import pipeline
+from . import utils
+from . import visualization

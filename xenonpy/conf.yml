@@ -25,4 +25,5 @@ elements_completed: '883c4e766b2cdb62c0bf40a4891528a93c8664c5213431a86bb83af453e
 
 # user-defined path
 userdata: '~/.xenonpy/userdata'
+usermodel: '~/.xenonpy/usermodel'
 ext_data: []

@@ -261,7 +261,7 @@ class Storage(object):
         return sub_set
 
     def __repr__(self):
-        cont_ls = ['<{}> include:'.format(self._name)]
+        cont_ls = ['<{}> includes:'.format(self._name)]
 
         for k, v in self._files.items():
             cont_ls.append('"{}": {}'.format(k, len(v)))

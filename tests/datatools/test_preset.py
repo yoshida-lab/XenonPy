@@ -38,6 +38,28 @@ def setup():
 
 
 def test_preset_1():
+    path = Path(__cfg_root__) / 'dataset' / 'elements.pkl.pd_'
+    if path.exists():
+        remove(str(path))
+
+    with pytest.raises(RuntimeError, match="data elements not exist"):
+        preset.elements
+
+    preset.sync('elements')
+    preset.elements
+
+    path = Path(__cfg_root__) / 'dataset' / 'elements_completed.pkl.pd_'
+    if path.exists():
+        remove(str(path))
+
+    with pytest.raises(RuntimeError, match="data elements_completed not exist"):
+        preset.elements_completed
+
+    preset.sync('elements_completed')
+    preset.elements_completed
+
+
+def test_preset_2():
     assert Preset() is preset
     e = preset.elements
     assert 118 == e.shape[0], 'should have 118 elements'
@@ -48,7 +70,7 @@ def test_preset_1():
     assert 58 == e.shape[1], 'should have 58 completed features'
 
 
-def test_preset_2():
+def test_preset_3():
     assert hasattr(preset, 'dataset_elements')
     e = preset.dataset_elements
     assert 118 == e.shape[0], 'should have 118 elements'
@@ -58,18 +80,6 @@ def test_preset_2():
     e = preset.dataset_elements_completed
     assert 94 == e.shape[0], 'should have 94 completed elements'
     assert 58 == e.shape[1], 'should have 58 completed features'
-
-
-def test_preset_3():
-    path = Path(__cfg_root__) / 'dataset' / 'elements.pkl.pd_'
-    if path.exists():
-        remove(str(path))
-
-    with pytest.raises(RuntimeError, match="data elements not exist"):
-        preset.elements
-
-    preset.sync('elements')
-    preset.elements
 
 
 if __name__ == '__main__':

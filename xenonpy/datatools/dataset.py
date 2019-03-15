@@ -109,6 +109,14 @@ class Dataset(object):
 
         return file_
 
+    def __repr__(self):
+        cont_ls = ['<{}> includes:'.format(self.__class__.__name__)]
+
+        for k, v in self._files.items():
+            cont_ls.append('"{}": {}'.format(k, len(v)))
+
+        return '\n'.join(cont_ls)
+
     @property
     def csv(self):
         return Dataset(*self._paths, backend='csv')

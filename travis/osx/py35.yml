@@ -5,7 +5,7 @@ channels:
   - rdkit
 dependencies:
   - python=3.5
-  - pandas
+  - pandas=0.24.1
   - seaborn
   - requests
   - rdkit
@@ -18,5 +18,5 @@ dependencies:
   - pylint
   - pip:
       - ruamel.yaml
-      - pymatgen==2019.2.4
+      - pymatgen==2019.3.13
       - tqdm

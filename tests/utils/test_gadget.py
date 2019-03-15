@@ -50,20 +50,23 @@ def test_absolute_path_3():
 
 
 def test_config_1():
-    tmp = config('name', 'version')
-    assert tmp == {'name': 'xenonpy', 'version': '0.2.3'}
+    tmp = config('name')
+    assert tmp == 'xenonpy'
 
     with pytest.raises(RuntimeError):
         config('no_exist')
 
     tmp = config(new_key='test')
-    assert tmp == {'new_key': 'test'}
+    assert tmp is None
 
     tmp = config('new_key')
-    assert tmp == {'new_key': 'test'}
+    assert tmp == 'test'
 
-    tmp = config('name', 'version', other_key='other')
-    assert tmp == {'name': 'xenonpy', 'version': '0.2.3', 'other_key': 'other'}
+    tmp = config('version', other_key='other')
+    assert tmp == '0.2.3'
+
+    tmp = config('other_key')
+    assert tmp == 'other'
 
 
 if __name__ == "__main__":

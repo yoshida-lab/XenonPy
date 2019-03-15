@@ -4,5 +4,4 @@
 
 __all__ = ['iqspr']
 
-from . import base
 from . import iqspr

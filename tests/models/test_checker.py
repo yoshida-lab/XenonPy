@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from xenonpy.datatools.dataset import SafeStorage
+from xenonpy.datatools import Storage
 from xenonpy.model.nn import Checker, Layer1d
 
 
@@ -48,21 +48,21 @@ def setup():
 
 def test_checker_omit_path(setup):
     checker = Checker(setup['name'])
-    assert isinstance(checker, SafeStorage)
+    assert isinstance(checker, Storage)
     assert checker.path == setup['default']
     assert checker.name == setup['name'] + '@1'
 
 
 def test_checker_default_path(setup):
     checker = Checker(setup['name'], path=setup['default'])
-    assert isinstance(checker, SafeStorage)
+    assert isinstance(checker, Storage)
     assert checker.path == setup['default']
     assert checker.name == setup['name'] + '@2'
 
 
 def test_checker_assign_path(setup):
     checker = Checker(setup['name'], path=setup['dot'])
-    assert isinstance(checker, SafeStorage)
+    assert isinstance(checker, Storage)
     assert checker.path == str(Path().resolve())
     assert checker.name == setup['name'] + '@1'
 

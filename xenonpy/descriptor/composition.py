@@ -6,7 +6,7 @@ import numpy as np
 from pymatgen.core.composition import Composition as PMGComp
 
 from .base import BaseFeaturizer, BaseDescriptor
-from ..datatools.dataset import preset
+from ..datatools.preset import preset
 
 
 class _CompositionalFeature(BaseFeaturizer):

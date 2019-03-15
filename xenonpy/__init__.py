@@ -38,7 +38,7 @@ def __init(force=False):
 
     yaml = YAML(typ='safe')
     yaml.indent(mapping=2, sequence=4, offset=2)
-    root_dir = Path.home() / __cfg_root__
+    root_dir = Path(__cfg_root__)
     root_dir.mkdir(parents=True, exist_ok=True)
     user_cfg_file = root_dir / 'conf.yml'
 
@@ -61,9 +61,8 @@ def __init(force=False):
     # init dirs
     dataset_dir = root_dir / 'dataset'
     cached_dir = root_dir / 'cached'
-    config = utils.config('userdata', 'usermodel')
-    user_data_dir = Path(config['userdata']).expanduser()
-    user_model_dir = Path(config['usermodel']).expanduser()
+    user_data_dir = Path(utils.config('userdata')).expanduser()
+    user_model_dir = Path(utils.config('usermodel')).expanduser()
 
     # create dirs
     dataset_dir.mkdir(parents=True, exist_ok=True)

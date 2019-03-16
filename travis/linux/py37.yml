@@ -1,7 +1,8 @@
 name: xepy37
 channels:
+  - defaults
   - pytorch
-  - conda-forge
+  - rdkit
 dependencies:
   - python=3.7
   - pandas
@@ -11,10 +12,10 @@ dependencies:
   - plotly
   - scikit-learn
   - scipy
-  - pytorch-cpu
+  - pytorch-cpu=1.0.1
   - pytest
   - pytest-cov
   - pip:
       - ruamel.yaml
-      - pymatgen==2019.2.4
+      - pymatgen==2019.3.13
       - tqdm

@@ -4,5 +4,4 @@
 
 __all__ = ['nn']
 
-from . import extern
 from . import nn

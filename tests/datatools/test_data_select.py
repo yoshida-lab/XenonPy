@@ -31,6 +31,7 @@ def data():
 
 
 def test_data_splitter_2():
+    np.random.seed(123456)
     ds = Splitter(10)
     assert ds.size == 10
     train, test = ds.split()
@@ -39,6 +40,7 @@ def test_data_splitter_2():
 
 
 def test_roll_1():
+    np.random.seed(123456)
     ds = Splitter(10, test_size=0.3)
     train, test = ds.split()
     assert train.size == 7
@@ -50,6 +52,7 @@ def test_roll_1():
 
 
 def test_roll_2():
+    np.random.seed(123456)
     ds = Splitter(10, test_size=0.3)
     train, test = ds.split()
     assert train.size == 7
@@ -61,6 +64,7 @@ def test_roll_2():
 
 
 def test_split_1(data):
+    np.random.seed(123456)
     ds = Splitter(10, test_size=0.3)
     train, test = ds.split(data[0])
     for d in train:
@@ -70,52 +74,40 @@ def test_split_1(data):
 
 
 def test_split_2(data):
+    np.random.seed(123456)
     ds = Splitter(10, test_size=0.1)
-    try:
+    with pytest.raises(ValueError):
         ds.split(data[1][1:])
-    except ValueError:
-        assert True
-    else:
-        assert False, 'should got ValueError'
     _, test = ds.split(data[1])
     assert test[0] in data[1]
 
 
 def test_split_3(data):
+    np.random.seed(123456)
     ds = Splitter(10)
-    try:
-        ds.split(data[0])
-        ds.split(data[1])
-        ds.split(data[2])
-        ds.split(data[3])
-        ds.split(data[4])
-    except TypeError:
-        assert False, 'should not got TypeError'
-    else:
-        assert True
+    ds.split(data[0])
+    ds.split(data[1])
+    ds.split(data[2])
+    ds.split(data[3])
+    ds.split(data[4])
 
-    try:
+    with pytest.raises(ValueError):
         ds.split([1])
-    except ValueError:
-        assert True
-    else:
-        assert False, 'should got ValueError'
 
-    try:
+    with pytest.raises(TypeError):
+        ds.split(data[0])
         ds.split('ss')
-    except TypeError:
-        assert True
-    else:
-        assert False, 'should got TypeError'
 
 
 def test_split_4(data):
+    np.random.seed(123456)
     ds = Splitter(10)
     x, x_, y, y_ = ds.split(data[3], data[4])
     assert isinstance(x, np.ndarray)
 
 
 def test_cv_1(data):
+    np.random.seed(123456)
     ds = Splitter(10, test_size=0, cv=5)
     cv = ds.cv()
     tmp = []
@@ -130,6 +122,7 @@ def test_cv_1(data):
 
 
 def test_cv_2(data):
+    np.random.seed(123456)
     ds = Splitter(10, test_size=0.2, cv=4)
     cv = ds.cv()
     tmp = []
@@ -151,6 +144,7 @@ def test_cv_2(data):
 
 
 def test_cv_3(data):
+    np.random.seed(123456)
     ds = Splitter(10, test_size=0, cv=data[5])
     cv = ds.cv()
     tmp = []

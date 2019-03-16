@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from xenonpy.datatools.dataset import LocalStorage
+from xenonpy.datatools import Storage
 from xenonpy.model.nn import Checker, Layer1d
 
 
@@ -48,41 +48,34 @@ def setup():
 
 def test_checker_omit_path(setup):
     checker = Checker(setup['name'])
-    assert isinstance(checker, LocalStorage)
+    assert isinstance(checker, Storage)
     assert checker.path == setup['default']
     assert checker.name == setup['name'] + '@1'
 
 
 def test_checker_default_path(setup):
     checker = Checker(setup['name'], path=setup['default'])
-    assert isinstance(checker, LocalStorage)
+    assert isinstance(checker, Storage)
     assert checker.path == setup['default']
     assert checker.name == setup['name'] + '@2'
 
 
 def test_checker_assign_path(setup):
     checker = Checker(setup['name'], path=setup['dot'])
-    assert isinstance(checker, LocalStorage)
+    assert isinstance(checker, Storage)
     assert checker.path == str(Path().resolve())
     assert checker.name == setup['name'] + '@1'
 
 
 def test_checker_init_model_1(setup):
     checker = Checker(setup['name'])
-    try:
+    with pytest.raises(TypeError):
         checker.init_model = None
-    except TypeError:
-        assert True
-    else:
-        assert False, 'should got error'
 
 
 def test_checker_init_model_2(setup):
     checker = Checker(setup['name'])
-    try:
-        checker.init_model = setup['model']
-    except TypeError:
-        assert False, 'should not got error'
+    checker.init_model = setup['model']
 
 
 def test_checker_init_model_3(setup):
@@ -93,20 +86,13 @@ def test_checker_init_model_3(setup):
 
 def test_checker_trained_model_1(setup):
     checker = Checker(setup['name'])
-    try:
+    with pytest.raises(TypeError):
         checker.trained_model = None
-    except TypeError:
-        assert True
-    else:
-        assert False, 'should got error'
 
 
 def test_checker_trained_model_2(setup):
     checker = Checker(setup['name'])
-    try:
-        checker.trained_model = setup['model']
-    except TypeError:
-        assert False, 'should not got error'
+    checker.trained_model = setup['model']
 
 
 def test_checker_trained_model_3(setup):

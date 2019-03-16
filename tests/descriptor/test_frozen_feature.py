@@ -58,17 +58,10 @@ def test_frozen_featurizer_2(data):
 
 def test_frozen_featurizer_3(data):
     ff = FrozenFeaturizer(data[0])
-    try:
+    with pytest.raises(ValueError):
         ff.feature_labels
-    except ValueError:
-        assert True
-    else:
-        assert False, 'should got ValueError'
     ff.fit_transform(data[2])
-    try:
-        ff.feature_labels
-    except ValueError:
-        assert False
+    ff.feature_labels
 
 
 def test_frozen_featurizer_4(data):

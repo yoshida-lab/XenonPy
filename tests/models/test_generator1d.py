@@ -32,22 +32,15 @@ def test_generator1d_3():
     g = Generator1d(290, 1, n_neuron=[100, 70, 50], drop_out=(0.2, 0.3, 0.4),
                     batch_normalize=(None, L1.batch_norm()))
     m = g(1, n_models=20)
-    try:
+    with pytest.raises(ValueError):
         len(list(m)) == 18
-    except ValueError:
-        assert True, "n_models > 3x3x2, larger sample than population when 'replace=False'"
-    else:
-        assert False, 'should got ValueError:'
 
 
 def test_generator1d_4():
     g = Generator1d(290, 1, n_neuron=[100, 90, 80, 70, 60, 50], drop_out=(0.2, 0.3, 0.4),
                     batch_normalize=(None, L1.batch_norm()))
     m = g(5, n_models=20, replace=True)
-    try:
-        assert len(list(m)) == 20, "when 'replace=False' is OK"
-    except ValueError:
-        assert False, "should no Error"
+    assert len(list(m)) == 20, "when 'replace=False' is OK"
 
 
 if __name__ == "__main__":

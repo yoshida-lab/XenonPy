@@ -10,6 +10,26 @@ from sklearn.base import BaseEstimator
 from ..utils import TimedMetaClass
 
 
+class LogLikelihoodError(Exception):
+    """Base exception for LogLikelihood classes"""
+    pass
+
+
+class ResampleError(Exception):
+    """Base exception for Resample classes"""
+    pass
+
+
+class ProposalError(Exception):
+    """Base exception for Proposal classes"""
+    pass
+
+
+class SMCError(Exception):
+    """Base exception for SMC classes"""
+    pass
+
+
 class BaseLogLikelihood(BaseEstimator, metaclass=TimedMetaClass):
 
     def fit(self, X, y, **kwargs):
@@ -277,8 +297,10 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
 
                 re_samples = self.resample(unique, size, p)
                 samples = self.proposal(re_samples)
-            except BaseException as e:
+            except SMCError as e:
                 self.on_errors(i, samples, targets, e)
+            except Exception as e:
+                raise e
 
         try:
             unique, frequency = self.unique(samples)
@@ -290,5 +312,7 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
                 yield unique, ll, p, frequency
             else:
                 yield unique
-        except BaseException as e:
+        except SMCError as e:
             self.on_errors(i + 1, samples, targets, e)
+        except Exception as e:
+            raise e

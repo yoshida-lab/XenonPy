@@ -1,4 +1,4 @@
-#  Copyright (c) 2019. yoshida-lab. All rights reserved.
+#  Copyright (c) 2019. TsumiNa. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
@@ -9,19 +9,16 @@ from shutil import rmtree
 import pytest
 from sklearn.externals import joblib as jl
 
-from xenonpy.datatools.dataset import Preset, LocalStorage, preset
+from xenonpy.datatools import Storage
 
 
 @pytest.fixture(scope='module')
 def setup():
     # prepare path
     test = dict(
-        test_file=Path().cwd() / 'fetch_test.txt',
-        fetch_file=
-        'https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/travis/fetch_test.txt',
         test_dir='test_dir',
         user_dataset='test_user_data',
-        saver=LocalStorage('test_user_data'))
+        saver=Storage('test_user_data'))
 
     # ignore numpy warning
     import warnings
@@ -31,8 +28,6 @@ def setup():
 
     yield test
 
-    if test['test_file'].exists():
-        remove(str(test['test_file']))
     if (Path.home() / '.xenonpy/userdata' / test['test_dir']).exists():
         rmtree(str(Path.home() / '.xenonpy/userdata' / test['test_dir']))
     if (Path.home() / '.xenonpy/cached/travis').exists():
@@ -42,44 +37,19 @@ def setup():
     print('test over')
 
 
-def test_preset():
-    load = Preset()
-    assert load is preset
-    e = preset.load('elements')
-    assert 118 == e.shape[0], 'should have 118 elements'
-    assert 74 == e.shape[1], 'should have 74 features'
-
-    e = preset('elements_completed')
-    assert 94 == e.shape[0], 'should have 94 completed elements'
-    assert 58 == e.shape[1], 'should have 58 completed features'
-
-
-def test_preset_property():
-    load = Preset()
-    assert 118 == load.elements.shape[0], 'should have 118 elements'
-    assert 74 == load.elements.shape[1], 'should have 74 features'
-
-    assert 94 == load.elements_completed.shape[
-        0], 'should have 94 completed elements'
-    assert 58 == load.elements_completed.shape[
-        1], 'should have 58 completed features'
-
-
-# =====================================================================================================
-def test_local_storage_1(setup):
+def test_storage_1(setup):
     saver = setup['saver']
-    ret = '<{}> include:'.format(setup['user_dataset'])
+    ret = '<{}> includes:'.format(setup['user_dataset'])
     assert str(saver) == ret, 'no files'
 
 
-def test_local_storage_2(setup):
+def test_storage_2(setup):
     saver = setup['saver']
     saver(list('abcd'), list('efgh'))
-    print('lcoal_storage2', saver)
     assert len(saver._files['unnamed']) == 2, 'should got 2 files'
 
 
-def test_local_storage_3(setup):
+def test_storage_3(setup):
     saver = setup['saver']
     saver(key1=list('asdf'), key2=list('qwer'))
     assert len(saver._files['unnamed']) == 2, 'should got 2 files'
@@ -87,43 +57,41 @@ def test_local_storage_3(setup):
     assert len(saver._files['key2']) == 1, 'should got 1 files'
 
 
-def test_local_storage_4(setup):
+def test_storage_4(setup):
     saver = setup['saver']
     saver(list('asdf'), key1=list('qwer'))
-    print('lcoal_storage4', saver)
     assert len(saver._files['unnamed']) == 3, 'should got 3 files'
     assert len(saver._files['key1']) == 2, 'should got 1 files'
     assert len(saver._files['key2']) == 1, 'should got 1 files'
 
 
-def test_local_storage_prop(setup):
+def test_storage_prop(setup):
     saver = setup['saver']
     assert saver.name == 'test_user_data'
     assert saver.path == str(Path.home() / '.xenonpy' / 'userdata')
 
 
-def test_local_storage_last_1(setup):
+def test_storage_last_1(setup):
     saver = setup['saver']
     last = saver.last()
     assert last == list('asdf'), 'retriever same data'
 
 
-def test_local_storage_last_2(setup):
+def test_storage_last_2(setup):
     saver = setup['saver']
     last = saver.last('key1')
     assert last == list('qwer'), 'retriever same data'
 
 
-def test_local_storage_getitem_1(setup):
+def test_storage_getitem_1(setup):
     saver = setup['saver']
     item = saver[:]
-    print(item)
     assert item[1] == list('efgh'), 'retriever same data'
     item = saver[1]
     assert item == list('efgh'), 'retriever same data'
 
 
-def test_local_storage_getitem_2(setup):
+def test_storage_getitem_2(setup):
     saver = setup['saver']
     item = saver['key2', :]
     assert item[0] == list('qwer'), 'retriever same data'
@@ -145,19 +113,19 @@ def test_dump_2(setup):
     assert dumped['key1'] == list('qwer')
 
 
-def test_local_storage_chained(setup):
+def test_storage_chained(setup):
     saver = setup['saver'].chain
     assert saver.name == 'chain'
     assert saver.path == str(Path.home() / '.xenonpy' / 'userdata' / 'test_user_data')
 
 
-def test_local_storage_delete_1(setup):
+def test_storage_delete_1(setup):
     saver = setup['saver']
     saver.rm(0)
     assert len(saver._files['unnamed']) == 2, 'should got 1 files'
 
 
-def test_local_storage_delete_2(setup):
+def test_storage_delete_2(setup):
     saver = setup['saver']
     saver(key1=list('qwer'))
     assert len(saver._files['key1']) == 3, 'should got 3 files'
@@ -165,13 +133,13 @@ def test_local_storage_delete_2(setup):
     assert len(saver._files['key1']) == 1, 'should got 1 files'
 
 
-def test_local_storage_clean_1(setup):
+def test_storage_clean_1(setup):
     saver = setup['saver']
     saver.clean('key1')
     assert 'key1' not in saver._files, 'no saver dir'
 
 
-def test_local_storage_clean_2(setup):
+def test_storage_clean_2(setup):
     saver = setup['saver']
     saver_dir = Path.home() / '.xenonpy' / 'userdata' / setup['user_dataset']
     saver.clean()

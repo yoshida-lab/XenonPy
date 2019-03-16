@@ -49,42 +49,57 @@ def set_env(**kwargs):
             os.environ[k] = v
 
 
-def get_conf(key: str):
+def config(key=None, **key_vals):
     """
     Return config value with key or all config.
 
     Parameters
     ----------
     key: str
-        Key of config item.
-
+        Keys of config item.
+    key_vals: dict
+        Set item's value by key.
     Returns
     -------
-    object
-        key value in ``conf.yml`` file.
+    str
+        The value corresponding to the key.
     """
     yaml = YAML(typ='safe')
     yaml.indent(mapping=2, sequence=4, offset=2)
-    home = Path.home()
-    dir_ = home / __cfg_root__
+    dir_ = Path(__cfg_root__)
     cfg_file = dir_ / 'conf.yml'
 
     # from user local
-    with open(str(cfg_file)) as f:
+    with open(str(cfg_file), 'r') as f:
         conf = yaml.load(f)
 
-    # if no key locally, use default
-    if key not in conf:
-        with open(str(Path(__file__).parents[1] / 'conf.yml')) as f:
-            conf_ = yaml.load(f)
-            conf[key] = conf_[key]
+    value = None
+
+    # getter
+    if key:
+        if key in conf:
+            value = conf[key]
+        else:
+            tmp = Path(__file__).parent / 'conf.yml'
+            with open(str(tmp)) as f:
+                conf_ = yaml.load(f)
+
+            if key not in conf_:
+                raise RuntimeError('No item(s) named %s in configurations' % key)
+
+            value = conf_[key]
+
+    # setter  
+    if key_vals:
+        for key, v in key_vals.items():
+            conf[key] = v
         with open(str(cfg_file), 'w') as f:
             yaml.dump(conf, f)
 
-    return conf[key]
+    return value
 
 
-def get_dataset_url(name: str):
+def get_dataset_url(name, version=__db_version__):
     """
     Return url with the given file name.
 
@@ -92,6 +107,9 @@ def get_dataset_url(name: str):
     ----
     name: str
         binary file name.
+    version: str
+        The version of repository.
+        See Also: https://github.com/yoshida-lab/dataset/releases
 
     Return
     ------
@@ -99,7 +117,7 @@ def get_dataset_url(name: str):
         binary file url.
     """
     return 'https://github.com/' + __github_username__ + \
-           '/dataset/releases/download/v' + __db_version__ + '/' + name + '.pkl.pd_'
+           '/dataset/releases/download/v' + version + '/' + name + '.pkl.pd_'
 
 
 def get_data_loc(name):
@@ -110,7 +128,7 @@ def get_data_loc(name):
         raise ValueError('{} not in {}'.format(name, scheme))
     if getenv(name):
         return str(Path(getenv(name)).expanduser())
-    return str(Path(get_conf(name)).expanduser())
+    return str(Path(config(name)).expanduser())
 
 
 def absolute_path(path, ignore_err=True):
@@ -283,19 +301,10 @@ class TimedMetaClass(type):
         return super(TimedMetaClass, mcs).__new__(mcs, name, bases, attrs)
 
 
-class Singleton(object):
-    """
-    Singleton class
+class Singleton(type):
+    _instances = {}
 
-    .. code::
-
-        class NewClass(Singleton):
-            pass
-
-    """
-    _instance = None
-
-    def __new__(cls, *args, **kw):
-        if not cls._instance:
-            cls._instance = super(Singleton, cls).__new__(cls, *args, **kw)
-        return cls._instance
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]

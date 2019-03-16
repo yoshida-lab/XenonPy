@@ -2,9 +2,11 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-__all__ = ['LocalStorage', 'Preset', 'preset', 'Splitter', 'Scaler', 'BoxCox', 'MDL']
+__all__ = ['Storage', 'Preset', 'preset', 'Splitter', 'Scaler', 'BoxCox', 'MDL', 'Dataset']
 
-from .dataset import LocalStorage, Preset, preset
+from .dataset import Dataset
 from .mdl import MDL
 from .preprocess import Splitter
+from .preset import Preset, preset
+from .storage import Storage
 from .transform import Scaler, BoxCox

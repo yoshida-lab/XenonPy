@@ -5,13 +5,6 @@
 # change version in there, conf.yml, setup.py
 __all__ = ['descriptor', 'model', 'utils', 'visualization', 'datatools', 'math']
 
-from . import datatools
-from . import descriptor
-from . import math
-from . import model
-# from . import pipeline
-from . import utils
-from . import visualization
 from ._conf import *
 
 
@@ -34,11 +27,11 @@ def __init(force=False):
     from pathlib import Path
 
     if version_info[0] != 3 or version_info[1] < 5:
-        raise SystemError("Python 3.5 or 3.6 needed")
+        raise SystemError("Python version must be greater than or equal to 3.5")
 
     yaml = YAML(typ='safe')
     yaml.indent(mapping=2, sequence=4, offset=2)
-    root_dir = Path.home() / __cfg_root__
+    root_dir = Path(__cfg_root__)
     root_dir.mkdir(parents=True, exist_ok=True)
     user_cfg_file = root_dir / 'conf.yml'
 
@@ -59,10 +52,11 @@ def __init(force=False):
             yaml.dump(pack_cfg, user_cfg_file)
 
     # init dirs
+    user_cfg = yaml.load(user_cfg_file)
     dataset_dir = root_dir / 'dataset'
     cached_dir = root_dir / 'cached'
-    user_data_dir = Path(utils.get_conf('userdata')).expanduser()
-    user_model_dir = Path(utils.get_conf('usermodel')).expanduser()
+    user_data_dir = Path(user_cfg['userdata']).expanduser().absolute()
+    user_model_dir = Path(user_cfg['usermodel']).expanduser().absolute()
 
     # create dirs
     dataset_dir.mkdir(parents=True, exist_ok=True)
@@ -72,3 +66,11 @@ def __init(force=False):
 
 
 __init()
+
+from . import datatools
+from . import descriptor
+from . import math
+from . import model
+# from . import pipeline
+from . import utils
+from . import visualization

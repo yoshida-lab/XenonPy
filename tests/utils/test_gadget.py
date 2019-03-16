@@ -6,7 +6,9 @@
 import os
 from pathlib import Path
 
-from xenonpy.utils import set_env, absolute_path
+import pytest
+
+from xenonpy.utils import set_env, absolute_path, config
 
 
 def test_set_env_1():
@@ -45,3 +47,27 @@ def test_absolute_path_3():
     cwd = Path(os.getcwd())
     assert path.name == 'other'
     assert path.parent.name == cwd.parent.name
+
+
+def test_config_1():
+    tmp = config('name')
+    assert tmp == 'xenonpy'
+
+    with pytest.raises(RuntimeError):
+        config('no_exist')
+
+    tmp = config(new_key='test')
+    assert tmp is None
+
+    tmp = config('new_key')
+    assert tmp == 'test'
+
+    tmp = config('version', other_key='other')
+    assert tmp == '0.2.3'
+
+    tmp = config('other_key')
+    assert tmp == 'other'
+
+
+if __name__ == "__main__":
+    pytest.main()

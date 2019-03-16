@@ -17,5 +17,5 @@ dependencies:
   - pytest-cov
   - pip:
       - ruamel.yaml
-      - pymatgen==2019.2.4
+      - pymatgen==2019.3.13
       - tqdm

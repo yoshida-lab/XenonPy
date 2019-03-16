@@ -2,10 +2,15 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
+from itertools import zip_longest
 from pathlib import Path
 from warnings import warn
 
+import numpy as np
+import pandas as pd
+from pymatgen import MPRester
 from ruamel.yaml import YAML
+from tqdm import tqdm
 
 from .dataset import Dataset
 from .._conf import __cfg_root__
@@ -39,6 +44,7 @@ class Preset(Dataset, metaclass=Singleton):
     """
 
     __dataset__ = ('elements', 'elements_completed')
+    __builder__ = ('mp_samples',)
 
     # set to check params
 
@@ -46,7 +52,12 @@ class Preset(Dataset, metaclass=Singleton):
         self._dataset = Path(__cfg_root__) / 'dataset'
         self._userdata = config('userdata')
         self._ext_data = config('ext_data')
-        super().__init__(str(self._dataset), self._userdata, *self._ext_data, backend='dataframe')
+        super().__init__(
+            str(self._dataset),
+            self._userdata,
+            *self._ext_data,
+            backend='dataframe',
+            prefix=('dataset',))
 
         yaml = YAML(typ='safe')
         yaml.indent(mapping=2, sequence=4, offset=2)
@@ -96,7 +107,66 @@ class Preset(Dataset, metaclass=Singleton):
         sha256[data] = sha256_
         self._yaml.dump(sha256, sha256_file)
 
-        self.make_index()
+        self._make_index('dataset')
+
+    def build(self, *keys, **kwargs):
+
+        # build materials project dataset
+        def mp_builder(api_key, mp_ids):
+
+            #     print('Will fetch %s inorganic compounds from Materials Project' % len(mp_ids))
+
+            # split requests into fixed number groups
+            # eg: grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx
+            def grouper(iterable, n, fillvalue=None):
+                """Collect data into fixed-length chunks or blocks"""
+                args = [iter(iterable)] * n
+                return zip_longest(fillvalue=fillvalue, *args)
+
+            # the following props will be fetched
+            mp_props = [
+                'band_gap',
+                'density',
+                'volume',
+                'material_id',
+                'pretty_formula',
+                'elements',
+                'efermi',
+                'e_above_hull',
+                'formation_energy_per_atom',
+                'final_energy_per_atom',
+                'unit_cell_formula',
+                'structure'
+            ]
+
+            entries = []
+            mpid_groups = [g for g in grouper(mp_ids, 10)]
+
+            with MPRester(api_key) as mpr:
+                for group in tqdm(mpid_groups):
+                    mpid_list = [id for id in filter(None, group)]
+                    chunk = mpr.query({"material_id": {"$in": mpid_list}}, mp_props)
+                    entries.extend(chunk)
+
+            df = pd.DataFrame(entries, index=[e['material_id'] for e in entries])
+            df = df.drop('material_id', axis=1)
+            df = df.rename(columns={'unit_cell_formula': 'composition'})
+            df = df.reindex(columns=sorted(df.columns))
+
+            return df
+
+        for key in keys:
+            if key is 'mp_samples':
+                if 'api_key' not in kwargs:
+                    raise RuntimeError('api key of materials projects database is needed')
+                ids = Path(__file__).absolute().parents[2] / 'samples' / 'mp_ids.txt'
+                mp_ids = [s.decode('utf-8') for s in np.loadtxt(str(ids), 'S20')]
+                data = mp_builder(kwargs['api_key'], mp_ids)
+                data.to_pickle(self._userdata + '/' + 'mp_samples.pkl.pd_')
+                self._make_index('dataset')
+                return
+
+        raise ValueError('no available key(s) in %s, these can only be %s' % (keys, self.__builder__))
 
     def _check(self, data):
 

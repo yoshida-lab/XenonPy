@@ -82,5 +82,13 @@ def test_preset_3():
     assert 58 == e.shape[1], 'should have 58 completed features'
 
 
+def test_preset_4():
+    with pytest.raises(ValueError):
+        preset.build('no_exist')
+
+    with pytest.raises(RuntimeError):
+        preset.build('mp_samples')
+
+
 if __name__ == '__main__':
     pytest.main()

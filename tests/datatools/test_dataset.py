@@ -57,16 +57,29 @@ def test_data():
 
 def test_dataset_1(test_data):
     path = Path(__file__).parents[0]
-    ds = Dataset(str(path), backend='pickle')
+
+    ds = Dataset()
+    assert ds._backend == 'dataframe'
+    assert ds._paths == ('.',)
+    assert ds._prefix == ()
+
+    ds = Dataset(str(path), backend='pickle', prefix=('datatools',))
     assert hasattr(ds, 'datatools_test')
 
-    tmp = ds.datatools_test
+
+def test_dataset_2(test_data):
+    path = Path(__file__).parents[0]
+
+    ds = Dataset(str(path), backend='pickle')
+    assert hasattr(ds, 'test')
+
+    tmp = ds.test
     assert isinstance(tmp, list)
     assert tmp == [[1, 2], [3, 4]]
 
     tmp = ds.csv
-    assert hasattr(tmp, 'datatools_test')
-    tmp = tmp.datatools_test
+    assert hasattr(tmp, 'test')
+    tmp = tmp.test
     assert isinstance(tmp, pd.DataFrame)
     assert np.all(np.array([[0, 1, 2], [1, 3, 4]]) == tmp.values)
 
@@ -74,8 +87,8 @@ def test_dataset_1(test_data):
     assert np.all(np.array([[0, 1, 2], [1, 3, 4]]) == tmp.values)
 
     tmp = ds.dataframe
-    assert hasattr(tmp, 'datatools_test')
-    tmp = tmp.datatools_test
+    assert hasattr(tmp, 'test')
+    tmp = tmp.test
     assert isinstance(tmp, pd.DataFrame)
     assert np.all(np.array([[1, 2], [3, 4]]) == tmp.values)
 
@@ -83,7 +96,7 @@ def test_dataset_1(test_data):
     assert np.all(np.array([[1, 2], [3, 4]]) == tmp.values)
 
 
-def test_dataset_2(test_data):
+def test_dataset_3(test_data):
     with pytest.raises(RuntimeError, match='is not a legal path'):
         Dataset.from_http(test_data[1], 'not_exist')
 

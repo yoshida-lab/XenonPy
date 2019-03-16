@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from sklearn.externals import joblib
 
 from xenonpy.datatools import Dataset
 
@@ -25,6 +26,18 @@ def test_data():
     file_name = 'rename.txt'
     file_url = 'https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/travis/fetch_test.txt'
 
+    # create data
+    ary = [[1, 2], [3, 4]]
+    df = pd.DataFrame(ary)
+
+    pkl_path = str(file_path / 'test.pkl.z_')
+    df_path = str(file_path / 'test.pkl.pd_')
+    csv_path = str(file_path / 'test.csv')
+
+    joblib.dump(ary, pkl_path)
+    df.to_csv(csv_path)
+    df.to_pickle(df_path)
+
     yield (file_name, file_url, file_path)
 
     tmp = file_path / file_name
@@ -35,18 +48,21 @@ def test_data():
     if tmp.exists():
         remove(str(tmp))
 
+    remove(pkl_path)
+    remove(df_path)
+    remove(csv_path)
+
     print('test over')
 
 
 def test_dataset_1(test_data):
     path = Path(__file__).parents[0]
     ds = Dataset(str(path), backend='pickle')
-    print(ds.__dict__)
     assert hasattr(ds, 'datatools_test')
 
     tmp = ds.datatools_test
     assert isinstance(tmp, list)
-    assert tmp == [1, 2, 3, 4]
+    assert tmp == [[1, 2], [3, 4]]
 
     tmp = ds.csv
     assert hasattr(tmp, 'datatools_test')

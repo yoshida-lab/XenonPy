@@ -215,7 +215,7 @@ class Preset(Dataset, metaclass=Singleton):
         Element properties from embed dataset.
         These properties are summarized from `mendeleev`_, `pymatgen`_, `CRC Handbook`_ and `magpie`_.
 
-        See Also: :doc:`dataset`
+        See Also: :doc:`features`
 
         .. _mendeleev: https://mendeleev.readthedocs.io
         .. _pymatgen: http://pymatgen.org/
@@ -240,7 +240,7 @@ class Preset(Dataset, metaclass=Singleton):
 
         .. __: https://www.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=pubmed&retmode=ref&cmd=prlinks&id=21499542
 
-        See Also: :doc:`dataset`
+        See Also: :doc:`features`
 
         Returns
         -------

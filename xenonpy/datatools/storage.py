@@ -48,7 +48,6 @@ class Storage(object):
         save.rm(0)  # by index
         save.rm()  # delete 'you_dataset_name' dir
 
-    See Also: :doc:`dataset`
     """
 
     def __init__(self, name=None, *, path=None, mk_dir=True, backend=None):

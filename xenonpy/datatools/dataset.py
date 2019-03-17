@@ -90,7 +90,7 @@ class Dataset(object):
             Chunk size.
         params: any, optional
             Parameters will be passed to ``requests.get`` function.
-            See Also: `requests <http://docs.python-requests.org/>'_
+            See Also: `requests <http://docs.python-requests.org/>`_
         kwargs: dict, optional
             Pass to ``requests.get`` function as the ``kwargs`` parameters.
 

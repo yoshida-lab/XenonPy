@@ -1,5 +1,8 @@
 FROM yoshidalab/base:develop
 
+ARG key
+ENV api_key=$key
+
 # install xenonpy locally
 WORKDIR /opt/xenonpy
 COPY . .

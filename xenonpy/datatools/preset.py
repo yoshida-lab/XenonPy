@@ -50,11 +50,10 @@ class Preset(Dataset, metaclass=Singleton):
 
     def __init__(self):
         self._dataset = Path(__cfg_root__) / 'dataset'
-        self._userdata = config('userdata')
         self._ext_data = config('ext_data')
         super().__init__(
             str(self._dataset),
-            self._userdata,
+            config('userdata'),
             *self._ext_data,
             backend='dataframe',
             prefix=('dataset',))
@@ -107,7 +106,7 @@ class Preset(Dataset, metaclass=Singleton):
         sha256[data] = sha256_
         self._yaml.dump(sha256, sha256_file)
 
-        self._make_index('dataset')
+        self._make_index(prefix=['dataset'])
 
     def build(self, *keys, save_to=None, **kwargs):
 
@@ -170,13 +169,14 @@ class Preset(Dataset, metaclass=Singleton):
                             'parameter `mp_ids` can only be a str to specific the ids file path'
                             'or a list-like object contain the ids')
                 else:
-                    ids = Path(__file__).absolute().parents[2] / 'samples' / 'mp_ids.txt'
+                    ids = Path(__file__).resolve().parents[2] / 'samples' / 'mp_ids.txt'
                     mp_ids = [s.decode('utf-8') for s in np.loadtxt(str(ids), 'S20')]
                 data = mp_builder(kwargs['api_key'], mp_ids)
                 if not save_to:
-                    save_to = self._userdata + '/' + 'mp_samples.pkl.pd_'
+                    save_to = Path(config('userdata')) / 'mp_samples.pkl.pd_'
+                    save_to = save_to.expanduser().resolve()
                 data.to_pickle(save_to)
-                self._make_index('dataset')
+                self._make_index(prefix=['dataset'])
                 return
 
         raise ValueError('no available key(s) in %s, these can only be %s' % (keys, self.__builder__))

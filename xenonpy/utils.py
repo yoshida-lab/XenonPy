@@ -116,8 +116,8 @@ def get_dataset_url(name, version=__db_version__):
     str
         binary file url.
     """
-    return 'https://github.com/' + __github_username__ + \
-           '/dataset/releases/download/v' + version + '/' + name + '.pkl.pd_'
+    return 'https://github.com/{0}/dataset/releases/download/v{1}/{2}.pkl.pd_'.format(__github_username__, version,
+                                                                                      name)
 
 
 def get_data_loc(name):

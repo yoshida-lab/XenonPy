@@ -69,6 +69,9 @@ def test_dataset_1(test_data):
     with pytest.warns(RuntimeWarning):
         Dataset(str(path), str(path))
 
+    with pytest.raises(RuntimeError):
+        Dataset('no_exist_dir')
+
     ds = Dataset(str(path), backend='pickle', prefix=('datatools',))
     assert hasattr(ds, 'datatools_test')
     tmp = '%s' % ds

@@ -59,7 +59,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self.logger('total elapsed time: %s' % elapsed)
         logs = '\n'.join(self._logs)
         now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')
-        with open(self._work_dir + '/log_' + now + '.txt', 'w') as f:
+        with open(str(Path(self._work_dir) / ('log_' + now + '.txt')), 'w') as f:
             f.write(logs)
 
     def __enter__(self):

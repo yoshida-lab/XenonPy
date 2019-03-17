@@ -10,13 +10,13 @@ from .utils import config
 
 
 def migrate(args_):
-    inorganic = Path('~/.xenonpy/dataset').expanduser().absolute() / 'mp_inorganic.pkl.pd_'
-    structure = Path('~/.xenonpy/dataset').expanduser().absolute() / 'mp_structure.pkl.pd_'
+    inorganic = Path('~/.xenonpy/dataset').expanduser().resolve() / 'mp_inorganic.pkl.pd_'
+    structure = Path('~/.xenonpy/dataset').expanduser().resolve() / 'mp_structure.pkl.pd_'
 
     if args_.keep:
         userdata = config('userdata')
-        inorganic_ = Path(userdata).expanduser().absolute() / 'mp_inorganic.pkl.pd_'
-        structure_ = Path(userdata).expanduser().absolute() / 'mp_structure.pkl.pd_'
+        inorganic_ = Path(userdata).expanduser().resolve() / 'mp_inorganic.pkl.pd_'
+        structure_ = Path(userdata).expanduser().resolve() / 'mp_structure.pkl.pd_'
         rename(str(inorganic), str(inorganic_))
         rename(str(structure), str(structure_))
     else:

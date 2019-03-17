@@ -111,8 +111,9 @@ def test_checker_from_cp(setup):
     checker = Checker(setup['name'])
     name = checker.name
     path = checker.path
+    path = Path(path) / name
     checker(**setup['cp'])
-    checker2 = Checker.load(path + '/' + name)
+    checker2 = Checker.load(str(path))
     model_state, other = checker2[0]
     other_ = deepcopy(setup['cp'])
     del other_['model_state']

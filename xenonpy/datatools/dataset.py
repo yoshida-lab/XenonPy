@@ -37,13 +37,12 @@ class Dataset(object):
             prefix = ()
         self._prefix = prefix
 
-        self._make_index(*prefix)
+        self._make_index(prefix=prefix)
 
-    def _make_index(self, *prefix):
+    def _make_index(self, *, prefix):
         def make(path_):
-            path_ = Path(path_).expanduser().absolute()
             patten = self.__extension__[self._backend][0]
-            files = glob.glob(str(path_) + '/*.' + patten)
+            files = glob.glob(str(path_ / ('*.' + patten)))
 
             def _nest(_f):
                 f_ = _f
@@ -51,7 +50,7 @@ class Dataset(object):
 
             for f in files:
                 # select data
-                f = Path(f).absolute()
+                f = Path(f).resolve()
                 parent = str(f.parent).split('/')[-1]
                 fn = f.name[:-(1 + len(patten))]
                 fn = self.__re__.sub('_', fn)
@@ -67,6 +66,9 @@ class Dataset(object):
 
         self._files = defaultdict(str)
         for path in self._paths:
+            path = Path(path).expanduser().resolve()
+            if not path.exists():
+                raise RuntimeError('%s not exists' % str(path))
             make(path)
 
     @classmethod

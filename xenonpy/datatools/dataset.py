@@ -66,7 +66,7 @@ class Dataset(object):
 
         self._files = defaultdict(str)
         for path in self._paths:
-            path = Path(path).expanduser().resolve()
+            path = Path(path).expanduser().absolute()
             if not path.exists():
                 raise RuntimeError('%s not exists' % str(path))
             make(path)

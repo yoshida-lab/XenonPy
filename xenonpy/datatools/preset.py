@@ -169,12 +169,12 @@ class Preset(Dataset, metaclass=Singleton):
                             'parameter `mp_ids` can only be a str to specific the ids file path'
                             'or a list-like object contain the ids')
                 else:
-                    ids = Path(__file__).resolve().parents[2] / 'samples' / 'mp_ids.txt'
+                    ids = Path(__file__).absolute().parents[2] / 'samples' / 'mp_ids.txt'
                     mp_ids = [s.decode('utf-8') for s in np.loadtxt(str(ids), 'S20')]
                 data = mp_builder(kwargs['api_key'], mp_ids)
                 if not save_to:
                     save_to = Path(config('userdata')) / 'mp_samples.pkl.pd_'
-                    save_to = save_to.expanduser().resolve()
+                    save_to = save_to.expanduser().absolute()
                 data.to_pickle(save_to)
                 self._make_index(prefix=['dataset'])
                 return

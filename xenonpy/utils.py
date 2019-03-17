@@ -32,7 +32,7 @@ def set_env(**kwargs):
 
     Parameters
     ----------
-    kwargs: dict
+    kwargs: dict[str]
         Dict with string value.
     """
     import os

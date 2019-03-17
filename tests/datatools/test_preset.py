@@ -2,7 +2,7 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from os import remove
+from os import remove, getenv
 from pathlib import Path
 from shutil import rmtree
 
@@ -83,11 +83,40 @@ def test_preset_3():
 
 
 def test_preset_4():
+    ids = Path(__file__).parent / 'ids.txt'
+    samples = Path(__cfg_root__) / 'userdata' / 'mp_samples.pkl.pd_'
+    save_to = Path(__file__).parent / 'tmp.pkl.pd_'
+
     with pytest.raises(ValueError):
         preset.build('no_exist')
 
     with pytest.raises(RuntimeError):
         preset.build('mp_samples')
+
+    with pytest.raises(RuntimeError):
+        preset.build('mp_samples')
+
+    key = getenv('api_key')
+    with pytest.raises(ValueError, match='mp_ids'):
+        preset.build('mp_samples', api_key=key, mp_ids=10)
+
+    preset.build('mp_samples', api_key=key, mp_ids=str(ids))
+    assert samples.exists()
+
+    remove(str(samples))
+    preset.build('mp_samples', api_key=key,
+                 mp_ids=['mp-862776', 'mp-30759', 'mp-768076', 'mp-9996', 'mvc-2470'])
+    assert samples.exists()
+    remove(str(samples))
+
+    preset.build('mp_samples', api_key=key, save_to=str(save_to), mp_ids=str(ids))
+    assert save_to.exists()
+
+    remove(str(save_to))
+    preset.build('mp_samples', api_key=key, save_to=str(save_to),
+                 mp_ids=['mp-862776', 'mp-30759', 'mp-768076', 'mp-9996', 'mvc-2470'])
+    assert save_to.exists()
+    remove(str(save_to))
 
 
 if __name__ == '__main__':

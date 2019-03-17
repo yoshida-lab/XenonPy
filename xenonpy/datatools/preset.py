@@ -109,7 +109,7 @@ class Preset(Dataset, metaclass=Singleton):
 
         self._make_index('dataset')
 
-    def build(self, *keys, **kwargs):
+    def build(self, *keys, save_to=None, **kwargs):
 
         # build materials project dataset
         def mp_builder(api_key, mp_ids):
@@ -120,7 +120,7 @@ class Preset(Dataset, metaclass=Singleton):
             # eg: grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx
             def grouper(iterable, n, fillvalue=None):
                 """Collect data into fixed-length chunks or blocks"""
-                args = [iter(iterable)] * n
+                args = [iter(iterable)] * max(n, 1)
                 return zip_longest(fillvalue=fillvalue, *args)
 
             # the following props will be fetched
@@ -140,7 +140,7 @@ class Preset(Dataset, metaclass=Singleton):
             ]
 
             entries = []
-            mpid_groups = [g for g in grouper(mp_ids, 10)]
+            mpid_groups = [g for g in grouper(mp_ids, len(mp_ids) // 10)]
 
             with MPRester(api_key) as mpr:
                 for group in tqdm(mpid_groups):
@@ -159,10 +159,23 @@ class Preset(Dataset, metaclass=Singleton):
             if key is 'mp_samples':
                 if 'api_key' not in kwargs:
                     raise RuntimeError('api key of materials projects database is needed')
-                ids = Path(__file__).absolute().parents[2] / 'samples' / 'mp_ids.txt'
-                mp_ids = [s.decode('utf-8') for s in np.loadtxt(str(ids), 'S20')]
+                if 'mp_ids' in kwargs:
+                    ids = kwargs['mp_ids']
+                    if isinstance(ids, (list, tuple)):
+                        mp_ids = ids
+                    elif isinstance(ids, str):
+                        mp_ids = [s.decode('utf-8') for s in np.loadtxt(ids, 'S20')]
+                    else:
+                        raise ValueError(
+                            'parameter `mp_ids` can only be a str to specific the ids file path'
+                            'or a list-like object contain the ids')
+                else:
+                    ids = Path(__file__).absolute().parents[2] / 'samples' / 'mp_ids.txt'
+                    mp_ids = [s.decode('utf-8') for s in np.loadtxt(str(ids), 'S20')]
                 data = mp_builder(kwargs['api_key'], mp_ids)
-                data.to_pickle(self._userdata + '/' + 'mp_samples.pkl.pd_')
+                if not save_to:
+                    save_to = self._userdata + '/' + 'mp_samples.pkl.pd_'
+                data.to_pickle(save_to)
                 self._make_index('dataset')
                 return
 

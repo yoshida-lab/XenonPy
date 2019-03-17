@@ -33,8 +33,10 @@ def test_data():
     pkl_path = str(file_path / 'test.pkl.z_')
     df_path = str(file_path / 'test.pkl.pd_')
     csv_path = str(file_path / 'test.csv')
+    msg_path = str(file_path / 'test.msg')
 
     joblib.dump(ary, pkl_path)
+    df.to_msgpack(msg_path)
     df.to_csv(csv_path)
     df.to_pickle(df_path)
 
@@ -51,6 +53,7 @@ def test_data():
     remove(pkl_path)
     remove(df_path)
     remove(csv_path)
+    remove(msg_path)
 
     print('test over')
 
@@ -63,8 +66,13 @@ def test_dataset_1(test_data):
     assert ds._paths == ('.',)
     assert ds._prefix == ()
 
+    with pytest.warns(RuntimeWarning):
+        Dataset(str(path), str(path))
+
     ds = Dataset(str(path), backend='pickle', prefix=('datatools',))
     assert hasattr(ds, 'datatools_test')
+    tmp = '%s' % ds
+    assert 'Dataset' in tmp
 
 
 def test_dataset_2(test_data):
@@ -93,6 +101,25 @@ def test_dataset_2(test_data):
     assert np.all(np.array([[1, 2], [3, 4]]) == tmp.values)
 
     tmp = ds.dataframe(str(path / 'test.pkl.pd_'))
+    assert np.all(np.array([[1, 2], [3, 4]]) == tmp.values)
+
+    tmp = ds.pickle
+    assert hasattr(tmp, 'test')
+    tmp = tmp.test
+    assert isinstance(tmp, list)
+    assert [[1, 2], [3, 4]] == tmp
+
+    tmp = ds.dataframe(str(path / 'test.pkl.z_'))
+    assert [[1, 2], [3, 4]] == tmp
+
+    ds.__extension__['msg'] = ('msg', pd.read_msgpack)
+    tmp = ds.msg
+    assert hasattr(tmp, 'test')
+    tmp = tmp.test
+    assert isinstance(tmp, pd.DataFrame)
+    assert np.all(np.array([[1, 2], [3, 4]]) == tmp.values)
+
+    tmp = ds.msg(str(path / 'test.msg'))
     assert np.all(np.array([[1, 2], [3, 4]]) == tmp.values)
 
 

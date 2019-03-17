@@ -7,13 +7,14 @@ Features
 
 
 -----------
-Preset data
+Data access
 -----------
-.. _Data-access:
+.. _data-access:
 
-XenonPy provides a simple platform to exchange data using a ``preset`` system.
+**Dataset** is a abstraction of local file system.
+Users can add their local dirs into this system then load data that under these dirs in a convenient way.
 
-First of all, XenonPy uses this system to provide some built-in data.
+XenonPy also uses this system to provide some built-in data.
 Currently, two sets of element-level property data are available out-of-the-box (``elements`` and ``elements_completed`` (imputed version of ``elements``)).
 These data were collected from `mendeleev`_, `pymatgen`_, `CRC Hand Book`_ and `Magpie`_.
 
@@ -108,7 +109,7 @@ the ``elements_completed`` data set provides only 58 properties of 94 elements (
     ``num_s_valence``                   Valance electron in d shell.
     =================================   ===================================================================================
 
-Users can also register new data set to XenonPy (requires approval from the developers), which can be easily loaded through the ``preset`` system later. For more details on the ``preset`` system, see :doc:`tutorial/1-preset`.
+Users can also register new data set to XenonPy (requires approval from the developers), which can be easily loaded through the ``Dataset`` system later. For more details on this system, see :doc:`tutorial/1-dataset`.
 
 
 

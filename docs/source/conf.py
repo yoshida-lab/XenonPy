@@ -46,7 +46,12 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.coverage',
               'sphinx.ext.mathjax',
               'sphinx.ext.viewcode',
-              'sphinx.ext.githubpages']
+              'sphinx.ext.githubpages',
+              'sphinx.ext.autosectionlabel'
+              ]
+
+# config autosectionlabel
+autosectionlabel_prefix_document = True
 
 # config autodoc
 autoclass_content = 'both'

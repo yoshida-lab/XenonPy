@@ -55,8 +55,8 @@ def __init(force=False):
     user_cfg = yaml.load(user_cfg_file)
     dataset_dir = root_dir / 'dataset'
     cached_dir = root_dir / 'cached'
-    user_data_dir = Path(user_cfg['userdata']).expanduser().resolve()
-    user_model_dir = Path(user_cfg['usermodel']).expanduser().resolve()
+    user_data_dir = Path(user_cfg['userdata']).expanduser().absolute()
+    user_model_dir = Path(user_cfg['usermodel']).expanduser().absolute()
 
     # create dirs
     dataset_dir.mkdir(parents=True, exist_ok=True)

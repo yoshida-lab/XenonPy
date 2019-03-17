@@ -8,11 +8,11 @@ dependencies:
   - pandas
   - seaborn
   - requests
-  - rdkit
+  - rdkit=2018.09.2
   - plotly
   - scikit-learn
   - scipy
-  - pytorch
+  - pytorch=1.0.1
   - pytest
   - pytest-cov
   - pylint
@@ -21,7 +21,7 @@ dependencies:
   - jupyter
   - pip:
       - ruamel.yaml
-      - pymatgen
+      - pymatgen==2019.3.13
       - jupyterlab
       - yapf
       - tqdm

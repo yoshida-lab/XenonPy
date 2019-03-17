@@ -63,7 +63,7 @@ def test_checker_default_path(setup):
 def test_checker_assign_path(setup):
     checker = Checker(setup['name'], path=setup['dot'])
     assert isinstance(checker, Storage)
-    assert checker.path == str(Path().resolve())
+    assert checker.path == str(Path().absolute())
     assert checker.name == setup['name'] + '@1'
 
 
@@ -111,8 +111,9 @@ def test_checker_from_cp(setup):
     checker = Checker(setup['name'])
     name = checker.name
     path = checker.path
+    path = Path(path) / name
     checker(**setup['cp'])
-    checker2 = Checker.load(path + '/' + name)
+    checker2 = Checker.load(str(path))
     model_state, other = checker2[0]
     other_ = deepcopy(setup['cp'])
     del other_['model_state']

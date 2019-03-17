@@ -24,17 +24,25 @@ class Dataset(object):
 
     __re__ = re.compile(r'[\s\-.]')
 
-    def __init__(self, *paths, backend='dataframe'):
+    def __init__(self, *paths, backend='dataframe', prefix=None):
         self._backend = backend
         self._files = None
-        self._paths = paths
 
-        self.make_index()
+        if len(paths) == 0:
+            self._paths = ('.',)
+        else:
+            self._paths = paths
 
-    def make_index(self):
-        def _make_index(path_):
+        if not prefix:
+            prefix = ()
+        self._prefix = prefix
+
+        self._make_index(prefix=prefix)
+
+    def _make_index(self, *, prefix):
+        def make(path_):
             patten = self.__extension__[self._backend][0]
-            files = glob.glob(path_ + '/*.' + patten)
+            files = glob.glob(str(path_ / ('*.' + patten)))
 
             def _nest(_f):
                 f_ = _f
@@ -42,11 +50,12 @@ class Dataset(object):
 
             for f in files:
                 # select data
-                f = Path(f).absolute()
+                f = Path(f).resolve()
                 parent = str(f.parent).split('/')[-1]
                 fn = f.name[:-(1 + len(patten))]
                 fn = self.__re__.sub('_', fn)
-                fn = '_'.join([parent, fn])
+                if parent in prefix:
+                    fn = '_'.join([parent, fn])
 
                 if fn in self._files:
                     warn("file %s with name %s already bind to %s and will be ignored" %
@@ -57,7 +66,10 @@ class Dataset(object):
 
         self._files = defaultdict(str)
         for path in self._paths:
-            _make_index(path)
+            path = Path(path).expanduser().absolute()
+            if not path.exists():
+                raise RuntimeError('%s not exists' % str(path))
+            make(path)
 
     @classmethod
     def from_http(cls, url, save_to, *, filename=None, chunk_size=256 * 1024, params=None,
@@ -113,25 +125,25 @@ class Dataset(object):
         cont_ls = ['<{}> includes:'.format(self.__class__.__name__)]
 
         for k, v in self._files.items():
-            cont_ls.append('"{}": {}'.format(k, len(v)))
+            cont_ls.append('"{}": {}'.format(k, v))
 
         return '\n'.join(cont_ls)
 
     @property
     def csv(self):
-        return Dataset(*self._paths, backend='csv')
+        return Dataset(*self._paths, backend='csv', prefix=self._prefix)
 
     @property
     def dataframe(self):
-        return Dataset(*self._paths, backend='dataframe')
+        return Dataset(*self._paths, backend='dataframe', prefix=self._prefix)
 
     @property
     def pickle(self):
-        return Dataset(*self._paths, backend='pickle')
+        return Dataset(*self._paths, backend='pickle', prefix=self._prefix)
 
     @property
     def excel(self):
-        return Dataset(*self._paths, backend='excel')
+        return Dataset(*self._paths, backend='excel', prefix=self._prefix)
 
     def __call__(self, *args, **kwargs):
         return self.__extension__[self._backend][1](*args, **kwargs)
@@ -150,5 +162,5 @@ class Dataset(object):
         self
         """
         if name in self.__extension__:
-            return self.__class__(*self._paths, backend=name)
+            return self.__class__(*self._paths, backend=name, prefix=self._prefix)
         raise AttributeError("'%s' object has no attribute '%s'" % (self.__class__.__name__, name))

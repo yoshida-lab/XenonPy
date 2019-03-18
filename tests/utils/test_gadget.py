@@ -62,8 +62,8 @@ def test_config_1():
     tmp = config('new_key')
     assert tmp == 'test'
 
-    tmp = config('version', other_key='other')
-    assert tmp == '0.2.3'
+    tmp = config('github_username', other_key='other')
+    assert tmp == 'yoshida-lab'
 
     tmp = config('other_key')
     assert tmp == 'other'

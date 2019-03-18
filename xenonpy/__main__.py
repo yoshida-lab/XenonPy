@@ -6,22 +6,28 @@ import argparse
 from os import remove, rename
 from pathlib import Path
 
+from tqdm import tqdm
+
 from .utils import config
 
 
 def migrate(args_):
-    inorganic = Path('~/.xenonpy/dataset').expanduser().absolute() / 'mp_inorganic.pkl.pd_'
-    structure = Path('~/.xenonpy/dataset').expanduser().absolute() / 'mp_structure.pkl.pd_'
+    data_path = Path('~/.xenonpy/dataset').expanduser().absolute()
+    user_path = Path(config('userdata')).expanduser().absolute()
 
-    if args_.keep:
-        userdata = config('userdata')
-        inorganic_ = Path(userdata).expanduser().absolute() / 'mp_inorganic.pkl.pd_'
-        structure_ = Path(userdata).expanduser().absolute() / 'mp_structure.pkl.pd_'
-        rename(str(inorganic), str(inorganic_))
-        rename(str(structure), str(structure_))
-    else:
-        remove(str(structure))
-        remove(str(inorganic))
+    def migrate_(f):
+        path = data_path / f
+        if not path.exists():
+            return
+        if args_.keep:
+            path_ = user_path / f
+            rename(str(path), str(path_))
+        else:
+            remove(str(path))
+
+    for file in tqdm(['mp_inorganic.pkl.pd_', 'mp_structure.pkl.pd_', 'oqmd_inorganic.pkl.pd_',
+                      'oqmd_structure.pkl.pd_'], desc='Migrating'):
+        migrate_(file)
 
 
 parser = argparse.ArgumentParser(

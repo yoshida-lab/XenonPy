@@ -25,7 +25,7 @@ These data were collected from `mendeleev`_, `pymatgen`_, `CRC Hand Book`_ and `
 
 ``elements`` contains 74 element-level properties of 118 elements. Their missing values
 were statistically imputed by performing the multiple imputation method [1]_ and stored as ``elements_completed``.
-Because of the statistical unreliability of the impution for a subset of properties and heavier atoms that contains many missing values in elements,
+Because of the statistical unreliability of the imputation for a subset of properties and heavier atoms that contains many missing values in elements,
 the ``elements_completed`` data set provides only 58 properties of 94 elements (from **H** to **Pu**). The following table shows the currently available elemental information.
 
 .. table:: Element-level properties

@@ -48,7 +48,6 @@ def __init(force=False):
                 pack_cfg = yaml.load(f)
             pack_cfg['userdata'] = user_cfg['userdata']
             pack_cfg['usermodel'] = user_cfg['usermodel']
-            pack_cfg['model_extern_backend'] = user_cfg['model_extern_backend']
             yaml.dump(pack_cfg, user_cfg_file)
 
     # init dirs

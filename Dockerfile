@@ -7,7 +7,7 @@ ENV api_key=$key
 WORKDIR /opt/xenonpy
 COPY . .
 RUN sudo chown -R user:user /opt && find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf && \
-    pip install --user -v .  && pytest tests -v
+    pip install --user -v .  && echo $api_key && pytest tests -v && export api_key=""
 
 EXPOSE 8888
 

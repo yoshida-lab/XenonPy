@@ -187,7 +187,7 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
         if save_to:
             ret_['save_path'] = self.pull(ret_['url'], save_to=save_to)
 
-        return ret_.set_index('id', drop=True)
+        return ret_.set_index('mId', drop=True)
 
     @classmethod
     def pull(cls, urls, save_to='.'):

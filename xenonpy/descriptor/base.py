@@ -361,9 +361,10 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
             super().__setattr__(key, value)
 
     def __repr__(self):
-        return super().__repr__() + ':\n' + \
-               '\n'.join(['  |- %s:\n  |  |- %s' % (k, '\n  |  |- '.join(map(str, v))) for k, v in
-                          self.__featurizer_sets__.items()])
+        return self.__class__.__name__ + ':\n' + \
+               '\n'.join(
+                   ['  |- %s:\n  |  |- %s' % (k, '\n  |  |- '.join(map(lambda s: s.__class__.__name__, v))) for k, v in
+                    self.__featurizer_sets__.items()])
 
     def _check_input(self, X, y=None, **kwargs):
         def _reformat(x):
@@ -380,7 +381,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
                         return pd.DataFrame(x, columns=keys)
 
                 if isinstance(x, pd.Series):
-                    return pd.DataFrame(x.values, columns=keys)
+                    return pd.DataFrame(x.values, columns=keys, index=x.index)
 
             if isinstance(x, pd.Series):
                 x = pd.DataFrame(x)

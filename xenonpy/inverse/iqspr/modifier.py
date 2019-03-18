@@ -58,8 +58,10 @@ class NGram(BaseProposal):
                           '<sample_order> will be reduced to <train_order>', RuntimeWarning)
             self.sample_order = self._train_order
 
-    def on_errors(self, error, smi):
-        return smi
+    def on_errors(self, error, *args, **kwargs):
+        if isinstance(error, GetProbError):
+            return args[0]
+        pass
 
     @property
     def ngram_table(self):
@@ -93,10 +95,22 @@ class NGram(BaseProposal):
 
     @classmethod
     def smi2list(cls, smiles):
-        smi_pat = r'(-\[.*?\]|=\[.*?\]|#\[.*?\]|\[.*?\]|-Br|=Br|#Br|-Cl|=Cl|#Cl|Br|Cl|-.|=.|#.|\%[0-9][0-9]|\w|\W)'
+        # smi_pat = r'(-\[.*?\]|=\[.*?\]|#\[.*?\]|\[.*?\]|-Br|=Br|#Br|-Cl|=Cl|#Cl|Br|Cl|-.|=.|#.|\%[0-9][0-9]|\w|\W)'
         # smi_pat = r'(=\[.*?\]|#\[.*?\]|\[.*?\]|=Br|#Br|=Cl|#Cl|Br|Cl|=.|#.|\%[0-9][0-9]|\w|\W)'
         # smi_pat = r'(\[.*?\]|Br|Cl|\%[0-9][0-9]|\w|\W)'
-        smi_list = list(filter(None, re.split(smi_pat, smiles)))
+        smi_pat = r'(\[.*?\]|Br|Cl|(?<=%)[0-9][0-9]|\w|\W)'
+
+        # smi_list = list(filter(None, re.split(smi_pat, smiles)))
+        smi_list = list(filter(lambda x: not ((x == "") or (x == "%")), re.split(smi_pat, smiles)))
+
+        # combine bond with next token only if the next token isn't a number
+        # assume SMILES does not end with a bonding character!
+        tmp_idx = [i for i, x in enumerate(smi_list) if ((x in "-=#") and (not smi_list[i + 1].isdigit()))]
+        if len(tmp_idx) > 0:
+            for i in tmp_idx:
+                smi_list[i + 1] = smi_list[i] + smi_list[i + 1]
+            smi_list = np.delete(smi_list, tmp_idx).tolist()
+
         return smi_list
 
     @classmethod
@@ -130,14 +144,6 @@ class NGram(BaseProposal):
                 tmp_ss = deepcopy(v_substr[-1])  # retrieve contracted substring added w/o ')'
                 v_substr.pop()
                 n_br -= 1
-            elif '%' in esmi_list[i]:
-                esmi_list[i] = int(esmi_list[i][1:3])
-                if esmi_list[i] in v_ringn:
-                    esmi_list[i] = v_ringn.index(esmi_list[i])
-                    v_ringn.pop(esmi_list[i])
-                else:
-                    v_ringn.insert(0, esmi_list[i])
-                    esmi_list[i] = '&'
             elif esmi_list[i].isdigit():
                 esmi_list[i] = int(esmi_list[i])
                 if esmi_list[i] in v_ringn:
@@ -238,7 +244,10 @@ class NGram(BaseProposal):
         self._train_order = train_order
         self._fit_sample_order()
         for smi in smiles:
-            _fit_one(self.smi2esmi(smi))
+            try:
+                _fit_one(self.smi2esmi(smi))
+            except Exception as e:
+                self.on_errors(e)
 
         return self
 

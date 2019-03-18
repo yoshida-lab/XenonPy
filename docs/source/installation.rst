@@ -10,6 +10,7 @@ Alternatively, we recommend using the `Docker Image`_ if you have no installatio
 
 We have no plan to support Python 2.x. One of the main reasons is that the ``pymatgen`` library will not support Python 2 from 2019.
 See `this link <http://pymatgen.org/#py3k-only-with-effect-from-2019-1-1>`_ for details.
+We are also planing to drop python 3.5 support at feature because we noticed that from version 0.24.0, `pandas <https://pandas.pydata.org/>`_ has no support on python 3.5.
 
 Also, note that XenonPy uses PyTorch_ to accelerate the neural network model training.
 If you install XenonPy with PyTorch in windows os, additional tools will be needed.
@@ -38,8 +39,37 @@ pymatgen: http://pymatgen.org/index.html#getting-pymatgen
 :raw-html:`<br />`
 rdkit: https://www.rdkit.org/docs/Install.html
 
-When you reach this point, the remaining steps are very simple.
-The following command will install XenonPy in your default python environment.
+We also provide some preset environments at `conda_env <https://github.com/yoshida-lab/XenonPy/tree/master/conda_env>`_.
+If you use linux or mac, you can use these files to build your running environment directly.
+
+1. Chose a environment file and download it. For example the ``xepy36_cuda10.yml``.
+
+.. code-block:: bash
+
+    $ curl -O https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/conda_env/xepy36_cuda10.yml
+
+2. Build the environment from download file. The following commands will build a conda environment named **xepy36_cuda10**.
+
+.. code-block:: bash
+
+    $ conda env create -f xepy36_cuda10.yml
+
+3. Enter the environment **xepy36_cuda10**. Use
+
+.. code-block:: bash
+
+    $ source activate xepy36_cuda10
+
+or
+
+.. code-block:: bash
+
+    $ conda activate xepy36_cuda10
+
+based on the configuration of your conda installation.
+
+When you reached this point, the remaining steps are very simple.
+The following command will install XenonPy into your python environment.
 
 .. code-block:: bash
 
@@ -65,18 +95,42 @@ Using docker
 .. image:: _static/docker.png
 
 
-Docker is a tool designed to easily create, deploy, and run applications across multiple platforms using containers.
+**Docker** is a tool designed to easily create, deploy, and run applications across multiple platforms using containers.
 Containers allow a developer to pack up an application with all of the parts it needs, such as libraries and other dependencies, into a single package.
 We provide the `official docker images`_ via the `Docker hub <https://hub.docker.com>`_.
 
 If you have not installed Docker yet, follow the `official installation tutorial <https://docs.docker.com/install/>`_ to install docker CE on your machine.
-Once your docker installation is done, use the following command to boot up XenonPy with jupyterlab_.
+Once your docker installation is done, use the following command to boot up a jupyterlab_ with XenonPy available out-of-the-box.
 
 .. code-block:: bash
 
     $ docker run --rm -it -v $HOME/.xenonpy:/home/user/.xenonpy -v <path/to/your/work_space>:/workspace -p 8888:8888 yoshidalab/xenonpy
 
 Then, open http://localhost:8888 from your favourite browser.
+
+If you have a GPU server/PC running linux and want to bring the GPU acceleration to docker. Just adding ``--runtime=nvidia`` to ``docker run`` command.
+
+.. code-block:: bash
+
+    $ docker run --runtime=nvidia --rm -it -v $HOME/.xenonpy:/home/user/.xenonpy -v <path/to/your/work_space>:/workspace -p 8888:8888 yoshidalab/xenonpy
+
+For more information about **use GPU acceleration in docker**, see `nvidia docker <https://github.com/NVIDIA/nvidia-docker>`_.
+
+
+permission failed
+-----------------
+
+Because docker is a container system running like a virtual machine.
+You may face some permission problem when you try to open/save your jupyter files in docker.
+
+The simplest way to resolve these problem is changing the permission of failed files.
+You can open a terminal in jupyter notebook and typing:
+
+.. code-block:: bash
+
+    $ sudo chmod 666 permission_failed_file
+
+This will change file permission to ``r+w`` for all users.
 
 
 ------------------------------

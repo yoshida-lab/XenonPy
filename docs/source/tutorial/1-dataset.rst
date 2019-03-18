@@ -79,7 +79,7 @@ Use the following codes to load ``elements`` and ``elements_completed``.
     >>> preset.elements
     >>> preset.elements_completed
 
-These are still some advance usage of ``Dataset`` and ``preset``. For more details, see advance_.
+These are still some advance usage of ``Dataset`` and ``preset``. For more details, see :ref:`tutorial/1-dataset:Advance`.
 
 Also see the jupyter files at:
 
@@ -97,7 +97,6 @@ Before we done, you can check the sample codes at:
 
 
 
-.. _advance:
 
 -------
 Advance

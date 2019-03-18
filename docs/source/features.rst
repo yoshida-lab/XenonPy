@@ -148,7 +148,7 @@ The tutorials at :doc:`tutorial/2-descriptor` demonstrate how to calculate descr
 
 
 RDKit descriptors
-----------------------
+-----------------
 XenonPy also supports molecular descriptors available in the `RDKit`_ python package, including 6 sets of fingerprints, each contains corresponding options.
 
 .. _RDKit: https://www.rdkit.org/

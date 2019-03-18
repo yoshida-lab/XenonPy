@@ -26,7 +26,7 @@ def migrate(args_):
             remove(str(path))
 
     for file in tqdm(['mp_inorganic.pkl.pd_', 'mp_structure.pkl.pd_', 'oqmd_inorganic.pkl.pd_',
-                      'oqmd_structure.pkl.pd_'], desc='Migrating'):
+                      'oqmd_structure.pkl.pd_'], desc='migrating'):
         migrate_(file)
 
 
@@ -44,7 +44,7 @@ parser_migrate.add_argument(
     '--keep',
     action='store_true',
     help=
-    'keep files `mp_inorganic.pkl.pd_` and `mp_structure.pkl.pd_`. These will be moved to `userdata` dir.'
+    'Keep files fetched from `yoshida-lab/dataset`. These files will be moved to `userdata` dir.'
 )
 parser_migrate.set_defaults(handler=migrate)
 

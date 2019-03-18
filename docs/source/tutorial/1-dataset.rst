@@ -83,15 +83,17 @@ These are still some advance usage of ``Dataset`` and ``preset``. For more detai
 
 Also see the jupyter files at:
 
-    https://github.com/yoshida-lab/XenonPy/tree/master/samples
+    https://github.com/yoshida-lab/XenonPy/tree/master/samples/dataset_and_preset.ipynb
 
 
 -------
 Storage
 -------
 
-Coming soon!
+We are implementing this section.
+Before we done, you can check the sample codes at:
 
+    https://github.com/yoshida-lab/XenonPy/tree/master/samples/storage.ipynb
 
 
 

@@ -31,13 +31,13 @@ The following table list some core packages in XenonPy images.
 | -------------- | ---------- |
 | `PyTorch`      | 1.0.1      |
 | `tensorly`     | 0.4.3      |
-| `pymatgen`     | 2019.2.4   |
+| `pymatgen`     | 2019.3.13  |
 | `matminer`     | 0.5.1      |
 | `mordred`      | 1.1.2      |
 | `scipy`        | 1.2.1      |
 | `scikit-learn` | 0.20.2     |
-| `pandas`       | 0.24.1     |
-| `rdkit`        | 2018.09.1  |
+| `pandas`       | 0.24.2     |
+| `rdkit`        | 2018.09.2  |
 | `jupyter`      | 1.0.0      |
 | `seaborn`      | 0.9.0      |
 | `matplotlib`   | 3.0.2      |

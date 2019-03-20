@@ -6,24 +6,34 @@ Changes
 =======
 
 
+v0.3.1
+======
+
+**Enhanced**
+
+* Add tutorials for main modules. ( `#79`_ )
+
+.. _#79: https://github.com/yoshida-lab/XenonPy/issues/79
+
+
 v0.3.0
 ======
 
 **Breaking changes**:
 
-* Remove Built-in data ``mp_inorganic``, ``mp_structure``, ``oqmd_inorganic`` and ``oqmd_structure``. `#12`_ `#20`_
+* Remove Built-in data ``mp_inorganic``, ``mp_structure``, ``oqmd_inorganic`` and ``oqmd_structure``. ( `#12`_, `#20`_ )
 * Change name of ``LocalStorage`` to ``Storage``.
 
 **Enhanced**
 
-* Add error handling for ``NGram`` training. (`#75`_ `#86`_)
-* Add error handling for ``IQSPR``. (`#69`_)
-* Add error handling for ``BaseDescriptor`` and ``BaseFeaturizer``. (`#73`_)
-* Add featurizer selection function. (`#47`_)
+* Add error handling for ``NGram`` training. ( `#75`_, `#86`_ )
+* Add error handling for ``IQSPR``. ( `#69`_ )
+* Add error handling for ``BaseDescriptor`` and ``BaseFeaturizer``. ( `#73`_ )
+* Add featurizer selection function. ( `#47`_ )
 
 **New Features**
 
-* Add sample data building function for ``preset``. (`#81`_ `#84`_)
+* Add sample data building function for ``preset``. ( `#81`_, `#84`_ )
 
 
 .. _#12: https://github.com/yoshida-lab/XenonPy/issues/12
@@ -44,13 +54,13 @@ v0.2.0
 
 **Descriptor Generator**:
 
-* Added ``xenonpy.descriptor.Fingerprint`` descriptor generator. (`#21`_)
-* Added ``xenonpy.descriptor.OrbitalFieldMatrix`` descriptor generator. (`#22`_)
+* Added ``xenonpy.descriptor.Fingerprint`` descriptor generator. ( `#21`_ )
+* Added ``xenonpy.descriptor.OrbitalFieldMatrix`` descriptor generator. ( `#22`_ )
 
 
 **API Changes**:
 
-* Allowed ``BaseDescriptor`` class to use anonymous/renamed input. (`#10`_)
+* Allowed ``BaseDescriptor`` class to use anonymous/renamed input. ( `#10`_ )
 
 .. _#10: https://github.com/yoshida-lab/XenonPy/issues/10
 .. _#21: https://github.com/yoshida-lab/XenonPy/issues/21

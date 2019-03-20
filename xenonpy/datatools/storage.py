@@ -48,7 +48,6 @@ class Storage(object):
         save.rm(0)  # by index
         save.rm()  # delete 'you_dataset_name' dir
 
-    See Also: :doc:`dataset`
     """
 
     def __init__(self, name=None, *, path=None, mk_dir=True, backend=None):
@@ -261,7 +260,7 @@ class Storage(object):
         return sub_set
 
     def __repr__(self):
-        cont_ls = ['<{}> includes:'.format(self._name)]
+        cont_ls = ['<{}> under `{}` includes:'.format(self._name, self.path)]
 
         for k, v in self._files.items():
             cont_ls.append('"{}": {}'.format(k, len(v)))

@@ -1,0 +1,25 @@
+name: xepy36_osx
+channels:
+  - defaults
+  - pytorch
+  - rdkit
+dependencies:
+  - python=3.6
+  - pandas=0.24.2
+  - scikit-learn=0.20.3
+  - scipy=1.2.1
+  - pytorch=1.0.1
+  - torchvision
+  - rdkit=2018.09.2
+  - jupyter=1.0.0
+  - seaborn
+  - requests
+  - plotly
+  - pip:
+      - ruamel.yaml
+      - pymatgen==2019.3.13
+      - jupyterlab
+      - pybtex
+      - mordred
+      - tqdm
+      - xenonpy

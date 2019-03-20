@@ -12,4 +12,10 @@ In this tutorial, we will focus on model querying and retrieving.
 Query models
 ------------
 
+Coming soon!
+Before this section ready, you can see
+
+    https://github.com/yoshida-lab/XenonPy/blob/master/samples/mdl.ipynb
+
+to learn how to use it.
 

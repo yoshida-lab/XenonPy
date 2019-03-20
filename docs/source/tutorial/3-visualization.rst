@@ -54,11 +54,12 @@ We will use ``Composition`` descriptors and property ``density`` to demonstrate 
         heatmap.fit(sorted_desc)
         heatmap.draw(sorted_prop)
 
-Finally, we got the picture below.
+
+Let's explain how to *read* the descriptor heatmap.
 
 .. figure:: ../_static/heatmap_density.png
 
-     Heatmap of 290 compositional descriptors of 933 compounds in Materials Project (density g/cm\ :sup:`3`\  ).
+     Heatmap of ~70,000 compounds with 290 compositional descriptors sorted by their property's value.
 
 In the heatmap of the descriptor matrix, the materials are arranged from the top to bottom by the increasing order
 of density. Plotting the descriptor-property relationships in this way, we could visually recognize which

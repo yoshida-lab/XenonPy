@@ -111,6 +111,7 @@ the ``elements_completed`` data set provides only 58 properties of 94 elements (
 
 Users can also register new data set to XenonPy (requires approval from the developers), which can be easily loaded through the ``Dataset`` system later. For more details on this system, see :doc:`tutorial/1-dataset`.
 
+Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/dataset_and_preset.ipynb to get a runnable script.
 
 
 **Reference**
@@ -144,7 +145,6 @@ Currently, XenonPy implements RDF (radial distribution function) and OFM (orbita
 We also provide compatible API to use the structural descriptors of `matminer <https://hackingmaterials.github.io/matminer/>`_.
 You may check the summary table of featurizers in matminer `here <https://hackingmaterials.github.io/matminer/featurizer_summary.html>`_.
 
-The tutorials at :doc:`tutorial/2-descriptor` demonstrate how to calculate descriptors using ``XenonPy.descriptor`` classes.
 
 
 RDKit descriptors
@@ -153,6 +153,10 @@ XenonPy also supports molecular descriptors available in the `RDKit`_ python pac
 
 .. _RDKit: https://www.rdkit.org/
 
+
+The tutorials at :doc:`tutorial/2-descriptor` demonstrate how to calculate descriptors using ``XenonPy.descriptor`` classes.
+
+Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/calculate_descriptors.ipynb to get a runnable script.
 
 
 **Reference**
@@ -180,6 +184,8 @@ a monotonically decrease or increase pattern would appear in a linearly dependen
 irrelevant descriptors might exhibit no specific patterns.
 
 See the tutorials for visualization of descriptor-property relationships at :doc:`tutorial/3-visualization`.
+
+Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/visualization.ipynb to get a runnable script.
 
 
 -----------
@@ -274,6 +280,8 @@ XenonPy.MDL provides a rich-set of APIs to give users the abilities to interact 
 Through the APIs, users can search for a specific subset of models by keywords and download them via http.
 The tutorials at :doc:`tutorial/5-mdl` will show you how to interact with the database in XenonPy (via the API querying).
 
+Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/mdl.ipynb to get a runnable script.
+
 
 -----------------
 Transfer learning
@@ -289,6 +297,7 @@ Given a target property, by using the transfer learning module of XenonPy, a sou
 
 See tutorials at :doc:`tutorial/6-transfer-learning` for learning how to do the frozen feature transfer learning in XenonPy.
 
+Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/transfer_learning.ipynb to get a runnable script.
 
 
 **Reference**

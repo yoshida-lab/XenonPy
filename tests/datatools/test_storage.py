@@ -39,7 +39,7 @@ def setup():
 
 def test_storage_1(setup):
     saver = setup['saver']
-    ret = '<{}> under `/Users/liuchang/.xenonpy/userdata` includes:'.format(setup['user_dataset'])
+    ret = '<{}> under `{}/.xenonpy/userdata` includes:'.format(setup['user_dataset'], Path.home())
     assert str(saver) == ret, 'no files'
 
 

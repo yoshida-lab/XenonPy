@@ -4,7 +4,10 @@
 
 
 from json import JSONDecodeError
+from pathlib import Path
+from shutil import rmtree
 
+import pandas as pd
 import pytest
 from requests import HTTPError
 
@@ -29,12 +32,19 @@ def test_query_properties(mdl):
     assert isinstance(ret, list)
 
 
-def test_query_models(mdl):
+def test_query_models_1(mdl):
     ret = mdl._query_models('test')
     assert isinstance(ret, list)
+    assert len(ret) == 1
 
 
-def test_fetch_models(mdl):
+def test_query_models_2(mdl):
+    ret = mdl._query_models('no exists model set')
+    assert isinstance(ret, list)
+    assert len(ret) == 0
+
+
+def test_fetch_models_1(mdl):
     # ret = mdl('test', '.')
     # assert isinstance(ret, pd.DataFrame)
 
@@ -42,6 +52,21 @@ def test_fetch_models(mdl):
 
     ret = mdl('some_thing_not_exist')
     assert ret is None
+
+    ret = mdl('test', save_to=None)
+    assert isinstance(ret, pd.DataFrame)
+    assert ret.index[0] == 'M00000'
+
+
+def test_pull_1(mdl):
+    ret = mdl('Stable inorganic compounds', property_has='volume', save_to=None)
+    urls = ret['url'].iloc[:1]
+    paths = mdl.pull(urls=urls)
+
+    assert Path(paths[0]).exists()
+    assert Path(paths[0]).is_dir()
+
+    rmtree('S1')
 
 
 def test_return_nothing(mdl, monkeypatch):

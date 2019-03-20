@@ -46,7 +46,12 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.coverage',
               'sphinx.ext.mathjax',
               'sphinx.ext.viewcode',
-              'sphinx.ext.githubpages']
+              'sphinx.ext.githubpages',
+              'sphinx.ext.autosectionlabel'
+              ]
+
+# config autosectionlabel
+autosectionlabel_prefix_document = True
 
 # config autodoc
 autoclass_content = 'both'
@@ -66,7 +71,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = package.__name__
-copyright = '2018, TsumiNa'
+copyright = '2019, yoshida-lab'
 author = 'TsumiNa'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -181,7 +186,11 @@ texinfo_documents = [
 ]
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {'https://docs.python.org/': None,
+                       'pandas': ('http://pandas.pydata.org/pandas-docs/version/0.24', None),
+                       'numpy': ('http://docs.scipy.org/doc/numpy', None),
+                       'scipy': ('http://docs.scipy.org/doc/scipy/reference', None),
+                       'matplotlib': ('http://matplotlib.org', None)}
 
 
 def skip(app, what, name, obj, skip, options):

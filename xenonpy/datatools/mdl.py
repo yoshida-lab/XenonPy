@@ -127,14 +127,14 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
         return self.query(query, variables)['queryModels']
 
     def __call__(self, modelset_has, *,
-                 save_to='.',
                  property_has='',
                  descriptor_has='',
                  method_has='',
                  lang_has='',
                  regress_is=True,
                  transferred_is=False,
-                 succeed_is=True):
+                 succeed_is=True,
+                 **kwargs):
         """
         Query models and download to a specific destination
 
@@ -182,12 +182,14 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
         if not ret:
             return None
         ret_ = pd.DataFrame(ret)
-        if save_to is None:
+        if 'save_to' not in kwargs:
             save_to = self.save_to
+        else:
+            save_to = kwargs['save_to']
         if save_to:
             ret_['save_path'] = self.pull(ret_['url'], save_to=save_to)
 
-        return ret_.set_index('id', drop=True)
+        return ret_.set_index('mId', drop=True)
 
     @classmethod
     def pull(cls, urls, save_to='.'):

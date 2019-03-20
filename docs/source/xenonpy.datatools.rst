@@ -12,10 +12,34 @@ xenonpy.datatools.dataset module
     :undoc-members:
     :show-inheritance:
 
+xenonpy.datatools.mdl module
+----------------------------
+
+.. automodule:: xenonpy.datatools.mdl
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 xenonpy.datatools.preprocess module
 -----------------------------------
 
 .. automodule:: xenonpy.datatools.preprocess
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xenonpy.datatools.preset module
+-------------------------------
+
+.. automodule:: xenonpy.datatools.preset
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+xenonpy.datatools.storage module
+--------------------------------
+
+.. automodule:: xenonpy.datatools.storage
     :members:
     :undoc-members:
     :show-inheritance:

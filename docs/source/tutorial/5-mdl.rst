@@ -13,9 +13,9 @@ Query models
 ------------
 
 Coming soon!
-Before this section ready, you can see
+Before this section is ready, you can check out our sample codes:
 
     https://github.com/yoshida-lab/XenonPy/blob/master/samples/mdl.ipynb
 
-to learn how to use it.
+
 

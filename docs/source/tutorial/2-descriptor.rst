@@ -134,5 +134,5 @@ This will take 3 ~ 5 min to run and finally you will get:
 Advance
 -------
 
-There are still lots of details for descriptor calculator system.
-Before we fill these documents, you can check out https://github.com/yoshida-lab/XenonPy/blob/master/samples/build_your_own_descriptor_calculator.ipynb for more information.
+There are more details of the descriptor calculator system that are not yet included in this tutorial.
+Before we complete this document, you can check out https://github.com/yoshida-lab/XenonPy/blob/master/samples/build_your_own_descriptor_calculator.ipynb for more information.

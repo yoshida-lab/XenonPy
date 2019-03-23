@@ -2,16 +2,15 @@
 Visualization
 =============
 
-Descriptors on a set of given materials could be displayed as a heatmap.
-By using this plotting, the descriptor-property relationships can be understand.
-This tutorial will show how to draw a heatmap.
+Descriptors on a set of given materials could be displayed as a heatmap, which helps you to understand the descriptor-property relationships.
+This tutorial will show you how to draw a heatmap.
 
 
 ------------------
 Descriptor heatmap
 ------------------
 
-We will use ``Composition`` descriptors and property ``density`` to demonstrate heatmap drawing step-by-step.
+We will use ``Composition`` and ``density`` as the descriptors and target property, respectively, for a step-by-step demonstration of how to draw a heatmap.
 
 1. calculate descriptors
 

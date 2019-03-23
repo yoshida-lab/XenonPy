@@ -6,7 +6,7 @@ There are variety of methodologies for transfer learning, such as **fine tuning*
 In this tutorial, we will demonstrate how to do a **frozen feature extraction** by using XenonPy.
 
 This tutorial will use **Refractive Index** data collected from `Polymer Genome <https://www.polymergenome.org>`_.
-Due to data sharing policy of Polymer Genome, we are not providing these data in our package. If you want to rerun this notbook locally, please collect these data yourself.
+Due to data sharing policy of Polymer Genome, we are not providing these data in our package. If you want to rerun this notebook locally, please collect these data yourself.
 
 
 -----------------

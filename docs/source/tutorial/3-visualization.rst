@@ -67,6 +67,6 @@ or nonlinearly dependent to formation energies, might exhibit certain patterns f
 a monotonic decrease or increase pattern would appear in a linearly dependent descriptor. On the other hand,
 irrelevant descriptors might exhibit no specific patterns.
 
-You can test-run using this sample code:
+You can test run using this sample code:
 
     https://github.com/yoshida-lab/XenonPy/blob/master/samples/visualization.ipynb

@@ -89,7 +89,7 @@ def test_ngram_1(data):
 def test_ngram_2(data):
     ngram = NGram()
 
-    with pytest.warns(RuntimeWarning):
+    with pytest.warns(RuntimeWarning, match='<sample_order>'):
         ngram.fit(data['pg'][0][:20], train_order=5)
 
     assert ngram._train_order == 5
@@ -97,20 +97,20 @@ def test_ngram_2(data):
     assert ngram.ngram_table is not None
 
     np.random.seed(123456)
-    with pytest.warns(RuntimeWarning):
-        old_smis = ['C(=O)C(C=C1)=CC=C1C(=O)C2=CC=C(S2)']
+    with pytest.warns(RuntimeWarning, match='can not convert'):
+        old_smis = ['CC(=S)C([*])(C)=CCC([*])']
         tmp = ngram.proposal(old_smis)
         assert tmp == old_smis
 
     np.random.seed(654321)
-    with pytest.warns(RuntimeWarning):
+    with pytest.warns(RuntimeWarning, match='get_prob: '):
         old_smis = ['C([*])C([*])(C1=C(OCCC)C=CC(Br)C1)']
         tmp = ngram.proposal(old_smis)
         assert tmp == old_smis
 
 
 def test_ngram_3(data):
-    ngram = NGram()
+    ngram = NGram(sample_order=5)
     ngram.fit(data['pg'][0][:20], train_order=5)
 
     def on_errors(self, error):
@@ -122,9 +122,8 @@ def test_ngram_3(data):
     np.random.seed(123456)
     ngram.on_errors = types.MethodType(on_errors, ngram)
     with pytest.raises(MolConvertError):
-        with pytest.warns(RuntimeWarning):
-            old_smis = ['C(=O)C(C=C1)=CC=C1C(=O)C2=CC=C(S2)']
-            ngram.proposal(old_smis)
+        old_smis = ['CC(=S)C([*])(C)=CCC([*])']
+        ngram.proposal(old_smis)
 
     def on_errors(self, error):
         if isinstance(error, GetProbError):
@@ -135,9 +134,8 @@ def test_ngram_3(data):
     np.random.seed(654321)
     ngram.on_errors = types.MethodType(on_errors, ngram)
     with pytest.raises(GetProbError):
-        with pytest.warns(RuntimeWarning):
-            old_smis = ['C([*])C([*])(C1=C(OCCC)C=CC(Br)C1)']
-            ngram.proposal(old_smis)
+        old_smis = ['C([*])C([*])(C1=C(OCCC)C=CC(Br)C1)']
+        ngram.proposal(old_smis)
 
 
 def test_iqspr_1(data):

@@ -2,10 +2,10 @@
 Data access
 ===========
 
-**Dataset** is a abstraction of local file system.
-Users can add their local paths into this system then use it to load data that under these paths in an elegant way.
-The conception is that a data files will be treated as a property of a ``Dataset`` object.
-The following docs show how easy it is to interactive with data by using this system.
+**Dataset** is an abstraction of local file system.
+Users can add their local paths into this system to easily access the data inside.
+The basic concept is to treat a data file as a property of a ``Dataset`` object.
+The following docs show how easy it is to interact with the data in system.
 
 
 -------
@@ -15,7 +15,7 @@ Dataset
 Assuming that you have some data files ``data1.csv``, ``data1.pkl.pd_``, ``data1.pkl.z_`` under dir `/set1`
 and ``data2.csv``, ``data2.pkl.pd_``, ``data2.pkl.z_`` under dir `/set2`.
 
-The following codes will create a ``Dataset`` object contains all available files under `/set1` and `/set2`.
+The following codes will create a ``Dataset`` object containing all available files under `/set1` and `/set2`.
 
     >>> from xenonpy.datatools import Dataset
     >>> dataset = Dataset('/set1', '/set2')
@@ -31,8 +31,7 @@ Now, you can retrieve data by their name like this:
 What the code did is that, the ``dataset`` loaded a file with name ``data1.pkl.pd_`` from `/set1` or `/set2`.
 In this case, the `/set1/data1.pkl.pd_` was loaded.
 
-You may also noticed that before we load data ``data1``, firstly we called a property named ``dataframe``.
-The ``dataframe`` comes here to let ``dataset`` know that it should load a ``pandas.DataFrame`` object file by using ``pd.read_pickle`` function.
+It is important to note that we called a property named ``dataframe`` before we load ``data1`` in order to let ``dataset`` know that it is loading a ``pandas.DataFrame`` object file using the ``pd.read_pickle`` function.
 
 Currently, 4 loaders are available out-of-the-box. The information of built-in loaders are summarised as below.
 
@@ -47,12 +46,12 @@ Currently, 4 loaders are available out-of-the-box. The information of built-in l
     ``pkl.z_``      joblib.load         common pickled files
     ==============  ==================  =============================
 
-The default load is ``dataframe``. This means that if you want to load a pandas.DataFrame object, you can omit the ``dataframe``.
-The following code exactly do the same work as showed at above:
+The default loader is ``dataframe``. This means that if you want to load a pandas.DataFrame object, you can omit the ``dataframe``.
+The following code exactly do the same work as explained above:
 
     >>> dataset.data1
 
-You can also specific the default loader by setting the ``backend`` parameter:
+You can also specify the default loader by setting the ``backend`` parameter:
 
     >>> dataset = Dataset('set1', 'set2', backend='csv')
     >>> dataset.data1  # this will load '/set1/data1.csv'
@@ -79,7 +78,7 @@ Use the following codes to load ``elements`` and ``elements_completed``.
     >>> preset.elements
     >>> preset.elements_completed
 
-These are still some advance usage of ``Dataset`` and ``preset``. For more details, see :ref:`tutorial/1-dataset:Advance`.
+These are still some advance uses of ``Dataset`` and ``preset``. For more details, see :ref:`tutorial/1-dataset:Advance`.
 
 Also see the jupyter files at:
 
@@ -90,8 +89,7 @@ Also see the jupyter files at:
 Storage
 -------
 
-We are implementing this section.
-Before we done, you can check the sample codes at:
+For implementation details, you can check out our sample codes:
 
     https://github.com/yoshida-lab/XenonPy/tree/master/samples/storage.ipynb
 

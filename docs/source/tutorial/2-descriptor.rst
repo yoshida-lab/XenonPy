@@ -80,7 +80,9 @@ where
     dict
 
 
-If the input is a pandas.DataFrame object, the calculator will first try to read the data columns that have the same name as the featurizer groups. For example, the name of the featurizer group in the example above is **composition**. Therefore, the whole object entry can be fed into the calculator's methods without explicitly extracting the **composition** column in the ``samples``:
+If the input is a pandas.DataFrame object, the calculator will first try to read the data columns that have the same name as the featurizer groups.
+For example, the name of the featurizer group in the example above is **composition**.
+Therefore, the whole object entry can be fed into the calculator's methods without explicitly extracting the **composition** column in the ``samples``:
 
     >>> descriptor = cal.transform(samples)
     >>> descriptor

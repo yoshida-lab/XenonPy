@@ -15,12 +15,28 @@ from ..base import BaseProposal, ProposalError
 
 class GetProbError(ProposalError):
 
-    def __init__(self, tmp_str, iB, iR):
+    def __init__(self, tmp_str, i_b, i_r):
         self.tmp_str = tmp_str
-        self.iB = iB
-        self.iR = iR
+        self.iB = i_b
+        self.iR = i_r
+        self.old_smi = None
 
-        super().__init__('get_prob: %s not found in n-gram, iB=%i, iR=%i' % (tmp_str, iB, iR))
+        super().__init__('get_prob: %s not found in n-gram, iB=%i, iR=%i' % (tmp_str, i_b, i_r))
+
+
+class MolConvertError(ProposalError):
+    def __init__(self, new_smi):
+        self.new_smi = new_smi
+        self.old_smi = None
+
+        super().__init__('can not convert %s to Mol' % new_smi)
+
+
+class NGramTrainingError(ProposalError):
+    def __init__(self, error, smi):
+        self.old_smi = smi
+
+        super().__init__('training failed for %s, because of <%s>: %s' % (smi, error.__class__.__name__, error))
 
 
 class NGram(BaseProposal):
@@ -58,10 +74,23 @@ class NGram(BaseProposal):
                           '<sample_order> will be reduced to <train_order>', RuntimeWarning)
             self.sample_order = self._train_order
 
-    def on_errors(self, error, *args, **kwargs):
+    def on_errors(self, error):
+        """
+
+        Parameters
+        ----------
+        error: ProposalError
+            Error object.
+        Returns
+        -------
+
+        """
         if isinstance(error, GetProbError):
-            return args[0]
-        pass
+            return error.old_smi
+        if isinstance(error, MolConvertError):
+            return error.old_smi
+        if isinstance(error, NGramTrainingError):
+            pass
 
     @property
     def ngram_table(self):
@@ -247,6 +276,8 @@ class NGram(BaseProposal):
             try:
                 _fit_one(self.smi2esmi(smi))
             except Exception as e:
+                warnings.warn('NGram training failed for %s' % smi, RuntimeWarning)
+                e = NGramTrainingError(e, smi)
                 self.on_errors(e)
 
         return self
@@ -269,6 +300,7 @@ class NGram(BaseProposal):
                 cand_prob = np.array(self._table[iO][iB][iR].loc[str(tmp_str[-(iO + 1):])])
                 break
         if len(cand_char) == 0:
+            warnings.warn('get_prob: %s not found in n-gram, iB=%i, iR=%i' % (tmp_str, iB, iR), RuntimeWarning)
             raise GetProbError(tmp_str, iB, iR)
         return cand_char, cand_prob / np.sum(cand_prob)
 
@@ -387,9 +419,17 @@ class NGram(BaseProposal):
             try:
                 new_ext_smi = self.modify(ext_smi)
                 new_smi = self.esmi2smi(new_ext_smi)
-            except GetProbError as e:
-                new_smi = self.on_errors(e, smi)
-            if Chem.MolFromSmiles(new_smi) is not None:
+                if Chem.MolFromSmiles(new_smi) is not None:
+                    warnings.warn('can not convert %s to Mol' % new_smi, RuntimeWarning)
+                    raise MolConvertError(new_smi)
                 new_smis.append(new_smi)
+
+            except ProposalError as e:
+                e.old_smi = smi
+                new_smi = self.on_errors(e)
+                new_smis.append(new_smi)
+
+            except Exception as e:
+                raise e
 
         return new_smis

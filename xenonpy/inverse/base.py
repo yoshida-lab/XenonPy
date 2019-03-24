@@ -22,7 +22,7 @@ class ResampleError(Exception):
 
 class ProposalError(Exception):
     """Base exception for Proposal classes"""
-    pass
+    old_smi = None
 
 
 class SMCError(Exception):
@@ -96,6 +96,9 @@ class BaseProposal(BaseEstimator, metaclass=TimedMetaClass):
 
     def __call__(self, X):
         return self.proposal(X)
+
+    def on_errors(self, error):
+        raise error
 
     def proposal(self, X):
         """

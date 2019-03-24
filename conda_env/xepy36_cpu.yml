@@ -1,4 +1,4 @@
-name: xepy36_cpu_linux
+name: xepy36_cpu
 channels:
   - defaults
   - pytorch

@@ -11,7 +11,7 @@ import pytest
 from sklearn.linear_model import BayesianRidge
 
 from xenonpy.descriptor import ECFP
-from xenonpy.inverse.iqspr import BayesianRidgeEstimator, NGram, IQSPR, GetProbError
+from xenonpy.inverse.iqspr import BayesianRidgeEstimator, NGram, IQSPR, GetProbError, MolConvertError
 
 
 @pytest.fixture(scope='module')
@@ -71,7 +71,7 @@ def test_base_bayesian_ridge_1(data):
 
 
 def test_ngram_1(data):
-    ngram = data['ngram']
+    ngram = NGram()
     assert ngram.ngram_table is None
     assert ngram.max_len == 1000
     assert ngram.del_range == (1, 10)
@@ -85,22 +85,59 @@ def test_ngram_1(data):
     assert ngram.del_range == (1, 10)
     assert ngram.reorder_prob == 0.2
 
-    def on_errors(self, error, smi):
-        raise error
 
-    ngram.fit(data['pg'][0][:20], train_order=5)
+def test_ngram_2(data):
+    ngram = NGram()
+
+    with pytest.warns(RuntimeWarning):
+        ngram.fit(data['pg'][0][:20], train_order=5)
 
     assert ngram._train_order == 5
     assert ngram.sample_order == 5
     assert ngram.ngram_table is not None
 
     np.random.seed(123456)
-    ngram.proposal(data['pg'][0][60:65])
+    with pytest.warns(RuntimeWarning):
+        old_smis = ['C(=O)C(C=C1)=CC=C1C(=O)C2=CC=C(S2)']
+        tmp = ngram.proposal(old_smis)
+        assert tmp == old_smis
 
-    ngram.on_errors = types.MethodType(on_errors, ngram)
+    np.random.seed(654321)
+    with pytest.warns(RuntimeWarning):
+        old_smis = ['C([*])C([*])(C1=C(OCCC)C=CC(Br)C1)']
+        tmp = ngram.proposal(old_smis)
+        assert tmp == old_smis
+
+
+def test_ngram_3(data):
+    ngram = NGram()
+    ngram.fit(data['pg'][0][:20], train_order=5)
+
+    def on_errors(self, error):
+        if isinstance(error, MolConvertError):
+            raise error
+        else:
+            return error.old_smi
+
     np.random.seed(123456)
+    ngram.on_errors = types.MethodType(on_errors, ngram)
+    with pytest.raises(MolConvertError):
+        with pytest.warns(RuntimeWarning):
+            old_smis = ['C(=O)C(C=C1)=CC=C1C(=O)C2=CC=C(S2)']
+            ngram.proposal(old_smis)
+
+    def on_errors(self, error):
+        if isinstance(error, GetProbError):
+            raise error
+        else:
+            return error.old_smi
+
+    np.random.seed(654321)
+    ngram.on_errors = types.MethodType(on_errors, ngram)
     with pytest.raises(GetProbError):
-        ngram.proposal(data['pg'][0][60:65])
+        with pytest.warns(RuntimeWarning):
+            old_smis = ['C([*])C([*])(C1=C(OCCC)C=CC(Br)C1)']
+            ngram.proposal(old_smis)
 
 
 def test_iqspr_1(data):

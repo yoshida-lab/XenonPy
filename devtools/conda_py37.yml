@@ -23,5 +23,7 @@ dependencies:
       - ruamel.yaml
       - pymatgen==2019.3.13
       - jupyterlab
+      - pybtex
+      - mordred
       - yapf
       - tqdm

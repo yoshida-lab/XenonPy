@@ -31,10 +31,6 @@ conda info -a
 case "${TRAVIS_OS_NAME}" in
     osx)
         case "${PYENV}" in
-            py35)
-                conda env create -f travis/osx/py35.yml
-                source activate xepy35
-                ;;
             py36)
                 conda env create -f travis/osx/py36.yml
                 source activate xepy36
@@ -47,16 +43,12 @@ case "${TRAVIS_OS_NAME}" in
         ;;
     linux)
         case "${PYENV}" in
-            py35)
-                conda env create -f travis/linux/py35.yml
-                source activate xepy35
-                ;;
             py36)
-                conda env create -f travis/linux/py36.yml
+                conda env create -f travis/linux-win/py36.yml
                 source activate xepy36
                 ;;
             py37)
-                conda env create -f travis/linux/py37.yml
+                conda env create -f travis/linux-win/py37.yml
                 source activate xepy37
                 ;;
         esac

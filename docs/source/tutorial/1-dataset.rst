@@ -5,7 +5,7 @@ Data access
 **Dataset** is an abstraction of local file system.
 Users can add their local paths into this system to easily access the data inside.
 The basic concept is to treat a data file as a property of a ``Dataset`` object.
-The following docs show how easy it is to interact with the data using this system.
+The following docs show how easy it is to interact with the data in system.
 
 
 -------

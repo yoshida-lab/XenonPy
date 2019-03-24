@@ -9,6 +9,7 @@ from copy import deepcopy
 import numpy as np
 import pandas as pd
 from rdkit import Chem
+from tqdm import tqdm
 
 from ..base import BaseProposal, ProposalError
 
@@ -70,8 +71,9 @@ class NGram(BaseProposal):
 
     def _fit_sample_order(self):
         if self._train_order and self._train_order < self.sample_order:
-            warnings.warn('<sample_order> is greater than <train_order>,'
-                          '<sample_order> will be reduced to <train_order>', RuntimeWarning)
+            warnings.warn('<sample_order>: %s is greater than <train_order>: %s,'
+                          '<sample_order> will be reduced to <train_order>' % (self.sample_order, self._train_order),
+                          RuntimeWarning)
             self.sample_order = self._train_order
 
     def on_errors(self, error):
@@ -272,7 +274,7 @@ class NGram(BaseProposal):
         self._table = [[[], []] for _ in range(train_order)]
         self._train_order = train_order
         self._fit_sample_order()
-        for smi in smiles:
+        for smi in tqdm(smiles):
             try:
                 _fit_one(self.smi2esmi(smi))
             except Exception as e:
@@ -419,7 +421,7 @@ class NGram(BaseProposal):
             try:
                 new_ext_smi = self.modify(ext_smi)
                 new_smi = self.esmi2smi(new_ext_smi)
-                if Chem.MolFromSmiles(new_smi) is not None:
+                if Chem.MolFromSmiles(new_smi) is None:
                     warnings.warn('can not convert %s to Mol' % new_smi, RuntimeWarning)
                     raise MolConvertError(new_smi)
                 new_smis.append(new_smi)

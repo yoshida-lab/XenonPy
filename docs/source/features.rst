@@ -109,7 +109,7 @@ the ``elements_completed`` data set provides only 58 properties of 94 elements (
     ``num_s_valence``                   Valance electron in d shell.
     =================================   ===================================================================================
 
-Users can also register new data set to XenonPy (requires approval from the developers), which can be easily loaded through the ``Dataset`` system later. For more details on this system, see :doc:`tutorial/1-dataset`.
+For more details on this system, see :doc:`tutorial/1-dataset`.
 
 Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/dataset_and_preset.ipynb to get a runnable script.
 

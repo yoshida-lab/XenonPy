@@ -5,33 +5,25 @@
 Installation
 ============
 
-XenonPy can be installed using pip_ in Python 3.5, 3.6 and 3.7 on Mac, Linux and Windows.
+XenonPy can be installed using pip_ in 3.6 and 3.7 on Mac, Linux and Windows.
 Alternatively, we recommend using the `Docker Image`_ if you have no installation preference.
-
 We have no plan to support Python 2.x. One of the main reasons is that the ``pymatgen`` library will not support Python 2 from 2019.
 See `this link <http://pymatgen.org/#py3k-only-with-effect-from-2019-1-1>`_ for details.
-We are also planing to drop python 3.5 support at feature because we noticed that from version 0.24.0, `pandas <https://pandas.pydata.org/>`_ has no support on python 3.5.
 
-Also, note that XenonPy uses PyTorch_ to accelerate the neural network model training.
-If you install XenonPy with PyTorch in windows os, additional tools will be needed.
-We highly recommend you to install the `Visual C++ Build Tools <http://landinghub.visualstudio.com/visual-cpp-build-tools>`_ before installing our packages.
-Through the installation screen of Visual C++ Build Tools, you need to check the **windows 8.1 / 10 SDK options**.
 
 
 .. _install_xenonpy:
 
----------
-Using pip
----------
+-------------------
+Using conda and pip
+-------------------
 
-pip is a package management system for installing and updating Python packages,
-which comes with any Python installation. On Ubuntu and Fedora Linux,
-please use the system package manager to install the ``python3-pip`` package.
-We suggest you to `upgrade pip <https://pip.pypa.io/en/stable/installing/>`_ before using it to install other packages.
+pip_ is a package management system for installing and updating Python packages, which comes with any Python distribution.
+Conda_ is an open source package management system and environment management system that runs on Windows, macOS and Linux.
+Conda easily creates, saves, loads and switches between environments on your local computer.
 
-Before installing XenonPy, You need to install the peer dependencies PyTorch, pymatgen and rdkit_ first.
-The easiest way to install all 3 packages is to use conda_.
-The following official tutorials will guide you through a successful installation.
+XenonPy have 3 peer dependencies, which are PyTorch, pymatgen and rdkit_. Before you install XenonPy, you have to install them.
+The easiest way to install all 3 packages is to use Conda_. The following official tutorials will guide you through a successful installation.
 
 PyTorch: https://pytorch.org/get-started/locally/
 :raw-html:`<br />`
@@ -40,50 +32,70 @@ pymatgen: http://pymatgen.org/index.html#getting-pymatgen
 rdkit: https://www.rdkit.org/docs/Install.html
 
 We also provide some preset environments at `conda_env <https://github.com/yoshida-lab/XenonPy/tree/master/conda_env>`_.
-If you use linux or mac, you can use these files to build your running environment directly.
-
-1. Chose a environment file and download it. For example the ``xepy36_cuda10.yml``.
+Users can use these files to create the runnable environment on their local machine.
 
 .. code-block:: bash
 
-    $ curl -O https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/conda_env/xepy36_cuda10.yml
+    $ conda env create -f <path_to_file>
 
-2. Build the environment from download file. The following commands will build a conda environment named **xepy36_cuda10**.
+For Unix-like (linux, mac, FreeBSD, etc.) users, the above command will is enough.
+For windows users, additional tools are needed. We highly recommend you to install the `Visual C++ Build Tools <http://landinghub.visualstudio.com/visual-cpp-build-tools>`_ before creating your environment.
+Also, confirm that you have checked the **windows 8.1 / 10 SDK options** on when installing the build tools.
 
-.. code-block:: bash
+The following example shows how to create an environment step-by-step.
+
+1. **Chose an environment and download the corresponding configuration file**.
+
+ For example, your want to use python 3.6 with cuda10 support. The ``xepy36_cuda10.yml`` will be what you want.
+ Users can download it via the http access.
+
+ .. code-block:: bash
+
+  $ curl -O https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/conda_env/xepy36_cuda10.yml
+
+2. **Create the environment from file**.
+
+ The following commands will build a conda environment named **xepy36_cuda10**.
+
+ .. code-block:: bash
 
     $ conda env create -f xepy36_cuda10.yml
 
-3. Enter the environment **xepy36_cuda10**. Use
 
-.. code-block:: bash
+3. **Enter the environment**.
+
+ .. code-block:: bash
 
     $ source activate xepy36_cuda10
 
-or
+    # or
 
-.. code-block:: bash
+    $ activate xepy36_cuda10
+
+    # or
 
     $ conda activate xepy36_cuda10
 
-based on the configuration of your conda installation.
+ This is based on your machine system and the configuration of your conda installation.
 
-When you reached this point, the remaining steps are very simple.
-The following command will install XenonPy into your python environment.
+4. **Install XenonPy**
 
-.. code-block:: bash
+ When you reached this point, the remaining steps are very simple.
+ The following commands will install XenonPy into your python environment.
+
+ .. code-block:: bash
 
     $ pip install xenonpy
 
-Users can use the following command to install the package at a user-specified directory.
+ Users can use the following command to install the package at a user-specified directory.
 
-.. code-block:: bash
+ .. code-block:: bash
 
     $ pip install xenonpy --user
 
-The pre-installed version could be updated to the latest stable release as follow.
+ The pre-installed version could be updated to the latest stable release as follow.
 
-.. code-block:: bash
+ .. code-block:: bash
 
     $ pip install --upgrade xenonpy
 
@@ -169,7 +181,7 @@ Please provide detailed information (system specification, Python version, and i
 
 -----------------------------------------------------------------------------------------------------------
 
-.. _conda: http://conda.pydata.org
+.. _Conda: https://conda.io/en/latest/
 .. _official docker images: https://cloud.docker.com/u/yoshidalab/repository/docker/yoshidalab/xenonpy
 .. _yoshida-lab channel: https://anaconda.org/yoshida
 .. _pip: https://pip.pypa.io

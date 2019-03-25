@@ -10,10 +10,6 @@ git:
 matrix:
   include:
     - os: linux
-      dist: xenial # use ubuntu 14.04lts
-      sudo: false #  runs each build in a container on a shared host via Docker
-      env: PYENV=py35
-    - os: linux
       dist: xenial
       sudo: false
       env:
@@ -25,12 +21,8 @@ matrix:
       env: PYENV=py37
     - os: osx
       language: generic
-      env: PYENV=py35
-    - os: osx
-      language: generic
       env: PYENV=py36
     - os: osx
-      #       skip: true
       language: generic
       env: PYENV=py37
 

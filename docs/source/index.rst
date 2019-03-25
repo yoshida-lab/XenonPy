@@ -7,13 +7,14 @@
 ========================
 What is XenonPy project
 ========================
-.. image:: https://badges.gitter.im/yoshida-lab/XenonPy.svg
-    :alt: Join the chat at https://gitter.im/yoshida-lab/XenonPy
-    :target: https://gitter.im/yoshida-lab/XenonPy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 .. image:: https://travis-ci.org/yoshida-lab/XenonPy.svg?branch=master
     :alt: Build Status
     :target: https://travis-ci.org/yoshida-lab/XenonPy
+
+.. image:: https://ci.appveyor.com/api/projects/status/vnh350xqffp6t9nk/branch/master?svg=true
+    :alt: Build Status
+    :target: https://ci.appveyor.com/project/TsumiNa/xenonpy
 
 .. image:: https://codecov.io/gh/yoshida-lab/XenonPy/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/yoshida-lab/XenonPy
@@ -26,6 +27,9 @@ What is XenonPy project
     :alt: Python Versions
     :target: https://pypi.org/project/xenonpy/
 
+.. image:: https://badges.gitter.im/yoshida-lab/XenonPy.svg
+    :alt: Join the chat at https://gitter.im/yoshida-lab/XenonPy
+    :target: https://gitter.im/yoshida-lab/XenonPy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
 
 --------
 Overview

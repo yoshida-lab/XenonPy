@@ -3,10 +3,10 @@ Descriptor calculation
 ======================
 
 **XenonPy** comes with a general interface for descriptor calculation.
-By using these interface, users can implement their descriptor calculator with very few codes and run it safely.
+By using this interface, users can implement their descriptor calculator with only a few lines of codes and run it smoothly.
 
 We also use this system to provide built-in calculators. Currently, 15 featurizers in 4 types are available out-of-the-box.
-The following list shows a summary of them.
+The following list shows a summary.
 
 .. csv-table:: Summary of built-in featurizers
     :header: "Featurizer", "Type", "Description"
@@ -46,14 +46,14 @@ See :ref:`features:Data access` for details.
       |  |- MaxFeature
       |  |- MinFeature
 
-The structure information of calculator ``Cal`` are shown above.
+The structure information of calculator ``Cal`` is shown above.
 This information tells us ``Cal`` has one featurizer group called **composition** with featurizers
 ``WeightedAvgFeature``, ``WeightedSumFeature``, ``WeightedVarFeature``, ``MaxFeature`` and ``MinFeature`` in it.
 
-To use this calculator, user have to structure a iterable object that contains the information of compounds' composition, then feed it to the method ``transform`` or ``fit_transform`` of ``cal``.
-These methods accept two types as its input, the ``pymatgen.Structure`` objects, or dicts which have the structure like `{'H': 2, 'O': 1}`.
+To use this calculator, users have to structure an iterable object that contains the information of compounds' composition, then feed it to the method ``transform`` or ``fit_transform`` in ``cal``.
+These methods accept two types of input, the ``pymatgen.Structure`` objects, or dicts which have the structure like `{'H': 2, 'O': 1}`.
 
-By using our sample data, users can calculate compositional descriptors. The calculated results will be returned in pandas.DataFrame.
+Using our sample data, users will obtain a pandas.DataFrame object that contains all the compositional descriptors.
 
     >>> from xenonpy.datatools import preset
     >>> samples = preset.mp_samples
@@ -80,11 +80,9 @@ where
     dict
 
 
-
-Still remember the name of the featurizer group?. The **composition**.
-In fact, if input is an object of pandas.DataFrame, calculator will try to read those columns which have same name with featurizer groups.
-​
-For our case, because ``samples`` have a column named **composition**, the hole object entry can be fed to the calculator's methods like this:
+If the input is a pandas.DataFrame object, the calculator will first try to read the data columns that have the same name as the featurizer groups.
+For example, the name of the featurizer group in the example above is **composition**.
+Therefore, the whole object entry can be fed into the calculator's methods without explicitly extracting the **composition** column in the ``samples``:
 
     >>> descriptor = cal.transform(samples)
     >>> descriptor
@@ -100,14 +98,14 @@ For our case, because ``samples`` have a column named **composition**, the hole 
     932          16.500000  ...            0.802000
     [933 rows x 290 columns]
 
-This do the same work as previous one.
+This do the same work as the previous one.
 
 
 ----------------------
 Structural descriptors
 ----------------------
 
-Like ``Compositions`` calculator did. ``Structures`` accept ``pymatgen.Structure`` objects as its input then return calculated result as pandas.DataFrame.
+Similar to the ``Compositions`` calculator, ``Structures`` accepts ``pymatgen.Structure`` objects as its input, and then return calculated results as a pandas.DataFrame.
 
     >>> from xenonpy.descriptor import Structures
     >>> cal = Structures()
@@ -122,7 +120,7 @@ Like ``Compositions`` calculator did. ``Structures`` accept ``pymatgen.Structure
 
     >>> descriptor = cal.transform(samples)
 
-This will use 3 ~ 5 min to run and finally we got:
+This will take 3 ~ 5 min to run and finally you will get:
 
     >>> descriptor.head(5)
                 0.1  0.2  0.30000000000000004  ...  f14_f12  f14_f13  f14_f14
@@ -138,5 +136,5 @@ This will use 3 ~ 5 min to run and finally we got:
 Advance
 -------
 
-There are still lots of details for descriptor calculator system.
-Before we fill these documents, you can see https://github.com/yoshida-lab/XenonPy/blob/master/samples/build_your_own_descriptor_calculator.ipynb for imaging.
+There are more details of the descriptor calculator system that are not yet included in this tutorial.
+Before we complete this document, you can check out https://github.com/yoshida-lab/XenonPy/blob/master/samples/build_your_own_descriptor_calculator.ipynb for more information.

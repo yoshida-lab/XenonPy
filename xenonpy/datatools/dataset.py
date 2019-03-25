@@ -51,7 +51,8 @@ class Dataset(object):
             for f in files:
                 # select data
                 f = Path(f).resolve()
-                parent = str(f.parent).split('/')[-1]
+                parent = re.split(r'[\\/]', str(f.parent))[-1]
+                # parent = str(f.parent).split('/')[-1]
                 fn = f.name[:-(1 + len(patten))]
                 fn = self.__re__.sub('_', fn)
                 if parent in prefix:

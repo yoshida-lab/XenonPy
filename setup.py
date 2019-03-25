@@ -140,7 +140,6 @@ if __name__ == "__main__":
         "Operating System :: Microsoft :: Windows",
         "Operating System :: MacOS",
         "Operating System :: Unix",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
     ]
@@ -150,7 +149,7 @@ if __name__ == "__main__":
     SETUP_REQUIRES = ['pytest-runner', 'ruamel.yaml']
     TESTS_REQUIRE = ['pytest']
     setup(
-        python_requires='~=3.5',
+        python_requires='~=3.6',
         name=PKG_NAME,
         description=SHORT_DESCRIPTION,
         long_description=LONG_DESCRIPTION,

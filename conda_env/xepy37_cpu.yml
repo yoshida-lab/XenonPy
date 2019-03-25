@@ -1,4 +1,4 @@
-name: xepy37_cpu_linux
+name: xepy37_cpu
 channels:
   - defaults
   - pytorch

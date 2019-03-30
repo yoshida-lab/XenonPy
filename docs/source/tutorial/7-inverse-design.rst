@@ -8,7 +8,7 @@ This tutorial provides step by step guidance to all the essential components for
 Overview
 --------
 
-We are interested in finding molecular structures :math:`S` such that their properties :math:`Y` have a high probability of falling into a target region :math:`U`, i.e., we want to sample from the posterior probability :math:`p(S|Y ∈ U)` that is proportional to :math:`p(Y ∈ U|S)p(S)` by the Bayes' theorem. :math:`p(Y ∈ U|S)` is the likelihood function that can be derived from any machine learning models predicting :math:`Y` for a given :math:`S`. :math:`p(S)` is the prior that represents all possible candidates of S to be considered. iQSPR is a numerical implementation for this Bayesian formulation based on sequential Monte Carlo sampling, which requires a likelihood model and a prior model to begin with. 
+We are interested in finding molecular structures :math:`S` such that their properties :math:`Y` have a high probability of falling into a target region :math:`U`, i.e., we want to sample from the posterior probability :math:`p(S|Y \in U)` that is proportional to :math:`p(Y \in U|S)p(S)` by the Bayes' theorem. :math:`p(Y \in U|S)` is the likelihood function that can be derived from any machine learning models predicting :math:`Y` for a given :math:`S`. :math:`p(S)` is the prior that represents all possible candidates of S to be considered. iQSPR is a numerical implementation for this Bayesian formulation based on sequential Monte Carlo sampling, which requires a likelihood model and a prior model to begin with.
 
 This tutorial will proceed as follow: (1) initial setup and data preparation, (2) descriptor preparation for forward model (likelihood), (3) forward model (likelihood) preparation, (4) N-gram (prior) preparation, (5) a complete iQSPR run.
 
@@ -16,12 +16,13 @@ This tutorial will proceed as follow: (1) initial setup and data preparation, (2
 Dataset
 -------
 
-We provide a data set that contains 16674 SMILES randomly selected from pubchem with 2 material properties, the internal energy E (kJ/mol) and the HOMO-LUMO gap (eV). You can download the file `here`_. The property values are obtained from single-point calculations in DFT (density functional theory) simulations, with compounds geometry optimized at the B3LYP/6-31G(d) level of theory using GAMESS. This data set is prepared by our previous developers of iQSPR. XenonPy supports pandas dataframe as the main input source. When there are miss match in the number of data points available in each material property, i.e., there exists missing values, please simply fill in the missing values with NaN, and XenonPy will automatically handle them during model training.
+We provide a data set that contains 16674 SMILES randomly selected from pubchem_ with 2 material properties, the internal energy E (kJ/mol) and the HOMO-LUMO gap (eV). You can download the file `here`_. The property values are obtained from single-point calculations in DFT (density functional theory) simulations, with compounds geometry optimized at the B3LYP/6-31G(d) level of theory using GAMESS. This data set is prepared by our previous developers of iQSPR. XenonPy supports pandas dataframe as the main input source. When there are miss match in the number of data points available in each material property, i.e., there exists missing values, please simply fill in the missing values with NaN, and XenonPy will automatically handle them during model training.
 
     >>> import pandas as pd
     >>> data = pd.read_csv("./iQSPR_sample_data.csv")
 
 .. _here: https://github.com/yoshida-lab/XenonPy/releases/download/v0.3.1/iQSPR_sample_data.csv
+.. _pubchem: https://pubchem.ncbi.nlm.nih.gov/
 
 ----------
 Descriptor
@@ -54,7 +55,7 @@ Once trained, we can evaluate the likelihood values for the molecules to hit a g
 NGram model (prior)
 -------------------
 
-For prior, which is simply a molecule generator, XenonPy currently provides N-gram model based on the extended SMILES language developed in Ikebata et al. (2017). 
+For prior, which is simply a molecule generator, XenonPy currently provides N-gram model based on the extended SMILES language developed in Ikebata et al. [1]_
 
     >>> from xenonpy.inverse.iqspr import NGram
     >>> n_gram = NGram()
@@ -100,4 +101,8 @@ Putting together the initial molecules, beta vector, forward model (likelihood),
     
 Thank you for using XenonPy-iQSPR. We would appreciate any feedback and code contribution to this open-source project. For more details, you can check out our sample codes:
 
-  https://github.com/yoshida-lab/XenonPy/tree/master/samples/XenonPy-iQSPR.ipynb
+  https://github.com/yoshida-lab/XenonPy/tree/master/samples/iQSPR.ipynb
+
+**Reference**
+
+.. [1] Ikebata, H., Hongo, K., Isomura, T., Maezono, R. & Yoshida, R. Bayesian molecular design with a chemical language model. J. Comput. Aided. Mol. Des. 31, 379–391 (2017).

@@ -38,7 +38,7 @@ def setup():
 
 
 def test_preset_1():
-    path = Path(__cfg_root__) / 'dataset' / 'elements.pkl.pd_'
+    path = Path(__cfg_root__) / 'dataset' / 'elements.pd.xz'
     if path.exists():
         remove(str(path))
 
@@ -48,7 +48,7 @@ def test_preset_1():
     preset.sync('elements')
     preset.elements
 
-    path = Path(__cfg_root__) / 'dataset' / 'elements_completed.pkl.pd_'
+    path = Path(__cfg_root__) / 'dataset' / 'elements_completed.pd.xz'
     if path.exists():
         remove(str(path))
 
@@ -84,8 +84,8 @@ def test_preset_3():
 
 def test_preset_4():
     ids = Path(__file__).parent / 'ids.txt'
-    samples = Path(__cfg_root__) / 'userdata' / 'mp_samples.pkl.pd_'
-    save_to = Path(__file__).parent / 'tmp.pkl.pd_'
+    samples = Path(__cfg_root__) / 'userdata' / 'mp_samples.pd.xz'
+    save_to = Path(__file__).parent / 'tmp.pd.xz'
 
     with pytest.raises(ValueError):
         preset.build('no_exist')

@@ -2,7 +2,6 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-
 from os import remove
 from pathlib import Path
 
@@ -30,8 +29,8 @@ def test_data():
     ary = [[1, 2], [3, 4]]
     df = pd.DataFrame(ary)
 
-    pkl_path = str(file_path / 'test.pkl.z_')
-    df_path = str(file_path / 'test.pkl.pd_')
+    pkl_path = str(file_path / 'test.pkl.z')
+    df_path = str(file_path / 'test.pd.xz')
     csv_path = str(file_path / 'test.csv')
     msg_path = str(file_path / 'test.msg')
 
@@ -50,6 +49,18 @@ def test_data():
     if tmp.exists():
         remove(str(tmp))
 
+    tmp = file_path / 'test.pd'
+    if tmp.exists():
+        remove(str(tmp))
+
+    tmp = file_path / 'test.str'
+    if tmp.exists():
+        remove(str(tmp))
+
+    tmp = file_path / 'test.pkl'
+    if tmp.exists():
+        remove(str(tmp))
+
     remove(pkl_path)
     remove(df_path)
     remove(csv_path)
@@ -62,7 +73,7 @@ def test_dataset_1(test_data):
     path = Path(__file__).parents[0]
 
     ds = Dataset()
-    assert ds._backend == 'dataframe'
+    assert ds._backend == 'pandas'
     assert ds._paths == ('.',)
     assert ds._prefix == ()
 
@@ -97,13 +108,13 @@ def test_dataset_2(test_data):
     tmp = ds.csv(str(path / 'test.csv'))
     assert np.all(np.array([[0, 1, 2], [1, 3, 4]]) == tmp.values)
 
-    tmp = ds.dataframe
+    tmp = ds.pandas
     assert hasattr(tmp, 'test')
     tmp = tmp.test
     assert isinstance(tmp, pd.DataFrame)
     assert np.all(np.array([[1, 2], [3, 4]]) == tmp.values)
 
-    tmp = ds.dataframe(str(path / 'test.pkl.pd_'))
+    tmp = ds.pandas(str(path / 'test.pd.xz'))
     assert np.all(np.array([[1, 2], [3, 4]]) == tmp.values)
 
     tmp = ds.pickle
@@ -112,7 +123,7 @@ def test_dataset_2(test_data):
     assert isinstance(tmp, list)
     assert [[1, 2], [3, 4]] == tmp
 
-    tmp = ds.dataframe(str(path / 'test.pkl.z_'))
+    tmp = ds.pickle(str(path / 'test.pkl.z'))
     assert [[1, 2], [3, 4]] == tmp
 
     ds.__extension__['msg'] = ('msg', pd.read_msgpack)
@@ -141,6 +152,23 @@ def test_dataset_3(test_data):
     assert Path(tmp).exists()
     with open(tmp, 'r') as f:
         assert f.readline() == 'Test xenonpy.utils.Loader._fetch_data'
+
+
+def test_dateset_4(test_data):
+    file_path = test_data[2]
+    data = pd.DataFrame([[1, 2], [3, 4]])
+
+    file = file_path / 'test.pd'
+    Dataset.to(data, file)
+    assert file.exists()
+
+    file = file_path / 'test.str'
+    Dataset.to(data, str(file))
+    assert file.exists()
+
+    file = file_path / 'test.pkl'
+    Dataset.to(data.values, file)
+    assert file.exists()
 
 
 if __name__ == "__main__":

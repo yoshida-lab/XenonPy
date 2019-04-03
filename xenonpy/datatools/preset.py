@@ -55,7 +55,7 @@ class Preset(Dataset, metaclass=Singleton):
             str(self._dataset),
             config('userdata'),
             *self._ext_data,
-            backend='dataframe',
+            backend='pandas',
             prefix=('dataset',))
 
         yaml = YAML(typ='safe')
@@ -84,7 +84,7 @@ class Preset(Dataset, metaclass=Singleton):
         ret:DataFrame or Saver or local file path.
         """
 
-        dataset = self._dataset / (data + '.pkl.pd_')
+        dataset = self._dataset / (data + '.pd.xz')
         sha256_file = self._dataset / 'sha256.yml'
 
         # check sha256 value
@@ -173,7 +173,7 @@ class Preset(Dataset, metaclass=Singleton):
                     mp_ids = [s.decode('utf-8') for s in np.loadtxt(str(ids), 'S20')]
                 data = mp_builder(kwargs['api_key'], mp_ids)
                 if not save_to:
-                    save_to = Path(config('userdata')) / 'mp_samples.pkl.pd_'
+                    save_to = Path(config('userdata')) / 'mp_samples.pd.xz'
                     save_to = save_to.expanduser().absolute()
                 data.to_pickle(save_to)
                 self._make_index(prefix=['dataset'])
@@ -183,7 +183,7 @@ class Preset(Dataset, metaclass=Singleton):
 
     def _check(self, data):
 
-        dataset = self._dataset / (data + '.pkl.pd_')
+        dataset = self._dataset / (data + '.pd.xz')
         sha256_file = self._dataset / 'sha256.yml'
 
         # fetch data from source if not in local

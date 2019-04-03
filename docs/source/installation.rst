@@ -46,8 +46,9 @@ The following example shows how to create an environment step-by-step.
 
 1. **Chose an environment and download the corresponding configuration file**.
 
- For example, your want to use python 3.6 with cuda10 support. The ``xepy36_cuda10.yml`` will be what you want.
- Users can download it via the http access.
+ First, choose a configuration preset from `here <https://github.com/yoshida-lab/XenonPy/tree/master/conda_env>`_, then use it to create the runtime environment locally.
+ For example, you want to run XenonPy in python 3.6 with cuda10 support. The ``xepy36_cuda10.yml`` will be satisfied.
+ In OSX or Unix-like system, the following command will download the configuration file and save it locally.
 
  .. code-block:: bash
 

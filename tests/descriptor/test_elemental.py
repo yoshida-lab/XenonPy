@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from xenonpy.descriptor import Compositions
+from xenonpy.descriptor import Compositions, OneHotVecFeature
 from xenonpy.descriptor.composition import _CompositionalFeature
 
 
@@ -14,10 +14,10 @@ def test_compositional_feature_1():
     class FakeFeature(_CompositionalFeature):
         @property
         def feature_labels(self):
-            return ['min:' + s for s in self.elements]
+            return ['min:' + s for s in self._elements]
 
         def _func(self, elems, nums):
-            elems_ = self.elements.loc[elems, :]
+            elems_ = self._elements.loc[elems, :]
             w_ = nums / np.sum(nums)
             return w_.dot(elems_)
 
@@ -32,6 +32,17 @@ def test_compositional_feature_1():
     desc = FakeFeature(n_jobs=1, on_errors='nan')
     tmp = desc.fit_transform([{'Bl': 2}])
     assert np.all(np.isnan(tmp[0]))
+
+
+def test_ohv_feature_1():
+    comps = [{'H': 2, 'He': 1}, {'Li': 1}]
+    ohv = OneHotVecFeature(return_type='array')
+    tmp = ohv.transform(comps)
+    assert tmp.shape == (2, 94)
+
+    assert np.all(tmp[0, :2] == np.array([1, 1]))
+    assert np.all(tmp[0, 2:] == np.zeros(92))
+    assert np.all(tmp[1, :3] == np.array([0, 0, 1]))
 
 
 def test_comp_descriptor_1():

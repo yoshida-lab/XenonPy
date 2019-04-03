@@ -130,7 +130,7 @@ class Storage(object):
     def _save_data(self, data, filename):
         self._path.mkdir(parents=True, exist_ok=True)
         if isinstance(data, pd.DataFrame):
-            file = self._path / (filename + '.pkl.pd_')
+            file = self._path / (filename + '.pd.xz')
             pd.to_pickle(data, str(file))
         else:
             file = self._path / (filename + '.pkl.z')

@@ -2,8 +2,7 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-
-import glob
+import os
 import re
 from collections import defaultdict
 from pathlib import Path
@@ -16,15 +15,14 @@ from sklearn.externals import joblib
 
 class Dataset(object):
     __extension__ = dict(
-        dataframe=('pkl.pd_', pd.read_pickle),
-        csv=('csv', pd.read_csv),
-        excel=('xlsx', pd.read_excel),
-        pickle=('pkl.z_', joblib.load)
-    )
+        pandas=(r'.*\.pd($|\.\w+$)', pd.read_pickle),
+        csv=(r'csv', pd.read_csv),
+        excel=(r'(xlsx|xls)', pd.read_excel),
+        pickle=(r'.*\.pkl($|\.\w+$)', joblib.load))
 
     __re__ = re.compile(r'[\s\-.]')
 
-    def __init__(self, *paths, backend='dataframe', prefix=None):
+    def __init__(self, *paths, backend='pandas', prefix=None):
         self._backend = backend
         self._files = None
 
@@ -40,30 +38,32 @@ class Dataset(object):
         self._make_index(prefix=prefix)
 
     def _make_index(self, *, prefix):
-        def make(path_):
-            patten = self.__extension__[self._backend][0]
-            files = glob.glob(str(path_ / ('*.' + patten)))
 
+        def make(path_):
             def _nest(_f):
                 f_ = _f
                 return lambda s: s.__extension__[s._backend][1](f_)
 
-            for f in files:
-                # select data
-                f = Path(f).resolve()
-                parent = re.split(r'[\\/]', str(f.parent))[-1]
-                # parent = str(f.parent).split('/')[-1]
-                fn = f.name[:-(1 + len(patten))]
-                fn = self.__re__.sub('_', fn)
-                if parent in prefix:
-                    fn = '_'.join([parent, fn])
+            patten = re.compile(self.__extension__[self._backend][0])
+            for f in os.listdir(str(path_)):
+                if patten.search(f):
+                    fn = f.split('.')[0]
+                    fn = self.__re__.sub('_', fn)
+                    fp = str(path_ / f)
 
-                if fn in self._files:
-                    warn("file %s with name %s already bind to %s and will be ignored" %
-                         (str(f), fn, self._files[fn]), RuntimeWarning)
-                else:
-                    self._files[fn] = str(f)
-                    setattr(self.__class__, fn, property(_nest(str(f))))
+                    # select data
+                    parent = re.split(r'[\\/]', str(path_))[-1]
+                    # parent = str(f.parent).split('/')[-1]
+                    if parent in prefix:
+                        fn = '_'.join([parent, fn])
+
+                    if fn in self._files:
+                        warn(
+                            "file %s with name %s already bind to %s and will be ignored" %
+                            (fp, fn, self._files[fn]), RuntimeWarning)
+                    else:
+                        self._files[fn] = fp
+                        setattr(self.__class__, fn, property(_nest(fp)))
 
         self._files = defaultdict(str)
         for path in self._paths:
@@ -71,6 +71,14 @@ class Dataset(object):
             if not path.exists():
                 raise RuntimeError('%s not exists' % str(path))
             make(path)
+
+    @classmethod
+    def to(cls, obj, path, *, force_pkl=False):
+        if isinstance(path, Path):
+            path = str(path)
+        if not force_pkl and isinstance(obj, (pd.DataFrame, pd.Series)):
+            return obj.to_pickle(path)
+        return joblib.dump(obj, path)
 
     @classmethod
     def from_http(cls, url, save_to, *, filename=None, chunk_size=256 * 1024, params=None,
@@ -135,8 +143,8 @@ class Dataset(object):
         return Dataset(*self._paths, backend='csv', prefix=self._prefix)
 
     @property
-    def dataframe(self):
-        return Dataset(*self._paths, backend='dataframe', prefix=self._prefix)
+    def pandas(self):
+        return Dataset(*self._paths, backend='pandas', prefix=self._prefix)
 
     @property
     def pickle(self):

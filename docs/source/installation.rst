@@ -22,7 +22,7 @@ pip_ is a package management system for installing and updating Python packages,
 Conda_ is an open source package management system and environment management system that runs on Windows, macOS and Linux.
 Conda easily creates, saves, loads and switches between environments on your local computer.
 
-XenonPy have 3 peer dependencies, which are PyTorch, pymatgen and rdkit_. Before you install XenonPy, you have to install them.
+XenonPy has 3 peer dependencies, which are PyTorch, pymatgen and rdkit_. Before you install XenonPy, you have to install them.
 The easiest way to install all 3 packages is to use Conda_. The following official tutorials will guide you through a successful installation.
 
 PyTorch: https://pytorch.org/get-started/locally/
@@ -31,15 +31,15 @@ pymatgen: http://pymatgen.org/index.html#getting-pymatgen
 :raw-html:`<br />`
 rdkit: https://www.rdkit.org/docs/Install.html
 
-We also provide some preset environments at `conda_env <https://github.com/yoshida-lab/XenonPy/tree/master/conda_env>`_.
-Users can use these files to create the runnable environment on their local machine.
+For convenience, several environments preset are available at `conda_env <https://github.com/yoshida-lab/XenonPy/tree/master/conda_env>`_.
+You can use these files to create the runnable environment on locally.
 
 .. code-block:: bash
 
     $ conda env create -f <path_to_file>
 
-For Unix-like (linux, mac, FreeBSD, etc.) users, the above command will is enough.
-For windows users, additional tools are needed. We highly recommend you to install the `Visual C++ Build Tools <http://landinghub.visualstudio.com/visual-cpp-build-tools>`_ before creating your environment.
+For Unix-like (linux, mac, FreeBSD, etc.) system, the above command will be enough.
+For windows, additional tools are needed. We highly recommend you to install the `Visual C++ Build Tools <http://landinghub.visualstudio.com/visual-cpp-build-tools>`_ before creating your environment.
 Also, confirm that you have checked the **windows 8.1 / 10 SDK options** on when installing the build tools.
 
 The following example shows how to create an environment step-by-step.
@@ -48,7 +48,7 @@ The following example shows how to create an environment step-by-step.
 
  First, choose a configuration preset from `here <https://github.com/yoshida-lab/XenonPy/tree/master/conda_env>`_, then use it to create the runtime environment locally.
  For example, you want to run XenonPy in python 3.6 with cuda10 support. The ``xepy36_cuda10.yml`` will be satisfied.
- In OSX or Unix-like system, the following command will download the configuration file and save it locally.
+ In Unix-like system with `curl <https://curl.haxx.se/>`_ has been installed, the following command will download the configuration file and save it locally.
 
  .. code-block:: bash
 
@@ -56,7 +56,7 @@ The following example shows how to create an environment step-by-step.
 
 2. **Create the environment from file**.
 
- The following commands will build a conda environment named **xepy36_cuda10**.
+ Run the following commands to build the conda environment based on the configuration file.
 
  .. code-block:: bash
 
@@ -64,6 +64,8 @@ The following example shows how to create an environment step-by-step.
 
 
 3. **Enter the environment**.
+
+ The name of environment is the same as the configuration file. For our example is  **xepy36_cuda10**.
 
  .. code-block:: bash
 
@@ -77,24 +79,24 @@ The following example shows how to create an environment step-by-step.
 
     $ conda activate xepy36_cuda10
 
- This is based on your machine system and the configuration of your conda installation.
+ Which command should be used is based on your system and your conda configuration.
 
 4. **Install XenonPy**
 
  When you reached this point, the remaining steps are very simple.
- The following commands will install XenonPy into your python environment.
+ Using ``pip install xenonpy`` to install XenonPy into the environment.
 
  .. code-block:: bash
 
     $ pip install xenonpy
 
- Users can use the following command to install the package at a user-specified directory.
+ Also, you can give ``--user`` option to ``pip install`` to install a user-specified directory.
 
  .. code-block:: bash
 
     $ pip install xenonpy --user
 
- The pre-installed version could be updated to the latest stable release as follow.
+ Last, old version could be updated as follow.
 
  .. code-block:: bash
 

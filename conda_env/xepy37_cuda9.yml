@@ -20,6 +20,8 @@ dependencies:
   - pip:
       - ruamel.yaml
       - pymatgen==2019.3.13
+      - matminer
+      - torchtext
       - jupyterlab
       - pybtex
       - mordred

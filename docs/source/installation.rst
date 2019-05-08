@@ -31,76 +31,72 @@ pymatgen: http://pymatgen.org/index.html#getting-pymatgen
 :raw-html:`<br />`
 rdkit: https://www.rdkit.org/docs/Install.html
 
-For convenience, several environments preset are available at `conda_env <https://github.com/yoshida-lab/XenonPy/tree/master/conda_env>`_.
-You can use these files to create the runnable environment on locally.
+For convenience, several environments preset are available at `conda_env`_.
+You can use these files to create a runnable environment on your local machine.
 
 .. code-block:: bash
 
     $ conda env create -f <path_to_file>
 
-For Unix-like (linux, mac, FreeBSD, etc.) system, the above command will be enough.
-For windows, additional tools are needed. We highly recommend you to install the `Visual C++ Build Tools <http://landinghub.visualstudio.com/visual-cpp-build-tools>`_ before creating your environment.
-Also, confirm that you have checked the **windows 8.1 / 10 SDK options** on when installing the build tools.
+.. note::
 
-The following example shows how to create an environment step-by-step.
+    For Unix-like (linux, mac, FreeBSD, etc.) system, the above command will be enough.
+    For windows, additional tools are needed. We highly recommend you to install the `Visual C++ Build Tools <http://landinghub.visualstudio.com/visual-cpp-build-tools>`_ before creating your environment.
+    Also, confirm that you have checked the **windows 8.1 / 10 SDK options** on when installing the build tools.
 
-1. **Chose an environment and download the corresponding configuration file**.
+The following example shows how to create an environment from a preset step-by-step.
 
- First, choose a configuration preset from `here <https://github.com/yoshida-lab/XenonPy/tree/master/conda_env>`_, then use it to create the runtime environment locally.
- For example, you want to run XenonPy in python 3.6 with cuda10 support. The ``xepy36_cuda10.yml`` will be satisfied.
- In Unix-like system with `curl <https://curl.haxx.se/>`_ has been installed, the following command will download the configuration file and save it locally.
+1. **Chose an environment preset and download it**.
+
+ For example, you want to run XenonPy in python 3.7 with cuda10 supports. The **xepy37_cuda10.yml** preset will surely satisfy you.
+ If `curl <https://curl.haxx.se/>`_ has been installed, the following command will download the configuration file to you local machine.
 
  .. code-block:: bash
 
-  $ curl -O https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/conda_env/xepy36_cuda10.yml
+  $ curl -O https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/conda_env/xepy37_cuda10.yml
 
 2. **Create the environment from file**.
 
- Run the following commands to build the conda environment based on the configuration file.
+ The following commands will rebuild the python environment based on the configuration file **xepy37_cuda10.yml**.
 
  .. code-block:: bash
 
-    $ conda env create -f xepy36_cuda10.yml
+    $ conda env create -f xepy37_cuda10.yml
 
 
 3. **Enter the environment**.
 
- The name of environment is the same as the configuration file. For our example is  **xepy36_cuda10**.
+ Environment name is the same as the configuration file. In this example it's  **xepy37_cuda10**.
 
  .. code-block:: bash
 
-    $ source activate xepy36_cuda10
+    $ source activate xepy37_cuda10
 
     # or
 
-    $ activate xepy36_cuda10
+    $ activate xepy37_cuda10
 
     # or
 
-    $ conda activate xepy36_cuda10
+    $ conda activate xepy37_cuda10
 
- Which command should be used is based on your system and your conda configuration.
+ .. note::
+     Which command should be used is based on your system and your conda configuration.
 
 4. **Install XenonPy**
 
- When you reached this point, the remaining steps are very simple.
+ When you reached here, the remains are very simple.
  Using ``pip install xenonpy`` to install XenonPy into the environment.
 
  .. code-block:: bash
 
     $ pip install xenonpy
 
- Also, you can give ``--user`` option to ``pip install`` to install a user-specified directory.
+ And, old version could be updated as follow.
 
  .. code-block:: bash
 
-    $ pip install xenonpy --user
-
- Last, old version could be updated as follow.
-
- .. code-block:: bash
-
-    $ pip install --upgrade xenonpy
+    $ pip install -U xenonpy
 
 
 ------------
@@ -114,14 +110,12 @@ Using docker
 Containers allow a developer to pack up an application with all of the parts it needs, such as libraries and other dependencies, into a single package.
 We provide the `official docker images`_ via the `Docker hub <https://hub.docker.com>`_.
 
-If you have not installed Docker yet, follow the `official installation tutorial <https://docs.docker.com/install/>`_ to install docker CE on your machine.
-Once your docker installation is done, use the following command to boot up a jupyterlab_ with XenonPy available out-of-the-box.
+Using docker need you to have docker on your local machine. If you have not installed it yet, follow the `official installation tutorial <https://docs.docker.com/install/>`_ to install docker CE on your machine.
+Once your have done this, the following command will boot up a jupyterlab_ for you with XenonPy inside. See `here <https://github.com/yoshida-lab/XenonPy#xenonpy-images>`_ to know what other packages are available.
 
 .. code-block:: bash
 
     $ docker run --rm -it -v $HOME/.xenonpy:/home/user/.xenonpy -v <path/to/your/work_space>:/workspace -p 8888:8888 yoshidalab/xenonpy
-
-Then, open http://localhost:8888 from your favourite browser.
 
 If you have a GPU server/PC running linux and want to bring the GPU acceleration to docker. Just adding ``--runtime=nvidia`` to ``docker run`` command.
 
@@ -129,17 +123,16 @@ If you have a GPU server/PC running linux and want to bring the GPU acceleration
 
     $ docker run --runtime=nvidia --rm -it -v $HOME/.xenonpy:/home/user/.xenonpy -v <path/to/your/work_space>:/workspace -p 8888:8888 yoshidalab/xenonpy
 
-For more information about **use GPU acceleration in docker**, see `nvidia docker <https://github.com/NVIDIA/nvidia-docker>`_.
+For more information about **using GPU acceleration in docker**, see `nvidia docker <https://github.com/NVIDIA/nvidia-docker>`_.
 
 
-permission failed
+Permission failed
 -----------------
 
-Because docker is a container system running like a virtual machine.
-You may face some permission problem when you try to open/save your jupyter files in docker.
-
+You may have permission problem when you try to open/save jupyter files. This is because docker is a container system running like a virtual machine.
+Files will have different permission when be mounted onto docker container.
 The simplest way to resolve these problem is changing the permission of failed files.
-You can open a terminal in jupyter notebook and typing:
+You can open a terminal in jupyter notebook and type:
 
 .. code-block:: bash
 
@@ -195,3 +188,4 @@ Please provide detailed information (system specification, Python version, and i
 .. _PyTorch: http://pytorch.org/
 .. _rdkit: https://www.rdkit.org/
 .. _jupyterlab: https://jupyterlab.readthedocs.io/en/stable/
+.. _conda_env: https://github.com/yoshida-lab/XenonPy/tree/master/conda_env

@@ -16,7 +16,7 @@ frozen featurizer
 Coming soon!
 Before this section is ready, you can check out our sample codes:
 
-    https://github.com/yoshida-lab/XenonPy/blob/master/samples/tranfer_learning.ipynb
+    https://github.com/yoshida-lab/XenonPy/blob/master/samples/transfer_learning.ipynb
 
 
 

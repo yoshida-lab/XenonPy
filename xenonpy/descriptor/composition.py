@@ -43,12 +43,14 @@ class _CompositionalFeature(BaseFeaturizer):
         raise NotImplementedError("feature_labels() is not defined!")
 
 
-class OneHotVecFeature(_CompositionalFeature):
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
+class CountingFeature(_CompositionalFeature):
+    def __init__(self, *, one_hot_vec=False, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
         Parameters
         ----------
+        one_hot_vec : bool
+            Set ``true`` to using one-hot-vector encoding.
         n_jobs: int
             The number of jobs to run in parallel for both fit and predict.
             Set -1 to use all cpu cores (default).
@@ -68,14 +70,18 @@ class OneHotVecFeature(_CompositionalFeature):
         """
 
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        self.one_hot_vec = one_hot_vec
         self._elems = self._elements.index.tolist()
 
     def _func(self, elems, nums):
-        ohv = np.zeros(len(self._elems), dtype=np.int)
-        for e in elems:
-            ohv[self._elems.index(e)] = 1
+        vec = np.zeros(len(self._elems), dtype=np.int)
+        for i, e in enumerate(elems):
+            if self.one_hot_vec:
+                vec[self._elems.index(e)] = 1
+            else:
+                vec[self._elems.index(e)] = nums[i]
 
-        return ohv
+        return vec
 
     @property
     def feature_labels(self):
@@ -292,7 +298,7 @@ class Compositions(BaseDescriptor):
         super().__init__(featurizers=featurizers)
         self.n_jobs = n_jobs
 
-        self.composition = OneHotVecFeature(n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = CountingFeature(n_jobs=n_jobs, on_errors=on_errors)
         self.composition = WeightedAvgFeature(n_jobs=n_jobs, on_errors=on_errors)
         self.composition = WeightedSumFeature(n_jobs=n_jobs, on_errors=on_errors)
         self.composition = WeightedVarFeature(n_jobs=n_jobs, on_errors=on_errors)

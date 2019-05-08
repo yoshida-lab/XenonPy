@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from xenonpy.descriptor import Compositions, OneHotVecFeature
+from xenonpy.descriptor import Compositions, CountingFeature
 from xenonpy.descriptor.composition import _CompositionalFeature
 
 
@@ -34,9 +34,17 @@ def test_compositional_feature_1():
     assert np.all(np.isnan(tmp[0]))
 
 
-def test_ohv_feature_1():
+def test_counting_feature_1():
     comps = [{'H': 2, 'He': 1}, {'Li': 1}]
-    ohv = OneHotVecFeature(return_type='array')
+    counting = CountingFeature(return_type='array')
+    tmp = counting.transform(comps)
+    assert tmp.shape == (2, 94)
+
+    assert np.all(tmp[0, :2] == np.array([2, 1]))
+    assert np.all(tmp[0, 2:] == np.zeros(92))
+    assert np.all(tmp[1, :3] == np.array([0, 0, 1]))
+
+    ohv = CountingFeature(return_type='array', one_hot_vec=True)
     tmp = ohv.transform(comps)
     assert tmp.shape == (2, 94)
 

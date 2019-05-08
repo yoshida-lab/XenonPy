@@ -1,7 +1,5 @@
 # we don't use travis python virtualenv
 language: python
-virtualenv:
-  system_site_packages: true
 
 # shallow clone
 git:

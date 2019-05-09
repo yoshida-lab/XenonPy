@@ -16,14 +16,14 @@ we assume that you can use `Jupyter notebook <https://jupyter.org/>`_.
 Sample data
 -----------
 
-Before starting these tutorials, you need to prepare some sample data for benchmark/test.
+Before starting these tutorials, you need to prepare some sample data for the benchmark/test.
 
 We selected 1,000 inorganic compounds randomly from the `Materials Project <https://materialsproject.org>`_ database for this using.
 You can check these **MP ids** at:
 
     https://github.com/yoshida-lab/XenonPy/blob/master/samples/mp_ids.txt.
 
-To build the sample data, you also have to create a API key at materials project.
+To build the sample data, you also have to create an API key at the materials project.
 Please see `The Materials API <https://materialsproject.org/open>`_  and follow the official documents.
 
 

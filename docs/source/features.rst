@@ -11,7 +11,7 @@ Data access
 -----------
 .. _data-access:
 
-**Dataset** is a abstraction of local file system.
+**Dataset** is an abstraction of the local file system.
 Users can add their local dirs into this system then load data that under these dirs in a convenient way.
 
 XenonPy also uses this system to provide some built-in data.
@@ -127,12 +127,12 @@ Compositional descriptors
 -------------------------
 
 XenonPy can calculate 290 compositional features for a given chemical composition.
-This calculation uses information of the 58 element-level property data recorded in ``elements_completed``.
+This calculation uses the information of the 58 element-level property data recorded in ``elements_completed``.
 For example, let us consider a binary compound, :math:`A_{w_A}B_{w_B}`, whose element-level features are denoted by :math:`f_{A,i}` and :math:`f_{B,i} (i = 1, …, 58)`. Then, the 290 compositional descriptors are calculated: for :math:`i = 1, …, 58`,
 
 * Weighted average (abbr: ave): :math:`f_{ave, i} = w_{A}^* f_{A,i} + w_{B}^* f_{B,i}`,
 * Weighted variance (abbr: var): :math:`f_{var, i} = w_{A}^* (f_{A,i} - f_{ave, i})^2  + w_{B}^* (f_{B,i} - f_{ave, i})^2`,
-* Max-pooling (abbr: max): :math:`f_{max, i} = max{f_{A,i}, f_{B,i}}`, 
+* Max-pooling (abbr: max): :math:`f_{max, i} = max{f_{A,i}, f_{B,i}}`,
 * Min-pooling (abbr: min): :math:`f_{min, i} = min{f_{A,i}, f_{B,i}}`,
 * Weighted sum (abbr: sum): :math:`f_{sum, i} = w_{A} f_{A,i} + w_{B} f_{B,i}`,
 
@@ -142,7 +142,7 @@ where :math:`w_{A}^*` and :math:`w_{B}^*` denote the normalized composition summ
 Structural descriptors
 ----------------------
 Currently, XenonPy implements RDF (radial distribution function) and OFM (orbital field matrix [2]_) descriptors of crystalline structures.
-We also provide compatible API to use the structural descriptors of `matminer <https://hackingmaterials.github.io/matminer/>`_.
+We also provide a compatible API to use the structural descriptors of `matminer <https://hackingmaterials.github.io/matminer/>`_.
 You may check the summary table of featurizers in matminer `here <https://hackingmaterials.github.io/matminer/featurizer_summary.html>`_.
 
 
@@ -195,11 +195,11 @@ XenonPy.MDL
 XenonPy.MDL is a library of pre-trained models that were obtained by feeding diverse materials data on structure-property relationships into neural networks and some other supervised learning algorithms.
 The current release (version 0.1.0) contains more than 100,000 models (include private models) on physical, chemical, electronic, thermodynamic, or mechanical properties of small organic molecules (15 properties), polymers/polymer composites (18), and inorganic compounds (12).
 Pre-trained neural networks are distributed as either the R (MXNet) or Python (PyTorch) model objects.
-Detailed information of XenonPy.MDL, such as, a list of models, properties, source data used for training, and so on, are prepared in this paper [3]_.
+Detailed information about XenonPy.MDL, such as a list of models, properties, source data used for training, and so on, are prepared in this paper [3]_.
 
 The following lists contain the information of current available pre-trained models and properties.
 
-.. table:: Information of model sets
+.. table:: Information on model sets
 
     +-----------+-----------------------------------+-------------------------------------------------------------------+
     |  sId      |  name                             |  description                                                      |
@@ -276,8 +276,8 @@ The following lists contain the information of current available pre-trained mod
            Formation Energy Per Atom   Inorganic Crystal      inorganic.crystal.formation_energy_per_atom
     ================================ =================== ================================================
 
-XenonPy.MDL provides a rich-set of APIs to give users the abilities to interact with pre-trained model database.
-Through the APIs, users can search for a specific subset of models by keywords and download them via http.
+XenonPy.MDL provides a rich set of APIs to give users the abilities to interact with the pre-trained model database.
+Through the APIs, users can search for a specific subset of models by keywords and download them via HTTP.
 The tutorials at :doc:`tutorial/5-mdl` will show you how to interact with the database in XenonPy (via the API querying).
 
 Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/mdl.ipynb to get a runnable script.
@@ -304,4 +304,4 @@ Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/transfer_learn
 
 .. [3] Yamada, H., Liu, C., Wu, S., Koyama, Y., Ju, S., Shiomi, J., Morikawa, J., Yoshida, R. Transfer learning: a key driver of accelerating materials discovery with machine learning, in preparation.
 .. [4] Karl, W.; Khoshgoftaar, T. M.; Wang, D. J. of Big Data 2016, 3, 1–40.
-.. [5] Chuanqi, T.; Fuchun, S.; Tao, K.; Wenchang, Z.; Chao, Y.; Chunfang, L. arXiv 2018, abs/1808.01974 .
+.. [5] Chuanqi, T.; Fuchun, S.; Tao, K.; Wenchang, Z.; Chao, Y.; Chunfang, L. arXiv 2018, abs/1808.01974.

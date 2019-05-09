@@ -2,10 +2,10 @@
 Data access
 ===========
 
-**Dataset** is an abstraction of local file system.
+**Dataset** is an abstraction of the local file system.
 Users can add their local paths into this system to easily access the data inside.
 The basic concept is to treat a data file as a property of a ``Dataset`` object.
-The following docs show how easy it is to interact with the data in system.
+The following docs show how easy it is to interact with the data in this system.
 
 
 -------
@@ -33,7 +33,7 @@ In this case, the `/set1/data1.pd.xz` was loaded.
 
 It is important to note that we called a property named ``dataframe`` before we load ``data1`` in order to let ``dataset`` know that it is loading a ``pandas.DataFrame`` object file using the ``pd.read_pickle`` function.
 
-Currently, 4 loaders are available out-of-the-box. The information of built-in loaders are summarised as below.
+Currently, 4 loaders are available out-of-the-box. The information of built-in loaders is summarised as below.
 
 .. table:: built-in loaders
 
@@ -47,7 +47,7 @@ Currently, 4 loaders are available out-of-the-box. The information of built-in l
     ==============  ==================  =============================
 
 The default loader is ``dataframe``. This means that if you want to load a pandas.DataFrame object, you can omit the ``dataframe``.
-The following code exactly do the same work as explained above:
+The following code exactly does the same work as explained above:
 
     >>> dataset.data1
 
@@ -78,7 +78,7 @@ Use the following codes to load ``elements`` and ``elements_completed``.
     >>> preset.elements
     >>> preset.elements_completed
 
-These are still some advance uses of ``Dataset`` and ``preset``. For more details, see :ref:`tutorial/1-dataset:Advance`.
+These are still some advanced uses of ``Dataset`` and ``preset``. For more details, see :ref:`tutorial/1-dataset:Advance`.
 
 Also see the jupyter files at:
 

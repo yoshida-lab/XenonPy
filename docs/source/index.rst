@@ -38,11 +38,11 @@ Overview
 for materials informatics. Its functionalities partially depend on Python (PyTorch) and R (MXNet).
 The current release (v0.2.1, 2019/2/20) is a prototype version, which provides some limited modules:
 
-* Interface to public materials database
+* Interface to the public materials database
 * Library of materials descriptors (compositional/structural descriptors)
 * Pretrained model library **XenonPy.MDL** (v0.1.0b, 2018/12/25: more than 10,000 models in 35 properties of small molecules, polymers, and inorganic compounds)
 * Machine learning tools.
-* Transfer learning using the pretrained models in XenonPy.MDL
+* Transfer learning using the pre-trained models in XenonPy.MDL
 
 
 .. image:: _static/xenonpy.png
@@ -55,10 +55,10 @@ XenonPy has a rich set of tools for various materials informatics applications.
 The descriptor generator class can calculate several types of numeric descriptors from ``compositional``, ``structure``.
 By using XenonPy's built-in visualization functions, the relationships between descriptors and target properties can be easily shown in a heatmap.
 
-Transfer learning is an important tool for efficient application of machine learning methods to materials informatics. 
+Transfer learning is an important tool for the efficient application of machine learning methods to materials informatics.
 To facilitate the widespread use of transfer learning,
 we have developed a comprehensive library of pre-trained models, called **XenonPy.MDL**.
-This library provides simple API that allows users to fetch the models via a http request.
+This library provides a simple API that allows users to fetch the models via an HTTP request.
 For the ease of using the pre-trained models, some useful functions are also provided.
 
 See :doc:`features` for details

@@ -32,7 +32,7 @@ Compositional descriptors
 -------------------------
 
 XenonPy can calculate 290 compositional features for a given chemical composition.
-This calculation uses information of the 58 element-level property data recorded in ``elements_completed``.
+This calculation uses the information of the 58 element-level property data recorded in ``elements_completed``.
 See :ref:`features:Data access` for details.
 
     >>> from xenonpy.descriptor import Compositions
@@ -46,7 +46,7 @@ See :ref:`features:Data access` for details.
       |  |- MaxFeature
       |  |- MinFeature
 
-The structure information of calculator ``Cal`` is shown above.
+The structure information of the calculator ``Cal`` is shown above.
 This information tells us ``Cal`` has one featurizer group called **composition** with featurizers
 ``WeightedAvgFeature``, ``WeightedSumFeature``, ``WeightedVarFeature``, ``MaxFeature`` and ``MinFeature`` in it.
 
@@ -98,7 +98,7 @@ Therefore, the whole object entry can be fed into the calculator's methods witho
     932          16.500000  ...            0.802000
     [933 rows x 290 columns]
 
-This do the same work as the previous one.
+This does the same work as the previous one.
 
 
 ----------------------
@@ -120,7 +120,7 @@ Similar to the ``Compositions`` calculator, ``Structures`` accepts ``pymatgen.St
 
     >>> descriptor = cal.transform(samples)
 
-This will take 3 ~ 5 min to run and finally you will get:
+This will take 3 ~ 5 min to run and finally, you will get:
 
     >>> descriptor.head(5)
                 0.1  0.2  0.30000000000000004  ...  f14_f12  f14_f13  f14_f14

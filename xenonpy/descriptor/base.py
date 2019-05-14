@@ -207,7 +207,8 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             return_type = self.return_type
         if return_type == 'any':
             if isinstance(entries, (pd.Series, pd.DataFrame)):
-                return pd.DataFrame(ret, index=entries.index, columns=labels)
+                tmp = pd.DataFrame(ret, index=entries.index, columns=labels)
+                return tmp
             if isinstance(entries, np.ndarray):
                 return np.array(ret)
             return ret

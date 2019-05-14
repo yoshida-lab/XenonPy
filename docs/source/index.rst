@@ -27,9 +27,10 @@ What is XenonPy project
     :alt: Python Versions
     :target: https://pypi.org/project/xenonpy/
 
-.. image:: https://badges.gitter.im/yoshida-lab/XenonPy.svg
-    :alt: Join the chat at https://gitter.im/yoshida-lab/XenonPy
-    :target: https://gitter.im/yoshida-lab/XenonPy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+.. image:: https://pepy.tech/badge/xenonpy
+    :alt: Downloads
+    :target: https://pepy.tech/badge/xenonpy
+
 
 --------
 Overview

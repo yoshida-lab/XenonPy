@@ -11,11 +11,14 @@ The following list shows a summary.
 .. csv-table:: Summary of built-in featurizers
     :header: "Featurizer", "Type", "Description"
 
+    "CountingFeature", "Composition", "Encoding number of compounds elements in to vector: :math:`f_{min, i} = min{f_{A,i}, f_{B,i}}`"
     "WeightedAvgFeature", "Composition", "Weighted average (abbr: ave): :math:`f_{ave, i} = w_{A}^* f_{A,i} + w_{B}^* f_{B,i}`"
     "WeightedSumFeature", "Composition", "Weighted variance (abbr: var): :math:`f_{var, i} = w_{A}^* (f_{A,i} - f_{ave, i})^2  + w_{B}^* (f_{B,i} - f_{ave, i})^2`"
     "WeightedVarFeature", "Composition", "Max-pooling (abbr: max): :math:`f_{max, i} = max{f_{A,i}, f_{B,i}}`"
     "MaxFeature", "Composition", "Min-pooling (abbr: min): :math:`f_{min, i} = min{f_{A,i}, f_{B,i}}`"
     "MinFeature", "Composition", "Weighted sum (abbr: sum): :math:`f_{sum, i} = w_{A} f_{A,i} + w_{B} f_{B,i}`"
+    "GeometricAvgFeature", "Composition", "Geometric mean (abbr: gmean): :math:`f_{gmean, i} = \sqrt[w_A + w_B]{f_{A,i}^{w_A} * f_{V,i}^{w_B}}`"
+    "HarmonicAvgFeature", "Composition", "Harmonic mean (abbr: hmean): :math:`f_{hmean, i} = \frac{w_A +w_B}{\frac{1}{f_{A,i}}*w_A + \frac{1}{f_{B,i}}*w_B}`"
     "RDKitFP", "Fingerprint", "RDKit fingerprint"
     "AtomPairFP", "Fingerprint", "Atom Pair fingerprints"
     "MACCS", "Fingerprint", "The MACCS keys for a molecule"

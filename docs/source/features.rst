@@ -132,6 +132,8 @@ For example, let us consider a binary compound, :math:`A_{w_A}B_{w_B}`, whose el
 
 * Weighted average (abbr: ave): :math:`f_{ave, i} = w_{A}^* f_{A,i} + w_{B}^* f_{B,i}`,
 * Weighted variance (abbr: var): :math:`f_{var, i} = w_{A}^* (f_{A,i} - f_{ave, i})^2  + w_{B}^* (f_{B,i} - f_{ave, i})^2`,
+* Geometric mean (abbr: gmean): :math:`f_{gmean, i} = \sqrt[w_A + w_B]{f_{A,i}^{w_A} * f_{V,i}^{w_B}}`,
+* Harmonic mean (abbr: hmean): :math:`f_{hmean, i} = \frac{w_A +w_B}{\frac{1}{f_{A,i}}*w_A + \frac{1}{f_{B,i}}*w_B}`,
 * Max-pooling (abbr: max): :math:`f_{max, i} = max{f_{A,i}, f_{B,i}}`,
 * Min-pooling (abbr: min): :math:`f_{min, i} = min{f_{A,i}, f_{B,i}}`,
 * Weighted sum (abbr: sum): :math:`f_{sum, i} = w_{A} f_{A,i} + w_{B} f_{B,i}`,

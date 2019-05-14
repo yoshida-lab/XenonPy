@@ -115,7 +115,7 @@ class WeightedAvgFeature(_CompositionalFeature):
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
 
     def _func(self, elems, nums):
-        elems_ = self._elements.loc[elems, :]
+        elems_ = self._elements.loc[elems, :].values
         w_ = nums / np.sum(nums)
         return w_.dot(elems_)
 
@@ -151,13 +151,88 @@ class WeightedSumFeature(_CompositionalFeature):
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
 
     def _func(self, elems, nums):
-        elems_ = self._elements.loc[elems, :]
+        elems_ = self._elements.loc[elems, :].values
         w_ = np.array(nums)
         return w_.dot(elems_)
 
     @property
     def feature_labels(self):
         return ['sum:' + s for s in self._elements]
+
+
+class GeometricAvgFeature(_CompositionalFeature):
+    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
+        """
+
+        Parameters
+        ----------
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
+            Inputs ``X`` will be split into some blocks then run on each cpu cores.
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            Default is ``any``
+        """
+
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+
+    def _func(self, elems, nums):
+        elems_ = self._elements.loc[elems, :].values
+        w_ = np.array(nums).reshape(-1, 1)
+        tmp = elems_ ** w_
+        return np.power(tmp.prod(axis=0), 1 / sum(w_))
+
+    @property
+    def feature_labels(self):
+        return ['gmean:' + s for s in self._elements]
+
+
+class HarmonicAvgFeature(_CompositionalFeature):
+    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
+        """
+
+        Parameters
+        ----------
+        n_jobs: int
+            The number of jobs to run in parallel for both fit and predict.
+            Set -1 to use all cpu cores (default).
+            Inputs ``X`` will be split into some blocks then run on each cpu cores.
+        on_errors: string
+            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
+        return_type: str
+            Specific the return type.
+            Can be ``any``, ``array`` and ``df``.
+            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+            If ``any``, the return type dependent on the input type.
+            Default is ``any``
+        """
+
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+
+    def _func(self, elems, nums):
+        elems_ = 1 / self._elements.loc[elems, :].values
+        w_ = np.array(nums)
+        tmp = w_.dot(elems_)
+
+        return sum(w_) / tmp
+
+    @property
+    def feature_labels(self):
+        return ['hmean:' + s for s in self._elements]
 
 
 class WeightedVarFeature(_CompositionalFeature):
@@ -187,7 +262,7 @@ class WeightedVarFeature(_CompositionalFeature):
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
 
     def _func(self, elems, nums):
-        elems_ = self._elements.loc[elems, :]
+        elems_ = self._elements.loc[elems, :].values
         w_ = nums / np.sum(nums)
         mean_ = w_.dot(elems_)
         var_ = elems_ - mean_
@@ -302,5 +377,7 @@ class Compositions(BaseDescriptor):
         self.composition = WeightedAvgFeature(n_jobs=n_jobs, on_errors=on_errors)
         self.composition = WeightedSumFeature(n_jobs=n_jobs, on_errors=on_errors)
         self.composition = WeightedVarFeature(n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = GeometricAvgFeature(n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = HarmonicAvgFeature(n_jobs=n_jobs, on_errors=on_errors)
         self.composition = MaxFeature(n_jobs=n_jobs, on_errors=on_errors)
         self.composition = MinFeature(n_jobs=n_jobs, on_errors=on_errors)

@@ -2,6 +2,7 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
+from abc import ABCMeta, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable
 from copy import copy
@@ -14,7 +15,7 @@ from sklearn.base import TransformerMixin, BaseEstimator
 from ..utils import TimedMetaClass
 
 
-class BaseFeaturizer(BaseEstimator, TransformerMixin):
+class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
     """
     Abstract class to calculate features from :class:`pandas.Series` input data.
     Each entry can be any format such a compound formula or a pymatgen crystal structure
@@ -244,6 +245,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             else:
                 raise e
 
+    @abstractmethod
     def featurize(self, *x, **kwargs):
         """
         Main featurizer function, which has to be implemented
@@ -260,16 +262,14 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
             one or more features.
         """
 
-        raise NotImplementedError("<featurize> method must be implemented")
-
     @property
+    @abstractmethod
     def feature_labels(self):
         """
         Generate attribute names.
         Returns:
             ([str]) attribute labels.
         """
-        raise NotImplementedError("<feature_labels> property be implemented")
 
     @property
     def citations(self):
@@ -293,6 +293,10 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin):
         """
 
         return '\n'.join(self.__authors__)
+
+
+class BaseGraphFeaturizer(BaseFeaturizer, metaclass=ABCMeta):
+    pass
 
 
 class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):

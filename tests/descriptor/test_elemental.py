@@ -6,12 +6,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from xenonpy.descriptor import Compositions, CountingFeature
-from xenonpy.descriptor.composition import _CompositionalFeature
+from xenonpy.descriptor import Compositions, Counting
+from xenonpy.descriptor.compositions import _CompositionalFeaturizer
 
 
 def test_compositional_feature_1():
-    class FakeFeature(_CompositionalFeature):
+    class FakeFeaturizer(_CompositionalFeaturizer):
         @property
         def feature_labels(self):
             return ['min:' + s for s in self._elements]
@@ -21,7 +21,7 @@ def test_compositional_feature_1():
             w_ = nums / np.sum(nums)
             return w_.dot(elems_)
 
-    desc = FakeFeature(n_jobs=1)
+    desc = FakeFeaturizer(n_jobs=1)
     tmp = desc.fit_transform([{'H': 2}])
 
     assert isinstance(tmp, list)
@@ -29,14 +29,14 @@ def test_compositional_feature_1():
     with pytest.raises(KeyError):
         desc.fit_transform([{'Bl': 2}])
 
-    desc = FakeFeature(n_jobs=1, on_errors='nan')
+    desc = FakeFeaturizer(n_jobs=1, on_errors='nan')
     tmp = desc.fit_transform([{'Bl': 2}])
     assert np.all(np.isnan(tmp[0]))
 
 
 def test_counting_feature_1():
     comps = [{'H': 2, 'He': 1}, {'Li': 1}]
-    counting = CountingFeature(return_type='array')
+    counting = Counting(return_type='array')
     tmp = counting.transform(comps)
     assert tmp.shape == (2, 94)
 
@@ -44,7 +44,7 @@ def test_counting_feature_1():
     assert np.all(tmp[0, 2:] == np.zeros(92))
     assert np.all(tmp[1, :3] == np.array([0, 0, 1]))
 
-    ohv = CountingFeature(return_type='array', one_hot_vec=True)
+    ohv = Counting(return_type='array', one_hot_vec=True)
     tmp = ohv.transform(comps)
     assert tmp.shape == (2, 94)
 
@@ -68,7 +68,7 @@ def test_comp_descriptor_1():
 
     assert np.all(tmp1.values == tmp2.values)
 
-    tmp = desc.transform([{'H': 2}], featurizers=['WeightedAvgFeature'])
+    tmp = desc.transform([{'H': 2}], featurizers=['WeightedAverage'])
     assert tmp.shape == (1, 58)
 
 

@@ -11,14 +11,14 @@ The following list shows a summary.
 .. csv-table:: Summary of built-in featurizers
     :header: "Featurizer", "Type", "Description"
 
-    "CountingFeature", "Composition", "Encoding number of compounds elements in to vector: :math:`f_{min, i} = min{f_{A,i}, f_{B,i}}`"
-    "WeightedAvgFeature", "Composition", "Weighted average (abbr: ave): :math:`f_{ave, i} = w_{A}^* f_{A,i} + w_{B}^* f_{B,i}`"
-    "WeightedSumFeature", "Composition", "Weighted variance (abbr: var): :math:`f_{var, i} = w_{A}^* (f_{A,i} - f_{ave, i})^2  + w_{B}^* (f_{B,i} - f_{ave, i})^2`"
-    "WeightedVarFeature", "Composition", "Max-pooling (abbr: max): :math:`f_{max, i} = max{f_{A,i}, f_{B,i}}`"
-    "MaxFeature", "Composition", "Min-pooling (abbr: min): :math:`f_{min, i} = min{f_{A,i}, f_{B,i}}`"
-    "MinFeature", "Composition", "Weighted sum (abbr: sum): :math:`f_{sum, i} = w_{A} f_{A,i} + w_{B} f_{B,i}`"
-    "GeometricAvgFeature", "Composition", "Geometric mean (abbr: gmean): :math:`f_{gmean, i} = \sqrt[w_A + w_B]{f_{A,i}^{w_A} * f_{V,i}^{w_B}}`"
-    "HarmonicAvgFeature", "Composition", "Harmonic mean (abbr: hmean): :math:`f_{hmean, i} = \frac{w_A +w_B}{\frac{1}{f_{A,i}}*w_A + \frac{1}{f_{B,i}}*w_B}`"
+    "Counting", "Composition", "Encoding number of compounds elements in to vector: :math:`f_{min, i} = min{f_{A,i}, f_{B,i}}`"
+    "WeightedAverage", "Composition", "Weighted average (abbr: ave): :math:`f_{ave, i} = w_{A}^* f_{A,i} + w_{B}^* f_{B,i}`"
+    "WeightedVariance", "Composition", "Weighted variance (abbr: var): :math:`f_{var, i} = w_{A}^* (f_{A,i} - f_{ave, i})^2  + w_{B}^* (f_{B,i} - f_{ave, i})^2`"
+    "WeightedSum", "Composition", "Weighted sum (abbr: sum): :math:`f_{sum, i} = w_{A} f_{A,i} + w_{B} f_{B,i}`"
+    "GeometricMean", "Composition", "Geometric mean (abbr: gmean): :math:`f_{gmean, i} = \sqrt[w_A + w_B]{f_{A,i}^{w_A} * f_{V,i}^{w_B}}`"
+    "HarmonicMean", "Composition", "Harmonic mean (abbr: hmean): :math:`f_{hmean, i} = \frac{w_A +w_B}{\frac{1}{f_{A,i}}*w_A + \frac{1}{f_{B,i}}*w_B}`"
+    "MaxPooling", "Composition", "Max-pooling (abbr: max): :math:`f_{max, i} = max{f_{A,i}, f_{B,i}}`"
+    "MinPooling", "Composition", "Min-pooling (abbr: min): :math:`f_{min, i} = min{f_{A,i}, f_{B,i}}`"
     "RDKitFP", "Fingerprint", "RDKit fingerprint"
     "AtomPairFP", "Fingerprint", "Atom Pair fingerprints"
     "MACCS", "Fingerprint", "The MACCS keys for a molecule"
@@ -27,7 +27,7 @@ The following list shows a summary.
     "TopologicalTorsionFP", "Fingerprint", "Topological Torsion fingerprints"
     "ObitalFieldMatrix", "Structure", "Representation based on the valence shell electrons of neighboring atoms"
     "RadialDistributionFunction", "Structure", "Radial distribution in crystal"
-    "FrozenFeaturizer", "NN Feature", "Neural Network Extracted Feature"
+    "FrozenFeaturizer", "NN ", "Neural Network Extracted "
 
 
 -------------------------
@@ -43,11 +43,14 @@ See :ref:`features:Data access` for details.
     >>> cal
     Compositions:
       |- composition:
-      |  |- WeightedAvgFeature
-      |  |- WeightedSumFeature
-      |  |- WeightedVarFeature
-      |  |- MaxFeature
-      |  |- MinFeature
+      |  |- Counting
+      |  |- WeightedAverage
+      |  |- WeightedSum
+      |  |- WeightedVariance
+      |  |- GeometricMean
+      |  |- HarmonicMean
+      |  |- MaxPooling
+      |  |- MinPooling
 
 The structure information of the calculator ``Cal`` is shown above.
 This information tells us ``Cal`` has one featurizer group called **composition** with featurizers

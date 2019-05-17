@@ -2,6 +2,8 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
+from abc import ABCMeta, abstractmethod
+
 import numpy as np
 from pymatgen.core.composition import Composition as PMGComp
 
@@ -9,7 +11,7 @@ from .base import BaseFeaturizer, BaseDescriptor
 from ..datatools.preset import preset
 
 
-class _CompositionalFeature(BaseFeaturizer):
+class _CompositionalFeaturizer(BaseFeaturizer, metaclass=ABCMeta):
 
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
@@ -30,20 +32,24 @@ class _CompositionalFeature(BaseFeaturizer):
             nums_.append(n)
         return self._func(elems_, nums_)
 
+    @abstractmethod
     def _func(self, elems, nums):
-        raise NotImplementedError
-
-    @property
-    def feature_labels(self):
         """
-        Generate attribute names.
-        Returns:
-            ([str]) attribute labels.
+
+        Parameters
+        ----------
+        elems: list
+            Elements in compound.
+        nums: list
+            Number of each element.
+
+        Returns
+        -------
+        descriptor: numpy.ndarray
         """
-        raise NotImplementedError("feature_labels() is not defined!")
 
 
-class CountingFeature(_CompositionalFeature):
+class Counting(_CompositionalFeaturizer):
     def __init__(self, *, one_hot_vec=False, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -88,7 +94,7 @@ class CountingFeature(_CompositionalFeature):
         return self._elems
 
 
-class WeightedAvgFeature(_CompositionalFeature):
+class WeightedAverage(_CompositionalFeaturizer):
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -124,7 +130,7 @@ class WeightedAvgFeature(_CompositionalFeature):
         return ['ave:' + s for s in self._elements]
 
 
-class WeightedSumFeature(_CompositionalFeature):
+class WeightedSum(_CompositionalFeaturizer):
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -160,7 +166,7 @@ class WeightedSumFeature(_CompositionalFeature):
         return ['sum:' + s for s in self._elements]
 
 
-class GeometricAvgFeature(_CompositionalFeature):
+class GeometricMean(_CompositionalFeaturizer):
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -197,7 +203,7 @@ class GeometricAvgFeature(_CompositionalFeature):
         return ['gmean:' + s for s in self._elements]
 
 
-class HarmonicAvgFeature(_CompositionalFeature):
+class HarmonicMean(_CompositionalFeaturizer):
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -235,7 +241,7 @@ class HarmonicAvgFeature(_CompositionalFeature):
         return ['hmean:' + s for s in self._elements]
 
 
-class WeightedVarFeature(_CompositionalFeature):
+class WeightedVariance(_CompositionalFeaturizer):
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -273,7 +279,7 @@ class WeightedVarFeature(_CompositionalFeature):
         return ['var:' + s for s in self._elements]
 
 
-class MaxFeature(_CompositionalFeature):
+class MaxPooling(_CompositionalFeaturizer):
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -308,7 +314,7 @@ class MaxFeature(_CompositionalFeature):
         return ['max:' + s for s in self._elements]
 
 
-class MinFeature(_CompositionalFeature):
+class MinPooling(_CompositionalFeaturizer):
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -373,11 +379,11 @@ class Compositions(BaseDescriptor):
         super().__init__(featurizers=featurizers)
         self.n_jobs = n_jobs
 
-        self.composition = CountingFeature(n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = WeightedAvgFeature(n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = WeightedSumFeature(n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = WeightedVarFeature(n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = GeometricAvgFeature(n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = HarmonicAvgFeature(n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = MaxFeature(n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = MinFeature(n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = Counting(n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = WeightedAverage(n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = WeightedSum(n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = WeightedVariance(n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = GeometricMean(n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = HarmonicMean(n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = MaxPooling(n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = MinPooling(n_jobs=n_jobs, on_errors=on_errors)

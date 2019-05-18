@@ -5,8 +5,7 @@
 __all__ = ['Compositions', 'Structures', 'Fingerprints']
 
 from .compositions import Compositions, WeightedAverage, WeightedSum, WeightedVariance, \
-    MaxPooling, \
-    MinPooling, Counting, GeometricMean, HarmonicMean
+    MaxPooling, MinPooling, Counting, GeometricMean, HarmonicMean
 from .fingerprint import AtomPairFP, TopologicalTorsionFP, RDKitFP, ECFP, FCFP, MACCS, Fingerprints
 from .frozen_featurizer import FrozenFeaturizer
 from .structure import Structures, RadialDistributionFunction, ObitalFieldMatrix

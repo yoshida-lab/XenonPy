@@ -7,16 +7,16 @@ import pandas as pd
 import pytest
 
 from xenonpy.descriptor import Compositions, Counting
-from xenonpy.descriptor.compositions import _CompositionalFeaturizer
+from xenonpy.descriptor.base import BaseCompositionFeaturizer
 
 
 def test_compositional_feature_1():
-    class FakeFeaturizer(_CompositionalFeaturizer):
+    class FakeFeaturizer(BaseCompositionFeaturizer):
         @property
         def feature_labels(self):
             return ['min:' + s for s in self._elements]
 
-        def _func(self, elems, nums):
+        def mix_function(self, elems, nums):
             elems_ = self._elements.loc[elems, :]
             w_ = nums / np.sum(nums)
             return w_.dot(elems_)

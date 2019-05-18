@@ -10,8 +10,10 @@ from multiprocessing import Pool, cpu_count
 
 import numpy as np
 import pandas as pd
+from pymatgen.core.composition import Composition as PMGComp
 from sklearn.base import TransformerMixin, BaseEstimator
 
+from ..datatools.preset import preset
 from ..utils import TimedMetaClass
 
 
@@ -295,10 +297,6 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         return '\n'.join(self.__authors__)
 
 
-class BaseGraphFeaturizer(BaseFeaturizer, metaclass=ABCMeta):
-    pass
-
-
 class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
     """
     Abstract class to organize featurizers.
@@ -465,3 +463,93 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
                     results.append(ret)
 
         return pd.concat(results, axis=1)
+
+
+class BaseCompositionFeaturizer(BaseFeaturizer, metaclass=ABCMeta):
+
+    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
+        """
+        Base class for composition feature.
+        """
+
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+
+        self._elements = preset.elements_completed
+        self.__authors__ = ['TsumiNa']
+
+    def featurize(self, comp):
+        elems_, nums_ = [], []
+        if isinstance(comp, PMGComp):
+            comp = comp.as_dict()
+        for e, n in comp.items():
+            elems_.append(e)
+            nums_.append(n)
+        return self.mix_function(elems_, nums_)
+
+    @abstractmethod
+    def mix_function(self, elems, nums):
+        """
+
+        Parameters
+        ----------
+        elems: list
+            Elements in compound.
+        nums: list
+            Number of each element.
+
+        Returns
+        -------
+        descriptor: numpy.ndarray
+        """
+
+
+class BaseGraphFeaturizer(metaclass=ABCMeta):
+    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
+        """
+        Base class for composition feature.
+        """
+
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+
+        self.__authors__ = ['TsumiNa']
+
+    @abstractmethod
+    def node_features(self, *x, **kwargs):
+        """
+        Generate node features.
+
+        Parameters
+        ----------
+        x: object
+            The information to generate node features.
+        kwargs: object
+            Additional parameters for node feature generating.
+
+        Returns
+        -------
+        list[torch.Tensor]
+        """
+
+    @abstractmethod
+    def edge_features(self, *x, **kwargs):
+        """
+        Generate edge features.
+
+        Parameters
+        ----------
+        x: object
+            The information to generate edge features.
+        kwargs: object
+            Additional parameters for edge feature generating.
+
+        Returns
+        -------
+        list[torch.Tensor]
+        """
+
+    def featurize(self, *x, **kwargs):
+        return [self.node_features(*x, **kwargs), self.edge_features(*x, **kwargs)]
+
+    @property
+    def feature_labels(self):
+        return ['node_feature', 'edge_feature']

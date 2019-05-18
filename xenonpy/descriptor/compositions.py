@@ -2,54 +2,12 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from abc import ABCMeta, abstractmethod
-
 import numpy as np
-from pymatgen.core.composition import Composition as PMGComp
 
-from .base import BaseFeaturizer, BaseDescriptor
-from ..datatools.preset import preset
+from .base import BaseDescriptor, BaseCompositionFeaturizer
 
 
-class _CompositionalFeaturizer(BaseFeaturizer, metaclass=ABCMeta):
-
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
-        """
-        Base class for composition feature.
-        """
-
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
-
-        self._elements = preset.elements_completed
-        self.__authors__ = ['TsumiNa']
-
-    def featurize(self, comp):
-        elems_, nums_ = [], []
-        if isinstance(comp, PMGComp):
-            comp = comp.as_dict()
-        for e, n in comp.items():
-            elems_.append(e)
-            nums_.append(n)
-        return self._func(elems_, nums_)
-
-    @abstractmethod
-    def _func(self, elems, nums):
-        """
-
-        Parameters
-        ----------
-        elems: list
-            Elements in compound.
-        nums: list
-            Number of each element.
-
-        Returns
-        -------
-        descriptor: numpy.ndarray
-        """
-
-
-class Counting(_CompositionalFeaturizer):
+class Counting(BaseCompositionFeaturizer):
     def __init__(self, *, one_hot_vec=False, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -79,7 +37,7 @@ class Counting(_CompositionalFeaturizer):
         self.one_hot_vec = one_hot_vec
         self._elems = self._elements.index.tolist()
 
-    def _func(self, elems, nums):
+    def mix_function(self, elems, nums):
         vec = np.zeros(len(self._elems), dtype=np.int)
         for i, e in enumerate(elems):
             if self.one_hot_vec:
@@ -94,7 +52,7 @@ class Counting(_CompositionalFeaturizer):
         return self._elems
 
 
-class WeightedAverage(_CompositionalFeaturizer):
+class WeightedAverage(BaseCompositionFeaturizer):
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -120,7 +78,7 @@ class WeightedAverage(_CompositionalFeaturizer):
 
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
 
-    def _func(self, elems, nums):
+    def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
         w_ = nums / np.sum(nums)
         return w_.dot(elems_)
@@ -130,7 +88,7 @@ class WeightedAverage(_CompositionalFeaturizer):
         return ['ave:' + s for s in self._elements]
 
 
-class WeightedSum(_CompositionalFeaturizer):
+class WeightedSum(BaseCompositionFeaturizer):
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -156,7 +114,7 @@ class WeightedSum(_CompositionalFeaturizer):
 
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
 
-    def _func(self, elems, nums):
+    def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
         w_ = np.array(nums)
         return w_.dot(elems_)
@@ -166,7 +124,7 @@ class WeightedSum(_CompositionalFeaturizer):
         return ['sum:' + s for s in self._elements]
 
 
-class GeometricMean(_CompositionalFeaturizer):
+class GeometricMean(BaseCompositionFeaturizer):
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -192,7 +150,7 @@ class GeometricMean(_CompositionalFeaturizer):
 
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
 
-    def _func(self, elems, nums):
+    def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
         w_ = np.array(nums).reshape(-1, 1)
         tmp = elems_ ** w_
@@ -203,7 +161,7 @@ class GeometricMean(_CompositionalFeaturizer):
         return ['gmean:' + s for s in self._elements]
 
 
-class HarmonicMean(_CompositionalFeaturizer):
+class HarmonicMean(BaseCompositionFeaturizer):
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -229,7 +187,7 @@ class HarmonicMean(_CompositionalFeaturizer):
 
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
 
-    def _func(self, elems, nums):
+    def mix_function(self, elems, nums):
         elems_ = 1 / self._elements.loc[elems, :].values
         w_ = np.array(nums)
         tmp = w_.dot(elems_)
@@ -241,7 +199,7 @@ class HarmonicMean(_CompositionalFeaturizer):
         return ['hmean:' + s for s in self._elements]
 
 
-class WeightedVariance(_CompositionalFeaturizer):
+class WeightedVariance(BaseCompositionFeaturizer):
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -267,7 +225,7 @@ class WeightedVariance(_CompositionalFeaturizer):
 
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
 
-    def _func(self, elems, nums):
+    def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
         w_ = nums / np.sum(nums)
         mean_ = w_.dot(elems_)
@@ -279,7 +237,7 @@ class WeightedVariance(_CompositionalFeaturizer):
         return ['var:' + s for s in self._elements]
 
 
-class MaxPooling(_CompositionalFeaturizer):
+class MaxPooling(BaseCompositionFeaturizer):
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -305,7 +263,7 @@ class MaxPooling(_CompositionalFeaturizer):
 
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
 
-    def _func(self, elems, _):
+    def mix_function(self, elems, _):
         elems_ = self._elements.loc[elems, :]
         return elems_.max().values
 
@@ -314,7 +272,7 @@ class MaxPooling(_CompositionalFeaturizer):
         return ['max:' + s for s in self._elements]
 
 
-class MinPooling(_CompositionalFeaturizer):
+class MinPooling(BaseCompositionFeaturizer):
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
 
@@ -340,7 +298,7 @@ class MinPooling(_CompositionalFeaturizer):
 
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
 
-    def _func(self, elems, _):
+    def mix_function(self, elems, _):
         elems_ = self._elements.loc[elems, :]
         return elems_.min().values
 

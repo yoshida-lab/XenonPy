@@ -43,7 +43,7 @@ class Preset(Dataset, metaclass=Singleton):
         ...
     """
 
-    __dataset__ = ('elements', 'elements_completed')
+    __dataset__ = ('elements', 'elements_completed', 'atom_init')
     __builder__ = ('mp_samples',)
 
     # set to check params
@@ -229,6 +229,16 @@ class Preset(Dataset, metaclass=Singleton):
         """
         self._check('elements')
         return self.dataset_elements
+
+    @property
+    def atom_init(self):
+        """
+        The initialization vector for each element.
+
+        See Also: https://github.com/txie-93/cgcnn#usage
+        """
+        self._check('atom_init')
+        return self.dataset_atom_init
 
     @property
     def elements_completed(self):

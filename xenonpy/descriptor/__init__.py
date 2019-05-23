@@ -8,4 +8,5 @@ from .compositions import Compositions, WeightedAverage, WeightedSum, WeightedVa
     MaxPooling, MinPooling, Counting, GeometricMean, HarmonicMean
 from .fingerprint import AtomPairFP, TopologicalTorsionFP, RDKitFP, ECFP, FCFP, MACCS, Fingerprints
 from .frozen_featurizer import FrozenFeaturizer
+from .graph import *
 from .structure import Structures, RadialDistributionFunction, ObitalFieldMatrix

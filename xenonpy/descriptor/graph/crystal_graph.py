@@ -1,4 +1,4 @@
-#  Copyright (c) 2019. TsumiNa. All rights reserved.
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
@@ -8,8 +8,8 @@ import numpy as np
 import torch
 from pymatgen.core.structure import Structure
 
-from .base import BaseGraphFeaturizer
-from ..datatools import preset
+from ..base import BaseGraphFeaturizer
+from ...datatools import preset
 
 
 class CrystalGraphFeaturizer(BaseGraphFeaturizer):

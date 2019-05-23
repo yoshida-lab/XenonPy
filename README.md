@@ -36,7 +36,7 @@ The following table list some core packages in XenonPy images.
 | `matminer`     | 0.5.1      |
 | `mordred`      | 1.1.2      |
 | `scipy`        | 1.2.1      |
-| `scikit-learn` | 0.20.2     |
+| `scikit-learn` | 0.21.1     |
 | `pandas`       | 0.24.2     |
 | `rdkit`        | 2018.09.2  |
 | `jupyter`      | 1.0.0      |

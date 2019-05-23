@@ -1,4 +1,4 @@
 include *.rst LICENSE.rst docs/source/changes.rst requirement*.txt
-recursive-include xenonpy *.py *.json *.yml
+recursive-include xenonpy *.py *.json *.yml *.txt
 recursive-exclude tests/*.*
 recursive-include licences *

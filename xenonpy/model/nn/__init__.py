@@ -4,7 +4,6 @@
 
 __all__ = ['wrap', 'Checker', 'Layer1d', 'RegressionRunner', 'persist', 'BaseRunner']
 
-from . import wrap
 from .checker import Checker
 from .layer import Layer1d
 from .model_maker import Generator1d

@@ -58,6 +58,16 @@ def test_preset_1():
     preset.sync('elements_completed')
     preset.elements_completed
 
+    path = Path(__cfg_root__) / 'dataset' / 'atom_init.pd.xz'
+    if path.exists():
+        remove(str(path))
+
+    with pytest.raises(RuntimeError, match="data atom_init not exist"):
+        preset.atom_init
+
+    preset.sync('atom_init')
+    preset.atom_init
+
 
 def test_preset_2():
     assert Preset() is preset

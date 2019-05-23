@@ -2,7 +2,7 @@
 # package info
 ###############
 name: 'xenonpy'
-version: '0.3.3'
+version: '0.4.0-dev'
 db_version: '0.1.3'
 release: ''
 short_description: 'material descriptor library'
@@ -16,6 +16,7 @@ maintainer_email: 'liu.chang.1865@gmail.com'
 github_username: 'yoshida-lab'
 
 # sha256 of built-in dataset
+atom_init: 'ac362e8bbce4b66987913b39e64b5554cf372e8f55dfc0cd76d6b2354059f84e'
 elements: 'e9007e45786773c72d2e454ad17dc69f2cd8edf42e66313dc0d343b2b272eb45'
 elements_completed: '9a885ac06c99dd79e63bbb431f46d8131f078239a42df028edfe1052a45a2888'
 

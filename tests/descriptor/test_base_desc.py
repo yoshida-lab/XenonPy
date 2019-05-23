@@ -69,8 +69,19 @@ def data():
     print('test over')
 
 
-def test_base_feature_props(data):
-    bf = BaseFeaturizer()
+def test_base_feature_props():
+    class _FakeFeaturier(BaseFeaturizer):
+        def __init__(self):
+            super().__init__()
+
+        def featurize(self, *x, **kwargs):
+            return x[0]
+
+        @property
+        def feature_labels(self):
+            return ['labels']
+
+    bf = _FakeFeaturier()
 
     # test n_jobs
     assert bf.n_jobs == cpu_count()
@@ -82,13 +93,6 @@ def test_base_feature_props(data):
     # test citation, author
     assert bf.citations == 'No citations'
     assert bf.authors == 'anonymous'
-
-    # test labels, featurize
-    with pytest.raises(NotImplementedError):
-        bf.featurize(1)
-
-    with pytest.raises(NotImplementedError):
-        bf.feature_labels
 
 
 def test_base_feature_1(data):

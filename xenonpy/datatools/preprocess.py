@@ -4,6 +4,7 @@
 
 import numpy as np
 from pandas import DataFrame, Series
+from sklearn import utils
 from sklearn.model_selection import train_test_split, KFold
 
 
@@ -76,11 +77,19 @@ class Splitter(object):
         self._sample_size = sample_size if sample_size is not None else self._sample_size
         self._test_size = test_size if test_size is not None else self._test_size
         self._shuffle = shuffle if shuffle is not None else self._shuffle
-        self._train, self._test = train_test_split(
-            self._sample_size,
-            test_size=self._test_size,
-            random_state=self._random_state,
-            shuffle=self._shuffle)
+        if self._test_size == 0:
+            self._test = np.array([])
+
+            if self._shuffle:
+                self._train = utils.shuffle(self._sample_size)
+            else:
+                self._train = self._sample_size
+        else:
+            self._train, self._test = train_test_split(
+                self._sample_size,
+                test_size=self._test_size,
+                random_state=self._random_state,
+                shuffle=self._shuffle)
         return self
 
     @property

@@ -503,7 +503,7 @@ class BaseCompositionFeaturizer(BaseFeaturizer, metaclass=ABCMeta):
         """
 
 
-class BaseGraphFeaturizer(metaclass=ABCMeta):
+class BaseGraphFeaturizer(BaseFeaturizer, metaclass=ABCMeta):
     def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
         """
         Base class for composition feature.

@@ -12,10 +12,10 @@ dependencies:
   - plotly
   - scikit-learn
   - scipy
-  - pytorch==1.0.1
+  - pytorch==1.1.0
   - pytest
   - pytest-cov
   - pip:
       - ruamel.yaml
-      - pymatgen==2019.3.13
+      - pymatgen==2019.5.8
       - tqdm

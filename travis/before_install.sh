@@ -10,11 +10,11 @@ export MPLBACKEN='Agg'
 if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
 
     # Download miniconda for osx
-    wget https://repo.continuum.io/miniconda/Miniconda3-4.5.11-MacOSX-x86_64.sh -O miniconda.sh
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O miniconda.sh
 
 else
     # Download miniconda for Linux
-    wget https://repo.continuum.io/miniconda/Miniconda3-4.5.11-Linux-x86_64.sh -O miniconda.sh
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
 fi
 
 # Install miniconda

@@ -5,8 +5,8 @@
 from functools import partial
 from pathlib import Path
 
+import joblib
 import torch
-from sklearn.externals import joblib
 
 from ...datatools.storage import Storage
 from ...utils import get_data_loc

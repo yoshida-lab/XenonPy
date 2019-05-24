@@ -5,10 +5,10 @@
 from os import remove
 from pathlib import Path
 
+import joblib
 import numpy as np
 import pandas as pd
 import pytest
-from sklearn.externals import joblib
 
 from xenonpy.datatools import Dataset
 

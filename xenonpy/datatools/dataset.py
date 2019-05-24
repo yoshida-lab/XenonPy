@@ -8,9 +8,9 @@ from collections import defaultdict
 from pathlib import Path
 from warnings import warn
 
+import joblib
 import pandas as pd
 import requests
-from sklearn.externals import joblib
 
 
 class Dataset(object):

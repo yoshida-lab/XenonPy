@@ -9,3 +9,4 @@ plotly
 requests
 ruamel.yaml
 torch
+joblib

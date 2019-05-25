@@ -4,7 +4,7 @@ channels:
   - pytorch
   - rdkit
 dependencies:
-  - python=3.6
+  - python=3.7
   - pandas
   - seaborn
   - requests

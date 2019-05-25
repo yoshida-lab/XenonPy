@@ -11,8 +11,8 @@ from pathlib import Path
 from shutil import rmtree
 from warnings import warn
 
+import joblib
 import pandas as pd
-from sklearn.externals import joblib
 
 from ..utils import get_data_loc, absolute_path
 

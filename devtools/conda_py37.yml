@@ -8,20 +8,21 @@ dependencies:
   - pandas
   - seaborn
   - requests
-  - rdkit=2018.09.2
+  - rdkit=2019.03.2
   - plotly
   - scikit-learn
   - scipy
-  - pytorch=1.0.1
+  - pytorch=1.1.0
   - pytest
   - pytest-cov
   - pylint
   - sphinx
   - sphinx_rtd_theme
   - jupyter
+  - pip
   - pip:
       - ruamel.yaml
-      - pymatgen==2019.3.13
+      - pymatgen==2019.5.8
       - jupyterlab
       - pybtex
       - mordred

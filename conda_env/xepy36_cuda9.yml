@@ -17,6 +17,7 @@ dependencies:
   - seaborn
   - requests
   - plotly
+  - pip
   - pip:
       - ruamel.yaml
       - pymatgen==2019.5.8

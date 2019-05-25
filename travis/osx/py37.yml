@@ -15,6 +15,7 @@ dependencies:
   - pytorch==1.1.0
   - pytest
   - pytest-cov
+  - pip
   - pip:
       - ruamel.yaml
       - pymatgen==2019.5.8

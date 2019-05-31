@@ -122,8 +122,8 @@ class BayesianRidgeEstimator(BaseLogLikelihood):
 
         # sum all ll along each smiles
         # ll_sum = [[sum_low_smi1, sum_up_smi1], [sum_low_smi2, sum_up_smi2],...,[sum_low_smiN, sum_up_smiN],]
-        ll_sum = np.sum(np.array(ll_mat), axis=0)
-        tmp = np.array([*map(_avoid_overflow, ll_sum)])
+        tmp = [[*map(_avoid_overflow, ll_mat[x])] for x in range(len(ll_mat))]
+        ll_sum = np.sum(np.array(tmp), axis=0)
 
-        np.put(ll, idx, tmp)
+        np.put(ll, idx, ll_sum)
         return ll

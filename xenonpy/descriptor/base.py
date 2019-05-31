@@ -198,7 +198,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         elif self.n_jobs == 1:
             ret = [self._wrapper(x) for x in entries]
         else:
-            with Pool(self.n_jobs) as p:
+            with Pool(self.n_jobs, maxtasksperchild=200) as p:
                 ret = p.map(self._wrapper, entries)
 
         try:

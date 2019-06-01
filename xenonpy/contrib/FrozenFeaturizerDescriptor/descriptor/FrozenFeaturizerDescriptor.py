@@ -17,9 +17,8 @@ class FrozenFeaturizerDescriptor(BaseFeaturizer):
         # transform input to descriptor dataframe
         tmp_df = self.FP.transform(x)
         # convert descriptor dataframe to hidden layer dataframe
-        tmp_ff = self.ff.transform(tmp_df, depth=1 ,return_type='df')
-        self.output = tmp_ff
-        return tmp_ff
+        self.output = self.ff.transform(tmp_df, depth=1 ,return_type='df')
+        return self.output
     
     @property
     def feature_labels(self):

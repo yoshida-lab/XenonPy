@@ -21,7 +21,7 @@ class RDKitFP(BaseFeaturizer):
         ----------
         n_jobs: int
             The number of jobs to run in parallel for both fit and predict.
-            Set -1 to use all cpu cores (default).
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         fp_size: int
             Fingerprint size.
         input_type: string
@@ -77,7 +77,7 @@ class AtomPairFP(BaseFeaturizer):
         ----------
         n_jobs: int
             The number of jobs to run in parallel for both fit and predict.
-            Set -1 to use all cpu cores (default).
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         n_bits: int
            Fixed bit length based on folding.
         input_type: string
@@ -128,7 +128,8 @@ class TopologicalTorsionFP(BaseFeaturizer):
         Parameters
         ----------
         n_jobs: int
-            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+            The number of jobs to run in parallel for both fit and predict.
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         n_bits: int
            Fixed bit length based on folding.
         input_type: string
@@ -178,7 +179,8 @@ class MACCS(BaseFeaturizer):
         Parameters
         ----------
         n_jobs: int
-            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+            The number of jobs to run in parallel for both fit and predict.
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         input_type: string
             Set the specific type of transform input.
             Set to ``mol`` (default) to ``rdkit.Chem.rdchem.Mol`` objects as input.
@@ -226,7 +228,8 @@ class FCFP(BaseFeaturizer):
         Parameters
         ----------
         n_jobs: int
-            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+            The number of jobs to run in parallel for both fit and predict.
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         radius: int
             The radius parameter in the Morgan fingerprints, which is roughly half of the diameter parameter in FCFP,
             i.e., radius=2 is roughly equivalent to FCFP4.
@@ -284,7 +287,8 @@ class ECFP(BaseFeaturizer):
         Parameters
         ----------
         n_jobs: int
-            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+            The number of jobs to run in parallel for both fit and predict.
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         radius: int
             The radius parameter in the Morgan fingerprints, which is roughly half of the diameter parameter in ECFP,
             i.e., radius=2 is roughly equivalent to ECFP4.
@@ -339,7 +343,8 @@ class DescriptorFeature(BaseFeaturizer):
         Parameters
         ----------
         n_jobs: int
-            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+            The number of jobs to run in parallel for both fit and predict.
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         input_type: string
             Set the specific type of transform input.
             Set to ``mol`` (default) to ``rdkit.Chem.rdchem.Mol`` objects as input.
@@ -391,7 +396,8 @@ class Fingerprints(BaseDescriptor):
         Parameters
         ----------
         n_jobs: int
-            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+            The number of jobs to run in parallel for both fit and predict.
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         radius: int
             The radius parameter in the Morgan fingerprints,
             which is roughly half of the diameter parameter in ECFP/FCFP,

@@ -5,6 +5,39 @@
 Changes
 =======
 
+v0.3.6
+======
+
+**Breaking change**
+
+* Renamed ``BayesianRidgeEstimator`` to ``GaussianLogLikelihood``.
+* Removed the ``estimators`` property from ``BayesianRidgeEstimator``.
+* Added ``predict`` method into ``GaussianLogLikelihood``.
+
+
+v0.3.5
+======
+
+**Enhanced**
+
+* Added version specifiers to the *requirements.txt* file.
+
+v0.3.4
+======
+
+**Bug fix**
+
+* Fixed a critical error in ``BayesianRidgeEstimator`` when calculating the loglikelihood. ( `#124`_ )
+
+.. _#124: https://github.com/yoshida-lab/XenonPy/issues/124
+
+v0.3.3
+======
+
+**Bug fix**
+
+* fix *mp_ids.txt* not exist error when trying to build the sample data using ``preset.build``.
+
 v0.3.2
 ======
 

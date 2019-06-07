@@ -2,8 +2,8 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-__all__ = ['IQSPR', 'BayesianRidgeEstimator', 'NGram', 'GetProbError', 'MolConvertError', 'NGramTrainingError']
+__all__ = ['IQSPR', 'GaussianLogLikelihood', 'NGram', 'GetProbError', 'MolConvertError', 'NGramTrainingError']
 
-from .estimator import BayesianRidgeEstimator
+from .estimator import GaussianLogLikelihood
 from .iqspr import IQSPR
 from .modifier import NGram, GetProbError, MolConvertError, NGramTrainingError

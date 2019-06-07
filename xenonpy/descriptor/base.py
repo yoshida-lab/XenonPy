@@ -449,6 +449,9 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         else:
             featurizers = self.featurizers
 
+        if 'return_type' in kwargs:
+            del kwargs['return_type']
+
         results = []
 
         X, _ = self._check_input(X, **kwargs)

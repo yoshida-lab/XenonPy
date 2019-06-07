@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    xenonpy.contrib
     xenonpy.datatools
     xenonpy.descriptor
     xenonpy.inverse

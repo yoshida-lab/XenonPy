@@ -4,6 +4,7 @@
 
 from copy import deepcopy
 from types import MethodType
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -15,19 +16,22 @@ from ..base import BaseLogLikelihood
 from ...descriptor.base import BaseDescriptor, BaseFeaturizer
 
 
-class BayesianRidgeEstimator(BaseLogLikelihood):
-    def __init__(self, descriptor, **estimators):
+class GaussianLogLikelihood(BaseLogLikelihood):
+    def __init__(self, descriptor: Union[BaseFeaturizer, BaseDescriptor], **estimators: BaseEstimator):
         """
-        Bayesian Ridge Estimator.
+        Gaussian loglikelihood.
 
         Parameters
         ----------
         descriptor: BaseFeaturizer or BaseDescriptor
-            Descriptor generator.
+            Descriptor calculator.
         estimators: BaseEstimator
-            Bayesian estimators in scikit-learn style.
-            When pass ``return_std=True`` to Estimator's ``predict`` method,
-            ``y_std`` should be returned at second. e.g: ``BayesianRidge`` in scikit-learn.
+            Gaussian estimators follow the scikit-learn style.
+            These estimators must provide a method named ``predict`` which
+            accesses descriptors as input and returns ``(mean, std)`` in order.
+            By default, BayesianRidge_ will be used.
+
+            .. _BayesianRidge: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianRidge.html#sklearn-linear-model-bayesianridge
         """
         if estimators:
             self._mdl = deepcopy(estimators)
@@ -36,10 +40,7 @@ class BayesianRidgeEstimator(BaseLogLikelihood):
         if not isinstance(descriptor, (BaseFeaturizer, BaseDescriptor)):
             raise TypeError('<descriptor> must be a subclass of <BaseFeaturizer> or <BaseDescriptor>')
         self._descriptor = descriptor
-
-    @property
-    def estimators(self):
-        return self._mdl
+        self._descriptor.set_params(on_errors='nan')
 
     def __getitem__(self, item):
         return self._mdl[item]
@@ -48,6 +49,34 @@ class BayesianRidgeEstimator(BaseLogLikelihood):
         if not (hasattr(value, 'predict') and isinstance(value.predict, MethodType)):
             raise TypeError('estimator must be a regressor in scikit-learn style')
         self._mdl[key] = deepcopy(value)
+
+    def remove_estimator(self, *properties: str):
+        """
+        Remove estimators from estimator set.
+
+        Parameters
+        ----------
+        properties : str
+            The name of properties will be removed from estimator set.
+        """
+        if not properties:
+            self._mdl = {}
+        else:
+            for p in properties:
+                del self._mdl[p]
+
+    def predict(self, smiles, **kwargs):
+        fps = self._descriptor.transform(smiles, return_type='df')
+        fps_ = fps.dropna()
+        tmp = {}
+        for k, v in self._mdl.items():
+            if isinstance(v, BayesianRidge):
+                tmp[k + ': mean'], tmp[k + ': std'] = v.predict(fps_, return_std=True)
+            else:
+                tmp[k + ': mean'], tmp[k + ': std'] = v.predict(fps_, **kwargs)
+
+        tmp = pd.DataFrame(data=tmp, index=fps_.index)
+        return pd.DataFrame(data=tmp, index=fps.index)
 
     # todo: implement scale function
     def fit(self, smiles, y=None, *, X_scaler=None, y_scaler=None, **kwargs):
@@ -66,12 +95,16 @@ class BayesianRidgeEstimator(BaseLogLikelihood):
             Parameters pass to BayesianRidge initialization.
         """
 
+        if self._mdl:
+            raise RuntimeError('estimators have been set.'
+                               'If you want to re-train these estimators,'
+                               'please use `remove_estimator()` method first.')
+
         if not isinstance(y, pd.DataFrame):
             raise TypeError('please package all properties into a pd.DataFrame')
 
         # remove NaN fromm X
-        desc = self._descriptor.transform(smiles)
-        desc = pd.DataFrame(data=desc).reset_index(drop=True)
+        desc = self._descriptor.transform(smiles, return_type='df').reset_index(drop=True)
         y = y.reset_index(drop=True)
         desc.dropna(inplace=True)
         y = y.loc[desc.index]
@@ -96,18 +129,16 @@ class BayesianRidgeEstimator(BaseLogLikelihood):
             return ll_
 
         ll = np.repeat(-1000.0, len(smis))
-        tar_fps = self._descriptor.transform(smis)
-        tar_fps = pd.DataFrame(data=tar_fps).reset_index(drop=True)
-        tmp = tar_fps.isna().any(axis=1)
+        pred = self.predict(smis).reset_index(drop=True)
+        tmp = pred.isna().any(axis=1)
         idx = [i for i in range(len(smis)) if ~tmp[i]]
-        tar_fps.dropna(inplace=True)
 
         # calculate likelihood
         ll_mat = []
         for k, (low, up) in targets.items():  # k: target; v: (low, up)
 
             # predict mean, std for all smiles
-            mean, std = self._mdl[k].predict(tar_fps, return_std=True)
+            mean, std = pred[k + ': mean'], pred[k + ': std']
 
             # calculate low likelihood
             low_ll = norm.logcdf(low, loc=np.asarray(mean), scale=np.asarray(std))

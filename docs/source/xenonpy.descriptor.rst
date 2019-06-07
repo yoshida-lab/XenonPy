@@ -1,6 +1,13 @@
 xenonpy.descriptor package
 ==========================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    xenonpy.descriptor.graph
+
 Submodules
 ----------
 
@@ -12,10 +19,10 @@ xenonpy.descriptor.base module
     :undoc-members:
     :show-inheritance:
 
-xenonpy.descriptor.composition module
--------------------------------------
+xenonpy.descriptor.compositions module
+--------------------------------------
 
-.. automodule:: xenonpy.descriptor.composition
+.. automodule:: xenonpy.descriptor.compositions
     :members:
     :undoc-members:
     :show-inheritance:

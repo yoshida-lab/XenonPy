@@ -1,6 +1,13 @@
 xenonpy.model.nn package
 ========================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    xenonpy.model.nn.graph
+
 Submodules
 ----------
 

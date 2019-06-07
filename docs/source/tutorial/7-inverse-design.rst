@@ -42,6 +42,24 @@ The prepared descriptor class will be added to the forward model class used in i
 
 The easiest way is to directly use the forward model template in XenonPy-iQSPR and train the model using the ``fit`` function.
 
+    >>> from xenonpy.inverse.iqspr import GaussianLogLikelihood
+    >>> prop = ['E','HOMO-LUMO gap']
+    >>> prd_mdls = BayesianRidgeEstimator(descriptor=RDKit_FPs)
+    >>> prd_mdls.fit(data['SMILES'], data[prop])
+
+Once trained, we can evaluate the likelihood values for the molecules to hit a given target region in the property space. Note that the likelihood function is always in log-scale to avoid the numerical issue in the sampling step.
+
+    >>> calculated_logL = prd_mdls.log_likelihood(data['SMILES'], **{'E': (0,200), 'HOMO-LUMO gap': (-np.inf, 3)})
+
+    >>> from xenonpy.inverse.iqspr import GaussianLogLikelihood
+    >>> prop = ['E','HOMO-LUMO gap']
+    >>> prd_mdls = BayesianRidgeEstimator(descriptor=RDKit_FPs)
+    >>> prd_mdls.fit(data['SMILES'], data[prop])
+
+Once trained, we can evaluate the likelihood values for the molecules to hit a given target region in the property space. Note that the likelihood function is always in log-scale to avoid the numerical issue in the sampling step.
+
+    >>> calculated_logL = prd_mdls.log_likelihood(data['SMILES'], **{'E': (0,200), 'HOMO-LUMO gap': (-np.inf, 3)})
+
     >>> from xenonpy.inverse.iqspr import BayesianRidgeEstimator
     >>> prop = ['E','HOMO-LUMO gap']
     >>> prd_mdls = BayesianRidgeEstimator(descriptor=RDKit_FPs)

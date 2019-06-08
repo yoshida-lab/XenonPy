@@ -21,7 +21,7 @@ class RDKitFP(BaseFeaturizer):
         ----------
         n_jobs: int
             The number of jobs to run in parallel for both fit and predict.
-            Set -1 to use all cpu cores (default).
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         fp_size: int
             Fingerprint size.
         input_type: string
@@ -41,6 +41,7 @@ class RDKitFP(BaseFeaturizer):
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.input_type = input_type
         self.fp_size = fp_size
+        self.__authors__ = ['Stephen Wu', 'TsumiNa']
 
     def featurize(self, x):
         if self.input_type == 'smiles':
@@ -77,7 +78,7 @@ class AtomPairFP(BaseFeaturizer):
         ----------
         n_jobs: int
             The number of jobs to run in parallel for both fit and predict.
-            Set -1 to use all cpu cores (default).
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         n_bits: int
            Fixed bit length based on folding.
         input_type: string
@@ -97,6 +98,7 @@ class AtomPairFP(BaseFeaturizer):
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.input_type = input_type
         self.n_bits = n_bits
+        self.__authors__ = ['Stephen Wu', 'TsumiNa']
 
     def featurize(self, x):
         if self.input_type == 'smiles':
@@ -128,7 +130,8 @@ class TopologicalTorsionFP(BaseFeaturizer):
         Parameters
         ----------
         n_jobs: int
-            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+            The number of jobs to run in parallel for both fit and predict.
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         n_bits: int
            Fixed bit length based on folding.
         input_type: string
@@ -148,6 +151,7 @@ class TopologicalTorsionFP(BaseFeaturizer):
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.input_type = input_type
         self.n_bits = n_bits
+        self.__authors__ = ['Stephen Wu', 'TsumiNa']
 
     def featurize(self, x):
         if self.input_type == 'smiles':
@@ -178,7 +182,8 @@ class MACCS(BaseFeaturizer):
         Parameters
         ----------
         n_jobs: int
-            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+            The number of jobs to run in parallel for both fit and predict.
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         input_type: string
             Set the specific type of transform input.
             Set to ``mol`` (default) to ``rdkit.Chem.rdchem.Mol`` objects as input.
@@ -195,6 +200,7 @@ class MACCS(BaseFeaturizer):
         """
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.input_type = input_type
+        self.__authors__ = ['Stephen Wu', 'TsumiNa']
 
     def featurize(self, x):
         if self.input_type == 'smiles':
@@ -226,7 +232,8 @@ class FCFP(BaseFeaturizer):
         Parameters
         ----------
         n_jobs: int
-            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+            The number of jobs to run in parallel for both fit and predict.
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         radius: int
             The radius parameter in the Morgan fingerprints, which is roughly half of the diameter parameter in FCFP,
             i.e., radius=2 is roughly equivalent to FCFP4.
@@ -250,6 +257,7 @@ class FCFP(BaseFeaturizer):
         self.input_type = input_type
         self.radius = radius
         self.n_bits = n_bits
+        self.__authors__ = ['Stephen Wu', 'TsumiNa']
         # self.arg = arg # arg[0] = radius, arg[1] = bit length
 
     def featurize(self, x):
@@ -284,7 +292,8 @@ class ECFP(BaseFeaturizer):
         Parameters
         ----------
         n_jobs: int
-            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+            The number of jobs to run in parallel for both fit and predict.
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         radius: int
             The radius parameter in the Morgan fingerprints, which is roughly half of the diameter parameter in ECFP,
             i.e., radius=2 is roughly equivalent to ECFP4.
@@ -308,6 +317,7 @@ class ECFP(BaseFeaturizer):
         self.input_type = input_type
         self.radius = radius
         self.n_bits = n_bits
+        self.__authors__ = ['Stephen Wu', 'TsumiNa']
         # self.arg = arg # arg[0] = radius, arg[1] = bit length
 
     def featurize(self, x):
@@ -339,7 +349,8 @@ class DescriptorFeature(BaseFeaturizer):
         Parameters
         ----------
         n_jobs: int
-            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+            The number of jobs to run in parallel for both fit and predict.
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         input_type: string
             Set the specific type of transform input.
             Set to ``mol`` (default) to ``rdkit.Chem.rdchem.Mol`` objects as input.
@@ -359,6 +370,7 @@ class DescriptorFeature(BaseFeaturizer):
         self.input_type = input_type
         nms = [x[0] for x in Descriptors._descList]
         self.calc = MoleculeDescriptors.MolecularDescriptorCalculator(nms)
+        self.__authors__ = ['Stephen Wu', 'TsumiNa']
 
     def featurize(self, x):
         if self.input_type == 'smiles':
@@ -391,7 +403,8 @@ class Fingerprints(BaseDescriptor):
         Parameters
         ----------
         n_jobs: int
-            The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
+            The number of jobs to run in parallel for both fit and predict.
+            Can be -1 or # of cups. Set -1 to use all cpu cores (default).
         radius: int
             The radius parameter in the Morgan fingerprints,
             which is roughly half of the diameter parameter in ECFP/FCFP,

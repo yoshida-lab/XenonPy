@@ -45,6 +45,7 @@ class FrozenFeaturizer(BaseFeaturizer):
         self.model = model
         self.cuda = cuda
         self._ret = []
+        self.__authors__ = ['TsumiNa']
 
     def featurize(self, descriptor, *, depth=None):
         if not isinstance(self.model, tc.nn.Module):

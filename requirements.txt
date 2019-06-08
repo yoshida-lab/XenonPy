@@ -3,6 +3,7 @@ tqdm
 seaborn
 plotly
 requests
+mordred
 
 ###### Requirements with Version Specifiers ######
 numpy == 1.16.*

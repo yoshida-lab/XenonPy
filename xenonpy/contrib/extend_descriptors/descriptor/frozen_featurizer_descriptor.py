@@ -1,7 +1,6 @@
-# XenonPy BaseFeaturizer for extracting artificial descriptors from neural networks
-# Input:
-# (1) xenonpy frozen featurizer object extracting hidden layers in a neural network
-# (2) xenonpy descriptor object used for the input of the neural network
+#  Copyright (c) 2019. TsumiNa. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
 
 from typing import Union
 
@@ -11,21 +10,27 @@ from xenonpy.descriptor.base import BaseFeaturizer, BaseDescriptor
 
 class FrozenFeaturizerDescriptor(BaseFeaturizer):
 
-    def __init__(self, fingerprint: Union[BaseDescriptor, BaseFeaturizer], frozen_featurizer: FrozenFeaturizer, *,
+    def __init__(self, descriptor_calculator: Union[BaseDescriptor, BaseFeaturizer],
+                 frozen_featurizer: FrozenFeaturizer, *,
                  on_errors='raise',
                  return_type='any'):
         """
+        A featurizer for extracting artificial descriptors from neural networks
 
         Parameters
         ----------
-        fingerprint : BaseFeaturizer or BaseDescriptor
+        descriptor_calculator : BaseFeaturizer or BaseDescriptor
+            Convert input data into descriptors to keep consistency with the pre-trained model.
         frozen_featurizer : FrozenFeaturizer
+            Extracting artificial descriptors from neural networks
         """
+
         # fix n_jobs to be 0 to skip automatic wrapper in XenonPy BaseFeaturizer class
         super().__init__(n_jobs=0, on_errors=on_errors, return_type=return_type)
-        self.FP = fingerprint
+        self.FP = descriptor_calculator
         self.ff = frozen_featurizer
         self.output = None
+        self.__authors__ = ['Stephen Wu', 'TsumiNa']
 
     def featurize(self, x, *, depth=1):
         # transform input to descriptor dataframe

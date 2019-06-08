@@ -36,6 +36,7 @@ class Counting(BaseCompositionFeaturizer):
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.one_hot_vec = one_hot_vec
         self._elems = self._elements.index.tolist()
+        self.__authors__ = ['TsumiNa']
 
     def mix_function(self, elems, nums):
         vec = np.zeros(len(self._elems), dtype=np.int)

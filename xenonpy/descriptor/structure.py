@@ -119,6 +119,29 @@ class ObitalFieldMatrix(BaseFeaturizer):
         """
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self._including_d = including_d
+        self.__authors__ = ['TsumiNa']
+        self.__citations__ = [
+            '''
+            @article{LamPham2017,
+                archivePrefix = {arXiv},
+                arxivId = {1705.01043},
+                author = {{Lam Pham}, Tien and Kino, Hiori and Terakura, Kiyoyuki and Miyake, Takashi and Tsuda, Koji and Takigawa, Ichigaku and {Chi Dam}, Hieu},
+                doi = {10.1080/14686996.2017.1378060},
+                eprint = {1705.01043},
+                issn = {18785514},
+                journal = {Science and Technology of Advanced Materials},
+                keywords = {Material descriptor,data mining,machine learning,magnetic materials,material informatics},
+                number = {1},
+                pages = {756--765},
+                pmid = {29152012},
+                publisher = {Taylor {\&} Francis},
+                title = {{Machine learning reveals orbital interaction in materials}},
+                url = {https://doi.org/10.1080/14686996.2017.1378060},
+                volume = {18},
+                year = {2017}
+                }
+            '''
+        ]
 
     @staticmethod
     def get_element_representation(name):

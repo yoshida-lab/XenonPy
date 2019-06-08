@@ -41,6 +41,7 @@ class RDKitFP(BaseFeaturizer):
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.input_type = input_type
         self.fp_size = fp_size
+        self.__authors__ = ['Stephen Wu', 'TsumiNa']
 
     def featurize(self, x):
         if self.input_type == 'smiles':
@@ -97,6 +98,7 @@ class AtomPairFP(BaseFeaturizer):
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.input_type = input_type
         self.n_bits = n_bits
+        self.__authors__ = ['Stephen Wu', 'TsumiNa']
 
     def featurize(self, x):
         if self.input_type == 'smiles':
@@ -149,6 +151,7 @@ class TopologicalTorsionFP(BaseFeaturizer):
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.input_type = input_type
         self.n_bits = n_bits
+        self.__authors__ = ['Stephen Wu', 'TsumiNa']
 
     def featurize(self, x):
         if self.input_type == 'smiles':
@@ -197,6 +200,7 @@ class MACCS(BaseFeaturizer):
         """
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
         self.input_type = input_type
+        self.__authors__ = ['Stephen Wu', 'TsumiNa']
 
     def featurize(self, x):
         if self.input_type == 'smiles':
@@ -253,6 +257,7 @@ class FCFP(BaseFeaturizer):
         self.input_type = input_type
         self.radius = radius
         self.n_bits = n_bits
+        self.__authors__ = ['Stephen Wu', 'TsumiNa']
         # self.arg = arg # arg[0] = radius, arg[1] = bit length
 
     def featurize(self, x):
@@ -312,6 +317,7 @@ class ECFP(BaseFeaturizer):
         self.input_type = input_type
         self.radius = radius
         self.n_bits = n_bits
+        self.__authors__ = ['Stephen Wu', 'TsumiNa']
         # self.arg = arg # arg[0] = radius, arg[1] = bit length
 
     def featurize(self, x):
@@ -364,6 +370,7 @@ class DescriptorFeature(BaseFeaturizer):
         self.input_type = input_type
         nms = [x[0] for x in Descriptors._descList]
         self.calc = MoleculeDescriptors.MolecularDescriptorCalculator(nms)
+        self.__authors__ = ['Stephen Wu', 'TsumiNa']
 
     def featurize(self, x):
         if self.input_type == 'smiles':

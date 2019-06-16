@@ -40,9 +40,9 @@ You can use these files to create a runnable environment on your local machine.
 
 .. note::
 
-    For Unix-like (Linux, Mac, FreeBSD, etc.) system, the above command will be enough.
-    For windows, additional tools are needed. We highly recommend you to install the `Visual C++ Build Tools <http://landinghub.visualstudio.com/visual-cpp-build-tools>`_ before creating your environment.
-    Also, confirm that you have checked the **windows 8.1 / 10 SDK options** on when installing the build tools.
+    For Unix-like (Linux, Mac, FreeBSD, etc.) system, the above command will be enough. For windows, additional tools are needed.
+    We highly recommend you to install the `Visual C++ Build Tools <https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16>`_ before creating your environment.
+    Also, confirm that you have checked the **Windows 10 SDK** (assuming the computer is Windows 10) on when installing the build tools.
 
 The following example shows how to create an environment from a preset step-by-step.
 

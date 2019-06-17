@@ -18,7 +18,7 @@ dependencies:
   - pip
   - pip:
       - ruamel.yaml
-      - pymatgen==2019.5.8
+      - pymatgen==2019.5.28
       - matminer
       - torchtext
       - jupyterlab

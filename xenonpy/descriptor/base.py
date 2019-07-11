@@ -104,6 +104,8 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             If ``any``, the return type dependent on the input type.
             Default is ``any``
         """
+        if return_type not in ['any', 'array', 'df']:
+            raise ValueError('`return_type` must be `any`, `array` or `df`')
         self.return_type = return_type
         self.n_jobs = n_jobs
         self.on_errors = on_errors

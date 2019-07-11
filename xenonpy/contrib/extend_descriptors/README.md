@@ -16,5 +16,13 @@ https://github.com/mordred-descriptor/mordred
 
 This code creates a BaseFeaturizer object in XenonPy that can be used as input for training models.
 
+## OrganicCompDescriptor
+
+This is a sample code for calculating the XenonPy compositional descriptors for organic molecules in SMILES or RDKit MOL format:
+https://xenonpy.readthedocs.io/en/latest/features.html#compositional-descriptors
+
+This code creates a BaseFeaturizer object in XenonPy that can be used as input for training models.
+
 -----------
 written by Stephen Wu, 2019.05.31
+updated by Stephen Wu, 2019.07.11

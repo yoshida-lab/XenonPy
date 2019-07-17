@@ -2,108 +2,63 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-import math
-from datetime import datetime, timedelta
-from pathlib import Path
-from platform import version as sys_ver
-from sys import version as py_ver
+from collections import namedtuple
+from typing import Union
 
-import numpy as np
-import pandas as pd
 import torch
-import torch.utils.data as Data
 from sklearn.base import BaseEstimator
+from torch.nn import Module
 
-from .checker import Checker
-from ..._conf import __version__
+from .wrap.base import BaseOptimizer, BaseLRScheduler
 from ...utils import TimedMetaClass
 
 
 class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
 
     def __init__(self,
-                 epochs=2000,
+                 model: torch.nn.Module,
+                 loss: Module,
+                 optimizer: BaseOptimizer,
                  *,
-                 cuda: bool or int or str = False,
-                 work_dir='.',
-                 verbose=True,
-                 describe=None):
-        self._epochs = epochs
-        if isinstance(cuda, bool):
-            self._device = torch.device('cuda') if cuda else torch.device('cpu')
-        elif isinstance(cuda, int):
-            self._device = torch.device('cuda', cuda)
+                 lr_scheduler: BaseLRScheduler = None,
+                 epochs: int = 2000,
+                 cuda: Union[bool, str] = False,
+                 verbose: bool = True,
+                 ):
+        self.epochs = epochs
+        self.loss_func = loss
+        self.optimizer = optimizer(self._model.parameters())
+        if lr_scheduler is not None:
+            self.lr_scheduler = lr_scheduler(self.optimizer)
         else:
-            self._device = torch.device(cuda)
-        if not Path(work_dir).exists():
-            Path(work_dir).mkdir()
-        self._verbose = verbose
-        self._work_dir = work_dir
-        self._model = None
-        self._model_name = None
-        self._checker = None
-        self._logs = []
-        self._describe = describe or dict(
-            python=py_ver,
-            system=sys_ver(),
-            numpy=np.__version__,
-            torch=torch.__version__,
-            xenonpy=__version__,
-            workspace=work_dir)
+            self.lr_scheduler = None
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._timer.stop()
-        elapsed = str(timedelta(seconds=self.elapsed))
-        self.logger('done runner <%s>: %s' % (self.__class__.__name__,
-                                              datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
-        self.logger('total elapsed time: %s' % elapsed)
-        logs = '\n'.join(self._logs)
-        now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')
-        with open(str(Path(self._work_dir) / ('log_' + now + '.txt')), 'w') as f:
-            f.write(logs)
+        self.verbose = verbose
+        self._device = self._check_cuda(cuda)
+        self._model = model
 
-    def __enter__(self):
-        self.logger('start runner <%s> at %s' % (self.__class__.__name__,
-                                                 datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
-        self._timer.start()
-        return self
+    @staticmethod
+    def _check_cuda(cuda):
+        if isinstance(cuda, bool):
+            if cuda:
+                if torch.cuda.is_available():
+                    return torch.device('cuda')
+                else:
+                    raise RuntimeError('could not use CUDA on this machine')
+            else:
+                return torch.device('cpu')
 
-    def optim(self, iter_):
-        """
-
-        Parameters
-        ----------
-        iter_: generator
-            Yields y_train, self._model(x_train), n_ite, n_batch
-
-        Returns
-        -------
-        any
-
-        """
-        raise NotImplementedError
-
-    def post_predict(self, y_true, y_pred):
-        """
-
-        Parameters
-        ----------
-        y_true: torch.Tensor
-        y_pred: torch.Tensor
-
-        Returns
-        -------
-        any
-        """
-        raise NotImplementedError
-
-    @property
-    def epochs(self):
-        return self._epochs
-
-    @epochs.setter
-    def epochs(self, v):
-        self._epochs = v
+        if isinstance(cuda, str):
+            if 'cuda' in cuda:
+                if torch.cuda.is_available():
+                    return torch.device(cuda)
+                else:
+                    raise RuntimeError('could not use CUDA on this machine')
+            elif 'cpu' in cuda:
+                return torch.device('cpu')
+            else:
+                raise RuntimeError('wrong device identifier'
+                                   'see also: https://pytorch.org/docs/stable/tensor_attributes.html#torch.torch.device')
 
     @property
     def device(self):
@@ -111,9 +66,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
 
     @device.setter
     def device(self, v):
-        if not isinstance(v, torch.torch.device):
-            raise TypeError('Need torch.device object')
-        self._device = v
+        self._device = self._check_cuda(v)
 
     @property
     def elapsed(self):
@@ -131,115 +84,13 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             raise TypeError(
                 'parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(m))
 
-    def __call__(self, model, name=None, **kwargs):
-        """"""
-        # model must inherit form nn.Module
-        if not isinstance(model, torch.nn.Module):
-            raise TypeError('Need <torch.nn.Module> instance but got %s' % type(model))
-
-        if not name:
-            from hashlib import md5
-            sig = md5(model.__str__().encode()).hexdigest()
-            name = sig
-        self._checker = Checker(name, self._work_dir)
-        self._model = model
-        self._model_name = name
-        self.describe(model_struct=str(model), model_name=name)
-        self._checker.init_model = model
-        self._checker.save(
-            runner=dict(epochs=self._epochs, verbose=self._verbose, workspace=self._work_dir))
-
-        if kwargs:
-            for k, v in kwargs.items():
-                setattr(self, k, v)
-
-    def describe(self, **info):
-        """
-        Add some additional description to runner.
-        Description will be saved automaticly.
-
-        Parameters
-        ----------
-        info: dict
-            Additional information to describe this model training.
-        """
-        self._describe = dict(self._describe, **info)
-
-    def persist(self, *args, **kwargs):
-        """
-        Persist data.
-        This is a wrap of ::class:`Dataset`
-
-        Parameters
-        ----------
-        args
-        kwargs
-        """
-        self._checker.save(*args, **kwargs)
-
-    def checkpoint(self, **describe):
-        """
-        Take a snapshot for current model status.
-
-        Parameters
-        ----------
-        describe: dict
-            Additional description for checkpoint.
-
-        """
-        self._checker(model_state=self._model.state_dict(), **describe)
-
-    @staticmethod
-    def tensor(*data_and_type):
-
-        def _tensor(data, torch_type):
-            if torch_type is None:
-                torch_type = torch.float
-            if isinstance(data, pd.DataFrame):
-                return torch.from_numpy(data.as_matrix()).to(torch_type)
-            elif isinstance(data, np.ndarray):
-                return torch.from_numpy(data).to(torch_type)
-            else:
-                raise TypeError(
-                    'Need <numpy.ndarray> or <pandas.DataFrame> but got %s' % type(data))
-
-        return tuple([_tensor(data_, type_) for data_, type_ in data_and_type])
-
-    def to_device(self, *tensor):
-        # if use CUDA acc
-        if self._device.type != 'cpu':
-            return tuple([t.cuda(self._device, True) for t in tensor])
-        return tuple([t.cpu() for t in tensor])
-
-    def batch_tensor(self, *data, batch_size=0.2, shuffle=True, num_worker=0, pin_memory=True):
-        # batch_size
-        if not data:
-            return None
-        if not all([isinstance(o, (pd.DataFrame, np.ndarray)) for o, _ in data]):
-            raise TypeError('Need <numpy.ndarray> or <pandas.DataFrame>')
-        if isinstance(batch_size, float):
-            batch_size = math.ceil(data[0][0].shape[0] * batch_size)
-
-        return Data.DataLoader(
-            dataset=Data.TensorDataset(*self.tensor(*data)),
-            batch_size=batch_size,
-            shuffle=shuffle,
-            num_workers=num_worker,
-            pin_memory=pin_memory)
-
-    def logger(self, *info):
-        log = '|> ' + '\n|> '.join(info)
-        self._logs.append(log)
-        if self._verbose:
-            print(log)
-
     def fit(self,
             x_train=None,
             y_train=None,
             *,
             data_loader=None,
-            x_dtype=torch.float,
-            y_dtype=torch.float):
+            yield_: str = 'none',
+            model_params: dict = None):
         """
         Fit Neural Network model
 
@@ -251,70 +102,114 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             Test data. Will be ignored will``data_loader`` is given.
         data_loader: torch.data.DataLoader
             Torch DataLoader. If given, will only use this as training dataset.
-        x_dtype: tensor type
-            Corresponding dtype in torch tensor. Default is torch.float.
-            Detials: https://pytorch.org/docs/stable/tensors.html
-        y_dtype: tensor types
-            Corresponding dtype in torch tensor. Default is torch.float.
+        yield_ : str
+            Yields intermediate information.
+        model_params: dict
+            Other model parameters.
 
-        Returns
-        -------
-        any
-            returns ::meth:`optim` results.
+        Yields
+        ------
+        namedtuple
+
         """
+        if yield_ not in ['loss', 'none', 'all']:
+            raise RuntimeError(f'<yield_> can only be "loss", "all", and "none" but got {yield_}')
 
-        def _ite():
-            self._model.to(self._device)
-            if not data_loader:
-                x_, y_ = self.to_device(*self.tensor((x_train, x_dtype), (y_train, y_dtype)))
-                for t in range(self._epochs):
-                    yield y_, self._model(x_), t, 1
-                return
+        if model_params is None:
+            model_params = {}
 
+        self._model.to(self._device)
+        self._model.train()
+
+        yields_all = namedtuple('yields', 'y_pred y_true loss i_epoch i_batch model_params')
+        yields_loss = namedtuple('yields', 'loss i_epoch i_batch')
+
+        if data_loader is not None:
+            if y_train is not None or x_train is not None:
+                raise RuntimeError('parameter <data_loader> is exclusive of <x_train> and <y_train>')
+        else:
+            if y_train is None or x_train is None:
+                raise RuntimeError('missing parameter <x_train> or <y_train>')
+
+        for i_epoch in range(self.epochs):
             if data_loader:
-                for t in range(self._epochs):
-                    for i, (x_, y_) in enumerate(data_loader):
-                        x_, y_ = self.to_device(x_, y_)
-                        yield y_, self._model(x_), t, i
-                return
+                for i_batch, (x_, y_) in enumerate(data_loader):
 
-        self.describe(start=datetime.now().strftime('%Y/%m/%d %H:%M:%S'))
+                    # convert to tuple for convenient
+                    if not isinstance(x_, tuple):
+                        x_ = (x_,)
+                    if not isinstance(y_, tuple):
+                        y_ = (y_,)
 
-        # training
-        now = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-        self.logger('training model: <%s>' % self._model_name)
-        self.logger('start: %s' % now, '')
-        start = self.elapsed
+                    # move tensor device
+                    x_ = self.to_device(*x_)
+                    y_ = self.to_device(*y_)
+                    if len(y_) == 1:
+                        y_ = y_[0]
 
-        self._model.train(True)
-        ret = self.optim(_ite())  # user implementation
-        self._model.train(False)
+                    # feed model
+                    def closure():
+                        self.optimizer.zero_grad()
+                        y_pred = self._model(*x_, **model_params)
+                        if isinstance(y_pred, tuple):
+                            y_pred = y_pred[0]
+                            model_params.update(y_pred[1])
+                        loss = self.loss_func(y_pred, y_)
+                        loss.backward()
+                        if yield_ == 'all':
+                            yield yields_all(y_pred=y_pred, y_true=y_, loss=loss / y_.size(0), i_epoch=i_epoch,
+                                             i_batch=i_batch, model_params=model_params)
+                        return loss
 
-        now = datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-        elapsed = str(timedelta(seconds=self.elapsed - start))
-        self.logger('done: %s' % now)
-        self.logger('elapsed time: %s\n' % elapsed)
+                    loss = self.optimizer.step(closure)
+                    if yield_ == 'loss':
+                        yield yields_loss(loss=loss / y_.size(0), i_epoch=i_epoch, i_batch=i_batch)
 
-        self.describe(done=now)
-        self._checker.save(describe=self._describe)
-        self._checker.trained_model = self._model
+            else:
+                if not isinstance(x_train, tuple):
+                    x_train = (x_train,)
+                if not isinstance(y_train, tuple):
+                    y_train = (y_train,)
 
-        return ret
+                # move tensor device
+                x_ = self.to_device(*x_train)
+                y_ = self.to_device(*y_train)
+                if len(y_) == 1:
+                    y_ = y_[0]
 
-    def predict(self, x_test, y_test=None, *, x_dtype=torch.float, y_dtype=torch.float):
+                # feed model
+                def closure():
+                    self.optimizer.zero_grad()
+                    y_pred = self._model(*x_, **model_params)
+                    if isinstance(y_pred, tuple):
+                        y_pred = y_pred[0]
+                        model_params.update(y_pred[1])
+                    loss = self.loss_func(y_pred, y_)
+                    loss.backward()
+                    if yield_ == 'all':
+                        yield yields_all(y_pred=y_pred, y_true=y_, loss=loss / y_.size(0), i_epoch=i_epoch,
+                                         i_batch=i_batch, model_params=model_params)
+                    return loss
+
+                loss = self.optimizer.step(closure)
+                if yield_ == 'loss':
+                    yield yields_loss(loss=loss / y_.size(0), i_epoch=i_epoch, i_batch=i_batch)
+
+    def to_device(self, *tensor):
+        # if use CUDA acc
+        if self._device.type != 'cpu':
+            return tuple([t.cuda(self._device, True) for t in tensor])
+        return tuple([t.cpu() for t in tensor])
+
+    def predict(self, x_test, *, to_cpu=True):
         """
 
         Parameters
         ----------
         x_test: DataFrame, ndarray
-            Input data for test..
-        y_test: DataFrame, ndarray, optional
-            Target data for test.
-        x_dtype: tensor type
-            Corresponding dtype in torch tensor. Default is torch.float.
-            Detials: https://pytorch.org/docs/stable/tensors.html
-        y_dtype: tensor types
-            Corresponding dtype in torch tensor. Default is torch.float.
+            Input data for test.
+        to_cpu: bool
+            Should or not to return the prediction as numpy object.
 
         Returns
         -------
@@ -322,26 +217,15 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             Return ::meth:`post_predict` results.
         """
         # prepare data
-        x_test, = self.to_device(*self.tensor((x_test, x_dtype)))
+        if not isinstance(x_test, tuple):
+            x_test = (x_test,)
+        x_test, = self.to_device(*x_test)
 
         # prediction
         self._model.to(self._device)
-        y_true, y_pred = y_test, self._model(x_test)
-        return self.post_predict(y_true, y_pred)
+        self._model.eval()
 
-    @classmethod
-    def from_checker(cls, checker, checkpoint=None):
-        runner = checker.last('runner')
-        ret = cls(
-            runner['epochs'],
-            work_dir=runner['workspace'],
-            verbose=runner['verbose'],
-            describe=checker.describe)
-        ret._checker = checker
-        ret._model_name = checker.model_name
-        if not checkpoint:
-            ret._model = checker.trained_model if checker.trained_model else checker.init_model
-        else:
-            model_state, _ = checker[checkpoint]
-            ret._model = checker.init_model.load_state_dict(model_state)
-        return ret
+        y_pred = self._model(*x_test).detach()
+        if to_cpu:
+            return y_pred.cpu().numpy()
+        return y_pred

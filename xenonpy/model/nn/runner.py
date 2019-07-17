@@ -2,14 +2,23 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 import types
-from datetime import timedelta
+from copy import deepcopy
+from datetime import datetime, timedelta
 from functools import wraps
+from hashlib import md5
+from pathlib import Path
+from platform import version as sys_ver
+from sys import version as py_ver
 
+import numpy as np
 import torch
 import torch.nn.functional as F
+from sklearn.base import BaseEstimator
 from sklearn.base import RegressorMixin
 
 from .base import BaseRunner
+from ..._conf import __version__
+from ...utils import TimedMetaClass
 
 
 def persist(*args, **kwargs):
@@ -45,7 +54,7 @@ def persist(*args, **kwargs):
             def _func(self, *args_, **kwargs_):
                 self = _checked(self)
                 ret = fn(self, *args_, **kwargs_)
-                checker = getattr(self._checker, fn.__name__)
+                checker = getattr(self.checker, fn.__name__)
                 checker.save(ret)
                 return ret
 
@@ -68,7 +77,7 @@ def persist(*args, **kwargs):
                 if _n_ret != n_args:
                     raise RuntimeError('Number of keys not equal values\' number')
                 pair = zip(args, ret)
-                checker = getattr(self._checker, fn_.__name__)
+                checker = getattr(self.checker, fn_.__name__)
                 checker.save(**{k: v for k, v in pair})
                 return ret if len(ret) > 1 else ret[0]
 
@@ -96,13 +105,53 @@ def persist(*args, **kwargs):
                     raise TypeError('Returns\' type not match')
                 names = kwargs.keys()
                 pair = zip(names, ret)
-                checker = getattr(self._checker, fn_.__name__)
+                checker = getattr(self.checker, fn_.__name__)
                 checker.save(**{k: v for k, v in pair})
                 return ret if len(ret) > 1 else ret[0]
 
             return _func_2
 
         return _deco
+
+
+class BatchedTrain(BaseEstimator, metaclass=TimedMetaClass):
+    def __init__(self, describe):
+        """"""
+        self.checker = None
+        self._package_info = dict(
+            python=py_ver,
+            system=sys_ver(),
+            numpy=np.__version__,
+            torch=torch.__version__,
+            xenonpy=__version__,
+        )
+
+    def __call__(self, *args, **kwargs):
+        if not name:
+            sig = md5(model.__str__().encode()).hexdigest()
+            name = sig
+
+    @property
+    def package_info(self):
+        """"""
+        return deepcopy(self._package_info)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._timer.stop()
+        elapsed = str(timedelta(seconds=self.elapsed))
+        self.logger('done runner <%s>: %s' % (self.__class__.__name__,
+                                              datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
+        self.logger('total elapsed time: %s' % elapsed)
+        logs = '\n'.join(self._logs)
+        now = datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')
+        with open(str(Path(self.work_dir) / ('log_' + now + '.txt')), 'w') as f:
+            f.write(logs)
+
+    def __enter__(self):
+        self.logger('start runner <%s> at %s' % (self.__class__.__name__,
+                                                 datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
+        self._timer.start()
+        return self
 
 
 class RegressionRunner(BaseRunner, RegressorMixin):
@@ -138,8 +187,8 @@ class RegressionRunner(BaseRunner, RegressorMixin):
         self._lr = 0.01
         self._lr_scheduler = None
 
-        self.logger('Runner environment:', 'Running dir: {}'.format(self._work_dir),
-                    'Epochs: {}'.format(self._epochs), 'Context: {}'.format(self._device),
+        self.logger('Runner environment:', 'Running dir: {}'.format(self.work_dir),
+                    'Epochs: {}'.format(self.epochs), 'Context: {}'.format(self._device),
                     'Check step: {}'.format(self._check_step), 'Log step: {}\n'.format(
                 self._log_step))
 
@@ -190,7 +239,7 @@ class RegressionRunner(BaseRunner, RegressorMixin):
                 elapsed = str(timedelta(seconds=self.elapsed - start))
                 start = self.elapsed
                 self.logger('{}/{}, Loss={:.4f}, elapsed time: {}'.format(
-                    t, self._epochs, loss, elapsed))
+                    t, self.epochs, loss, elapsed))
             if self._check_step > 0 and t % self._check_step == 0 and i == 1:
                 self.checkpoint(mse_loss=loss.item())
 

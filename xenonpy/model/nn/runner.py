@@ -16,7 +16,7 @@ import torch.nn.functional as F
 from sklearn.base import BaseEstimator
 from sklearn.base import RegressorMixin
 
-from .base import BaseRunner
+from .base import BaseTrainer
 from ..._conf import __version__
 from ...utils import TimedMetaClass
 
@@ -37,7 +37,7 @@ def persist(*args, **kwargs):
     n_kwargs = len(kwargs)
 
     def _checked(o):
-        if not isinstance(o, BaseRunner):
+        if not isinstance(o, BaseTrainer):
             raise TypeError('persistence only decorate <BaseRunner> inherent object\'s method')
         return o
 
@@ -154,7 +154,7 @@ class BatchedTrain(BaseEstimator, metaclass=TimedMetaClass):
         return self
 
 
-class RegressionRunner(BaseRunner, RegressorMixin):
+class RegressionTrainer(BaseTrainer, RegressorMixin):
     """
     Run model.
     """
@@ -180,7 +180,7 @@ class RegressionRunner(BaseRunner, RegressorMixin):
         verbose: bool
             Print :class:`ModelRunner` environment.
         """
-        super(RegressionRunner, self).__init__(
+        super(RegressionTrainer, self).__init__(
             epochs, cuda=cuda, work_dir=work_dir, verbose=verbose, describe=describe)
         self._check_step = check_step
         self._log_step = log_step

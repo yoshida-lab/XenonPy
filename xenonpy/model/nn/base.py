@@ -2,18 +2,20 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from collections import namedtuple
-from typing import Union
+from collections import OrderedDict
+from typing import Union, Tuple, Callable
 
+import pandas as pd
 import torch
 from sklearn.base import BaseEstimator
 from torch.nn import Module
+from torch.utils.data import DataLoader
 
 from .wrap.base import BaseOptimizer, BaseLRScheduler
 from ...utils import TimedMetaClass
 
 
-class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
+class BaseTrainer(BaseEstimator, metaclass=TimedMetaClass):
 
     def __init__(self,
                  model: torch.nn.Module,
@@ -21,10 +23,12 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
                  optimizer: BaseOptimizer,
                  *,
                  lr_scheduler: BaseLRScheduler = None,
+                 model_modifier: Callable[[Module], None] = None,
                  epochs: int = 2000,
                  cuda: Union[bool, str] = False,
                  verbose: bool = True,
                  ):
+        self.model_modifier = model_modifier
         self.epochs = epochs
         self.loss_func = loss
         self.optimizer = optimizer(self._model.parameters())
@@ -37,8 +41,14 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self._device = self._check_cuda(cuda)
         self._model = model
 
+        self._states = []
+        self._losses = []
+
+    def _to_device(self, *tensor: torch.Tensor):
+        return tuple([t.to(self._device) for t in tensor])
+
     @staticmethod
-    def _check_cuda(cuda):
+    def _check_cuda(cuda: Union[bool, str]) -> torch.device:
         if isinstance(cuda, bool):
             if cuda:
                 if torch.cuda.is_available():
@@ -59,6 +69,10 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             else:
                 raise RuntimeError('wrong device identifier'
                                    'see also: https://pytorch.org/docs/stable/tensor_attributes.html#torch.torch.device')
+
+    @property
+    def losses(self):
+        return pd.DataFrame(data=self._losses)
 
     @property
     def device(self):
@@ -85,46 +99,52 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
                 'parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(m))
 
     def fit(self,
-            x_train=None,
-            y_train=None,
+            x_train: Union[torch.Tensor, Tuple[torch.Tensor]] = None,
+            y_train: torch.Tensor = None,
             *,
-            data_loader=None,
-            yield_: str = 'none',
+            training_dataset: DataLoader = None,
+            x_test: Union[torch.Tensor, Tuple[torch.Tensor]] = None,
+            y_test: torch.Tensor = None,
+            yield_step: bool = False,
+            save_training_state: bool = False,
             model_params: dict = None):
         """
         Fit Neural Network model
 
         Parameters
         ----------
-        x_train:  ``numpy.ndarray`` or ``pandas.DataFrame``.
+        x_train: Union[torch.Tensor, Tuple[torch.Tensor]]
             Training data. Will be ignored will``data_loader`` is given.
-        y_train:  ``numpy.ndarray`` or ``pandas.DataFrame``.
+        y_train: torch.Tensor
             Test data. Will be ignored will``data_loader`` is given.
-        data_loader: torch.data.DataLoader
+        training_dataset: .DataLoader
             Torch DataLoader. If given, will only use this as training dataset.
-        yield_ : str
+        y_test: Union[torch.Tensor, Tuple[torch.Tensor]]
+        x_test: torch.Tensor
+        yield_step : False
             Yields intermediate information.
         model_params: dict
             Other model parameters.
+        save_training_state: bool
+            If ``True``, will save model status on each training step.
 
         Yields
         ------
         namedtuple
 
         """
-        if yield_ not in ['loss', 'none', 'all']:
-            raise RuntimeError(f'<yield_> can only be "loss", "all", and "none" but got {yield_}')
 
         if model_params is None:
             model_params = {}
 
+        for k, v in model_params.items():
+            if isinstance(v, torch.Tensor):
+                model_params[k] = v.to(self._device)
+
         self._model.to(self._device)
         self._model.train()
 
-        yields_all = namedtuple('yields', 'y_pred y_true loss i_epoch i_batch model_params')
-        yields_loss = namedtuple('yields', 'loss i_epoch i_batch')
-
-        if data_loader is not None:
+        if training_dataset is not None:
             if y_train is not None or x_train is not None:
                 raise RuntimeError('parameter <data_loader> is exclusive of <x_train> and <y_train>')
         else:
@@ -132,76 +152,98 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
                 raise RuntimeError('missing parameter <x_train> or <y_train>')
 
         for i_epoch in range(self.epochs):
-            if data_loader:
-                for i_batch, (x_, y_) in enumerate(data_loader):
+            if training_dataset:
+                for i_batch, (x, y) in enumerate(training_dataset):
 
                     # convert to tuple for convenient
-                    if not isinstance(x_, tuple):
-                        x_ = (x_,)
-                    if not isinstance(y_, tuple):
-                        y_ = (y_,)
+                    if not isinstance(x, tuple):
+                        x = (x,)
 
                     # move tensor device
-                    x_ = self.to_device(*x_)
-                    y_ = self.to_device(*y_)
-                    if len(y_) == 1:
-                        y_ = y_[0]
+                    x = self._to_device(*x)
+                    y = y.to(self._device)
 
                     # feed model
-                    def closure():
-                        self.optimizer.zero_grad()
-                        y_pred = self._model(*x_, **model_params)
-                        if isinstance(y_pred, tuple):
-                            y_pred = y_pred[0]
-                            model_params.update(y_pred[1])
-                        loss = self.loss_func(y_pred, y_)
-                        loss.backward()
-                        if yield_ == 'all':
-                            yield yields_all(y_pred=y_pred, y_true=y_, loss=loss / y_.size(0), i_epoch=i_epoch,
-                                             i_batch=i_batch, model_params=model_params)
-                        return loss
+                    i_closure = [0]  # set iteration counter for closure
 
-                    loss = self.optimizer.step(closure)
-                    if yield_ == 'loss':
-                        yield yields_loss(loss=loss / y_.size(0), i_epoch=i_epoch, i_batch=i_batch)
+                    def closure():
+                        i_closure[0] = i_closure[0] + 1
+                        self.optimizer.zero_grad()
+                        y_pred_ = self._model(*x, **model_params)
+                        if isinstance(y_pred_, tuple):
+                            model_params.update(y_pred_[1])
+                            y_pred_ = y_pred_[0]
+                        loss_ = self.loss_func(y_pred_, y)
+                        loss_.backward()
+
+                        if self.model_modifier is not None:
+                            self.model_modifier(self.model)
+
+                        return loss_
+
+                    train_loss = self.optimizer.step(closure).item() / y.size(0)
+                    i_closure = [0]  # reset counter
+
+                    step = OrderedDict(i_epoch=i_epoch, i_batch=i_batch, train_loss=train_loss)
+
+                    if x_test is not None and y_test is not None:
+                        y_pred, y = self.predict(x_test), y_test.to(self._device)
+                        step['test_loss'] = self.loss_func(y_pred, y).item()
+                        self._model.train()
+
+                    self._losses.append(step)
+
+                    if save_training_state:
+                        self._states.append(self._model.state_dict())
+
+                    if yield_step:
+                        yield step
 
             else:
                 if not isinstance(x_train, tuple):
                     x_train = (x_train,)
-                if not isinstance(y_train, tuple):
-                    y_train = (y_train,)
 
                 # move tensor device
-                x_ = self.to_device(*x_train)
-                y_ = self.to_device(*y_train)
-                if len(y_) == 1:
-                    y_ = y_[0]
+                x = self._to_device(*x_train)
+                y = y_train.to(self._device)
 
                 # feed model
+                i_closure = [0]
+
                 def closure():
+                    i_closure[0] = i_closure[0] + 1
                     self.optimizer.zero_grad()
-                    y_pred = self._model(*x_, **model_params)
-                    if isinstance(y_pred, tuple):
-                        y_pred = y_pred[0]
-                        model_params.update(y_pred[1])
-                    loss = self.loss_func(y_pred, y_)
-                    loss.backward()
-                    if yield_ == 'all':
-                        yield yields_all(y_pred=y_pred, y_true=y_, loss=loss / y_.size(0), i_epoch=i_epoch,
-                                         i_batch=i_batch, model_params=model_params)
-                    return loss
+                    y_pred_ = self._model(*x, **model_params)
+                    if isinstance(y_pred_, tuple):
+                        model_params.update(y_pred_[1])
+                        y_pred_ = y_pred_[0]
+                    loss_ = self.loss_func(y_pred_, y)
+                    loss_.backward()
 
-                loss = self.optimizer.step(closure)
-                if yield_ == 'loss':
-                    yield yields_loss(loss=loss / y_.size(0), i_epoch=i_epoch, i_batch=i_batch)
+                    if self.model_modifier is not None:
+                        self.model_modifier(self.model)
 
-    def to_device(self, *tensor):
-        # if use CUDA acc
-        if self._device.type != 'cpu':
-            return tuple([t.cuda(self._device, True) for t in tensor])
-        return tuple([t.cpu() for t in tensor])
+                    return loss_
 
-    def predict(self, x_test, *, to_cpu=True):
+                train_loss = self.optimizer.step(closure).item() / y.size(0)
+                i_closure = [0]
+
+                step = OrderedDict(i_epoch=i_epoch, i_batch=0, train_loss=train_loss)
+
+                if x_test is not None and y_test is not None:
+                    y_pred, y = self.predict(x_test), y_test.to(self._device)
+                    step['test_loss'] = self.loss_func(y_pred, y).item()
+                    self._model.train()
+
+                self._losses.append(step)
+
+                if save_training_state:
+                    self._states.append(self._model.state_dict())
+
+                if yield_step:
+                    yield step
+
+    def predict(self, x_test: Union[torch.Tensor, Tuple[torch.Tensor]], *, to_cpu=True):
         """
 
         Parameters
@@ -219,13 +261,36 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         # prepare data
         if not isinstance(x_test, tuple):
             x_test = (x_test,)
-        x_test, = self.to_device(*x_test)
+        x_test = self._to_device(*x_test)
 
         # prediction
         self._model.to(self._device)
         self._model.eval()
 
-        y_pred = self._model(*x_test).detach()
+        y_pred = self._model(*x_test)
+        model_params = None
+        if isinstance(y_pred, tuple):
+            model_params = y_pred[1]
+            y_pred = y_pred[0].detach()
+
+            for k, v in model_params.items():
+                if isinstance(v, torch.Tensor):
+                    v = v.detach()
+                    if to_cpu:
+                        v = v.cpu().numpy()
+                    model_params[k] = v
+
         if to_cpu:
-            return y_pred.cpu().numpy()
+            y_pred = y_pred.cpu().numpy()
+
+        if model_params is not None:
+            return y_pred, model_params
         return y_pred
+
+    def as_dict(self):
+        return OrderedDict(
+            epoches=self.epochs,
+            losses=self._losses,
+            states=self._states,
+            model=type(self._model)().load_state_dict(self._model.state_dict())
+        )

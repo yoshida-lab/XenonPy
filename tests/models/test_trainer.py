@@ -7,7 +7,7 @@ import os
 
 import pytest
 
-from xenonpy.model.nn import BaseRunner
+from xenonpy.model.nn import BaseTrainer
 
 
 @pytest.fixture(scope='module')
@@ -26,7 +26,7 @@ def data():
 
 
 def test_base_runner(data):
-    with BaseRunner() as runner:
+    with BaseTrainer() as runner:
         assert hasattr(runner, '__enter__')
         assert hasattr(runner, '__exit__')
 

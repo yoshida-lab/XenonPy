@@ -11,26 +11,27 @@ from sklearn.base import BaseEstimator
 from torch.nn import Module
 from torch.utils.data import DataLoader
 
-from .wrap.base import BaseOptimizer, BaseLRScheduler
-from ...utils import TimedMetaClass
+from xenonpy.model.nn.utils.base import BaseExtension, check_cuda
+from xenonpy.model.nn.wrap.base import BaseOptimizer, BaseLRScheduler
+from xenonpy.utils import TimedMetaClass
 
 
-class BaseTrainer(BaseEstimator, metaclass=TimedMetaClass):
+class Trainer(BaseEstimator, metaclass=TimedMetaClass):
 
     def __init__(self,
-                 model: torch.nn.Module,
-                 loss: Module,
+                 model: Module,
+                 loss_func: Module,
                  optimizer: BaseOptimizer,
                  *,
                  lr_scheduler: BaseLRScheduler = None,
-                 model_modifier: Callable[[Module], None] = None,
+                 model_modifier: Callable[[Module, ], None] = None,
                  epochs: int = 2000,
                  cuda: Union[bool, str] = False,
                  verbose: bool = True,
                  ):
         self.model_modifier = model_modifier
         self.epochs = epochs
-        self.loss_func = loss
+        self.loss_func = loss_func
         self.optimizer = optimizer(self._model.parameters())
         if lr_scheduler is not None:
             self.lr_scheduler = lr_scheduler(self.optimizer)
@@ -38,41 +39,19 @@ class BaseTrainer(BaseEstimator, metaclass=TimedMetaClass):
             self.lr_scheduler = None
 
         self.verbose = verbose
-        self._device = self._check_cuda(cuda)
+        self._device = check_cuda(cuda)
         self._model = model
 
-        self._states = []
-        self._losses = []
+        self._extensions = []
+        self._model_states = []
+        self._step_info = []
 
     def _to_device(self, *tensor: torch.Tensor):
         return tuple([t.to(self._device) for t in tensor])
 
-    @staticmethod
-    def _check_cuda(cuda: Union[bool, str]) -> torch.device:
-        if isinstance(cuda, bool):
-            if cuda:
-                if torch.cuda.is_available():
-                    return torch.device('cuda')
-                else:
-                    raise RuntimeError('could not use CUDA on this machine')
-            else:
-                return torch.device('cpu')
-
-        if isinstance(cuda, str):
-            if 'cuda' in cuda:
-                if torch.cuda.is_available():
-                    return torch.device(cuda)
-                else:
-                    raise RuntimeError('could not use CUDA on this machine')
-            elif 'cpu' in cuda:
-                return torch.device('cpu')
-            else:
-                raise RuntimeError('wrong device identifier'
-                                   'see also: https://pytorch.org/docs/stable/tensor_attributes.html#torch.torch.device')
-
     @property
     def losses(self):
-        return pd.DataFrame(data=self._losses)
+        return pd.DataFrame(data=self._step_info)
 
     @property
     def device(self):
@@ -80,7 +59,7 @@ class BaseTrainer(BaseEstimator, metaclass=TimedMetaClass):
 
     @device.setter
     def device(self, v):
-        self._device = self._check_cuda(v)
+        self._device = check_cuda(v)
 
     @property
     def elapsed(self):
@@ -103,30 +82,27 @@ class BaseTrainer(BaseEstimator, metaclass=TimedMetaClass):
             y_train: torch.Tensor = None,
             *,
             training_dataset: DataLoader = None,
-            x_test: Union[torch.Tensor, Tuple[torch.Tensor]] = None,
-            y_test: torch.Tensor = None,
             yield_step: bool = False,
             save_training_state: bool = False,
             model_params: dict = None):
         """
-        Fit Neural Network model
+        Train the Neural Network model
 
         Parameters
         ----------
         x_train: Union[torch.Tensor, Tuple[torch.Tensor]]
-            Training data. Will be ignored will``data_loader`` is given.
+            Training data. Will be ignored will``training_dataset`` is given.
         y_train: torch.Tensor
-            Test data. Will be ignored will``data_loader`` is given.
-        training_dataset: .DataLoader
+            Test data. Will be ignored will``training_dataset`` is given.
+        training_dataset: DataLoader
             Torch DataLoader. If given, will only use this as training dataset.
-        y_test: Union[torch.Tensor, Tuple[torch.Tensor]]
-        x_test: torch.Tensor
+            When loop over this dataset, it should yield a tuple contains ``x_train`` and ``y_train`` in order.
         yield_step : False
             Yields intermediate information.
         model_params: dict
             Other model parameters.
         save_training_state: bool
-            If ``True``, will save model status on each training step.
+            If ``True``, will save model status on each training step_info.
 
         Yields
         ------
@@ -184,20 +160,16 @@ class BaseTrainer(BaseEstimator, metaclass=TimedMetaClass):
                     train_loss = self.optimizer.step(closure).item() / y.size(0)
                     i_closure = [0]  # reset counter
 
-                    step = OrderedDict(i_epoch=i_epoch, i_batch=i_batch, train_loss=train_loss)
+                    step_info = OrderedDict(i_epoch=i_epoch, i_batch=i_batch, train_loss=train_loss)
+                    step_info = self._exec_ext(step_info)
 
-                    if x_test is not None and y_test is not None:
-                        y_pred, y = self.predict(x_test), y_test.to(self._device)
-                        step['test_loss'] = self.loss_func(y_pred, y).item()
-                        self._model.train()
-
-                    self._losses.append(step)
+                    self._step_info.append(step_info)
 
                     if save_training_state:
-                        self._states.append(self._model.state_dict())
+                        self._model_states.append(self._model.state_dict())
 
                     if yield_step:
-                        yield step
+                        yield step_info
 
             else:
                 if not isinstance(x_train, tuple):
@@ -221,29 +193,25 @@ class BaseTrainer(BaseEstimator, metaclass=TimedMetaClass):
                     loss_.backward()
 
                     if self.model_modifier is not None:
-                        self.model_modifier(self.model)
+                        self.model_modifier(self.model, loss=loss_)
 
                     return loss_
 
                 train_loss = self.optimizer.step(closure).item() / y.size(0)
                 i_closure = [0]
 
-                step = OrderedDict(i_epoch=i_epoch, i_batch=0, train_loss=train_loss)
+                step_info = OrderedDict(i_epoch=i_epoch, train_loss=train_loss)
+                step_info = self._exec_ext(step_info)
 
-                if x_test is not None and y_test is not None:
-                    y_pred, y = self.predict(x_test), y_test.to(self._device)
-                    step['test_loss'] = self.loss_func(y_pred, y).item()
-                    self._model.train()
-
-                self._losses.append(step)
+                self._step_info.append(step_info)
 
                 if save_training_state:
-                    self._states.append(self._model.state_dict())
+                    self._model_states.append(self._model.state_dict())
 
                 if yield_step:
-                    yield step
+                    yield step_info
 
-    def predict(self, x_test: Union[torch.Tensor, Tuple[torch.Tensor]], *, to_cpu=True):
+    def predict(self, x_test: Union[torch.Tensor, Tuple[torch.Tensor]], *, to_cpu=True, only_prediction=True):
         """
 
         Parameters
@@ -287,10 +255,18 @@ class BaseTrainer(BaseEstimator, metaclass=TimedMetaClass):
             return y_pred, model_params
         return y_pred
 
+    def _exec_ext(self, step_info):
+        for ext in self._extensions:
+            step_info = ext(step_info, self)
+        return step_info
+
+    def extend(self, ext: Callable[[OrderedDict, BaseExtension], OrderedDict]):
+        self._extensions.append(ext)
+
     def as_dict(self):
         return OrderedDict(
             epoches=self.epochs,
-            losses=self._losses,
-            states=self._states,
+            losses=self._step_info,
+            states=self._model_states,
             model=type(self._model)().load_state_dict(self._model.state_dict())
         )

@@ -8,7 +8,7 @@ import numpy as np
 import pymatgen as pm
 from pymatgen.analysis.local_env import VoronoiNN
 
-from .base import BaseDescriptor, BaseFeaturizer
+from xenonpy.descriptor.base import BaseDescriptor, BaseFeaturizer
 
 
 class RadialDistributionFunction(BaseFeaturizer):

@@ -4,7 +4,7 @@
 
 import numpy as np
 
-from .base import BaseDescriptor, BaseCompositionFeaturizer
+from xenonpy.descriptor.base import BaseDescriptor, BaseCompositionFeaturizer
 
 
 class Counting(BaseCompositionFeaturizer):

@@ -16,7 +16,7 @@ import torch.nn.functional as F
 from sklearn.base import BaseEstimator
 from sklearn.base import RegressorMixin
 
-from .base import BaseTrainer
+from xenonpy.model.nn.utils.trainer import Trainer
 from ..._conf import __version__
 from ...utils import TimedMetaClass
 
@@ -37,7 +37,7 @@ def persist(*args, **kwargs):
     n_kwargs = len(kwargs)
 
     def _checked(o):
-        if not isinstance(o, BaseTrainer):
+        if not isinstance(o, Trainer):
             raise TypeError('persistence only decorate <BaseRunner> inherent object\'s method')
         return o
 
@@ -154,7 +154,7 @@ class BatchedTrain(BaseEstimator, metaclass=TimedMetaClass):
         return self
 
 
-class RegressionTrainer(BaseTrainer, RegressorMixin):
+class RegressionTrainer(Trainer, RegressorMixin):
     """
     Run model.
     """

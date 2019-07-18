@@ -13,8 +13,8 @@ import pandas as pd
 from pymatgen.core.composition import Composition as PMGComp
 from sklearn.base import TransformerMixin, BaseEstimator
 
-from ..datatools.preset import preset
-from ..utils import TimedMetaClass
+from xenonpy.datatools.preset import preset
+from xenonpy.utils import TimedMetaClass
 
 
 class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):

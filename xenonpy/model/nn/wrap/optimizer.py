@@ -4,7 +4,7 @@
 
 from torch import optim
 
-from .base import BaseOptimizer
+from xenonpy.model.nn.wrap.base import BaseOptimizer
 
 
 class Adadelta(BaseOptimizer):

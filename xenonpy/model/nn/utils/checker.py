@@ -8,8 +8,8 @@ from pathlib import Path
 import joblib
 import torch
 
-from ...datatools.storage import Storage
-from ...utils import get_data_loc
+from xenonpy.datatools.storage import Storage
+from xenonpy.utils import get_data_loc
 
 
 class Checker(Storage):

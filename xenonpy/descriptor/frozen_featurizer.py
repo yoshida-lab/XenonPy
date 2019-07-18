@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import torch as tc
 
-from .base import BaseFeaturizer
+from xenonpy.descriptor.base import BaseFeaturizer
 
 
 class FrozenFeaturizer(BaseFeaturizer):

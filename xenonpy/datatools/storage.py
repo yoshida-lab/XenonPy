@@ -14,7 +14,7 @@ from warnings import warn
 import joblib
 import pandas as pd
 
-from ..utils import get_data_loc, absolute_path
+from xenonpy.utils import get_data_loc, absolute_path
 
 
 class Storage(object):

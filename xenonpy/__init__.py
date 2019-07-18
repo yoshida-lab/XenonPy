@@ -65,11 +65,3 @@ def __init(force=False):
 
 
 __init()
-
-from . import datatools
-from . import descriptor
-from . import math
-from . import model
-# from . import pipeline
-from . import utils
-from . import visualization

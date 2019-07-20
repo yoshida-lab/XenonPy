@@ -4,7 +4,7 @@
 
 from torch import nn
 
-from .wrap import L1
+from xenonpy.model.nn.wrap import L1
 
 
 class Layer1d(nn.Module):

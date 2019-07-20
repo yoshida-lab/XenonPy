@@ -4,7 +4,9 @@
 
 from torch import optim
 
-from xenonpy.model.nn.wrap.base import BaseOptimizer
+from xenonpy.model.nn.training.base import BaseOptimizer
+
+__all__ = ['Adadelta', 'Adagrad', 'Adam', 'Adamax', 'ASGD', 'SGD', 'SparseAdam', 'RMSprop', 'Rprop', 'LBFGS']
 
 
 class Adadelta(BaseOptimizer):
@@ -174,7 +176,7 @@ class LBFGS(BaseOptimizer):
             history_size (int): update history size (default: 100).
         """
 
-        super().__init__(optim.ASGD, lr=lr, max_iter=max_iter, max_eval=max_eval,
+        super().__init__(optim.LBFGS, lr=lr, max_iter=max_iter, max_eval=max_eval,
                          tolerance_grad=tolerance_grad, tolerance_change=tolerance_change, history_size=history_size,
                          line_search_fn=line_search_fn)
 
@@ -270,5 +272,5 @@ class SGD(BaseOptimizer):
             The Nesterov version is analogously modified.
         """
 
-        super().__init__(optim.Rprop, lr=lr, momentum=momentum, dampening=dampening, weight_decay=weight_decay,
+        super().__init__(optim.SGD, lr=lr, momentum=momentum, dampening=dampening, weight_decay=weight_decay,
                          nesterov=nesterov)

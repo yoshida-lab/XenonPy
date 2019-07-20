@@ -3,7 +3,9 @@
 #  license that can be found in the LICENSE file.
 from torch.optim import lr_scheduler
 
-from xenonpy.model.nn.wrap.base import BaseLRScheduler
+from xenonpy.model.nn.training.base import BaseLRScheduler
+
+__all__ = ['LambdaLR', 'StepLR', 'MultiStepLR', 'ExponentialLR', 'CosineAnnealingLR', 'ReduceLROnPlateau', 'CyclicLR']
 
 
 class LambdaLR(BaseLRScheduler):

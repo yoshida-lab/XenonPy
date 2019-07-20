@@ -16,9 +16,9 @@ import torch.nn.functional as F
 from sklearn.base import BaseEstimator
 from sklearn.base import RegressorMixin
 
-from xenonpy.model.nn.utils.trainer import Trainer
-from ..._conf import __version__
-from ...utils import TimedMetaClass
+from xenonpy._conf import __version__
+from xenonpy.model.nn.training.trainer import Trainer
+from xenonpy.utils import TimedMetaClass
 
 
 def persist(*args, **kwargs):

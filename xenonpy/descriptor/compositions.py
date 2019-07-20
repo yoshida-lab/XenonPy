@@ -2,6 +2,8 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
+from typing import Union, List
+
 import numpy as np
 
 from xenonpy.descriptor.base import BaseDescriptor, BaseCompositionFeaturizer
@@ -313,19 +315,20 @@ class Compositions(BaseDescriptor):
     Calculate elemental descriptors from compound's composition.
     """
 
-    def __init__(self, *, n_jobs=-1, featurizers='all', on_errors='nan'):
+    def __init__(self, *, n_jobs: int = -1, featurizers: Union[str, List[str]] = 'all', on_errors: str = 'nan'):
         """
 
         Parameters
         ----------
-        elements: panda.DataFrame
-            Elements information in `pandas.DataFrame` object. indexed by element symbol.
         n_jobs: int
             The number of jobs to run in parallel for both fit and predict.
             Set -1 to use all cpu cores (default).
             Inputs ``X`` will be split into some blocks then run on each cpu cores.
-        featurizers: list[str] or 'all'
-            Featurizers that will be used.
+        featurizers: Union[str, List[str]]
+            Name of featurizers that will be used.
+            Set to `classic` to be compatible with the old version.
+            This is equal to set ``featurizers=['WeightedAverage', 'WeightedSum',
+            'WeightedVariance', 'MaxPooling', 'MinPooling']``.
             Default is 'all'.
         on_errors: string
             How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
@@ -335,7 +338,11 @@ class Compositions(BaseDescriptor):
             The default is 'nan' which will raise up the exception.
         """
 
-        super().__init__(featurizers=featurizers)
+        if featurizers == 'classic':
+            super().__init__(
+                featurizers=['WeightedAverage', 'WeightedSum', 'WeightedVariance', 'MaxPooling', 'MinPooling'])
+        else:
+            super().__init__(featurizers=featurizers)
         self.n_jobs = n_jobs
 
         self.composition = Counting(n_jobs=n_jobs, on_errors=on_errors)

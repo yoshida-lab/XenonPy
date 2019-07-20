@@ -3,7 +3,6 @@
 #  license that can be found in the LICENSE file.
 
 # change version in there, conf.yml, setup.py
-__all__ = ['descriptor', 'model', 'utils', 'visualization', 'datatools', 'math']
 
 from ._conf import *
 

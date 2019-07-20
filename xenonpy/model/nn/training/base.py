@@ -2,9 +2,15 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
+from collections import OrderedDict
 from typing import Iterable
 
 from torch.optim import Optimizer
+
+
+class BaseExtension(object):
+    def run(self, step_info: OrderedDict, trainer):
+        raise NotImplementedError()
 
 
 class BaseOptimizer(object):

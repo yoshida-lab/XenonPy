@@ -7,9 +7,9 @@ from collections import namedtuple
 from torch import nn
 from torch.nn import Sequential
 
-from .layer import Layer1d
-from .wrap import L1
-from ...math import Product
+from xenonpy.model.nn.layer import Layer1d
+from xenonpy.model.nn.wrap import L1
+from xenonpy.utils.math import Product
 
 
 class Generator1d(object):

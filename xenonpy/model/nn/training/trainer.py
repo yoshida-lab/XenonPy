@@ -4,12 +4,14 @@
 
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Union, Tuple, Callable, List
+from typing import Union, Tuple, List, Callable
 
 import pandas as pd
 import torch
 from sklearn.base import BaseEstimator
+from torch import Tensor
 from torch.nn import Module
+from torch.optim.lr_scheduler import ReduceLROnPlateau, _LRScheduler
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -28,24 +30,48 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
                  optimizer: BaseOptimizer,
                  *,
                  epochs: int = 2000,
-                 cuda: Union[bool, str] = False,
+                 cuda: Union[bool, str, torch.device] = False,
                  lr_scheduler: BaseLRScheduler = None,
-                 model_modifier: Callable[[Module, ], None] = None,
+                 model_modifier: Callable[[Module, float], None] = None,
                  verbose: bool = True,
                  ):
+        """
+        NN model trainer.
+
+        Parameters
+        ----------
+        model: Module
+            Pytorch NN model.
+        loss_func: Tensor
+            Loss function.
+        optimizer: BaseOptimizer
+            Optimizer for model parameters tuning.
+        epochs: int
+            Number of iterations.
+        cuda: Union[bool, str, torch.device]
+            Set training device(s).
+        lr_scheduler: BaseLRScheduler
+            Learning rate scheduler.
+        model_modifier : Callable[[Module, float], None]
+            Modify model parameters before each optimize.
+        verbose: bool
+            Wither to use verbose output.
+        """
         self._model = model
         self.loss_func = loss_func
+        self._optim = optimizer
         self.optimizer = optimizer(self._model.parameters())
 
         # optional
         self.epochs = epochs
         self._device = check_cuda(cuda)
+        self._lr_sche = lr_scheduler
         if lr_scheduler is not None:
-            self.lr_scheduler = lr_scheduler(self.optimizer)
+            self.lr_scheduler: Union[_LRScheduler, None] = lr_scheduler(self.optimizer)
         else:
-            self.lr_scheduler = None
-        self.model_modifier = model_modifier
+            self.lr_scheduler: Union[_LRScheduler, None] = None
         self.verbose = verbose
+        self.model_modifier = model_modifier
 
         # init container
         self._extensions: List[BaseExtension] = []
@@ -89,10 +115,29 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
             raise TypeError(
                 'parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(m))
 
-    def reset(self):
+    def reset(self, *, model: Module = None):
+        """
+        Reset trainer.
+        This will reset trainer states and drop all training step information.
+
+        Parameters
+        ----------
+        model: Module
+            Bind trainer to the given model.
+        """
         self._step_info = []
         self._model_states = []
         self._total_iters = 0
+
+        if model is not None:
+            self._model = model
+            self.optimizer = self._optim(self._model.parameters())
+
+            # optional
+            if self._lr_sche is not None:
+                self.lr_scheduler: Union[_LRScheduler, None] = self._lr_sche(self.optimizer)
+            else:
+                self.lr_scheduler: Union[_LRScheduler, None] = None
 
     def fit(self,
             x_train: Union[T_Data, Tuple[T_Data]] = None,
@@ -175,7 +220,15 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
                 raise RuntimeError('missing parameter <x_train> or <y_train>')
 
         if training_dataset:
+            train_loss = 1e6
             for i_epoch in tqdm(range(self._total_iters, epochs + self._total_iters)):
+
+                # decay learning rate
+                if self.lr_scheduler is not None and not isinstance(self.lr_scheduler, ReduceLROnPlateau):
+                    self.lr_scheduler.step(epoch=self._total_iters)
+
+                self._model.train()
+
                 for i_batch, (x, y) in enumerate(training_dataset):
 
                     # convert to tuple for convenient
@@ -185,7 +238,6 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
                     # move tensor device
                     x = self._to_device(*x)
                     y = y.to(self._device)
-                    self._model.train()
 
                     # feed model
                     def closure():
@@ -198,7 +250,7 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
                         loss_.backward()
 
                         if self.model_modifier is not None:
-                            self.model_modifier(self._model)
+                            self.model_modifier(self._model, loss=loss_)
 
                         return loss_
 
@@ -213,6 +265,9 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
                         self._model_states.append(self._model.state_dict())
 
                     yield step_info
+
+                if self.lr_scheduler is not None and isinstance(self.lr_scheduler, ReduceLROnPlateau):
+                    self.lr_scheduler.step(train_loss, epoch=self._total_iters)
 
         else:
             if not isinstance(x_train, tuple):
@@ -229,6 +284,8 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
             # pdb.set_trace()
             for i_epoch in tqdm(range(self._total_iters, epochs + self._total_iters)):
 
+                if self.lr_scheduler is not None and not isinstance(self.lr_scheduler, ReduceLROnPlateau):
+                    self.lr_scheduler.step(epoch=self._total_iters)
                 self._model.train()
 
                 # feed model
@@ -258,6 +315,9 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
 
                 yield step_info
 
+                if self.lr_scheduler is not None and isinstance(self.lr_scheduler, ReduceLROnPlateau):
+                    self.lr_scheduler.step(train_loss, epoch=self._total_iters)
+
     def predict(self, x: Union[T_Data, Tuple[T_Data]], *, predict_only: bool = True) -> T_Prediction:
         """
         Predict from x input.
@@ -284,6 +344,15 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
             ext.run(step_info, self)
 
     def extend(self, ext: BaseExtension):
+        """
+        Add training extensions to trainer.
+
+        Parameters
+        ----------
+        ext: BaseExtension
+            Extension.
+
+        """
         self._extensions.append(ext)
 
     def as_dict(self):

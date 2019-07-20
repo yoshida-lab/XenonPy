@@ -6,6 +6,7 @@ from collections import OrderedDict
 from typing import Iterable
 
 from torch.optim import Optimizer
+from torch.optim.lr_scheduler import _LRScheduler
 
 
 class BaseExtension(object):
@@ -18,7 +19,7 @@ class BaseOptimizer(object):
         self._kwargs = kwargs
         self._optimizer = optimizer
 
-    def __call__(self, params: Iterable):
+    def __call__(self, params: Iterable) -> Optimizer:
         """
 
         Parameters
@@ -39,7 +40,7 @@ class BaseLRScheduler(object):
         self._kwargs = kwargs
         self._lr_scheduler = lr_scheduler
 
-    def __call__(self, optimizer: Optimizer):
+    def __call__(self, optimizer: Optimizer) -> _LRScheduler:
         """
 
         Parameters

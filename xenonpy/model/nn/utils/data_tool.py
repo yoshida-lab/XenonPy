@@ -91,7 +91,7 @@ def collate_pool(dataset_list):
            torch.stack(batch_target, dim=0)
 
 
-T_Data = Union[pd.DataFrame, pd.Series, np.ndarray, list, tuple, torch.Tensor]
+T_Data = Union[pd.DataFrame, pd.Series, np.ndarray, torch.Tensor]
 
 
 def to_tensor(data: T_Data, *, unsqueeze: int = None) -> torch.Tensor:
@@ -114,13 +114,11 @@ def to_tensor(data: T_Data, *, unsqueeze: int = None) -> torch.Tensor:
 
     if isinstance(data, (pd.DataFrame, pd.Series)):
         data = data.values
-    if isinstance(data, (list, tuple)):
-        data = np.asarray(data)
     if isinstance(data, np.ndarray):
         data = torch.from_numpy(data)
     if not isinstance(data, torch.Tensor):
         raise RuntimeError(
-            'input must be pd.DataFrame, pd.Series, np.ndarray, list, tuple, or torch.Tensor but got %s' % data.__class__)
+            'input must be pd.DataFrame, pd.Series, np.ndarray, or torch.Tensor but got %s' % data.__class__)
 
     if unsqueeze is not None:
         return data.unsqueeze(unsqueeze)

@@ -17,6 +17,7 @@ class Validator(BaseExtension):
                  *,
                  regression: bool = True
                  ):
+        super().__init__()
         if not isinstance(x_test, tuple):
             self.x_test = (to_tensor(x_test),)
         else:
@@ -25,8 +26,8 @@ class Validator(BaseExtension):
         self.y_test = to_tensor(y_test).numpy().flatten()
         self.regression = regression
 
-    def run(self, step_info, trainer):
-        y_pred = trainer.predict(self.x_test).flatten()
+    def step_forward(self, step_info, **kwargs):
+        y_pred = self.trainer.predict(self.x_test).flatten()
         if self.regression:
             metrics = regression_metrics(y_pred, self.y_test)
             step_info.update(test_mae=metrics['mae'], test_rmse=metrics['rmse'], test_r2=metrics['r2'])

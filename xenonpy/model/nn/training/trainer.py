@@ -4,25 +4,23 @@
 
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Union, Tuple, List, Callable
+from typing import Union, Tuple, Callable, List
 
 import pandas as pd
 import torch
-from sklearn.base import BaseEstimator
 from torch import Tensor
 from torch.nn import Module
 from torch.optim.lr_scheduler import ReduceLROnPlateau, _LRScheduler
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from xenonpy.model.nn.training.base import BaseOptimizer, BaseLRScheduler, BaseExtension
-from xenonpy.model.nn.utils import check_cuda, to_tensor, T_Data, Predictor, T_Prediction
-from xenonpy.utils import TimedMetaClass
+from xenonpy.model.nn.training.base import BaseOptimizer, BaseLRScheduler, BaseRunner
+from xenonpy.model.nn.utils import check_cuda, T_Data, Predictor, T_Prediction
 
 __all__ = ['Trainer']
 
 
-class Trainer(BaseEstimator, metaclass=TimedMetaClass):
+class Trainer(BaseRunner):
 
     def __init__(self,
                  model: Module,
@@ -57,6 +55,7 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
         verbose: bool
             Wither to use verbose output.
         """
+        super().__init__()
         self._model = model
         self.loss_func = loss_func
         self._optim = optimizer
@@ -65,7 +64,7 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
         # optional
         self.epochs = epochs
         self._device = check_cuda(cuda)
-        self._lr_sche = lr_scheduler
+        self._scheduler = lr_scheduler
         if lr_scheduler is not None:
             self.lr_scheduler: Union[_LRScheduler, None] = lr_scheduler(self.optimizer)
         else:
@@ -74,10 +73,9 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
         self.model_modifier = model_modifier
 
         # init container
-        self._extensions: List[BaseExtension] = []
         self._model_states = []
-        self._step_info = []
-        self._total_iters = 0
+        self._step_info: List[OrderedDict] = []
+        self._total_iters: int = 0
 
         # others
         self._predictor = Predictor(self._model, cuda=self._device)
@@ -115,6 +113,20 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
             raise TypeError(
                 'parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(m))
 
+    def pre_process(self, x_train, y_train=None):
+        for ext, _ in self._extensions:
+            x_train, y_train = ext.pre_process(x=x_train, y=y_train)
+        return x_train, y_train
+
+    def post_process(self, y_pred):
+        for ext, _ in self._extensions:
+            y_pred = ext.post_process(y_pred)
+        return y_pred
+
+    def _final(self):
+        for ext, _ in self._extensions:
+            ext.final()
+
     def reset(self, *, model: Module = None):
         """
         Reset trainer.
@@ -134,8 +146,8 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
             self.optimizer = self._optim(self._model.parameters())
 
             # optional
-            if self._lr_sche is not None:
-                self.lr_scheduler: Union[_LRScheduler, None] = self._lr_sche(self.optimizer)
+            if self._scheduler is not None:
+                self.lr_scheduler: Union[_LRScheduler, None] = self._scheduler(self.optimizer)
             else:
                 self.lr_scheduler: Union[_LRScheduler, None] = None
 
@@ -145,7 +157,7 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
             *,
             training_dataset: DataLoader = None,
             save_training_state: bool = False,
-            model_params: dict = None):
+            **model_params):
         """
         Train the Neural Network model
 
@@ -158,13 +170,13 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
         training_dataset: DataLoader
             Torch DataLoader. If given, will only use this as training dataset.
             When loop over this dataset, it should yield a tuple contains ``x_train`` and ``y_train`` in order.
-        model_params: dict
-            Other model parameters.
         save_training_state: bool
             If ``True``, will save model status on each training step_info.
+        model_params: dict
+            Other model parameters.
         """
         for _ in self(x_train=x_train, y_train=y_train, training_dataset=training_dataset,
-                      save_training_state=save_training_state, model_params=model_params):
+                      save_training_state=save_training_state, **model_params):
             continue
 
     def __call__(self,
@@ -174,7 +186,7 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
                  epochs: int = None,
                  training_dataset: DataLoader = None,
                  save_training_state: bool = False,
-                 model_params: dict = None):
+                 **model_params):
         """
         Train the Neural Network model
 
@@ -189,10 +201,10 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
             When loop over this dataset, it should yield a tuple contains ``x_train`` and ``y_train`` in order.
         epochs : int
             Epochs. If not ``None``, it will overwrite ``self.epochs`` temporarily.
-        model_params: dict
-            Other model parameters.
         save_training_state: bool
             If ``True``, will save model status on each training step_info.
+        model_params: dict
+            Other model parameters.
 
         Yields
         ------
@@ -200,15 +212,8 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
 
         """
 
-        if model_params is None:
-            model_params = {}
-
         if epochs is None:
             epochs = self.epochs
-
-        for k, v in model_params.items():
-            if isinstance(v, torch.Tensor):
-                model_params[k] = v.to(self._device)
 
         self._model.to(self._device)
 
@@ -230,6 +235,7 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
                 self._model.train()
 
                 for i_batch, (x, y) in enumerate(training_dataset):
+                    x, y = self.pre_process(x, y)
 
                     # convert to tuple for convenient
                     if not isinstance(x, tuple):
@@ -243,9 +249,7 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
                     def closure():
                         self.optimizer.zero_grad()
                         y_pred_ = self._model(*x, **model_params)
-                        if isinstance(y_pred_, tuple):
-                            model_params.update(y_pred_[1])
-                            y_pred_ = y_pred_[0]
+                        y_pred_ = self.post_process(y_pred_)
                         loss_ = self.loss_func(y_pred_, y)
                         loss_.backward()
 
@@ -254,10 +258,10 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
 
                         return loss_
 
-                    train_loss = self.optimizer.step(closure).item() / y.size(0)
+                    train_loss = self.optimizer.step_forward(closure).item() / y.size(0)
 
                     step_info = OrderedDict(i_epoch=i_epoch + 1, i_batch=i_batch + 1, train_loss=train_loss)
-                    self._exec_ext(step_info)
+                    self._ext_forward(step_info)
                     self._step_info.append(step_info)
                     self._total_iters = i_epoch + 1
 
@@ -270,16 +274,14 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
                     self.lr_scheduler.step(train_loss, epoch=self._total_iters)
 
         else:
-            if not isinstance(x_train, tuple):
-                x_train = (to_tensor(x_train),)
-            else:
-                x_train = tuple([to_tensor(x_) for x_ in x_train])
+            x, y = self.pre_process(x_train, y_train)
 
-            y_train = to_tensor(y_train)
+            if not isinstance(x, tuple):
+                x = (x,)
 
             # move tensor device
-            x = self._to_device(*x_train)
-            y = y_train.to(self._device)
+            x = self._to_device(*x)
+            y = y.to(self._device)
             # import pdb;
             # pdb.set_trace()
             for i_epoch in tqdm(range(self._total_iters, epochs + self._total_iters)):
@@ -292,9 +294,7 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
                 def closure():
                     self.optimizer.zero_grad()
                     y_pred_ = self._model(*x, **model_params)
-                    if isinstance(y_pred_, tuple):
-                        model_params.update(y_pred_[1])
-                        y_pred_ = y_pred_[0]
+                    y_pred_ = self.post_process(y_pred_)
                     loss_ = self.loss_func(y_pred_, y)
                     loss_.backward()
 
@@ -303,10 +303,10 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
 
                     return loss_
 
-                train_loss = self.optimizer.step(closure).item() / y.size(0)
+                train_loss = self.optimizer.step_forward(closure).item() / y.size(0)
 
                 step_info = OrderedDict(i_epoch=i_epoch + 1, train_loss=train_loss)
-                self._exec_ext(step_info)
+                self._ext_forward(step_info)
                 self._step_info.append(step_info)
                 self._total_iters = i_epoch + 1
 
@@ -318,7 +318,9 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
                 if self.lr_scheduler is not None and isinstance(self.lr_scheduler, ReduceLROnPlateau):
                     self.lr_scheduler.step(train_loss, epoch=self._total_iters)
 
-    def predict(self, x: Union[T_Data, Tuple[T_Data]], *, predict_only: bool = True) -> T_Prediction:
+        self._final()
+
+    def predict(self, x: Union[T_Data, Tuple[T_Data]], **model_params) -> T_Prediction:
         """
         Predict from x input.
         This is just a simple wrapper for :meth:`~model.nn.utils.Predictor.predict`.
@@ -327,33 +329,20 @@ class Trainer(BaseEstimator, metaclass=TimedMetaClass):
         ----------
         x: Union[T_Data, Tuple[T_Data]]
             Input data for prediction..
-        predict_only: bool
-            If ``False``, will returns all whatever the model returns.
-            This can be useful for RNN models because these model also
-            return `hidden variables` for recurrent training.
+        model_params: dict
+            Model parameters for prediction.
 
         Returns
         -------
         ret: T_Prediction
             Predict results.
         """
-        return self._predictor(x, predict_only=predict_only)
+        x = self.pre_process(x)
+        return self._predictor(x, **model_params)
 
-    def _exec_ext(self, step_info):
-        for ext in self._extensions:
-            ext.run(step_info, self)
-
-    def extend(self, ext: BaseExtension):
-        """
-        Add training extensions to trainer.
-
-        Parameters
-        ----------
-        ext: BaseExtension
-            Extension.
-
-        """
-        self._extensions.append(ext)
+    def _ext_forward(self, step_info):
+        for ext, injects in self._extensions:
+            ext.step_forward(step_info, **{k: self._extensions[k][0] for k in injects})
 
     def as_dict(self):
         return OrderedDict(

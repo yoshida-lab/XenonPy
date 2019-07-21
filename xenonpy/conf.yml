@@ -2,7 +2,7 @@
 # package info
 ###############
 name: 'xenonpy'
-version: '0.4.0-dev'
+version: '0.4.0.dev0'
 db_version: '0.1.3'
 release: ''
 short_description: 'material descriptor library'

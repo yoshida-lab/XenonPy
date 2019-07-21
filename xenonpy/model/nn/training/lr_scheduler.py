@@ -29,7 +29,7 @@ class LambdaLR(BaseLRScheduler):
             >>> for epoch in range(100):
             >>>     train(...)
             >>>     validate(...)
-            >>>     scheduler.step()
+            >>>     scheduler.step_forward()
         """
         super().__init__(lr_scheduler.LambdaLR, lr_lambda=lr_lambda, last_epoch=last_epoch)
 
@@ -59,7 +59,7 @@ class StepLR(BaseLRScheduler):
             >>> for epoch in range(100):
             >>>     train(...)
             >>>     validate(...)
-            >>>     scheduler.step()
+            >>>     scheduler.step_forward()
         """
         super().__init__(lr_scheduler.StepLR, step_size=step_size, gamma=gamma, last_epoch=last_epoch)
 
@@ -88,7 +88,7 @@ class MultiStepLR(BaseLRScheduler):
             >>> for epoch in range(100):
             >>>     train(...)
             >>>     validate(...)
-            >>>     scheduler.step()
+            >>>     scheduler.step_forward()
         """
         super().__init__(lr_scheduler.MultiStepLR, milestones=milestones, gamma=gamma, last_epoch=last_epoch)
 

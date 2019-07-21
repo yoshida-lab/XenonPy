@@ -245,7 +245,7 @@ class SGD(BaseOptimizer):
             >>> optimizer(model.parameters())
             >>> optimizer.zero_grad()
             >>> loss_fn(model(input), target).backward()
-            >>> optimizer.step()
+            >>> optimizer.step_forward()
 
         __ http://www.cs.toronto.edu/%7Ehinton/absps/momentum.pdf
 

@@ -7,7 +7,7 @@ import os
 
 import pytest
 
-from xenonpy.model.nn import Trainer
+from xenonpy.model.training.base import BaseRunner
 
 
 @pytest.fixture(scope='module')
@@ -25,10 +25,18 @@ def data():
     print('test over')
 
 
-def test_base_runner(data):
-    with Trainer() as runner:
-        assert hasattr(runner, '__enter__')
-        assert hasattr(runner, '__exit__')
+def test_base_runner_1(data):
+    assert BaseRunner.check_cuda(False).type == 'cpu'
+    assert BaseRunner.check_cuda('cpu').type == 'cpu'
+
+    with pytest.raises(RuntimeError, match='could not use CUDA on this machine'):
+        BaseRunner.check_cuda(True)
+
+    with pytest.raises(RuntimeError, match='could not use CUDA on this machine'):
+        BaseRunner.check_cuda('cuda')
+
+    with pytest.raises(RuntimeError, match='wrong device identifier'):
+        BaseRunner.check_cuda('other illegal')
 
 
 if __name__ == "__main__":

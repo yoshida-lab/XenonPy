@@ -3,11 +3,9 @@
 #  license that can be found in the LICENSE file.
 
 import numpy as np
-import pandas as pd
 import pytest
-import torch
 
-from xenonpy.model.nn import check_cuda, to_tensor
+from xenonpy.model.utils import regression_metrics
 
 
 @pytest.fixture(scope='module')
@@ -18,67 +16,33 @@ def data():
     warnings.filterwarnings("ignore", message="numpy.dtype size changed")
     warnings.filterwarnings("ignore", message="numpy.ndarray size changed")
 
-    yield
-    # r = glob.glob('log_*.txt')
-    # for i in r:
-    #     os.remove(i)
+    noise = 0.001
+    x = np.random.randn(100)
+    y = x + np.random.rand() * noise
+
+    yield x, y, noise
     print('test over')
 
 
-def test_check_cuda():
-    assert check_cuda(False).type == 'cpu'
-    assert check_cuda('cpu').type == 'cpu'
+def test_regression_metrics_1(data):
+    x = data[0]
+    y = data[1]
+    noise = data[2]
+    metric = regression_metrics(x, y)
+    assert isinstance(metric, dict)
+    assert set(metric.keys()) == {'mae', 'mse', 'rmse', 'r2', 'pearsonr', 'spearmanr', 'p_value', 'max_error'}
+    assert metric['mae'] < noise
+    assert metric['mse'] < noise ** 2
+    assert metric['rmse'] < noise
+    assert metric['r2'] > 0.9999
+    assert metric['pearsonr'] > 0.9999
+    assert metric['spearmanr'] > 0.9999
+    assert np.isclose(metric['p_value'], 0, 1e-4)
+    assert metric['max_error'] < noise
 
-    with pytest.raises(RuntimeError, match='could not use CUDA on this machine'):
-        check_cuda(True)
-
-    with pytest.raises(RuntimeError, match='could not use CUDA on this machine'):
-        check_cuda('cuda')
-
-    with pytest.raises(RuntimeError, match='wrong device identifier'):
-        check_cuda('other illegal')
-
-
-def test_to_tensor():
-    ls = [[1, 2, 3], [4, 5, 6]]
-    tp = tuple(ls)
-    np_ = np.asarray(tp)
-    pd_ = pd.DataFrame(ls)
-    tensor_ = torch.Tensor(ls)
-
-    t = to_tensor(ls)
-    assert t.shape == (2, 3)
-    assert isinstance(t, torch.Tensor)
-    t = to_tensor(ls, unsqueeze=-1)
-    assert t.shape == (2, 3, 1)
-
-    t = to_tensor(tp)
-    assert t.shape == (2, 3)
-    assert isinstance(t, torch.Tensor)
-    t = to_tensor(tp, unsqueeze=-1)
-    assert t.shape == (2, 3, 1)
-
-    t = to_tensor(np_)
-    assert t.shape == (2, 3)
-    assert isinstance(t, torch.Tensor)
-    t = to_tensor(np_, unsqueeze=-1)
-    assert t.shape == (2, 3, 1)
-
-    t = to_tensor(pd_)
-    assert t.shape == (2, 3)
-    assert isinstance(t, torch.Tensor)
-    t = to_tensor(pd_, unsqueeze=-1)
-    assert t.shape == (2, 3, 1)
-
-    t = to_tensor(tensor_)
-    assert t.shape == (2, 3)
-    assert isinstance(t, torch.Tensor)
-    t = to_tensor(tensor_, unsqueeze=-1)
-    assert t.shape == (2, 3, 1)
-
-    with pytest.raises(RuntimeError,
-                       match='input must be pd.DataFrame, pd.Series, np.ndarray, list, tuple, or torch.Tensor'):
-        to_tensor('illegal params')
+    assert metric['mae'] == regression_metrics(x.reshape(-1, 1), y)['mae']
+    assert metric['rmse'] == regression_metrics(x.reshape(-1, 1), y.reshape(-1, 1))['rmse']
+    assert metric['max_error'] == regression_metrics(x, y.reshape(-1, 1))['max_error']
 
 
 if __name__ == "__main__":

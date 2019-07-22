@@ -8,7 +8,11 @@ from pathlib import Path
 
 import pytest
 
-from xenonpy.utils import set_env, absolute_path, config
+from xenonpy.utils import set_env, absolute_path, config, camel_to_snake
+
+
+def test_camel_to_snake_1():
+    assert 'camel_to_snake' == camel_to_snake('CamelToSnake')
 
 
 def test_set_env_1():

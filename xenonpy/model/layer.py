@@ -4,7 +4,7 @@
 
 from torch import nn
 
-from xenonpy.model.nn.wrap import L1
+from xenonpy.model.wrap import L1
 
 __all__ = ['Layer1d']
 

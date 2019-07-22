@@ -4,6 +4,5 @@
 
 from .cgcnn import *
 from .checker import *
-from .data_tool import *
 from .metrics import regression_metrics
 from .predictor import *

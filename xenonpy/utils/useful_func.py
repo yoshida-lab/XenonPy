@@ -2,11 +2,105 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
+import re
+from contextlib import contextmanager
 from os import getenv
 from pathlib import Path
 
+from ruamel.yaml import YAML
+
+from xenonpy._conf import __cfg_root__
 from xenonpy._conf import __github_username__, __db_version__
-from xenonpy.utils.env import config
+
+__all__ = ['camel_to_snake', 'get_data_loc', 'get_dataset_url', 'get_sha256', 'absolute_path', 'set_env', 'config']
+
+
+@contextmanager
+def set_env(**kwargs):
+    """
+    Set temp environment variable with ``with`` statement.
+
+    Examples
+    --------
+    >>> import os
+    >>> with set_env(test='test env'):
+    >>>    print(os.getenv('test'))
+    test env
+    >>> print(os.getenv('test'))
+    None
+
+    Parameters
+    ----------
+    kwargs: dict[str]
+        Dict with string value.
+    """
+    import os
+
+    tmp = dict()
+    for k, v in kwargs.items():
+        tmp[k] = os.getenv(k)
+        os.environ[k] = v
+    yield
+    for k, v in tmp.items():
+        if not v:
+            del os.environ[k]
+        else:
+            os.environ[k] = v
+
+
+def config(key=None, **key_vals):
+    """
+    Return config value with key or all config.
+
+    Parameters
+    ----------
+    key: str
+        Keys of config item.
+    key_vals: dict
+        Set item's value by key.
+    Returns
+    -------
+    str
+        The value corresponding to the key.
+    """
+    yaml = YAML(typ='safe')
+    yaml.indent(mapping=2, sequence=4, offset=2)
+    dir_ = Path(__cfg_root__)
+    cfg_file = dir_ / 'conf.yml'
+
+    # from user local
+    with open(str(cfg_file), 'r') as f:
+        conf = yaml.load(f)
+
+    value = None
+
+    # getter
+    if key:
+        if key in conf:
+            value = conf[key]
+        else:
+            tmp = Path(__file__).parent / 'conf.yml'
+            with open(str(tmp)) as f:
+                conf_ = yaml.load(f)
+
+            if key not in conf_:
+                raise RuntimeError('No item(s) named %s in configurations' % key)
+
+            value = conf_[key]
+
+    # setter
+    if key_vals:
+        for key, v in key_vals.items():
+            conf[key] = v
+        with open(str(cfg_file), 'w') as f:
+            yaml.dump(conf, f)
+
+    return value
+
+
+def camel_to_snake(text):
+    str1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', text)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', str1).lower()
 
 
 def get_dataset_url(name, version=__db_version__):

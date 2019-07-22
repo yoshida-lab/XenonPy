@@ -7,12 +7,13 @@ from inspect import signature
 from typing import Iterable
 from typing import Union, Tuple, DefaultDict, Dict
 
+import torch
 from sklearn.base import BaseEstimator
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import _LRScheduler
 
 from xenonpy.model.training.extension.base import BaseExtension
-from xenonpy.utils import TimedMetaClass
+from xenonpy.utils import TimedMetaClass, camel_to_snake
 
 __all__ = ['BaseRunner', 'BaseLRScheduler', 'BaseOptimizer']
 
@@ -61,33 +62,62 @@ class BaseLRScheduler(object):
 class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
     T_Extension_Dict = DefaultDict[str, Tuple[Union[BaseExtension, None], Dict[str, list]]]
 
-    def __init__(self):
-        # init container
+    def __init__(self, cuda: Union[bool, str, torch.device] = False):
+        self._device = self.check_cuda(cuda)
         self._extensions: BaseRunner.T_Extension_Dict = defaultdict(
             lambda: (None, {}))
 
-    def input_proc(self, x_in, y_in=None):
-        for ext, injects in self._extensions:
-            x_in, y_in = ext.before_train(x_in=x_in, y_in=y_in,
-                                          **{k: self._extensions[k][0] for k in injects['input_proc']})
+    @staticmethod
+    def check_cuda(cuda: Union[bool, str, torch.device]) -> torch.device:
+        if isinstance(cuda, bool):
+            if cuda:
+                if torch.cuda.is_available():
+                    return torch.device('cuda')
+                else:
+                    raise RuntimeError('could not use CUDA on this machine')
+            else:
+                return torch.device('cpu')
+
+        if isinstance(cuda, str):
+            if 'cuda' in cuda:
+                if torch.cuda.is_available():
+                    return torch.device(cuda)
+                else:
+                    raise RuntimeError('could not use CUDA on this machine')
+            elif 'cpu' in cuda:
+                return torch.device('cpu')
+            else:
+                raise RuntimeError('wrong device identifier'
+                                   'see also: https://pytorch.org/docs/stable/tensor_attributes.html#torch.torch.device')
+
+        if isinstance(cuda, torch.device):
+            return cuda
+
+    def input_proc(self, x_in, y_in=None, train=True):
+        for (ext, injects) in self._extensions.values():
+            x_in, y_in = ext.input_proc(x_in=x_in, y_in=y_in, train=train,
+                                        **{k: self._extensions[k][0] for k in injects['input_proc']})
+        if y_in is None:
+            return x_in
         return x_in, y_in
 
-    def output_proc(self, y_pred):
-        for ext, injects in self._extensions:
-            y_pred = ext.output_proc(y_pred=y_pred, **{k: self._extensions[k][0] for k in injects['output_proc']})
+    def output_proc(self, y_pred, train=True):
+        for (ext, injects) in self._extensions.values():
+            y_pred = ext.output_proc(y_pred=y_pred, train=train,
+                                     **{k: self._extensions[k][0] for k in injects['output_proc']})
         return y_pred
 
-    def _before_train(self):
-        for ext, injects in self._extensions:
-            ext.before_train(**{k: self._extensions[k][0] for k in injects['before_train']})
+    def _before_proc(self, train=True):
+        for (ext, injects) in self._extensions.values():
+            ext.before_proc(train=train, **{k: self._extensions[k][0] for k in injects['before_proc']})
 
     def _step_forward(self, step_info):
-        for ext, injects in self._extensions:
+        for (ext, injects) in self._extensions.values():
             ext.step_forward(step_info, **{k: self._extensions[k][0] for k in injects['step_forward']})
 
-    def _after_train(self):
-        for ext, injects in self._extensions:
-            ext.after_train(**{k: self._extensions[k][0] for k in injects['after_train']})
+    def _after_proc(self, train=True):
+        for (ext, injects) in self._extensions.values():
+            ext.after_proc(train=train, **{k: self._extensions[k][0] for k in injects['after_proc']})
 
     def extend(self, *exts: BaseExtension, **named_exts: BaseExtension):
         """
@@ -102,7 +132,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
 
         def _get_keyword_params(func) -> list:
             sig = signature(func)
-            return [p.name for p in sig.parameters.values() if p.kind == p.KEYWORD_ONLY]
+            return [p.name for p in sig.parameters.values() if p.kind == p.KEYWORD_ONLY and p.default is None]
 
         # merge exts to named_exts
         for ext in exts:
@@ -110,9 +140,10 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             named_exts[name] = ext
 
         for k, v in named_exts.items():
-            v.trainer = self
+            k = camel_to_snake(k)
+            v.runner = self
 
-            methods = ['before_train', 'input_proc', 'step_forward', 'output_proc', 'after_train']
+            methods = ['before_proc', 'input_proc', 'step_forward', 'output_proc', 'after_proc']
             dependencies = [_get_keyword_params(getattr(v, m)) for m in methods]
             dependency_inject = {k: v for k, v in zip(methods, dependencies)}
 

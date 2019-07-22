@@ -12,6 +12,11 @@ __all__ = ['regression_metrics']
 
 
 def regression_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> OrderedDict:
+    if len(y_true.shape) != 1:
+        y_true = y_true.flatten()
+    if len(y_pred.shape) != 1:
+        y_pred = y_pred.flatten()
+
     mask = ~np.isnan(y_pred)
     y_true = y_true[mask]
     y_pred = y_pred[mask]

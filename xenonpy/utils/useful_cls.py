@@ -8,6 +8,8 @@ from collections import defaultdict
 from datetime import timedelta
 from functools import wraps
 
+__all__ = ['Switch', 'TimedMetaClass', 'Timer', 'Singleton']
+
 
 class Switch(object):
     def __init__(self, value):

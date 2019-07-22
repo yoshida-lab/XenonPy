@@ -9,7 +9,7 @@ import joblib
 import torch
 
 from xenonpy.datatools.storage import Storage
-from xenonpy.utils.file_path_url import get_data_loc
+from xenonpy.utils.useful_func import get_data_loc
 
 __all__ = ['Checker']
 

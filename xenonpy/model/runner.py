@@ -1,4 +1,4 @@
-#  Copyright (c) 2019. yoshida-lab. All rights reserved.
+#  Copyright (c) 2019. TsumiNa. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 import types
@@ -17,7 +17,7 @@ from sklearn.base import BaseEstimator
 from sklearn.base import RegressorMixin
 
 from xenonpy._conf import __version__
-from xenonpy.model.nn.training.trainer import Trainer
+from xenonpy.model.training import Trainer
 from xenonpy.utils import TimedMetaClass
 
 

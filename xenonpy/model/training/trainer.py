@@ -4,7 +4,7 @@
 
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Union, Tuple, Callable, List
+from typing import Union, Tuple, Callable, List, Any
 
 import pandas as pd
 import torch
@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from xenonpy.model.training.base import BaseOptimizer, BaseLRScheduler, BaseRunner
-from xenonpy.model.utils import check_cuda, T_Data, Predictor
+from xenonpy.model.utils import Predictor
 
 __all__ = ['Trainer']
 
@@ -55,16 +55,13 @@ class Trainer(BaseRunner):
         verbose: bool
             Wither to use verbose output.
         """
-        super().__init__()
-        self._model = model
-        self._init_states = model.state_dict()
+        super().__init__(cuda=cuda)
+        self._model = model.to(self._device)
         self.loss_func = loss_func
-        self._optim = optimizer
         self.optimizer = optimizer(self._model.parameters())
 
         # optional
         self.epochs = epochs
-        self._device = check_cuda(cuda)
         self._scheduler = lr_scheduler
         if lr_scheduler is not None:
             self.lr_scheduler: Union[_LRScheduler, None] = lr_scheduler(self.optimizer)
@@ -73,16 +70,15 @@ class Trainer(BaseRunner):
         self.verbose = verbose
         self.model_modifier = model_modifier
 
-        # init container
+        # init private vars
+        self._optim = optimizer
+        self._init_states = model.state_dict()
         self._model_states = []
         self._step_info: List[OrderedDict] = []
         self._total_iters: int = 0
 
         # others
         self._predictor = Predictor(self._model, cuda=self._device)
-
-    def _to_device(self, *tensor: torch.Tensor):
-        return tuple([t.to(self._device) for t in tensor])
 
     @property
     def losses(self):
@@ -96,7 +92,7 @@ class Trainer(BaseRunner):
 
     @device.setter
     def device(self, v):
-        self._device = check_cuda(v)
+        self._device = self.check_cuda(v)
 
     @property
     def elapsed(self):
@@ -142,8 +138,8 @@ class Trainer(BaseRunner):
                 self.lr_scheduler: Union[_LRScheduler, None] = None
 
     def fit(self,
-            x_train: Union[T_Data, Tuple[T_Data]] = None,
-            y_train: T_Data = None,
+            x_train: Union[Any, Tuple[Any]] = None,
+            y_train: Any = None,
             *,
             training_dataset: DataLoader = None,
             save_training_state: bool = False,
@@ -170,8 +166,8 @@ class Trainer(BaseRunner):
             continue
 
     def __call__(self,
-                 x_train: Union[T_Data, Tuple[T_Data]] = None,
-                 y_train: T_Data = None,
+                 x_train: Union[Any, Tuple[Any]] = None,
+                 y_train: Any = None,
                  *,
                  epochs: int = None,
                  training_dataset: DataLoader = None,
@@ -214,6 +210,8 @@ class Trainer(BaseRunner):
             if y_train is None or x_train is None:
                 raise RuntimeError('missing parameter <x_train> or <y_train>')
 
+        self._before_proc()
+
         if training_dataset:
             train_loss = 1e6
             for i_epoch in tqdm(range(self._total_iters, epochs + self._total_iters)):
@@ -226,14 +224,8 @@ class Trainer(BaseRunner):
 
                 for i_batch, (x, y) in enumerate(training_dataset):
                     x, y = self.input_proc(x, y)
-
-                    # convert to tuple for convenient
                     if not isinstance(x, tuple):
                         x = (x,)
-
-                    # move tensor device
-                    x = self._to_device(*x)
-                    y = y.to(self._device)
 
                     # feed model
                     def closure():
@@ -265,15 +257,9 @@ class Trainer(BaseRunner):
 
         else:
             x, y = self.input_proc(x_train, y_train)
-
             if not isinstance(x, tuple):
                 x = (x,)
 
-            # move tensor device
-            x = self._to_device(*x)
-            y = y.to(self._device)
-            # import pdb;
-            # pdb.set_trace()
             for i_epoch in tqdm(range(self._total_iters, epochs + self._total_iters)):
 
                 if self.lr_scheduler is not None and not isinstance(self.lr_scheduler, ReduceLROnPlateau):
@@ -308,16 +294,17 @@ class Trainer(BaseRunner):
                 if self.lr_scheduler is not None and isinstance(self.lr_scheduler, ReduceLROnPlateau):
                     self.lr_scheduler.step(train_loss, epoch=self._total_iters)
 
-        self._after_train()
+        self._after_proc()
+        self._model.cpu().eval()
 
-    def predict(self, x: Union[T_Data, Tuple[T_Data]], **model_params) -> T_Prediction:
+    def predict(self, x: Union[Any, Tuple[Any]], **model_params):
         """
         Predict from x input.
         This is just a simple wrapper for :meth:`~model.nn.utils.Predictor.predict`.
 
         Parameters
         ----------
-        x: Union[T_Data, Tuple[T_Data]]
+        x: Union[Any, Tuple[Any]]
             Input data for prediction..
         model_params: dict
             Model parameters for prediction.
@@ -327,8 +314,9 @@ class Trainer(BaseRunner):
         ret: T_Prediction
             Predict results.
         """
-        x = self.input_proc(x)
-        return self._predictor(x, **model_params)
+        x = self.input_proc(x, train=False)
+        y_pred = self._predictor(x, **model_params)
+        return self.output_proc(y_pred, train=False)
 
     def as_dict(self):
         return OrderedDict(

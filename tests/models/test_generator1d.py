@@ -6,7 +6,7 @@ import pytest
 import torch as tc
 
 from xenonpy.model.nn import Generator1d, Layer1d
-from xenonpy.model.nn.wrap import L1
+from xenonpy.model.nn import L1
 
 
 def test_layer():

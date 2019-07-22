@@ -4,7 +4,7 @@
 
 from torch import optim
 
-from xenonpy.model.nn.training.base import BaseOptimizer
+from xenonpy.model.training.base import BaseOptimizer
 
 __all__ = ['Adadelta', 'Adagrad', 'Adam', 'Adamax', 'ASGD', 'SGD', 'SparseAdam', 'RMSprop', 'Rprop', 'LBFGS']
 

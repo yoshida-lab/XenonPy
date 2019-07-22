@@ -1,4 +1,4 @@
-#  Copyright (c) 2019. yoshida-lab. All rights reserved.
+#  Copyright (c) 2019. TsumiNa. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
@@ -7,9 +7,11 @@ from collections import namedtuple
 from torch import nn
 from torch.nn import Sequential
 
-from xenonpy.model.nn.layer import Layer1d
-from xenonpy.model.nn.wrap import L1
+from xenonpy.model.layer import Layer1d
+from xenonpy.model.wrap import L1
 from xenonpy.utils.math import Product
+
+__all__ = ['Generator1d']
 
 
 class Generator1d(object):

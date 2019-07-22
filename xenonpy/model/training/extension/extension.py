@@ -3,8 +3,8 @@
 #  license that can be found in the LICENSE file.
 from typing import Union, Tuple
 
-from xenonpy.model.nn.training.base import BaseExtension
-from xenonpy.model.nn.utils import T_Data, to_tensor, regression_metrics
+from xenonpy.model.training.extension.base import BaseExtension
+from xenonpy.model.utils import T_Data, to_tensor, regression_metrics
 
 __all__ = ['Validator']
 

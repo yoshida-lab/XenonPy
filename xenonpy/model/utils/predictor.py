@@ -2,18 +2,15 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from typing import Union, Tuple, Any
+from typing import Union, Tuple
 
-import numpy as np
 import torch
 from torch.nn import Module
 
 from xenonpy.model.nn.training.base import BaseRunner
 from xenonpy.model.nn.utils.data_tool import T_Data, check_cuda
 
-__all__ = ['Predictor', 'T_Prediction']
-
-T_Prediction = Union[np.ndarray, Tuple[np.ndarray, Any]]
+__all__ = ['Predictor']
 
 
 class Predictor(BaseRunner):
@@ -33,18 +30,18 @@ class Predictor(BaseRunner):
 
     def pre_process(self, x_pred):
         for ext, _ in self._extensions:
-            x_pred = ext.pre_process(x=x_pred)
+            x_pred = ext.input_proc(x_in=x_pred)
         return x_pred
 
     def post_process(self, y_pred):
         for ext, _ in self._extensions:
-            y_pred = ext.post_process(y_pred)
+            y_pred = ext.output_proc(y_pred)
         return y_pred
 
     def _to_device(self, *tensor: torch.Tensor):
         return tuple([t.to(self._device) for t in tensor])
 
-    def __call__(self, x: Union[T_Data, Tuple[T_Data]], **model_params) -> T_Prediction:
+    def __call__(self, x: Union[T_Data, Tuple[T_Data]], **model_params):
         """
         Wrapper for :meth:`~Prediction.predict`.
 
@@ -62,7 +59,7 @@ class Predictor(BaseRunner):
         """
         return self.predict(x=x, **model_params)
 
-    def predict(self, x: Union[T_Data, Tuple[T_Data]], **model_params) -> T_Prediction:
+    def predict(self, x: Union[T_Data, Tuple[T_Data]], **model_params):
         """
         Predict values using given model.
 

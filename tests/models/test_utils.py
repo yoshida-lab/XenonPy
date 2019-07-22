@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 import torch
 
-from xenonpy.model.nn.utils import check_cuda, to_tensor
+from xenonpy.model.nn import check_cuda, to_tensor
 
 
 @pytest.fixture(scope='module')

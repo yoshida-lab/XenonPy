@@ -14,8 +14,8 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau, _LRScheduler
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from xenonpy.model.nn.training.base import BaseOptimizer, BaseLRScheduler, BaseRunner
-from xenonpy.model.nn.utils import check_cuda, T_Data, Predictor, T_Prediction
+from xenonpy.model.training.base import BaseOptimizer, BaseLRScheduler, BaseRunner
+from xenonpy.model.utils import check_cuda, T_Data, Predictor
 
 __all__ = ['Trainer']
 
@@ -57,6 +57,7 @@ class Trainer(BaseRunner):
         """
         super().__init__()
         self._model = model
+        self._init_states = model.state_dict()
         self.loss_func = loss_func
         self._optim = optimizer
         self.optimizer = optimizer(self._model.parameters())
@@ -113,39 +114,28 @@ class Trainer(BaseRunner):
             raise TypeError(
                 'parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(m))
 
-    def pre_process(self, x_train, y_train=None):
-        for ext, _ in self._extensions:
-            x_train, y_train = ext.pre_process(x=x_train, y=y_train)
-        return x_train, y_train
-
-    def post_process(self, y_pred):
-        for ext, _ in self._extensions:
-            y_pred = ext.post_process(y_pred)
-        return y_pred
-
-    def _final(self):
-        for ext, _ in self._extensions:
-            ext.final()
-
-    def reset(self, *, model: Module = None):
+    def reset(self, *, model: Union[bool, Module] = False):
         """
         Reset trainer.
-        This will reset trainer states and drop all training step information.
+        This will reset all trainer states and drop all training step information.
 
         Parameters
         ----------
-        model: Module
-            Bind trainer to the given model.
+        model: Union[bool, Module]
+            Bind trainer to the given model or reset current model to it's initialization states.
         """
         self._step_info = []
         self._model_states = []
         self._total_iters = 0
 
-        if model is not None:
-            self._model = model
-            self.optimizer = self._optim(self._model.parameters())
+        if model is not False:
+            if isinstance(model, Module):
+                self._model = model
+                self._init_states = model.state_dict()
+            else:
+                self._model.load_state_dict(self._init_states)
 
-            # optional
+            self.optimizer = self._optim(self._model.parameters())
             if self._scheduler is not None:
                 self.lr_scheduler: Union[_LRScheduler, None] = self._scheduler(self.optimizer)
             else:
@@ -235,7 +225,7 @@ class Trainer(BaseRunner):
                 self._model.train()
 
                 for i_batch, (x, y) in enumerate(training_dataset):
-                    x, y = self.pre_process(x, y)
+                    x, y = self.input_proc(x, y)
 
                     # convert to tuple for convenient
                     if not isinstance(x, tuple):
@@ -249,7 +239,7 @@ class Trainer(BaseRunner):
                     def closure():
                         self.optimizer.zero_grad()
                         y_pred_ = self._model(*x, **model_params)
-                        y_pred_ = self.post_process(y_pred_)
+                        y_pred_ = self.output_proc(y_pred_)
                         loss_ = self.loss_func(y_pred_, y)
                         loss_.backward()
 
@@ -261,7 +251,7 @@ class Trainer(BaseRunner):
                     train_loss = self.optimizer.step_forward(closure).item() / y.size(0)
 
                     step_info = OrderedDict(i_epoch=i_epoch + 1, i_batch=i_batch + 1, train_loss=train_loss)
-                    self._ext_forward(step_info)
+                    self._step_forward(step_info)
                     self._step_info.append(step_info)
                     self._total_iters = i_epoch + 1
 
@@ -274,7 +264,7 @@ class Trainer(BaseRunner):
                     self.lr_scheduler.step(train_loss, epoch=self._total_iters)
 
         else:
-            x, y = self.pre_process(x_train, y_train)
+            x, y = self.input_proc(x_train, y_train)
 
             if not isinstance(x, tuple):
                 x = (x,)
@@ -294,7 +284,7 @@ class Trainer(BaseRunner):
                 def closure():
                     self.optimizer.zero_grad()
                     y_pred_ = self._model(*x, **model_params)
-                    y_pred_ = self.post_process(y_pred_)
+                    y_pred_ = self.output_proc(y_pred_)
                     loss_ = self.loss_func(y_pred_, y)
                     loss_.backward()
 
@@ -306,7 +296,7 @@ class Trainer(BaseRunner):
                 train_loss = self.optimizer.step_forward(closure).item() / y.size(0)
 
                 step_info = OrderedDict(i_epoch=i_epoch + 1, train_loss=train_loss)
-                self._ext_forward(step_info)
+                self._step_forward(step_info)
                 self._step_info.append(step_info)
                 self._total_iters = i_epoch + 1
 
@@ -318,7 +308,7 @@ class Trainer(BaseRunner):
                 if self.lr_scheduler is not None and isinstance(self.lr_scheduler, ReduceLROnPlateau):
                     self.lr_scheduler.step(train_loss, epoch=self._total_iters)
 
-        self._final()
+        self._after_train()
 
     def predict(self, x: Union[T_Data, Tuple[T_Data]], **model_params) -> T_Prediction:
         """
@@ -337,12 +327,8 @@ class Trainer(BaseRunner):
         ret: T_Prediction
             Predict results.
         """
-        x = self.pre_process(x)
+        x = self.input_proc(x)
         return self._predictor(x, **model_params)
-
-    def _ext_forward(self, step_info):
-        for ext, injects in self._extensions:
-            ext.step_forward(step_info, **{k: self._extensions[k][0] for k in injects})
 
     def as_dict(self):
         return OrderedDict(

@@ -2,36 +2,19 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from collections import OrderedDict, defaultdict
+from collections import defaultdict
 from inspect import signature
 from typing import Iterable
-from typing import Union, Tuple, DefaultDict, List
+from typing import Union, Tuple, DefaultDict, Dict
 
 from sklearn.base import BaseEstimator
 from torch.optim import Optimizer
 from torch.optim.lr_scheduler import _LRScheduler
 
+from xenonpy.model.training.extension.base import BaseExtension
 from xenonpy.utils import TimedMetaClass
 
-
-class BaseExtension(object):
-    def __init__(self):
-        self.trainer = None
-
-    def init(self):
-        pass
-
-    def pre_process(self, x, y=None):
-        return x, y
-
-    def step_forward(self, step_info: OrderedDict, **kwargs):
-        raise NotImplementedError()
-
-    def post_process(self, y_pred):
-        return y_pred
-
-    def final(self):
-        pass
+__all__ = ['BaseRunner', 'BaseLRScheduler', 'BaseOptimizer']
 
 
 class BaseOptimizer(object):
@@ -76,9 +59,35 @@ class BaseLRScheduler(object):
 
 
 class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
+    T_Extension_Dict = DefaultDict[str, Tuple[Union[BaseExtension, None], Dict[str, list]]]
+
     def __init__(self):
         # init container
-        self._extensions: DefaultDict[str, Tuple[Union[BaseExtension, None], List]] = defaultdict(lambda: (None, []))
+        self._extensions: BaseRunner.T_Extension_Dict = defaultdict(
+            lambda: (None, {}))
+
+    def input_proc(self, x_in, y_in=None):
+        for ext, injects in self._extensions:
+            x_in, y_in = ext.before_train(x_in=x_in, y_in=y_in,
+                                          **{k: self._extensions[k][0] for k in injects['input_proc']})
+        return x_in, y_in
+
+    def output_proc(self, y_pred):
+        for ext, injects in self._extensions:
+            y_pred = ext.output_proc(y_pred=y_pred, **{k: self._extensions[k][0] for k in injects['output_proc']})
+        return y_pred
+
+    def _before_train(self):
+        for ext, injects in self._extensions:
+            ext.before_train(**{k: self._extensions[k][0] for k in injects['before_train']})
+
+    def _step_forward(self, step_info):
+        for ext, injects in self._extensions:
+            ext.step_forward(step_info, **{k: self._extensions[k][0] for k in injects['step_forward']})
+
+    def _after_train(self):
+        for ext, injects in self._extensions:
+            ext.after_train(**{k: self._extensions[k][0] for k in injects['after_train']})
 
     def extend(self, *exts: BaseExtension, **named_exts: BaseExtension):
         """
@@ -102,5 +111,9 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
 
         for k, v in named_exts.items():
             v.trainer = self
-            v.init()
-            self._extensions[k] = (v, _get_keyword_params(v.step_forward))
+
+            methods = ['before_train', 'input_proc', 'step_forward', 'output_proc', 'after_train']
+            dependencies = [_get_keyword_params(getattr(v, m)) for m in methods]
+            dependency_inject = {k: v for k, v in zip(methods, dependencies)}
+
+            self._extensions[k] = (v, dependency_inject)

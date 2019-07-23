@@ -319,7 +319,7 @@ class Trainer(BaseRunner):
         return self.output_proc(y_pred, train=False)
 
     def as_dict(self):
-        return OrderedDict(
+        return dict(
             total_iteration=self._total_iters,
             losses=self._step_info,
             states=self._model_states,

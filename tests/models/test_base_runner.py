@@ -50,7 +50,9 @@ def data():
         def before_proc(self, train: bool = True, *, ext1=None) -> None:
             self.before = ext1.before + '_ext2'
 
-        def after_proc(self, train: bool = True, *, ext1=None) -> None:
+        def after_proc(self, train: bool = True, *, ext1=None, ext3=None) -> None:
+            if ext3 is not None:
+                self.after = ext1.after + '_ext2_ext3'
             self.after = ext1.after + '_ext2'
 
         def step_forward(self, step_info, *, ext1=None) -> None:
@@ -93,6 +95,7 @@ def test_base_runner_3(data):
     ext1, ext2 = data[0](), data[1]()
     runner = BaseRunner()
     runner.extend(ext1, ext2)
+    assert {'ext1', 'ext2'} == set(runner._extensions.keys())
 
     runner._before_proc()
     assert ext1.before == 'ext1'
@@ -107,7 +110,6 @@ def test_base_runner_3(data):
     assert step_info['ext1'] == 'ext1'
     assert step_info['ext2'] == 'ext1_ext2'
 
-    assert len(runner._extensions) == 2
     assert runner.input_proc(x, y) == (x * 10 * 2, y * 10 * 2)
     assert runner.input_proc(x) == x * 10 * 2
     assert runner.output_proc(y) == y * 10 * 2

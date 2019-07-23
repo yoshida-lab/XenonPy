@@ -10,7 +10,7 @@ dependencies:
   - scipy=1.2.1
   - pytorch-cpu=1.1.0
   - torchvision-cpu
-  - rdkit=2019.03.2.0
+  - rdkit=2019.03.3.0
   - jupyter=1.0.0
   - seaborn
   - requests

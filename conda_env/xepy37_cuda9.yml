@@ -12,7 +12,7 @@ dependencies:
   - cudatoolkit=9.0
   - torchvision
   - magma-cuda90=2.5.0
-  - rdkit=2019.03.2.0
+  - rdkit=2019.03.3.0
   - jupyter=1.0.0
   - seaborn
   - requests

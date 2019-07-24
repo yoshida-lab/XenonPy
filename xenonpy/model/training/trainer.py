@@ -72,10 +72,11 @@ class Trainer(BaseRunner):
 
         # init private vars
         self._optim = optimizer
-        self._init_states = model.state_dict()
+        self._init_states = deepcopy(model.state_dict())
         self._model_states = []
         self._step_info: List[OrderedDict] = []
-        self._total_iters: int = 0
+        self._total_its: int = 1  # of total iterations
+        self._total_epochs: int = 1  # of total epochs
 
         # others
         self._predictor = Predictor(self._model, cuda=self._device)
@@ -95,22 +96,18 @@ class Trainer(BaseRunner):
         self._device = self.check_cuda(v)
 
     @property
-    def elapsed(self):
-        return self._timer.elapsed
-
-    @property
     def model(self):
         return self._model
 
     @model.setter
     def model(self, m):
         if isinstance(m, torch.nn.Module):
-            self._model = m
+            self.reset(model=m)
         else:
             raise TypeError(
                 'parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(m))
 
-    def reset(self, *, model: Union[bool, Module] = False):
+    def reset(self, *, model: Module = None):
         """
         Reset trainer.
         This will reset all trainer states and drop all training step information.
@@ -122,25 +119,29 @@ class Trainer(BaseRunner):
         """
         self._step_info = []
         self._model_states = []
-        self._total_iters = 0
+        self._total_its = 1
+        self._total_epochs = 1
 
-        if model is not False:
-            if isinstance(model, Module):
-                self._model = model
-                self._init_states = model.state_dict()
-            else:
-                self._model.load_state_dict(self._init_states)
+        if isinstance(model, Module):
+            self._model = model
+            self._init_states = deepcopy(model.state_dict())
+        else:
+            self._model.load_state_dict(self._init_states)
 
-            self.optimizer = self._optim(self._model.parameters())
-            if self._scheduler is not None:
-                self.lr_scheduler: Union[_LRScheduler, None] = self._scheduler(self.optimizer)
-            else:
-                self.lr_scheduler: Union[_LRScheduler, None] = None
+        self._predictor = Predictor(self._model, cuda=self._device)
+        self.optimizer = self._optim(self._model.parameters())
+        if self._scheduler is not None:
+            self.lr_scheduler: Union[_LRScheduler, None] = self._scheduler(self.optimizer)
+        else:
+            self.lr_scheduler: Union[_LRScheduler, None] = None
+
+        self._reset_proc()
 
     def fit(self,
             x_train: Union[Any, Tuple[Any]] = None,
             y_train: Any = None,
             *,
+            epochs: int = None,
             training_dataset: DataLoader = None,
             save_training_state: bool = False,
             **model_params):
@@ -156,14 +157,23 @@ class Trainer(BaseRunner):
         training_dataset: DataLoader
             Torch DataLoader. If given, will only use this as training dataset.
             When loop over this dataset, it should yield a tuple contains ``x_train`` and ``y_train`` in order.
+        epochs : int
+            Epochs. If not ``None``, it will overwrite ``self.epochs`` temporarily.
         save_training_state: bool
             If ``True``, will save model status on each training step_info.
         model_params: dict
             Other model parameters.
         """
-        for _ in self(x_train=x_train, y_train=y_train, training_dataset=training_dataset,
-                      save_training_state=save_training_state, **model_params):
-            continue
+        if epochs is None:
+            epochs = self.epochs
+
+        prob = self._total_epochs - 1
+        with tqdm(total=epochs, desc='Training') as pbar:
+            for _ in self(x_train=x_train, y_train=y_train, training_dataset=training_dataset, epochs=epochs,
+                          save_training_state=save_training_state, **model_params):
+                t = self._total_epochs - prob
+                pbar.update(t)
+                prob = self._total_epochs
 
     def __call__(self,
                  x_train: Union[Any, Tuple[Any]] = None,
@@ -210,90 +220,75 @@ class Trainer(BaseRunner):
             if y_train is None or x_train is None:
                 raise RuntimeError('missing parameter <x_train> or <y_train>')
 
+        # training step
+        def _step(x, y, i_b=0):
+            def closure():
+                self.optimizer.zero_grad()
+                y_pred_ = self._model(*x, **model_params)
+                y_pred_ = self.output_proc(y_pred_)
+                loss_ = self.loss_func(y_pred_, y)
+                loss_.backward()
+
+                if self.model_modifier is not None:
+                    self.model_modifier(self._model, loss=loss_)
+
+                return loss_
+
+            train_loss = self.optimizer.step(closure).item() / y.size(0)
+
+            step_info = OrderedDict(
+                total_iters=self._total_its,
+                i_epoch=self._total_epochs,
+                i_batch=i_b + 1,
+                train_loss=train_loss)
+
+            self._step_forward(step_info)
+            self._step_info.append(step_info)
+
+            if save_training_state:
+                self._model_states.append(deepcopy(self._model.state_dict()))
+
+            if self.lr_scheduler is not None and isinstance(self.lr_scheduler, ReduceLROnPlateau):
+                self.lr_scheduler.step(train_loss, epoch=self._total_epochs)
+
+            self._total_its += 1
+            return step_info
+
+        # before processing
         self._before_proc()
 
         if training_dataset:
-            train_loss = 1e6
-            for i_epoch in tqdm(range(self._total_iters, epochs + self._total_iters)):
+            for i_epoch in range(self._total_epochs, epochs + self._total_epochs):
 
                 # decay learning rate
                 if self.lr_scheduler is not None and not isinstance(self.lr_scheduler, ReduceLROnPlateau):
-                    self.lr_scheduler.step(epoch=self._total_iters)
+                    self.lr_scheduler.step(epoch=self._total_its)
 
                 self._model.train()
+                for i_batch, (x_train, y_train) in enumerate(training_dataset):
+                    x_train, y_train = self.input_proc(x_train, y_train)
+                    if not isinstance(x_train, tuple):
+                        x_train = (x_train,)
 
-                for i_batch, (x, y) in enumerate(training_dataset):
-                    x, y = self.input_proc(x, y)
-                    if not isinstance(x, tuple):
-                        x = (x,)
+                    yield _step(x_train, y_train, i_batch)
 
-                    # feed model
-                    def closure():
-                        self.optimizer.zero_grad()
-                        y_pred_ = self._model(*x, **model_params)
-                        y_pred_ = self.output_proc(y_pred_)
-                        loss_ = self.loss_func(y_pred_, y)
-                        loss_.backward()
-
-                        if self.model_modifier is not None:
-                            self.model_modifier(self._model, loss=loss_)
-
-                        return loss_
-
-                    train_loss = self.optimizer.step(closure).item() / y.size(0)
-
-                    step_info = OrderedDict(i_epoch=i_epoch + 1, i_batch=i_batch + 1, train_loss=train_loss)
-                    self._step_forward(step_info)
-                    self._step_info.append(step_info)
-                    self._total_iters = i_epoch + 1
-
-                    if save_training_state:
-                        self._model_states.append(self._model.state_dict())
-
-                    yield step_info
-
-                if self.lr_scheduler is not None and isinstance(self.lr_scheduler, ReduceLROnPlateau):
-                    self.lr_scheduler.step(train_loss, epoch=self._total_iters)
+                self._total_epochs += 1
 
         else:
-            x, y = self.input_proc(x_train, y_train)
-            if not isinstance(x, tuple):
-                x = (x,)
+            x_train, y_train = self.input_proc(x_train, y_train)
+            if not isinstance(x_train, tuple):
+                x_train = (x_train,)
 
-            for i_epoch in tqdm(range(self._total_iters, epochs + self._total_iters)):
+            for i_epoch in range(self._total_epochs, epochs + self._total_epochs):
 
                 if self.lr_scheduler is not None and not isinstance(self.lr_scheduler, ReduceLROnPlateau):
-                    self.lr_scheduler.step(epoch=self._total_iters)
+                    self.lr_scheduler.step(epoch=self._total_its)
+
                 self._model.train()
+                yield _step(x_train, y_train)
+                self._total_epochs += 1
 
-                # feed model
-                def closure():
-                    self.optimizer.zero_grad()
-                    y_pred_ = self._model(*x, **model_params)
-                    y_pred_ = self.output_proc(y_pred_)
-                    loss_ = self.loss_func(y_pred_, y)
-                    loss_.backward()
-
-                    if self.model_modifier is not None:
-                        self.model_modifier(self._model, loss=loss_)
-
-                    return loss_
-
-                train_loss = self.optimizer.step(closure).item() / y.size(0)
-
-                step_info = OrderedDict(i_epoch=i_epoch + 1, train_loss=train_loss)
-                self._step_forward(step_info)
-                self._step_info.append(step_info)
-                self._total_iters = i_epoch + 1
-
-                if save_training_state:
-                    self._model_states.append(self._model.state_dict())
-
-                yield step_info
-
-                if self.lr_scheduler is not None and isinstance(self.lr_scheduler, ReduceLROnPlateau):
-                    self.lr_scheduler.step(train_loss, epoch=self._total_iters)
-
+        # after processing
         self._after_proc()
         self._model.cpu().eval()
 
@@ -320,8 +315,9 @@ class Trainer(BaseRunner):
 
     def as_dict(self):
         return dict(
-            total_iteration=self._total_iters,
-            losses=self._step_info,
+            total_iteration=self._total_its,
+            total_epochs=self._total_epochs,
+            step_info=self._step_info,
             states=self._model_states,
             model=deepcopy(self._model.cpu())
         )

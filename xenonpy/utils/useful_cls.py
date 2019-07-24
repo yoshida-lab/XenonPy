@@ -47,14 +47,11 @@ class Timer(object):
             return all_ + dt
 
         def __repr__(self):
-            return 'elapsed: %s' % str(timedelta(seconds=self.elapsed))
+            return f'elapsed: {timedelta(seconds=self.elapsed)} <seconds>'
 
     def __init__(self, time_func=time.perf_counter):
         self._func = time_func
         self._timers = defaultdict(self._Timer)
-
-    def __call__(self, *args, **kwargs):
-        self.timed(*args, **kwargs)
 
     def start(self, fn_name='main'):
         if self._timers[fn_name].start is not None:
@@ -75,8 +72,11 @@ class Timer(object):
         return sum([v.elapsed for v in self._timers.values()])
 
     def __repr__(self):
-        return 'Total elapsed: %s\n' % str(timedelta(seconds=self.elapsed)) + \
-               '\n'.join(['  |- %s: %s' % (k, v.elapsed) for k, v in self._timers.items()])
+        tmp = {k: v.elapsed for k, v in self._timers.items()}
+        tmp = {k: v for k, v in sorted(tmp.items(), key=lambda t: t[1])}
+        return f'Total elapsed: {timedelta(seconds=self.elapsed)} <seconds>\n' + \
+               '\n'.join([f'  |- {k}: {timedelta(seconds=v)}' for k, v in
+                          sorted(tmp.items(), key=lambda t: t[1], reverse=True)])
 
     def __enter__(self):
         self.start()
@@ -92,6 +92,7 @@ class TimedMetaClass(type):
     with a new function that is timed
     """
 
+    @staticmethod
     def _timed(fn):
         if isinstance(fn, (types.FunctionType, types.MethodType)):
             @wraps(fn)
@@ -127,8 +128,9 @@ class TimedMetaClass(type):
         for name_, value_ in attrs.items():
             if not name_.startswith("__") and isinstance(value_, (types.FunctionType, types.MethodType)):
                 attrs[name_] = TimedMetaClass._timed(value_)
-
-        return super(TimedMetaClass, mcs).__new__(mcs, name, bases, attrs)
+        cls = super(TimedMetaClass, mcs).__new__(mcs, name, bases, attrs)
+        cls.timer = property(lambda self: self._timer)
+        return cls
 
 
 class Singleton(type):

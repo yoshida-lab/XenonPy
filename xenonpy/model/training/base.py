@@ -3,7 +3,6 @@
 #  license that can be found in the LICENSE file.
 
 from collections import OrderedDict
-from functools import wraps
 from inspect import signature
 from typing import Iterable
 from typing import Tuple, Any
@@ -19,31 +18,23 @@ from xenonpy.utils import TimedMetaClass, camel_to_snake
 __all__ = ['BaseRunner', 'BaseLRScheduler', 'BaseOptimizer', 'BaseExtension']
 
 
-def _none_return_wrap(func):
-    @wraps(func)
-    def _func(self, *args_, **kwargs_):
-        func(self, *args_, **kwargs_)
-        return args_ if len(args_) > 1 else args_[0]
-
-    return _func
-
-
 class BaseExtension(object):
     def before_proc(self, **dependence) -> None:
         pass
 
-    @_none_return_wrap
-    def input_proc(self, x_in, y_in, **dependence) -> Tuple[Any]:
-        pass
+    def input_proc(self, x_in, y_in, **dependence) -> Tuple[Any, Any]:
+        return x_in, y_in
 
     def step_forward(self, step_info: OrderedDict, **dependence) -> None:
         pass
 
-    @_none_return_wrap
     def output_proc(self, y_pred, **dependence) -> Any:
-        pass
+        return y_pred
 
     def after_proc(self, **dependence) -> None:
+        pass
+
+    def reset_proc(self, **dependence) -> None:
         pass
 
 
@@ -168,6 +159,13 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
                 kwargs.update(training=training)
             ext.after_proc(**kwargs)
 
+    def _reset_proc(self):
+        for (ext, injects) in self._extensions.values():
+            kwargs = {k: self._extensions[k][0] for k in injects['reset_proc'] if k in self._extensions}
+            if 'trainer' in injects['reset_proc']:
+                kwargs.update(trainer=self)
+            ext.reset_proc(**kwargs)
+
     def extend(self, *extension: BaseExtension):
         """
         Add training extensions to trainer.
@@ -187,7 +185,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         # merge exts to named_exts
         for ext in extension:
             name = camel_to_snake(ext.__class__.__name__)
-            methods = ['before_proc', 'input_proc', 'step_forward', 'output_proc', 'after_proc']
+            methods = ['before_proc', 'input_proc', 'step_forward', 'output_proc', 'after_proc', 'reset_proc']
             dependencies = [_get_keyword_params(getattr(ext, m)) for m in methods]
             dependency_inject = {k: v for k, v in zip(methods, dependencies)}
 

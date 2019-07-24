@@ -11,7 +11,8 @@ import pandas as pd
 import pytest
 
 from xenonpy.datatools import Storage
-from xenonpy.model.nn import Checker, Layer1d
+from xenonpy.model.layer import Layer1d
+from xenonpy.model.utils import Checker
 
 
 @pytest.fixture(scope='module')

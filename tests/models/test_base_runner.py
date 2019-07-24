@@ -6,8 +6,7 @@ from collections import OrderedDict
 
 import pytest
 
-from xenonpy.model.training.base import BaseRunner
-from xenonpy.model.training.extension.base import BaseExtension
+from xenonpy.model.training.base import BaseRunner, BaseExtension
 
 
 @pytest.fixture(scope='module')
@@ -24,21 +23,21 @@ def data():
             self.before = None
             self.after = None
 
-        def before_proc(self, train: bool = True) -> None:
+        def before_proc(self) -> None:
             self.before = 'ext1'
 
-        def after_proc(self, train: bool = True) -> None:
+        def after_proc(self) -> None:
             self.after = 'ext1'
 
         def step_forward(self, step_info) -> None:
             step_info['ext1'] = 'ext1'
 
-        def input_proc(self, x_in, y_in=None, train: bool = True):
+        def input_proc(self, x_in, y_in):
             if y_in is None:
                 return x_in * 10, y_in
             return x_in * 10, y_in * 10
 
-        def output_proc(self, y_pred, train: bool = True):
+        def output_proc(self, y_pred):
             return y_pred * 10
 
     class Ext2(BaseExtension):
@@ -47,23 +46,21 @@ def data():
             self.before = None
             self.after = None
 
-        def before_proc(self, train: bool = True, *, ext1=None) -> None:
+        def before_proc(self, *, ext1) -> None:
             self.before = ext1.before + '_ext2'
 
-        def after_proc(self, train: bool = True, *, ext1=None, ext3=None) -> None:
-            if ext3 is not None:
-                self.after = ext1.after + '_ext2_ext3'
+        def after_proc(self, *, ext1) -> None:
             self.after = ext1.after + '_ext2'
 
-        def step_forward(self, step_info, *, ext1=None) -> None:
+        def step_forward(self, step_info, **_) -> None:
             step_info['ext2'] = step_info['ext1'] + '_ext2'
 
-        def input_proc(self, x_in, y_in=None, train: bool = True):
+        def input_proc(self, x_in, y_in, **_):
             if y_in is None:
                 return x_in * 2, y_in
             return x_in * 2, y_in * 2
 
-        def output_proc(self, y_pred, train: bool = True):
+        def output_proc(self, y_pred, **_):
             return y_pred * 2
 
     yield Ext1, Ext2

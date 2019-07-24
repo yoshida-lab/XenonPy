@@ -68,11 +68,11 @@ class Predictor(BaseRunner):
         self._model.eval()
 
         # prepare data
-        x = self.input_proc(x, train=False)
+        x = self.input_proc(x, training=False)
         if not isinstance(x, tuple):
             x = (x,)
 
         # move tensor device
         y_pred = self._model(*x, **model_params)
 
-        return self.output_proc(y_pred, train=False)
+        return self.output_proc(y_pred, training=False)

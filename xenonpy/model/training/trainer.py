@@ -81,7 +81,7 @@ class Trainer(BaseRunner):
         self._predictor = Predictor(self._model, cuda=self._device)
 
     @property
-    def losses(self):
+    def step_info(self):
         if self._step_info:
             return pd.DataFrame(data=self._step_info)
         return None
@@ -240,7 +240,7 @@ class Trainer(BaseRunner):
 
                         return loss_
 
-                    train_loss = self.optimizer.step_forward(closure).item() / y.size(0)
+                    train_loss = self.optimizer.step(closure).item() / y.size(0)
 
                     step_info = OrderedDict(i_epoch=i_epoch + 1, i_batch=i_batch + 1, train_loss=train_loss)
                     self._step_forward(step_info)
@@ -279,7 +279,7 @@ class Trainer(BaseRunner):
 
                     return loss_
 
-                train_loss = self.optimizer.step_forward(closure).item() / y.size(0)
+                train_loss = self.optimizer.step(closure).item() / y.size(0)
 
                 step_info = OrderedDict(i_epoch=i_epoch + 1, train_loss=train_loss)
                 self._step_forward(step_info)
@@ -314,9 +314,9 @@ class Trainer(BaseRunner):
         ret: T_Prediction
             Predict results.
         """
-        x = self.input_proc(x, train=False)
+        x = self.input_proc(x, training=False)
         y_pred = self._predictor(x, **model_params)
-        return self.output_proc(y_pred, train=False)
+        return self.output_proc(y_pred, training=False)
 
     def as_dict(self):
         return dict(

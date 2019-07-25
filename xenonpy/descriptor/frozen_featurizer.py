@@ -10,6 +10,8 @@ import torch
 
 from xenonpy.descriptor.base import BaseFeaturizer
 
+__all__ = ['FrozenFeaturizer']
+
 
 class FrozenFeaturizer(BaseFeaturizer):
     """

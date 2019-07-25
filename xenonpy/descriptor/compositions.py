@@ -8,6 +8,9 @@ import numpy as np
 
 from xenonpy.descriptor.base import BaseDescriptor, BaseCompositionFeaturizer
 
+__all__ = ['Compositions', 'Counting', 'WeightedAverage', 'WeightedSum', 'WeightedVariance', 'HarmonicMean',
+           'GeometricMean', 'MaxPooling', 'MinPooling']
+
 
 class Counting(BaseCompositionFeaturizer):
     def __init__(self, *, one_hot_vec=False, n_jobs=-1, on_errors='raise', return_type='any'):

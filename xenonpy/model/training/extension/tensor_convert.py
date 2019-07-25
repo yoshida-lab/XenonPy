@@ -17,7 +17,7 @@ T_Data = Union[pd.DataFrame, pd.Series, np.ndarray, torch.Tensor]
 class TensorConverter(BaseExtension):
 
     def __init__(self, dtype=None):
-        if dtype is None:
+        if dtype is 'default':
             self.dtype = torch.get_default_dtype()
         else:
             self.dtype = dtype
@@ -38,20 +38,18 @@ class TensorConverter(BaseExtension):
         """
 
         def _convert(t):
-            if t is None:
-                return t
             if isinstance(t, (pd.DataFrame, pd.Series)):
                 t = t.values
             if isinstance(t, np.ndarray):
                 t = torch.from_numpy(t)
             if not isinstance(t, torch.Tensor):
-                raise RuntimeError(
-                    'input must be pd.DataFrame, pd.Series, np.ndarray, or torch.Tensor but got %s' % t.__class__)
+                return t
 
             if len(t.size()) == 1:
                 t = t.unsqueeze(-1)
-
-            return t.to(self.dtype)
+            if self.dtype is not None:
+                return t.to(self.dtype)
+            return t
 
         if isinstance(x_in, tuple):
             x_in = tuple([_convert(t) for t in x_in])

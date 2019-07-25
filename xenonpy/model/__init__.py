@@ -2,5 +2,5 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from .crystal_graph_cnn import *
+from .cgcnn import *
 from .extern import *

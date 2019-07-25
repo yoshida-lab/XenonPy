@@ -171,7 +171,8 @@ class CrystalGraphConvNet(nn.Module):
             out = self.logsoftmax(out)
         return out
 
-    def pooling(self, atom_fea, crystal_atom_idx):
+    @staticmethod
+    def pooling(atom_fea, crystal_atom_idx):
         """
         Pooling the atom features to crystal features
 

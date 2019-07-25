@@ -10,6 +10,8 @@ from pymatgen.analysis.local_env import VoronoiNN
 
 from xenonpy.descriptor.base import BaseDescriptor, BaseFeaturizer
 
+__all__ = ['RadialDistributionFunction', 'OrbitalFieldMatrix']
+
 
 class RadialDistributionFunction(BaseFeaturizer):
     """
@@ -82,7 +84,7 @@ class RadialDistributionFunction(BaseFeaturizer):
         return dist_hist / shell_vol / number_density
 
 
-class ObitalFieldMatrix(BaseFeaturizer):
+class OrbitalFieldMatrix(BaseFeaturizer):
     """
     Representation based on the valence shell electrons of neighboring atoms.
 
@@ -290,4 +292,4 @@ class Structures(BaseDescriptor):
         self.n_jobs = n_jobs
 
         self.structure = RadialDistributionFunction(n_bins, r_max, n_jobs=n_jobs, on_errors=on_errors)
-        self.structure = ObitalFieldMatrix(including_d, n_jobs=n_jobs, on_errors=on_errors)
+        self.structure = OrbitalFieldMatrix(including_d, n_jobs=n_jobs, on_errors=on_errors)

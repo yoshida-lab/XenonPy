@@ -24,8 +24,6 @@ class ArrayDataset(TensorDataset):
         super().__init__(*array)
 
     def _convert(self, data):
-        if data is None:
-            return data
         if isinstance(data, (pd.DataFrame, pd.Series)):
             data = data.values
         if isinstance(data, np.ndarray):

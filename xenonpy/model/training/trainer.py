@@ -4,7 +4,7 @@
 
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Union, Tuple, Callable, List, Any, Dict
+from typing import Union, Tuple, List, Any, Dict
 
 import pandas as pd
 import torch
@@ -14,6 +14,7 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau, _LRScheduler
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from xenonpy.model.training import ClipValue, ClipNorm
 from xenonpy.model.training.base import BaseOptimizer, BaseLRScheduler, BaseRunner
 from xenonpy.model.utils import Predictor
 
@@ -30,7 +31,7 @@ class Trainer(BaseRunner):
                  epochs: int = 2000,
                  cuda: Union[bool, str, torch.device] = False,
                  lr_scheduler: BaseLRScheduler = None,
-                 model_modifier: Callable[[Module, float], None] = None,
+                 clip_grad: Union[ClipNorm, ClipValue] = None,
                  verbose: bool = True,
                  ):
         """
@@ -50,8 +51,8 @@ class Trainer(BaseRunner):
             Set training device(s).
         lr_scheduler: BaseLRScheduler
             Learning rate scheduler.
-        model_modifier : Callable[[Module, float], None]
-            Modify model parameters before each optimize.
+        clip_grad : Union[ClipNorm, ClipValue]
+            Clip grad before each optimize.
         verbose: bool
             Wither to use verbose output.
         """
@@ -68,7 +69,7 @@ class Trainer(BaseRunner):
         else:
             self.lr_scheduler: Union[_LRScheduler, None] = None
         self.verbose = verbose
-        self.model_modifier = model_modifier
+        self.clip_grad = clip_grad
 
         # init private vars
         self._optim = optimizer
@@ -243,8 +244,8 @@ class Trainer(BaseRunner):
                 loss_ = self.loss_func(y_pred_, y)
                 loss_.backward()
 
-                if self.model_modifier is not None:
-                    self.model_modifier(self._model, loss=loss_)
+                if self.clip_grad is not None:
+                    self.clip_grad(self._model.parameters())
 
                 return loss_
 

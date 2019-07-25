@@ -10,6 +10,9 @@ from rdkit.ML.Descriptors import MoleculeDescriptors
 
 from xenonpy.descriptor.base import BaseDescriptor, BaseFeaturizer
 
+__all__ = ['RDKitFP', 'AtomPairFP', 'TopologicalTorsionFP', 'MACCS', 'FCFP', 'ECFP', 'DescriptorFeature',
+           'Fingerprints']
+
 
 class RDKitFP(BaseFeaturizer):
 

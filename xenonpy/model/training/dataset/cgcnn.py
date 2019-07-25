@@ -7,10 +7,10 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
-__all__ = ['collate_pool', 'CrystalGraphDataset']
+__all__ = ['crystal_graph_collate', 'CrystalGraphDataset']
 
 
-def collate_pool(dataset_list):
+def crystal_graph_collate(dataset_list):
     """
     Collate a list of data and return a batch for predicting crystal
     properties.

@@ -4,7 +4,7 @@
 
 from collections import OrderedDict
 from copy import deepcopy
-from typing import Union, Tuple, Callable, List, Any
+from typing import Union, Tuple, Callable, List, Any, Dict
 
 import pandas as pd
 import torch
@@ -73,7 +73,8 @@ class Trainer(BaseRunner):
         # init private vars
         self._optim = optimizer
         self._init_states = deepcopy(model.state_dict())
-        self._model_states = []
+        self._init_optim = deepcopy(self.optimizer.state_dict())
+        self._check_points: Dict[int, Dict] = {}
         self._step_info: List[OrderedDict] = []
         self._total_its: int = 1  # of total iterations
         self._total_epochs: int = 1  # of total epochs
@@ -102,40 +103,53 @@ class Trainer(BaseRunner):
     @model.setter
     def model(self, m):
         if isinstance(m, torch.nn.Module):
-            self.reset(model=m)
+            self.reset(to=m)
         else:
             raise TypeError(
                 'parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(m))
 
-    def reset(self, *, model: Module = None):
+    def reset(self, *, to: Union[Module, int] = None):
         """
         Reset trainer.
         This will reset all trainer states and drop all training step information.
 
         Parameters
         ----------
-        model: Union[bool, Module]
+        to: Union[bool, Module]
             Bind trainer to the given model or reset current model to it's initialization states.
         """
         self._step_info = []
-        self._model_states = []
+        self._check_points = {}
         self._total_its = 1
         self._total_epochs = 1
 
-        if isinstance(model, Module):
-            self._model = model
-            self._init_states = deepcopy(model.state_dict())
+        if isinstance(to, Module):
+            self._model = to
+            self._init_states = deepcopy(to.state_dict())
+            self._predictor = Predictor(self._model, cuda=self._device)
+            self.optimizer = self._optim(self._model.parameters())
+            if self._scheduler is not None:
+                self.lr_scheduler: Union[_LRScheduler, None] = self._scheduler(self.optimizer)
+            else:
+                self.lr_scheduler: Union[_LRScheduler, None] = None
+        elif isinstance(to, int):
+            cp = self._check_points[to]
+            self._model.load_state_dict(cp['check_point'])
+            self.optimizer.load_state_dict(cp['optimizer'])
+            self._total_epochs = cp['total_epochs']
+            self._total_its = to
         else:
             self._model.load_state_dict(self._init_states)
-
-        self._predictor = Predictor(self._model, cuda=self._device)
-        self.optimizer = self._optim(self._model.parameters())
-        if self._scheduler is not None:
-            self.lr_scheduler: Union[_LRScheduler, None] = self._scheduler(self.optimizer)
-        else:
-            self.lr_scheduler: Union[_LRScheduler, None] = None
+            self.optimizer.load_state_dict(self._init_optim)
 
         self._reset_proc()
+
+    def check_point(self):
+        self._check_points[self._total_its] = dict(
+            total_epochs=self._total_epochs,
+            check_point=deepcopy(self._model.state_dict()),
+            optimizer=deepcopy(self.optimizer.state_dict())
+        )
 
     def fit(self,
             x_train: Union[Any, Tuple[Any]] = None,
@@ -246,7 +260,7 @@ class Trainer(BaseRunner):
             self._step_info.append(step_info)
 
             if save_training_state:
-                self._model_states.append(deepcopy(self._model.state_dict()))
+                self.check_point()
 
             if self.lr_scheduler is not None and isinstance(self.lr_scheduler, ReduceLROnPlateau):
                 self.lr_scheduler.step(train_loss, epoch=self._total_epochs)
@@ -313,11 +327,14 @@ class Trainer(BaseRunner):
         y_pred = self._predictor(x, **model_params)
         return self.output_proc(y_pred, training=False)
 
-    def as_dict(self):
+    def as_dict(self, *, check_point: int = None):
+        if check_point:
+            self.reset(to=check_point)
+
         return dict(
             total_iteration=self._total_its,
             total_epochs=self._total_epochs,
             step_info=self._step_info,
-            states=self._model_states,
+            check_points=self._check_points,
             model=deepcopy(self._model.cpu())
         )

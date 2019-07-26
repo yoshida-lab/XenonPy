@@ -4,4 +4,3 @@
 
 from .checker import *
 from .metrics import regression_metrics
-from .predictor import *

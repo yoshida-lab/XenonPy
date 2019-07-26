@@ -86,10 +86,6 @@ def test_tensor_converter_1():
     assert torch.equal(x, tensor_)
     assert torch.equal(y, tensor_)
 
-    with pytest.raises(RuntimeError, match="input must be pd.DataFrame, pd.Series, np.ndarray, "
-                                           "or torch.Tensor but got <class 'str'>"):
-        converter.input_proc('illegal x_in', 'illegal y_in')
-
 
 def test_tensor_converter_2():
     converter = TensorConverter()

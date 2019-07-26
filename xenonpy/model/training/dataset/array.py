@@ -14,7 +14,7 @@ __all__ = ['ArrayDataset']
 
 class ArrayDataset(TensorDataset):
 
-    def __init__(self, *array: Union[np.ndarray, pd.DataFrame, pd.Series], dtype=None):
+    def __init__(self, *array: Union[np.ndarray, pd.DataFrame, pd.Series, torch.Tensor], dtype=None):
         if dtype is None:
             self.dtype = torch.get_default_dtype()
         else:
@@ -24,6 +24,8 @@ class ArrayDataset(TensorDataset):
         super().__init__(*array)
 
     def _convert(self, data):
+        if isinstance(data, torch.Tensor):
+            return data
         if isinstance(data, (pd.DataFrame, pd.Series)):
             data = data.values
         if isinstance(data, np.ndarray):

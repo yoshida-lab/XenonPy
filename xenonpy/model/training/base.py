@@ -180,7 +180,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         def _get_keyword_params(func) -> list:
             sig = signature(func)
             return [p.name for p in sig.parameters.values() if
-                    p.kind == p.KEYWORD_ONLY and p.default is p.empty]
+                    p.kind == p.KEYWORD_ONLY and p.default]
 
         # merge exts to named_exts
         for ext in extension:

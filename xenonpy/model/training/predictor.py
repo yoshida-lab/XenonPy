@@ -1,4 +1,4 @@
-#  Copyright (c) 2019. yoshida-lab. All rights reserved.
+#  Copyright (c) 2019. TsumiNa. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
@@ -29,6 +29,15 @@ class Predictor(BaseRunner):
         """
         super().__init__(cuda=cuda)
         self.verbose = verbose
+        self._model = model.to(self._device)
+
+    @property
+    def model(self):
+        return self._model
+
+    @model.setter
+    def model(self, model: Module):
+        """"""
         self._model = model.to(self._device)
 
     def __call__(self, x, **model_params):

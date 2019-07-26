@@ -6,4 +6,5 @@ from .clip_grad import *
 from .loss import *
 from .lr_scheduler import *
 from .optimizer import *
+from .predictor import *
 from .trainer import *

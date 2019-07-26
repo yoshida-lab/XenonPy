@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 
 from xenonpy.datatools import Storage
-from xenonpy.model.layer import Layer1d
+from xenonpy.model.nn import Layer1d
 from xenonpy.model.utils import Checker
 
 

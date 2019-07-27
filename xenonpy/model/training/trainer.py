@@ -355,21 +355,12 @@ class Trainer(BaseRunner):
             y_pred = self._predictor(x, **model_params)
         return self.output_proc(y_pred, training=False)
 
-    def as_dict(self, *, check_point: Union[int, str] = None):
-        if check_point:
-            cp = self._check_points[check_point]
-            model = deepcopy(self._model.cpu())
-            model.load_state_dict(cp['check_point'])
-            return dict(
-                total_iteration=cp['total_iteration'],
-                total_epochs=cp['total_epochs'],
-                step_info=self._step_info,
-                model=model
-            )
-
+    def as_dict(self):
         return dict(
             total_iteration=self._total_its,
             total_epochs=self._total_epochs,
             step_info=self._step_info,
+            check_point=self._check_points,
+            init_states=deepcopy(self._init_states),
             model=deepcopy(self._model.cpu())
         )

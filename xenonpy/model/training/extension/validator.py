@@ -1,7 +1,7 @@
 #  Copyright (c) 2019. TsumiNa. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
-from typing import Union, Tuple, Callable, Any, Dict
+from typing import Tuple, Callable, Any, Dict
 
 import numpy as np
 import torch
@@ -15,27 +15,21 @@ __all__ = ['Validator']
 class Validator(BaseExtension):
 
     def __init__(self,
-                 x_val: Union[Any, Tuple[Any]],
-                 y_val: Any,
                  metrics_func: Callable[[Any, Any], Dict],
-                 *trace_metrics: Tuple[str, float]
+                 **trace_metrics: Tuple[str, float]
                  ):
-        self.x_val = x_val
-        self.y_val = y_val
         self.metrics_func = metrics_func
 
         self.trace = {}
-        for (name, target) in trace_metrics:
+        for name, target in trace_metrics.items():
             self.trace[name] = (target, np.inf)
 
-    def before_proc(self, *, trainer: Trainer) -> None:
-        self.x_val = trainer.input_proc(x_in=self.x_val, training=False)
-
     def step_forward(self, step_info, *, trainer: Trainer) -> None:
-        y_pred = trainer.predict(self.x_val)
+        x_val, y_val = trainer.x_val, trainer.y_val
+        y_pred = trainer.predict(x_val)
         if isinstance(y_pred, torch.Tensor):
             y_pred = y_pred.detach().numpy()
-        metrics = self.metrics_func(y_pred, self.y_val)
+        metrics = self.metrics_func(y_pred, y_val)
         for name, (target, current) in self.trace.items():
             if name in metrics:
                 score = np.abs(metrics[name] - target)

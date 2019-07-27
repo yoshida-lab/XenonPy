@@ -25,7 +25,12 @@ def data():
     warnings.filterwarnings("ignore", message="numpy.dtype size changed")
     warnings.filterwarnings("ignore", message="numpy.ndarray size changed")
 
+    storage(list('abcd'), list('efgh'))
+    storage(key1=list('asdf'), key2=list('qwer'))
+    storage(list('asdf'), key1=list('qwer'))
+
     yield storage, dir_, name
+
     rmtree(f'{dir_}/{name}', ignore_errors=True)
     rmtree(f'{dir_}/dump', ignore_errors=True)
     print('test over')
@@ -33,17 +38,7 @@ def data():
 
 def test_storage_1(data):
     storage, dir_, name = data[0], data[1], data[2]
-    assert str(storage) == '<{}> includes:'.format(name)
-
-    storage(list('abcd'), list('efgh'))
-    assert len(storage._files['unnamed']) == 2, 'should got 2 files'
-
-    storage(key1=list('asdf'), key2=list('qwer'))
-    assert len(storage._files['unnamed']) == 2, 'should got 2 files'
-    assert len(storage._files['key1']) == 1, 'should got 1 files'
-    assert len(storage._files['key2']) == 1, 'should got 1 files'
-
-    storage(list('asdf'), key1=list('qwer'))
+    assert str(storage) == '<{}> includes:\n"unnamed": 3\n"key1": 2\n"key2": 1'.format(name)
     assert len(storage._files['unnamed']) == 3, 'should got 3 files'
     assert len(storage._files['key1']) == 2, 'should got 1 files'
     assert len(storage._files['key2']) == 1, 'should got 1 files'
@@ -51,9 +46,6 @@ def test_storage_1(data):
 
 def test_storage_last_1(data):
     storage, dir_, name = data[0], data[1], data[2]
-    storage(list('abcd'), list('efgh'))
-    storage(key1=list('asdf'), key2=list('qwer'))
-    storage(list('asdf'), key1=list('qwer'))
 
     last = storage.last()
     assert last == list('asdf'), 'retriever same data'
@@ -74,13 +66,10 @@ def test_storage_last_1(data):
 
 def test_dump_1(data):
     storage, dir_, name = data[0], data[1], data[2]
-    storage(list('abcd'), list('efgh'))
-    storage(key1=list('asdf'), key2=list('qwer'))
-    storage(list('asdf'), key1=list('qwer'))
 
-    path = 'dump'
+    path = f'{dir_}/dump'
     path_ = storage.dump(path, with_datetime=False)
-    assert path_ == f'{dir_}/{path}/{name}.pkl.z'
+    assert path_ == f'{path}/{name}.pkl.z'
     assert Path(path_).exists()
 
     dumped = jl.load(path_)
@@ -102,9 +91,6 @@ def test_storage_chained(data):
 
 def test_storage_delete_1(data):
     storage, dir_, name = data[0], data[1], data[2]
-    storage(list('abcd'), list('efgh'))
-    storage(key1=list('asdf'), key2=list('qwer'))
-    storage(list('asdf'), key1=list('qwer'))
 
     storage.rm(0)
     assert len(storage._files['unnamed']) == 2
@@ -118,9 +104,6 @@ def test_storage_delete_1(data):
 
 def test_storage_clean_1(data):
     storage, dir_, name = data[0], data[1], data[2]
-    storage(list('abcd'), list('efgh'))
-    storage(key1=list('asdf'), key2=list('qwer'))
-    storage(list('asdf'), key1=list('qwer'))
 
     storage.clean('key1')
     assert 'key1' not in storage._files, 'no storage dir'

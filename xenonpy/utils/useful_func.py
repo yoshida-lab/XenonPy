@@ -79,7 +79,7 @@ def config(key=None, **key_vals):
         if key in conf:
             value = conf[key]
         else:
-            tmp = Path(__file__).parent / 'conf.yml'
+            tmp = Path(__file__).parents[1] / 'conf.yml'
             with open(str(tmp)) as f:
                 conf_ = yaml.load(f)
 

@@ -4,12 +4,12 @@
 
 from functools import partial
 from pathlib import Path
+from typing import Union
 
 import joblib
 import torch
 
 from xenonpy.datatools.storage import Storage
-from xenonpy.utils.useful_func import get_data_loc
 
 __all__ = ['Checker']
 
@@ -23,38 +23,31 @@ class Checker(Storage):
         load = partial(torch.load, map_location=torch.device('cpu'))
         dump = torch.save
 
-    def __init__(self, name, path=None, *, increment=True):
+    def __init__(self, path: Union[Path, str], *, increment: bool = False):
         """
         Parameters
         ----------
-        name: str
-            Model name.
-        path: str
-            Save path.
+        path: Union[Path, str]
+            Dir path for data access. Can be ``Path`` or ``str``.
+            Given a relative path will be resolved to abstract path automatically.
+        increment : bool
+            Set to ``True`` to prevent the potential risk of overwriting.
+            Default ``False``.
         """
-        if not name:
-            raise ValueError('need model name.')
-        if path is None:
-            path = get_data_loc('usermodel')
-
         if increment:
             i = 1
-            while Path(path + '/' + name + '@' + str(i)).exists():
+            while Path(f'{path}@{i}').exists():
                 i += 1
-            _fpath = Path(path + '/' + name + '@' + str(i))
-        else:
-            _fpath = Path(path) / name
-        self._name = _fpath.stem
-        super().__init__(self._name, path=path)
+            path = f'{path}@{i}'
+        super().__init__(path)
 
     @classmethod
     def load(cls, model_path):
-        p = Path(model_path)
-        return cls(p.stem, str(p.parent), increment=False)
+        return cls(model_path)
 
     @property
     def model_name(self):
-        return self._name
+        return self._path.name
 
     @property
     def describe(self):
@@ -151,7 +144,7 @@ class Checker(Storage):
         if isinstance(item, int):
             self._backend = self.__SL
             try:
-                cp = self.checkpoints[item]
+                cp = self.checkpoints_[item]
                 model_state = cp['model_state']
                 del cp['model_state']
                 return model_state, cp
@@ -164,5 +157,5 @@ class Checker(Storage):
 
     def __call__(self, **kwargs):
         self._backend = self.__SL
-        self.checkpoints(kwargs)
+        self.checkpoints_(kwargs)
         self._backend = joblib

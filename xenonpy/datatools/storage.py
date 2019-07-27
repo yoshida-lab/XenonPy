@@ -49,7 +49,7 @@ class Storage(object):
 
     """
 
-    def __init__(self, path: Union[Path, str] = None, *, backend=None):
+    def __init__(self, path: Union[Path, str], *, backend=None):
         """
         Parameters
         ----------
@@ -120,13 +120,13 @@ class Storage(object):
 
         return file
 
-    def dump(self, fpath, *, rename=None, with_datetime=True):
+    def dump(self, path, *, rename=None, with_datetime=True):
         """
         Dump last checked dataset to file.
 
         Parameters
         ----------
-        fpath: str
+        path: str
             Where save to.
         rename: str
             Rename pickle file. Omit to use dataset as name.
@@ -144,7 +144,7 @@ class Storage(object):
             datetime = dt.now().strftime('-%Y-%m-%d_%H-%M-%S_%f')
         else:
             datetime = ''
-        path_dir = Path(fpath).resolve()
+        path_dir = Path(path).resolve()
         if not path_dir.exists():
             path_dir.mkdir(parents=True, exist_ok=True)
         path = path_dir / (name + datetime + '.pkl.z')

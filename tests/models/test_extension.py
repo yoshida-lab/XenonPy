@@ -48,7 +48,7 @@ def test_tensor_converter_1():
     converter = TensorConverter()
     np_ = np.asarray([[1, 2, 3], [4, 5, 6]])
     pd_ = pd.DataFrame(np_)
-    tensor_ = torch.from_numpy(np_)
+    tensor_ = torch.Tensor(np_)
 
     x, y = converter.input_proc(np_, None)
     assert isinstance(x, torch.Tensor)
@@ -91,7 +91,7 @@ def test_tensor_converter_2():
     converter = TensorConverter()
     np_ = np.asarray([[1, 2, 3], [4, 5, 6]])
     pd_ = pd.DataFrame(np_)
-    tensor_ = torch.from_numpy(np_)
+    tensor_ = torch.Tensor(np_)
 
     x, y = converter.input_proc(np_, np_[0])
     assert isinstance(y, torch.Tensor)
@@ -104,9 +104,10 @@ def test_tensor_converter_2():
     assert torch.equal(y, tensor_[0].unsqueeze(-1))
 
     x, y = converter.input_proc(tensor_, tensor_[0])
+    print(tensor_[0].size())
     assert isinstance(y, torch.Tensor)
-    assert y.shape == (3, 1)
-    assert torch.equal(y, tensor_[0].unsqueeze(-1))
+    assert y.shape == (3,)
+    assert torch.equal(y, tensor_[0])
 
 
 def test_tensor_converter_3():
@@ -142,14 +143,13 @@ def test_validator_1(data):
     class _Trainer(BaseRunner):
         def __init__(self):
             super().__init__()
+            self.x_val = x
+            self.y_val = y
 
         def predict(self, x_):
             return x_
 
-    val = Validator(x_val=x, y_val=y, metrics_func=regression_metrics)
-
-    val.before_proc(trainer=_Trainer())
-    assert np.all(val.x_val == x)
+    val = Validator(metrics_func=regression_metrics)
 
     step_info = OrderedDict()
     assert bool(step_info) is False

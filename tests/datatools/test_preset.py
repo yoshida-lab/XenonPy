@@ -4,36 +4,23 @@
 
 from os import remove, getenv
 from pathlib import Path
-from shutil import rmtree
 
 import pytest
 
 from xenonpy import __cfg_root__
-from xenonpy.datatools import Preset, Storage, preset
+from xenonpy.datatools import Preset, preset
 
 
 @pytest.fixture(scope='module')
 def setup():
-    # prepare path
-    test = dict(
-        test_dir='test_dir',
-        user_dataset='test_user_data',
-        saver=Storage('test_user_data'))
-
     # ignore numpy warning
     import warnings
     print('ignore NumPy RuntimeWarning\n')
     warnings.filterwarnings("ignore", message="numpy.dtype size changed")
     warnings.filterwarnings("ignore", message="numpy.ndarray size changed")
 
-    yield test
+    yield
 
-    if (Path.home() / '.xenonpy/userdata' / test['test_dir']).exists():
-        rmtree(str(Path.home() / '.xenonpy/userdata' / test['test_dir']))
-    if (Path.home() / '.xenonpy/cached/travis').exists():
-        rmtree(str(Path.home() / '.xenonpy/cached/travis'))
-    if (Path().expanduser() / 'test_user_data.pkl.z').exists():
-        remove(str(Path().expanduser() / 'test_user_data.pkl.z'))
     print('test over')
 
 

@@ -79,6 +79,8 @@ class Trainer(BaseRunner):
         self._step_info: List[OrderedDict] = []
         self._total_its: int = 1  # of total iterations
         self._total_epochs: int = 1  # of total epochs
+        self.x_val = None
+        self.y_val = None
 
         # others
         self._predictor = Predictor(self._model, cuda=self._device)
@@ -162,8 +164,10 @@ class Trainer(BaseRunner):
             x_train: Union[Any, Tuple[Any]] = None,
             y_train: Any = None,
             *,
-            epochs: int = None,
+            x_val: Union[Any, Tuple[Any]] = None,
+            y_val: Any = None,
             training_dataset: DataLoader = None,
+            epochs: int = None,
             check_point: Union[bool, int, Callable[[int], bool]] = None,
             **model_params):
         """
@@ -178,6 +182,10 @@ class Trainer(BaseRunner):
         training_dataset: DataLoader
             Torch DataLoader. If given, will only use this as training dataset.
             When loop over this dataset, it should yield a tuple contains ``x_train`` and ``y_train`` in order.
+        x_val : Union[Any, Tuple[Any]]
+            Data for validation.
+        y_val : Any
+            Data for validation.
         epochs : int
             Epochs. If not ``None``, it will overwrite ``self.epochs`` temporarily.
         check_point: Union[bool, int, Callable[[int], bool]]
@@ -192,8 +200,8 @@ class Trainer(BaseRunner):
 
         prob = self._total_epochs - 1
         with tqdm(total=epochs, desc='Training') as pbar:
-            for _ in self(x_train=x_train, y_train=y_train, training_dataset=training_dataset, epochs=epochs,
-                          check_point=check_point, **model_params):
+            for _ in self(x_train=x_train, y_train=y_train, training_dataset=training_dataset, x_val=x_val, y_val=y_val,
+                          epochs=epochs, check_point=check_point, **model_params):
                 t = self._total_epochs - prob
                 pbar.update(t)
                 prob = self._total_epochs
@@ -202,8 +210,10 @@ class Trainer(BaseRunner):
                  x_train: Union[Any, Tuple[Any]] = None,
                  y_train: Any = None,
                  *,
-                 epochs: int = None,
                  training_dataset: DataLoader = None,
+                 x_val: Union[Any, Tuple[Any]] = None,
+                 y_val: Any = None,
+                 epochs: int = None,
                  check_point: Union[bool, int, Callable[[int], bool]] = None,
                  **model_params):
         """
@@ -218,6 +228,10 @@ class Trainer(BaseRunner):
         training_dataset: DataLoader
             Torch DataLoader. If given, will only use this as training dataset.
             When loop over this dataset, it should yield a tuple contains ``x_train`` and ``y_train`` in order.
+        x_val : Union[Any, Tuple[Any]]
+            Data for validation.
+        y_val : Any
+            Data for validation.
         epochs : int
             Epochs. If not ``None``, it will overwrite ``self.epochs`` temporarily.
         check_point: Union[bool, int, Callable[[int], bool]]
@@ -289,6 +303,9 @@ class Trainer(BaseRunner):
 
         # before processing
         self._before_proc()
+
+        if y_val is not None and x_val is not None:
+            self.x_val, self.y_val = self.input_proc(x_val, training=False), y_val
 
         if training_dataset:
             for i_epoch in range(self._total_epochs, epochs + self._total_epochs):

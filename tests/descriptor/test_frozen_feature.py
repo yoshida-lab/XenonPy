@@ -3,19 +3,24 @@
 #  license that can be found in the LICENSE file.
 
 
+from collections import OrderedDict
+
 import numpy as np
 import pandas as pd
 import pytest
-from torch.nn import Sequential
+from torch import nn
 
 from xenonpy.descriptor import FrozenFeaturizer
-from xenonpy.model.nn import Layer1d
 
 
 @pytest.fixture(scope='module')
 def data():
     # prepare path
-    model = Sequential(Layer1d(10, 7), Layer1d(7, 4), Layer1d(4, 1))
+    model = nn.Sequential(
+        nn.Sequential(OrderedDict(layer=nn.Linear(10, 7), act_func=nn.ReLU())),
+        nn.Sequential(OrderedDict(layer=nn.Linear(7, 4), act_func=nn.ReLU())),
+        nn.Sequential(OrderedDict(layer=nn.Linear(4, 1))),
+    )
     descriptor1 = np.random.rand(10, 10)
     descriptor2 = np.random.rand(20, 10)
     index = ['id_' + str(i) for i in range(10)]

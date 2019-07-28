@@ -7,7 +7,7 @@ from copy import deepcopy
 import numpy as np
 from sklearn.base import BaseEstimator
 
-from ..utils import TimedMetaClass
+from xenonpy.utils import TimedMetaClass
 
 
 class LogLikelihoodError(Exception):

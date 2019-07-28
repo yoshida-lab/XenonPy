@@ -46,15 +46,15 @@ def setup():
     print('test over')
 
 
-def test_checker_omit_path(setup):
+def test_checker_path(setup):
     checker = Checker(setup['path'])
     assert isinstance(checker, Storage)
-    assert checker.path == setup['path']
+    assert checker.path == str(Path(setup['path']))
 
 
 def test_checker_default_path(setup):
     checker = Checker(setup['path'], increment=True)
-    assert checker.path == setup['path'] + '@1'
+    assert checker.path == str(Path(setup['path'] + '@1'))
 
 
 def test_checker_init_model_1(setup):

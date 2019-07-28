@@ -67,9 +67,9 @@ def test_storage_last_1(data):
 def test_dump_1(data):
     storage, dir_, name = data[0], data[1], data[2]
 
-    path = f'{dir_}/dump'
+    path = Path(f'{dir_}/dump')
     path_ = storage.dump(path, with_datetime=False)
-    assert path_ == f'{path}/{name}.pkl.z'
+    assert path_ == str(path / f'{name}.pkl.z')
     assert Path(path_).exists()
 
     dumped = jl.load(path_)
@@ -84,8 +84,9 @@ def test_storage_chained(data):
         storage.chain
 
     sub = storage.chain_
-    assert sub.path == f'{storage.path}/chain'
-    assert Path(sub.path).exists()
+    sub_path = Path(f'{storage.path}/chain')
+    assert sub.path == str(sub_path)
+    assert sub_path.exists()
     assert hasattr(storage, 'chain_')
 
 

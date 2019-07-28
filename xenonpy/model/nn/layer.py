@@ -6,6 +6,8 @@ from torch import nn
 
 from .wrap import L1
 
+__all__ = ['Layer1d']
+
 
 class Layer1d(nn.Module):
     """

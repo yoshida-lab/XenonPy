@@ -8,11 +8,13 @@ import numpy as np
 import torch
 from pymatgen.core.structure import Structure
 
-from ..base import BaseGraphFeaturizer
-from ...datatools import preset
+from xenonpy.datatools import preset
+from xenonpy.descriptor.base import BaseFeaturizer
+
+__all__ = ['CrystalGraphFeaturizer']
 
 
-class CrystalGraphFeaturizer(BaseGraphFeaturizer):
+class CrystalGraphFeaturizer(BaseFeaturizer):
 
     def __init__(self, *, max_num_nbr=12, radius=8, atom_feature='origin', n_jobs=-1, on_errors='raise',
                  return_type='any'):
@@ -42,6 +44,7 @@ class CrystalGraphFeaturizer(BaseGraphFeaturizer):
         self.atom_feature = atom_feature
         self.radius = radius
         self.max_num_nbr = max_num_nbr
+        self.__implement__ = ['TsumiNa']
 
     def _atom_feature(self, atom_symbol: str):
         if self.atom_feature == 'origin':
@@ -98,10 +101,13 @@ class CrystalGraphFeaturizer(BaseGraphFeaturizer):
 
         return nbr_fea, nbr_fea_idx
 
-    def node_features(self, structure: Structure, **kwargs):
+    def node_features(self, structure: Structure):
         atom_features = np.vstack([self._atom_feature(s.name) for s in structure.species])
         return torch.Tensor(atom_features)
 
+    def featurize(self, structure: Structure):
+        return [self.node_features(structure), *self.edge_features(structure)]
+
     @property
     def feature_labels(self):
-        return ['atom_feature', 'bond_feature']
+        return ['atom_feature', 'neighbor_feature', 'neighbor_idx']

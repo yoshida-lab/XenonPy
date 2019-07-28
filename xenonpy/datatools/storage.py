@@ -9,12 +9,11 @@ from os import remove
 from os.path import getmtime
 from pathlib import Path
 from shutil import rmtree
+from typing import Union
 from warnings import warn
 
 import joblib
 import pandas as pd
-
-from ..utils import get_data_loc, absolute_path
 
 
 class Storage(object):
@@ -50,40 +49,23 @@ class Storage(object):
 
     """
 
-    def __init__(self, name=None, *, path=None, mk_dir=True, backend=None):
+    def __init__(self, path: Union[Path, str], *, backend=None):
         """
         Parameters
         ----------
-        name: str
-            Name of dataset. Usually this is dir name contains data.
-        path: str
-            Absolute dir path.
-        mk_dir: bool
-            Ignore ``FileNotFoundError``.
+        path: Union[Path, str]
+            Dir path for data access. Can be ``Path`` or ``str``.
+            Given a relative path will be resolved to abstract path automatically.
+        backend : object
+            Specify the saving backend.
+            Can be anything which have the same interface as ``joblib``.
+            See Also: https://joblib.readthedocs.io/en/latest/
         """
         self._backend = backend or joblib
-        self._name = name
-        if path is not None:
-            self._path = Path(absolute_path(path, mk_dir)) / name
-        else:
-            self._path = Path(get_data_loc('userdata')) / name
-        if not self._path.exists():
-            if not mk_dir:
-                raise FileNotFoundError()
-            self._path.mkdir(parents=True)
+        self._path = Path(path).resolve()
+        self._path.mkdir(parents=True, exist_ok=True)
         self._files = None
         self._make_file_index()
-
-    @property
-    def name(self):
-        """
-        Dataset name.
-
-        Returns
-        -------
-        str
-        """
-        return self._name
 
     @property
     def path(self):
@@ -94,7 +76,7 @@ class Storage(object):
         -------
         str
         """
-        return str(self._path.parent)
+        return str(self._path)
 
     def _make_file_index(self):
         self._files = defaultdict(list)
@@ -138,13 +120,13 @@ class Storage(object):
 
         return file
 
-    def dump(self, fpath, *, rename=None, with_datetime=True):
+    def dump(self, path, *, rename=None, with_datetime=True):
         """
         Dump last checked dataset to file.
 
         Parameters
         ----------
-        fpath: str
+        path: str
             Where save to.
         rename: str
             Rename pickle file. Omit to use dataset as name.
@@ -157,12 +139,12 @@ class Storage(object):
             File path.
         """
         ret = {k: self._load_data(v[-1]) for k, v in self._files.items()}
-        name = rename if rename else self._name
+        name = rename if rename else self._path.name
         if with_datetime:
             datetime = dt.now().strftime('-%Y-%m-%d_%H-%M-%S_%f')
         else:
             datetime = ''
-        path_dir = Path(fpath).expanduser()
+        path_dir = Path(path).resolve()
         if not path_dir.exists():
             path_dir.mkdir(parents=True, exist_ok=True)
         path = path_dir / (name + datetime + '.pkl.z')
@@ -236,15 +218,16 @@ class Storage(object):
             rmtree(str(self._path))
             self._files = list()
             self._files = defaultdict(list)
+            self._path.mkdir(parents=True, exist_ok=True)
             return
 
         for f in self._files[name]:
             remove(str(f))
         del self._files[name]
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         """
-        Returns sub-dataset.
+        Return sub-dataset.
 
         Parameters
         ----------
@@ -255,12 +238,14 @@ class Storage(object):
         -------
         self
         """
-        sub_set = Storage(name, path=str(self._path), backend=self._backend)
-        setattr(self, name, sub_set)
+        if not name.endswith('_'):
+            raise AttributeError(f'no attribute named {name}')
+        sub_set = Storage(self._path / name[:-1], backend=self._backend)
+        setattr(self, f'{name}_', sub_set)
         return sub_set
 
     def __repr__(self):
-        cont_ls = ['<{}> under `{}` includes:'.format(self._name, self.path)]
+        cont_ls = [f'<{self._path.name}> includes:']
 
         for k, v in self._files.items():
             cont_ls.append('"{}": {}'.format(k, len(v)))

@@ -2,6 +2,6 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-__all__ = ['CrystalGraphFeaturizer']
 
-from .crystal_graph import CrystalGraphFeaturizer
+from .useful_cls import *
+from .useful_func import *

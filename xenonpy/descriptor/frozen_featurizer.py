@@ -6,9 +6,11 @@ import warnings
 
 import numpy as np
 import pandas as pd
-import torch as tc
+import torch
 
-from .base import BaseFeaturizer
+from xenonpy.descriptor.base import BaseFeaturizer
+
+__all__ = ['FrozenFeaturizer']
 
 
 class FrozenFeaturizer(BaseFeaturizer):
@@ -16,7 +18,9 @@ class FrozenFeaturizer(BaseFeaturizer):
     A Featurizer to extract hidden layers a from NN model.
     """
 
-    def __init__(self, model=None, *, cuda=False, depth=None, on_errors='raise', return_type='any'):
+    def __init__(self, model: torch.nn.Module = None, *,
+                 cuda: bool = False, depth=None,
+                 on_errors='raise', return_type='any'):
         """
 
         Parameters
@@ -48,12 +52,12 @@ class FrozenFeaturizer(BaseFeaturizer):
         self.__authors__ = ['TsumiNa']
 
     def featurize(self, descriptor, *, depth=None):
-        if not isinstance(self.model, tc.nn.Module):
+        if not isinstance(self.model, torch.nn.Module):
             raise TypeError('<model> must be a instance of <torch.nn.Module>')
         hlayers = []
         if isinstance(descriptor, pd.DataFrame):
             descriptor = descriptor.values
-        x_ = tc.from_numpy(descriptor).type(tc.FloatTensor)
+        x_ = torch.from_numpy(descriptor).float()
         if self.cuda:
             x_.cuda()
             self.model.cuda()

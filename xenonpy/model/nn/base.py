@@ -14,9 +14,9 @@ import torch
 import torch.utils.data as Data
 from sklearn.base import BaseEstimator
 
-from .checker import Checker
-from ..._conf import __version__
-from ...utils import TimedMetaClass
+from xenonpy._conf import __version__
+from xenonpy.model.utils import Checker
+from xenonpy.utils import TimedMetaClass
 
 
 class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):

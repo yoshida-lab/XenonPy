@@ -187,10 +187,11 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None,
-                       'pandas': ('http://pandas.pydata.org/pandas-docs/version/0.24', None),
+                       'pandas': ('http://pandas.pydata.org/pandas-docs/version/0.25', None),
                        'numpy': ('http://docs.scipy.org/doc/numpy', None),
                        'scipy': ('http://docs.scipy.org/doc/scipy/reference', None),
-                       'matplotlib': ('http://matplotlib.org', None)}
+                       'matplotlib': ('http://matplotlib.org', None),
+                       'torch': ('https://pytorch.org/docs/stable/', None)}
 
 
 def skip(app, what, name, obj, skip, options):

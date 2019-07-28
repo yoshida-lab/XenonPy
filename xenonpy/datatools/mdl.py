@@ -2,7 +2,6 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-# %%
 import json
 import os
 import tarfile
@@ -15,7 +14,7 @@ from requests import HTTPError
 from sklearn.base import BaseEstimator
 from tqdm import tqdm
 
-from ..utils import TimedMetaClass, absolute_path
+from xenonpy.utils import TimedMetaClass, absolute_path
 
 
 class MDL(BaseEstimator, metaclass=TimedMetaClass):

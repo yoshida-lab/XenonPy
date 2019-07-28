@@ -12,9 +12,9 @@ from pymatgen import MPRester
 from ruamel.yaml import YAML
 from tqdm import tqdm
 
-from .dataset import Dataset
-from .._conf import __cfg_root__
-from ..utils import config, get_dataset_url, get_sha256, Singleton
+from xenonpy._conf import __cfg_root__
+from xenonpy.datatools.dataset import Dataset
+from xenonpy.utils import config, get_dataset_url, get_sha256, Singleton
 
 
 class Preset(Dataset, metaclass=Singleton):

@@ -8,7 +8,10 @@ from rdkit.Chem import MACCSkeys as MAC
 from rdkit.Chem import rdMolDescriptors as rdMol
 from rdkit.ML.Descriptors import MoleculeDescriptors
 
-from .base import BaseDescriptor, BaseFeaturizer
+from xenonpy.descriptor.base import BaseDescriptor, BaseFeaturizer
+
+__all__ = ['RDKitFP', 'AtomPairFP', 'TopologicalTorsionFP', 'MACCS', 'FCFP', 'ECFP', 'DescriptorFeature',
+           'Fingerprints']
 
 
 class RDKitFP(BaseFeaturizer):

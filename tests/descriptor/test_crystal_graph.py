@@ -10,7 +10,6 @@ import torch
 from pymatgen import Structure as pmg_S
 
 from xenonpy.descriptor import CrystalGraphFeaturizer
-from xenonpy.descriptor.base import BaseGraphFeaturizer
 
 
 @pytest.fixture(scope='module')
@@ -32,14 +31,9 @@ def data():
     print('test over')
 
 
-def test_base_1(data):
-    with pytest.raises(TypeError, match="Can't instantiate abstract class"):
-        BaseGraphFeaturizer()
-
-
 def test_crystal_1(data):
     cg = CrystalGraphFeaturizer()
-    assert cg.feature_labels == ['atom_feature', 'bond_feature']
+    assert cg.feature_labels == ['atom_feature', 'neighbor_feature', 'neighbor_idx']
 
     tmp = cg.node_features(data[0])
     assert isinstance(tmp, torch.Tensor)
@@ -73,10 +67,10 @@ def test_crystal_3(data):
     tmp = cg.transform(data)
 
     assert isinstance(tmp, pd.DataFrame)
-    assert tmp.shape == (2, 2)
+    assert tmp.shape == (2, 3)
     assert tmp.values[0, 0].shape == (16, 92)
-    assert tmp.values[0, 1][0].shape == (16, 12, 41)
-    assert tmp.values[0, 1][1].shape == (16, 12)
+    assert tmp.values[0, 1].shape == (16, 12, 41)
+    assert tmp.values[0, 2].shape == (16, 12)
 
 
 def test_crystal_4(data):
@@ -84,7 +78,7 @@ def test_crystal_4(data):
     tmp = cg.transform(data)
 
     assert isinstance(tmp, pd.DataFrame)
-    assert tmp.shape == (2, 2)
+    assert tmp.shape == (2, 3)
     assert tmp.values[0, 0][0].numpy().tolist() == [1, 2, 3, 4]
 
 

@@ -9,7 +9,7 @@ from scipy.stats import boxcox as bc
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
-from ..utils import Switch
+from xenonpy.utils import Switch
 
 
 class BoxCox(BaseEstimator, TransformerMixin):

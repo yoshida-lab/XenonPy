@@ -8,7 +8,7 @@ import pandas as pd
 import pytest
 from pymatgen import Structure as pmg_S
 
-from xenonpy.descriptor import RadialDistributionFunction, Structures, ObitalFieldMatrix
+from xenonpy.descriptor import RadialDistributionFunction, Structures, OrbitalFieldMatrix
 
 
 @pytest.fixture(scope='module')
@@ -36,7 +36,7 @@ def test_rdf(data):
 
 
 def test_ofm(data):
-    ObitalFieldMatrix().fit_transform(data)
+    OrbitalFieldMatrix().fit_transform(data)
     assert True
 
 

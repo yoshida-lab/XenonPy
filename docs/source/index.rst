@@ -8,29 +8,7 @@
 What is XenonPy project
 ========================
 
-.. image:: https://travis-ci.org/yoshida-lab/XenonPy.svg?branch=master
-    :alt: Build Status
-    :target: https://travis-ci.org/yoshida-lab/XenonPy
-
-.. image:: https://ci.appveyor.com/api/projects/status/vnh350xqffp6t9nk/branch/master?svg=true
-    :alt: Build Status
-    :target: https://ci.appveyor.com/project/TsumiNa/xenonpy
-
-.. image:: https://codecov.io/gh/yoshida-lab/XenonPy/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/yoshida-lab/XenonPy
-
-.. image:: https://img.shields.io/github/tag/yoshida-lab/XenonPy.svg?maxAge=360
-    :alt: Version
-    :target: https://github.com/yoshida-lab/XenonPy/releases/latest
-
-.. image:: https://img.shields.io/pypi/pyversions/xenonpy.svg
-    :alt: Python Versions
-    :target: https://pypi.org/project/xenonpy/
-
-.. image:: https://pepy.tech/badge/xenonpy
-    :alt: Downloads
-    :target: https://pepy.tech/badge/xenonpy
-
+|travis-ci| |appveyor| |codecov| |version| |python| |total-dl| |per-dl|
 
 --------
 Overview
@@ -108,3 +86,30 @@ Code contributions are also very welcomed. See :doc:`contribution` for more deta
 .. _pandas: https://pandas.pydata.org
 .. _PyTorch: http://pytorch.org/
 .. _Xenon: https://en.wikipedia.org/wiki/Xenon
+
+.. |travis-ci| image:: https://travis-ci.org/yoshida-lab/XenonPy.svg?branch=master
+    :alt: Build Status
+    :target: https://travis-ci.org/yoshida-lab/XenonPy
+
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/vnh350xqffp6t9nk/branch/master?svg=true
+    :alt: Build Status
+    :target: https://ci.appveyor.com/project/TsumiNa/xenonpy
+
+.. |codecov| image:: https://codecov.io/gh/yoshida-lab/XenonPy/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/yoshida-lab/XenonPy
+
+.. |version| image:: https://img.shields.io/github/tag/yoshida-lab/XenonPy.svg?maxAge=360
+    :alt: Version
+    :target: https://github.com/yoshida-lab/XenonPy/releases/latest
+
+.. |python| image:: https://img.shields.io/pypi/pyversions/xenonpy.svg
+    :alt: Python Versions
+    :target: https://pypi.org/project/xenonpy/
+
+.. |total-dl| image:: https://pepy.tech/badge/xenonpy
+    :alt: Downloads
+    :target: https://pepy.tech/badge/xenonpy
+
+.. |per-dl| image:: https://img.shields.io/pypi/dm/xenonpy.svg?label=PiPy%20downloads
+    :alt: PyPI - Downloads
+

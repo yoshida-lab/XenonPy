@@ -7,8 +7,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from xenonpy.model.training import Trainer
-from xenonpy.model.training.base import BaseExtension
+from xenonpy.model.training.base import BaseExtension, BaseRunner
 
 __all__ = ['TensorConverter']
 
@@ -23,7 +22,7 @@ class TensorConverter(BaseExtension):
         else:
             self.dtype = dtype
 
-    def input_proc(self, x_in, y_in, *, trainer: Trainer) -> Tuple[torch.Tensor, torch.Tensor]:
+    def input_proc(self, x_in, y_in, *, trainer: BaseRunner) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Convert data to :class:`torch.Tensor`.
 

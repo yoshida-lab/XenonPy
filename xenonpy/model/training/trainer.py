@@ -97,14 +97,6 @@ class Trainer(BaseRunner):
         return None
 
     @property
-    def device(self):
-        return self._device
-
-    @device.setter
-    def device(self, v):
-        self._device = self.check_cuda(v)
-
-    @property
     def model(self):
         return self._model
 

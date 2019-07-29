@@ -2,10 +2,13 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from typing import Union
+from copy import deepcopy
+from typing import Union, Tuple, Any, Dict
 
+import numpy as np
 import torch
 from torch.nn import Module
+from torch.utils.data import DataLoader
 
 from xenonpy.model.training.base import BaseRunner
 
@@ -17,6 +20,7 @@ class Predictor(BaseRunner):
                  model: Module,
                  *,
                  cuda: Union[bool, str, torch.device] = False,
+                 check_points: Dict[int, Dict] = None,
                  verbose: bool = True,
                  ):
         """
@@ -29,6 +33,7 @@ class Predictor(BaseRunner):
         """
         super().__init__(cuda=cuda)
         self.verbose = verbose
+        self._check_points: Dict[int, Dict] = check_points if check_points else {}
         self._model = model.to(self._device)
 
     @property
@@ -40,14 +45,20 @@ class Predictor(BaseRunner):
         """"""
         self._model = model.to(self._device)
 
-    def __call__(self, x, **model_params):
+    def __call__(self,
+                 x_in: Union[Any, Tuple[Any]] = None,
+                 y_true: Union[Any, Tuple[Any]] = None,
+                 *,
+                 dataset: DataLoader = None,
+                 **model_params):
         """
-        Wrapper for :meth:`~Prediction.predict`.
 
         Parameters
         ----------
-        x: DataFrame, ndarray
+        x_in: pandas.DataFrame, numpy.ndarray, torch.Tensor
             Input data for test.
+        y_true : Union[Any, Tuple[Any]]
+        dataset : DataLoader
         model_params: dict
             Model parameters for prediction.
 
@@ -56,16 +67,26 @@ class Predictor(BaseRunner):
         ret: T_Prediction
             Predict results.
         """
-        return self.predict(x=x, **model_params)
+        return self.predict(x_in=x_in, y_true=y_true, dataset=dataset, **model_params)
 
-    def predict(self, x, **model_params):
+    def predict(self,
+                x_in: Union[Any, Tuple[Any]] = None,
+                y_true: Union[Any, Tuple[Any]] = None,
+                *,
+                dataset: DataLoader = None,
+                check_point: Union[int, str] = None,
+                **model_params):
         """
-        Predict values using given model.
+        Predict from x input.
+        This is just a simple wrapper for :meth:`~model.nn.utils.Predictor.predict`.
 
         Parameters
         ----------
-        x: DataFrame, ndarray
-            Input data for test.
+        y_true
+        dataset
+        check_point
+        x_in: Union[Any, Tuple[Any]]
+            Input data for prediction..
         model_params: dict
             Model parameters for prediction.
 
@@ -74,14 +95,42 @@ class Predictor(BaseRunner):
         ret: T_Prediction
             Predict results.
         """
+
+        def _predict(x_, y_=None):
+            x_, y_ = self.input_proc(x_, y_, training=False)
+            if not isinstance(x_, tuple):
+                x_ = (x_,)
+
+            if check_point:
+                cp = self._check_points[check_point]
+                model = deepcopy(self._model.cpu()).to(self._device)
+                model.load_state_dict(cp['check_point'])
+                y_p_ = model(*x_, **model_params)
+            else:
+                y_p_ = self._model(*x_, **model_params)
+
+            return self.output_proc(y_p_, y_, training=False)
+
+        def _vstack(ls):
+            if isinstance(ls[0], np.ndarray):
+                return np.vstack(ls)
+            if isinstance(ls[0], torch.Tensor):
+                return torch.cat(ls, dim=0)
+            return ls
+
         self._model.eval()
-
-        # prepare data
-        x = self.input_proc(x, training=False)
-        if not isinstance(x, tuple):
-            x = (x,)
-
-        # move tensor device
-        y_pred = self._model(*x, **model_params)
-
-        return self.output_proc(y_pred, training=False)
+        if dataset is not None:
+            y_preds = []
+            y_trues = []
+            for x_in, y_true in dataset:
+                y_pred, y_true = _predict(x_in, y_true)
+                y_preds.append(_vstack(y_pred))
+                y_trues.append(_vstack(y_true))
+            return y_preds, y_trues
+        elif x_in is not None and dataset is None:
+            y_preds, y_trues = _predict(x_in, y_true)
+            if y_trues is None:
+                return y_preds
+            return y_preds, y_trues
+        else:
+            raise RuntimeError('parameters <x_in> and <dataset> are mutually exclusive')

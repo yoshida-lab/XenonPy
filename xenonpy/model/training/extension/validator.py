@@ -4,7 +4,6 @@
 from typing import Callable, Any, Dict
 
 import numpy as np
-import torch
 
 from xenonpy.model.training import Trainer
 from xenonpy.model.training.base import BaseExtension
@@ -22,16 +21,29 @@ class Validator(BaseExtension):
         self.metrics_func = metrics_func
         self.patience = early_stopping
         self._count = early_stopping
+
         self.trace = {}
         for name, target in trace_metrics.items():
             self.trace[name] = (target, np.inf)
 
-    def step_forward(self, step_info, *, trainer: Trainer) -> None:
+        self.from_dataset = False
+
+    def before_proc(self, *, trainer: Trainer) -> None:
         x_val, y_val = trainer.x_val, trainer.y_val
-        y_pred = trainer.predict(x_val)
-        if isinstance(y_pred, torch.Tensor):
-            y_pred = y_pred.detach().numpy()
-        metrics = self.metrics_func(y_pred, y_val)
+        val_dataset = trainer.validate_dataset
+
+        if x_val is None and y_val is None and val_dataset is not None:
+            self.from_dataset = True
+        elif x_val is None or y_val is None:
+            raise RuntimeError('no data for validation')
+
+    def step_forward(self, step_info, *, trainer: Trainer) -> None:
+        if self.from_dataset:
+            y_preds, y_trues = trainer.predict(dataset=trainer.validate_dataset)
+        else:
+            y_preds, y_trues = trainer.predict(trainer.x_val, trainer.y_val)
+
+        metrics = self.metrics_func(y_preds, y_trues)
         for name, (target, current) in self.trace.items():
             if name in metrics:
                 score = np.abs(metrics[name] - target)

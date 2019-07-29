@@ -22,14 +22,14 @@ class BaseExtension(object):
     def before_proc(self, **dependence) -> None:
         pass
 
-    def input_proc(self, x_in, y_in, **dependence) -> Tuple[Any, Any]:
+    def input_proc(self, x_in, y_in=None, **dependence) -> Tuple[Any, Any]:
         return x_in, y_in
 
     def step_forward(self, step_info: OrderedDict, **dependence) -> None:
         pass
 
-    def output_proc(self, y_pred, **dependence) -> Any:
-        return y_pred
+    def output_proc(self, y_pred, y_true=None, **dependence) -> Any:
+        return y_pred, y_true
 
     def after_proc(self, **dependence) -> None:
         pass
@@ -120,19 +120,17 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             if 'training' in injects['input_proc']:
                 kwargs.update(training=training)
             x_in, y_in = ext.input_proc(x_in, y_in, **kwargs)
-        if y_in is None:
-            return x_in
         return x_in, y_in
 
-    def output_proc(self, y_pred, training=True):
+    def output_proc(self, y_pred, y_true=None, training=True):
         for (ext, injects) in self._extensions.values():
             kwargs = {k: self._extensions[k][0] for k in injects['output_proc'] if k in self._extensions}
             if 'trainer' in injects['output_proc']:
                 kwargs.update(trainer=self)
             if 'training' in injects['output_proc']:
                 kwargs.update(training=training)
-            y_pred = ext.output_proc(y_pred, **kwargs)
-        return y_pred
+            y_pred, y_true = ext.output_proc(y_pred, y_true, **kwargs)
+        return y_pred, y_true
 
     def _before_proc(self, training=True):
         for (ext, injects) in self._extensions.values():

@@ -171,7 +171,7 @@ class Trainer(BaseRunner):
             training_dataset: DataLoader = None,
             x_val: Union[Any, Tuple[Any]] = None,
             y_val: Any = None,
-            validate_dataset: DataLoader = None,
+            validation_dataset: DataLoader = None,
             epochs: int = None,
             check_point: Union[bool, int, Callable[[int], bool]] = None,
             **model_params):
@@ -191,7 +191,7 @@ class Trainer(BaseRunner):
             Data for validation.
         y_val : Any
             Data for validation.
-        validate_dataset: DataLoader
+        validation_dataset: DataLoader
         epochs : int
             Epochs. If not ``None``, it will overwrite ``self.epochs`` temporarily.
         check_point: Union[bool, int, Callable[[int], bool]]
@@ -207,7 +207,8 @@ class Trainer(BaseRunner):
         prob = self._total_epochs - 1
         with tqdm(total=epochs, desc='Training') as pbar:
             for _ in self(x_train=x_train, y_train=y_train, training_dataset=training_dataset, x_val=x_val, y_val=y_val,
-                          validate_dataset=validate_dataset, epochs=epochs, check_point=check_point, **model_params):
+                          validation_dataset=validation_dataset, epochs=epochs, check_point=check_point,
+                          **model_params):
                 t = self._total_epochs - prob
                 pbar.update(t)
                 prob = self._total_epochs
@@ -219,7 +220,7 @@ class Trainer(BaseRunner):
                  training_dataset: DataLoader = None,
                  x_val: Union[Any, Tuple[Any]] = None,
                  y_val: Any = None,
-                 validate_dataset: DataLoader = None,
+                 validation_dataset: DataLoader = None,
                  epochs: int = None,
                  check_point: Union[bool, int, Callable[[int], bool]] = None,
                  **model_params):
@@ -228,7 +229,7 @@ class Trainer(BaseRunner):
 
         Parameters
         ----------
-        validate_dataset : object
+        validation_dataset : object
         x_train: Union[torch.Tensor, Tuple[torch.Tensor]]
             Training data. Will be ignored will``training_dataset`` is given.
         y_train: torch.Tensor
@@ -309,17 +310,17 @@ class Trainer(BaseRunner):
                     if check_point(self._total_epochs):
                         self.snapshot()
 
-        # before processing
-        self._before_proc()
-
-        if validate_dataset is not None:
+        if validation_dataset is not None:
             if y_train is not None or x_train is not None:
                 raise RuntimeError('parameter <data_loader> is exclusive of <x_train> and <y_train>')
             else:
-                self.validate_dataset = validate_dataset
+                self.validate_dataset = validation_dataset
         else:
             if y_val is not None and x_val is not None:
                 self.x_val, self.y_val = self.input_proc(x_val, training=False), y_val
+
+        # before processing
+        self._before_proc()
 
         if training_dataset:
             for i_epoch in range(self._total_epochs, epochs + self._total_epochs):
@@ -336,7 +337,7 @@ class Trainer(BaseRunner):
                     yield _step(x_train, y_train, i_batch)
                 _snapshot()
                 if self.early_stopping:
-                    break
+                    return
                 self._total_epochs += 1
 
         else:
@@ -353,14 +354,18 @@ class Trainer(BaseRunner):
                 yield _step(x_train, y_train)
                 _snapshot()
                 if self.early_stopping:
-                    break
+                    return
                 self._total_epochs += 1
 
         # after processing
         self._after_proc()
         self._model.cpu().eval()
 
-    def predict(self, x: Union[Any, Tuple[Any]], *, test_dataset: DataLoader = None,
+    def predict(self,
+                x_in: Union[Any, Tuple[Any]] = None,
+                y_true: Union[Any, Tuple[Any]] = None,
+                *,
+                dataset: DataLoader = None,
                 check_point: Union[int, str] = None, **model_params):
         """
         Predict from x input.
@@ -368,9 +373,10 @@ class Trainer(BaseRunner):
 
         Parameters
         ----------
-        test_dataset
+        y_true
+        dataset
         check_point
-        x: Union[Any, Tuple[Any]]
+        x_in: Union[Any, Tuple[Any]]
             Input data for prediction..
         model_params: dict
             Model parameters for prediction.
@@ -381,26 +387,44 @@ class Trainer(BaseRunner):
             Predict results.
         """
 
-        def _predict(x_):
-            x_ = self.input_proc(x_, training=False)
+        def _predict(x_, y_=None):
+            x_, y_ = self.input_proc(x_, y_, training=False)
+            if not isinstance(x_, tuple):
+                x_ = (x_,)
+
             if check_point:
                 cp = self._check_points[check_point]
                 model = deepcopy(self._model.cpu())
                 model.load_state_dict(cp['check_point'])
-                self._predictor.model = model
-                y_pred_ = self._predictor(x_, **model_params)
-                self._predictor.model = self._model
+                y_p_ = model(*x_, **model_params)
             else:
-                y_pred_ = self._predictor(x, **model_params)
-            return self.output_proc(y_pred_, training=False)
+                y_p_ = self._model(*x_, **model_params)
 
-        if test_dataset is not None:
-            tmp = []
-            for x in test_dataset:
-                tmp.append(_predict(x))
-            return np.vstack(tmp)
+            return self.output_proc(y_p_, y_, training=False)
+
+        def _vstack(ls):
+            if isinstance(ls[0], np.ndarray):
+                return np.vstack(ls)
+            if isinstance(ls[0], torch.Tensor):
+                return torch.cat(ls, dim=0)
+            return ls
+
+        self._model.eval()
+        if dataset is not None:
+            y_preds = []
+            y_trues = []
+            for x_in, y_true in dataset:
+                y_pred, y_true = _predict(x_in, y_true)
+                y_preds.append(_vstack(y_pred))
+                y_trues.append(_vstack(y_true))
+            return y_preds, y_trues
+        elif x_in is not None and dataset is None:
+            y_preds, y_trues = _predict(x_in, y_true)
+            if y_trues is None:
+                return y_preds
+            return y_preds, y_trues
         else:
-            return _predict(x)
+            raise RuntimeError('parameters <x_in> and <dataset> are mutually exclusive')
 
     def as_dict(self):
         return dict(

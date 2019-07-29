@@ -37,8 +37,8 @@ def data():
                 return x_in * 10, y_in
             return x_in * 10, y_in * 10
 
-        def output_proc(self, y_pred):
-            return y_pred * 10
+        def output_proc(self, y_pred, y_true):
+            return y_pred * 10, y_true
 
     class Ext2(BaseExtension):
         def __init__(self):
@@ -60,8 +60,8 @@ def data():
                 return x_in * 2, y_in
             return x_in * 2, y_in * 2
 
-        def output_proc(self, y_pred, **_):
-            return y_pred * 2
+        def output_proc(self, y_pred, y_true, **_):
+            return y_pred * 2, y_true
 
     yield Ext1, Ext2
     print('test over')
@@ -108,8 +108,8 @@ def test_base_runner_3(data):
     assert step_info['ext2'] == 'ext1_ext2'
 
     assert runner.input_proc(x, y) == (x * 10 * 2, y * 10 * 2)
-    assert runner.input_proc(x) == x * 10 * 2
-    assert runner.output_proc(y) == y * 10 * 2
+    assert runner.input_proc(x) == (x * 10 * 2, None)
+    assert runner.output_proc(y) == (y * 10 * 2, None)
 
 
 if __name__ == "__main__":

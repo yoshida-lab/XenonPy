@@ -6,6 +6,7 @@ from collections import OrderedDict
 from copy import deepcopy
 from typing import Union, Tuple, List, Any, Dict, Callable
 
+import numpy as np
 import pandas as pd
 import torch
 from torch import Tensor
@@ -81,6 +82,9 @@ class Trainer(BaseRunner):
         self._total_epochs: int = 1  # of total epochs
         self.x_val = None
         self.y_val = None
+        self.validate_dataset = None
+
+        self.early_stopping = False
 
         # others
         self._predictor = Predictor(self._model, cuda=self._device)
@@ -164,9 +168,10 @@ class Trainer(BaseRunner):
             x_train: Union[Any, Tuple[Any]] = None,
             y_train: Any = None,
             *,
+            training_dataset: DataLoader = None,
             x_val: Union[Any, Tuple[Any]] = None,
             y_val: Any = None,
-            training_dataset: DataLoader = None,
+            validate_dataset: DataLoader = None,
             epochs: int = None,
             check_point: Union[bool, int, Callable[[int], bool]] = None,
             **model_params):
@@ -186,6 +191,7 @@ class Trainer(BaseRunner):
             Data for validation.
         y_val : Any
             Data for validation.
+        validate_dataset: DataLoader
         epochs : int
             Epochs. If not ``None``, it will overwrite ``self.epochs`` temporarily.
         check_point: Union[bool, int, Callable[[int], bool]]
@@ -201,7 +207,7 @@ class Trainer(BaseRunner):
         prob = self._total_epochs - 1
         with tqdm(total=epochs, desc='Training') as pbar:
             for _ in self(x_train=x_train, y_train=y_train, training_dataset=training_dataset, x_val=x_val, y_val=y_val,
-                          epochs=epochs, check_point=check_point, **model_params):
+                          validate_dataset=validate_dataset, epochs=epochs, check_point=check_point, **model_params):
                 t = self._total_epochs - prob
                 pbar.update(t)
                 prob = self._total_epochs
@@ -213,6 +219,7 @@ class Trainer(BaseRunner):
                  training_dataset: DataLoader = None,
                  x_val: Union[Any, Tuple[Any]] = None,
                  y_val: Any = None,
+                 validate_dataset: DataLoader = None,
                  epochs: int = None,
                  check_point: Union[bool, int, Callable[[int], bool]] = None,
                  **model_params):
@@ -221,6 +228,7 @@ class Trainer(BaseRunner):
 
         Parameters
         ----------
+        validate_dataset : object
         x_train: Union[torch.Tensor, Tuple[torch.Tensor]]
             Training data. Will be ignored will``training_dataset`` is given.
         y_train: torch.Tensor
@@ -304,8 +312,14 @@ class Trainer(BaseRunner):
         # before processing
         self._before_proc()
 
-        if y_val is not None and x_val is not None:
-            self.x_val, self.y_val = self.input_proc(x_val, training=False), y_val
+        if validate_dataset is not None:
+            if y_train is not None or x_train is not None:
+                raise RuntimeError('parameter <data_loader> is exclusive of <x_train> and <y_train>')
+            else:
+                self.validate_dataset = validate_dataset
+        else:
+            if y_val is not None and x_val is not None:
+                self.x_val, self.y_val = self.input_proc(x_val, training=False), y_val
 
         if training_dataset:
             for i_epoch in range(self._total_epochs, epochs + self._total_epochs):
@@ -321,6 +335,8 @@ class Trainer(BaseRunner):
                         x_train = (x_train,)
                     yield _step(x_train, y_train, i_batch)
                 _snapshot()
+                if self.early_stopping:
+                    break
                 self._total_epochs += 1
 
         else:
@@ -336,19 +352,23 @@ class Trainer(BaseRunner):
                 self._model.train()
                 yield _step(x_train, y_train)
                 _snapshot()
+                if self.early_stopping:
+                    break
                 self._total_epochs += 1
 
         # after processing
         self._after_proc()
         self._model.cpu().eval()
 
-    def predict(self, x: Union[Any, Tuple[Any]], *, check_point: Union[int, str] = None, **model_params):
+    def predict(self, x: Union[Any, Tuple[Any]], *, test_dataset: DataLoader = None,
+                check_point: Union[int, str] = None, **model_params):
         """
         Predict from x input.
         This is just a simple wrapper for :meth:`~model.nn.utils.Predictor.predict`.
 
         Parameters
         ----------
+        test_dataset
         check_point
         x: Union[Any, Tuple[Any]]
             Input data for prediction..
@@ -360,17 +380,27 @@ class Trainer(BaseRunner):
         ret: T_Prediction
             Predict results.
         """
-        x = self.input_proc(x, training=False)
-        if check_point:
-            cp = self._check_points[check_point]
-            model = deepcopy(self._model.cpu())
-            model.load_state_dict(cp['check_point'])
-            self._predictor.model = model
-            y_pred = self._predictor(x, **model_params)
-            self._predictor.model = self._model
+
+        def _predict(x_):
+            x_ = self.input_proc(x_, training=False)
+            if check_point:
+                cp = self._check_points[check_point]
+                model = deepcopy(self._model.cpu())
+                model.load_state_dict(cp['check_point'])
+                self._predictor.model = model
+                y_pred_ = self._predictor(x_, **model_params)
+                self._predictor.model = self._model
+            else:
+                y_pred_ = self._predictor(x, **model_params)
+            return self.output_proc(y_pred_, training=False)
+
+        if test_dataset is not None:
+            tmp = []
+            for x in test_dataset:
+                tmp.append(_predict(x))
+            return np.vstack(tmp)
         else:
-            y_pred = self._predictor(x, **model_params)
-        return self.output_proc(y_pred, training=False)
+            return _predict(x)
 
     def as_dict(self):
         return dict(

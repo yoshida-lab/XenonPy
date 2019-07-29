@@ -1,7 +1,7 @@
 #  Copyright (c) 2019. TsumiNa. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
-from typing import Tuple, Callable, Any, Dict
+from typing import Callable, Any, Dict
 
 import numpy as np
 import torch
@@ -14,12 +14,14 @@ __all__ = ['Validator']
 
 class Validator(BaseExtension):
 
-    def __init__(self,
+    def __init__(self, *,
                  metrics_func: Callable[[Any, Any], Dict],
-                 **trace_metrics: Tuple[str, float]
+                 early_stopping: float = None,
+                 **trace_metrics: Dict[str, float]
                  ):
         self.metrics_func = metrics_func
-
+        self.patience = early_stopping
+        self._count = early_stopping
         self.trace = {}
         for name, target in trace_metrics.items():
             self.trace[name] = (target, np.inf)
@@ -35,6 +37,12 @@ class Validator(BaseExtension):
                 score = np.abs(metrics[name] - target)
                 if score < current:
                     self.trace[name] = (target, score)
+                    self._count = self.patience
                     trainer.snapshot(name, target=target)
+                else:
+                    if self.patience is not None:
+                        self._count -= 1
+                        if self._count == 0:
+                            trainer.early_stopping = True
 
         step_info.update({f'val_{k}': v for k, v in metrics.items()})

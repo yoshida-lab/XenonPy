@@ -86,6 +86,14 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self._device = self.check_cuda(cuda)
         self._extensions: BaseRunner.T_Extension_Dict = {}
 
+    @property
+    def device(self):
+        return self._device
+
+    @device.setter
+    def device(self, v):
+        self._device = self.check_cuda(v)
+
     @staticmethod
     def check_cuda(cuda: Union[bool, str, torch.device]) -> torch.device:
         if isinstance(cuda, bool):

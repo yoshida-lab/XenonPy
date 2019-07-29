@@ -45,42 +45,50 @@ def test_base_runner_1():
 
 
 def test_tensor_converter_1():
+    class _Trainer(BaseRunner):
+        def __init__(self):
+            super().__init__()
+
+        def predict(self, x_, y_):
+            return x_, y_
+
+    trainer = _Trainer()
     converter = TensorConverter()
     np_ = np.asarray([[1, 2, 3], [4, 5, 6]])
     pd_ = pd.DataFrame(np_)
     tensor_ = torch.Tensor(np_)
 
-    x, y = converter.input_proc(np_, None)
+    x, y = converter.input_proc(np_, None, trainer=trainer)
     assert isinstance(x, torch.Tensor)
     assert x.shape == (2, 3)
     assert torch.equal(x, tensor_)
     assert y is None
 
-    x, y = converter.input_proc(pd_, None)
+    x, y = converter.input_proc(pd_, None, trainer=trainer)
     assert isinstance(x, torch.Tensor)
     assert x.shape == (2, 3)
     assert torch.equal(x, tensor_)
     assert y is None
 
-    x, y = converter.input_proc(tensor_, None)
+    x, y = converter.input_proc(tensor_, None, trainer=trainer)
     assert isinstance(x, torch.Tensor)
     assert x.shape == (2, 3)
     assert torch.equal(x, tensor_)
     assert y is None
 
-    x, y = converter.input_proc(np_, np_)
+    x, y = converter.input_proc(np_, np_, trainer=trainer)
     assert isinstance(x, torch.Tensor)
     assert x.shape == (2, 3)
     assert torch.equal(x, tensor_)
     assert torch.equal(y, tensor_)
 
-    x, y = converter.input_proc(pd_, pd_)
+    x, y = converter.input_proc(pd_, pd_, trainer=trainer)
     assert isinstance(x, torch.Tensor)
     assert x.shape == (2, 3)
     assert torch.equal(x, tensor_)
     assert torch.equal(y, tensor_)
 
-    x, y = converter.input_proc(tensor_, tensor_)
+    x, y = converter.input_proc(tensor_, tensor_, trainer=trainer)
     assert isinstance(x, torch.Tensor)
     assert x.shape == (2, 3)
     assert torch.equal(x, tensor_)
@@ -88,22 +96,30 @@ def test_tensor_converter_1():
 
 
 def test_tensor_converter_2():
+    class _Trainer(BaseRunner):
+        def __init__(self):
+            super().__init__()
+
+        def predict(self, x_, y_):
+            return x_, y_
+
+    trainer = _Trainer()
     converter = TensorConverter()
     np_ = np.asarray([[1, 2, 3], [4, 5, 6]])
     pd_ = pd.DataFrame(np_)
     tensor_ = torch.Tensor(np_)
 
-    x, y = converter.input_proc(np_, np_[0])
+    x, y = converter.input_proc(np_, np_[0], trainer=trainer)
     assert isinstance(y, torch.Tensor)
     assert y.shape == (3, 1)
     assert torch.equal(y, tensor_[0].unsqueeze(-1))
 
-    x, y = converter.input_proc(pd_, pd_.iloc[0])
+    x, y = converter.input_proc(pd_, pd_.iloc[0], trainer=trainer)
     assert isinstance(y, torch.Tensor)
     assert y.shape == (3, 1)
     assert torch.equal(y, tensor_[0].unsqueeze(-1))
 
-    x, y = converter.input_proc(tensor_, tensor_[0])
+    x, y = converter.input_proc(tensor_, tensor_[0], trainer=trainer)
     print(tensor_[0].size())
     assert isinstance(y, torch.Tensor)
     assert y.shape == (3,)

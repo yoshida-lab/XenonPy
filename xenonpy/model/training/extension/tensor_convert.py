@@ -67,7 +67,12 @@ class TensorConverter(BaseExtension):
 
         return x_in, y_in
 
-    def output_proc(self, y_pred: Union[torch.Tensor, Tuple[torch.Tensor]], *, training, **_):
+    def output_proc(self,
+                    y_pred: Union[torch.Tensor, Tuple[torch.Tensor]],
+                    y_true: Union[torch.Tensor, Tuple[torch.Tensor]] = None,
+                    *,
+                    training: bool,
+                    **_):
         """
         Convert :class:`torch.Tensor` to :class:`numpy.ndarray`.
 
@@ -79,11 +84,17 @@ class TensorConverter(BaseExtension):
         kwargs
 
         """
-        if not training:
-            if isinstance(y_pred, tuple):
-                y = tuple([t.detach().cpu().numpy() for t in y_pred])
+
+        def _convert(y_):
+            if y_ is None:
+                return y_
+            if isinstance(y_, tuple):
+                y_ = tuple([t.detach().cpu().numpy() for t in y_])
             else:
-                y = y_pred.detach().cpu().numpy()
-            return y
+                y_ = y_.detach().cpu().numpy()
+            return y_
+
+        if not training:
+            return _convert(y_pred), _convert(y_true)
         else:
-            return y_pred
+            return y_pred, y_true

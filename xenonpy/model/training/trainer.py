@@ -5,6 +5,7 @@
 from collections import OrderedDict
 from copy import deepcopy
 from typing import Union, Tuple, List, Any, Dict, Callable
+from warnings import warn
 
 import numpy as np
 import pandas as pd
@@ -84,7 +85,7 @@ class Trainer(BaseRunner):
         self.y_val = None
         self.validate_dataset = None
 
-        self.early_stopping = False
+        self._early_stopping: Tuple[bool, str] = (False, '')
 
         # others
         self._predictor = Predictor(self._model, cuda=self._device)
@@ -114,6 +115,9 @@ class Trainer(BaseRunner):
         else:
             raise TypeError(
                 'parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(m))
+
+    def early_stop(self, msg: str):
+        self._early_stopping = (True, msg)
 
     def reset(self, *, to: Union[Module, int, str] = None):
         """
@@ -263,18 +267,18 @@ class Trainer(BaseRunner):
 
         if training_dataset is not None:
             if y_train is not None or x_train is not None:
-                raise RuntimeError('parameter <data_loader> is exclusive of <x_train> and <y_train>')
+                raise RuntimeError('parameter <training_dataset> is exclusive of <x_train> and <y_train>')
         else:
             if y_train is None or x_train is None:
                 raise RuntimeError('missing parameter <x_train> or <y_train>')
 
         # training step
-        def _step(x, y, i_b=0):
+        def _step(x_, y, i_b=0):
             def closure():
                 self.optimizer.zero_grad()
-                y_pred_ = self._model(*x, **model_params)
-                y_pred_ = self.output_proc(y_pred_)
-                loss_ = self.loss_func(y_pred_, y)
+                y_p_ = self._model(*x_, **model_params)
+                y_p_, y_ = self.output_proc(y_p_, y)
+                loss_ = self.loss_func(y_p_, y_)
                 loss_.backward()
 
                 if self.clip_grad is not None:
@@ -311,13 +315,13 @@ class Trainer(BaseRunner):
                         self.snapshot()
 
         if validation_dataset is not None:
-            if y_train is not None or x_train is not None:
-                raise RuntimeError('parameter <data_loader> is exclusive of <x_train> and <y_train>')
+            if y_val is not None or x_val is not None:
+                raise RuntimeError('parameter <validation_dataset> is exclusive of <x_val> and <y_val>')
             else:
                 self.validate_dataset = validation_dataset
         else:
             if y_val is not None and x_val is not None:
-                self.x_val, self.y_val = self.input_proc(x_val, training=False), y_val
+                self.x_val, self.y_val = self.input_proc(x_val, y_val, training=False)
 
         # before processing
         self._before_proc()
@@ -336,7 +340,8 @@ class Trainer(BaseRunner):
                         x_train = (x_train,)
                     yield _step(x_train, y_train, i_batch)
                 _snapshot()
-                if self.early_stopping:
+                if self._early_stopping[0]:
+                    warn(f'early stopping is applied: {self._early_stopping[1]}')
                     return
                 self._total_epochs += 1
 
@@ -353,7 +358,8 @@ class Trainer(BaseRunner):
                 self._model.train()
                 yield _step(x_train, y_train)
                 _snapshot()
-                if self.early_stopping:
+                if self._early_stopping[0]:
+                    warn(f'early stopping is applied: {self._early_stopping[1]}')
                     return
                 self._total_epochs += 1
 
@@ -415,9 +421,9 @@ class Trainer(BaseRunner):
             y_trues = []
             for x_in, y_true in dataset:
                 y_pred, y_true = _predict(x_in, y_true)
-                y_preds.append(_vstack(y_pred))
-                y_trues.append(_vstack(y_true))
-            return y_preds, y_trues
+                y_preds.append(y_pred)
+                y_trues.append(y_true)
+            return _vstack(y_preds), _vstack(y_trues)
         elif x_in is not None and dataset is None:
             y_preds, y_trues = _predict(x_in, y_true)
             if y_trues is None:

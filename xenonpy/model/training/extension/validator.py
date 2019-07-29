@@ -15,7 +15,7 @@ class Validator(BaseExtension):
 
     def __init__(self, *,
                  metrics_func: Callable[[Any, Any], Dict],
-                 early_stopping: float = None,
+                 early_stopping: int = None,
                  **trace_metrics: Dict[str, float]
                  ):
         self.metrics_func = metrics_func
@@ -51,10 +51,10 @@ class Validator(BaseExtension):
                     self.trace[name] = (target, score)
                     self._count = self.patience
                     trainer.snapshot(name, target=target)
-                else:
-                    if self.patience is not None:
-                        self._count -= 1
-                        if self._count == 0:
-                            trainer.early_stopping = True
+
+        if self.patience is not None:
+            self._count -= 1
+            if self._count == 0:
+                trainer.early_stop(f'no improve from last {self.patience} iterations for {[k for k in self.trace]}')
 
         step_info.update({f'val_{k}': v for k, v in metrics.items()})

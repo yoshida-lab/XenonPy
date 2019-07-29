@@ -23,7 +23,7 @@ class TensorConverter(BaseExtension):
         else:
             self.dtype = dtype
 
-    def input_proc(self, x_in, y_in, *, trainer: Trainer ** _) -> Tuple[torch.Tensor, torch.Tensor]:
+    def input_proc(self, x_in, y_in, *, trainer: Trainer) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Convert data to :class:`torch.Tensor`.
 

@@ -17,7 +17,6 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from xenonpy.model.training import ClipValue, ClipNorm
-from xenonpy.model.training import Predictor
 from xenonpy.model.training.base import BaseOptimizer, BaseLRScheduler, BaseRunner
 
 __all__ = ['Trainer']
@@ -87,9 +86,6 @@ class Trainer(BaseRunner):
 
         self._early_stopping: Tuple[bool, str] = (False, '')
 
-        # others
-        self._predictor = Predictor(self._model, cuda=self._device)
-
     @property
     def step_info(self):
         if self._step_info:
@@ -129,7 +125,6 @@ class Trainer(BaseRunner):
         if isinstance(to, Module):
             self._model = to
             self._init_states = deepcopy(to.state_dict())
-            self._predictor = Predictor(self._model, cuda=self._device)
             self.optimizer = self._optim(self._model.parameters())
             if self._scheduler is not None:
                 self.lr_scheduler: Union[_LRScheduler, None] = self._scheduler(self.optimizer)

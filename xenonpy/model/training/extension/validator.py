@@ -16,15 +16,17 @@ class Validator(BaseExtension):
     def __init__(self, *,
                  metrics_func: Callable[[Any, Any], Dict],
                  early_stopping: int = None,
+                 trace_order: int = 1,
                  **trace_metrics: Dict[str, float]
                  ):
         self.metrics_func = metrics_func
-        self.patience = early_stopping
+        self.patience = early_stopping + 1
         self._count = early_stopping
+        self.order = trace_order
 
         self.trace = {}
         for name, target in trace_metrics.items():
-            self.trace[name] = (target, np.inf)
+            self.trace[name] = (target, [np.inf] * trace_order)
 
         self.from_dataset = False
 
@@ -47,14 +49,25 @@ class Validator(BaseExtension):
         for name, (target, current) in self.trace.items():
             if name in metrics:
                 score = np.abs(metrics[name] - target)
-                if score < current:
-                    self.trace[name] = (target, score)
+                if score < current[-1]:
+                    current.append(score)
+                    current.sort()
+                    current.pop()
                     self._count = self.patience
-                    trainer.snapshot(name, target=target)
+                    if self.order == 1:
+                        trainer.set_checkpoint(name)
+                    else:
+                        index = current.index(score) + 1
+                        for i in range(self.order, index, -1):
+                            if f'{name}:{i - 1}' in trainer.check_points:
+                                trainer.check_points[f'{name}:{i}'] = trainer.check_points[f'{name}:{i - 1}']
+                        trainer.set_checkpoint(f'{name}:{index}')
 
         if self.patience is not None:
             self._count -= 1
             if self._count == 0:
-                trainer.early_stop(f'no improve from last {self.patience} iterations for {[k for k in self.trace]}')
+                trainer.early_stop(
+                    f'no improvement for {[k for k in self.trace]} in the last {self.patience} iterations, '
+                    f'finish training at iterations {trainer.total_epochs}')
 
         step_info.update({f'val_{k}': v for k, v in metrics.items()})

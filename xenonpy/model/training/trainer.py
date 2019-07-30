@@ -25,10 +25,10 @@ __all__ = ['Trainer']
 class Trainer(BaseRunner):
 
     def __init__(self,
-                 model: Module,
+                 *,
                  loss_func: Module,
                  optimizer: BaseOptimizer,
-                 *,
+                 model: Module = None,
                  epochs: int = 2000,
                  cuda: Union[bool, str, torch.device] = False,
                  lr_scheduler: BaseLRScheduler = None,
@@ -58,33 +58,68 @@ class Trainer(BaseRunner):
             Wither to use verbose output.
         """
         super().__init__(cuda=cuda)
-        self._model = model.to(self._device)
-        self.loss_func = loss_func
-        self.optimizer = optimizer(self._model.parameters())
-
-        # optional
+        self._loss_func = loss_func
+        self._clip_grad = clip_grad
         self.epochs = epochs
-        self._scheduler = lr_scheduler
-        if lr_scheduler is not None:
-            self.lr_scheduler: Union[_LRScheduler, None] = lr_scheduler(self.optimizer)
-        else:
-            self.lr_scheduler: Union[_LRScheduler, None] = None
-        self.verbose = verbose
-        self.clip_grad = clip_grad
+
+        # set model
+        self._model = None
+        self._init_states = None
+        self._set_model(model)
+
+        # set optimizer
+        self._optim = optimizer
+        self._optimizer = None
+        self._init_optim = None
+        self._set_optimizer(optimizer)
+
+        # set lr_scheduler
+        self._scheduler = None
+        self._lr_scheduler = None
+        self._set_lr_scheduler(lr_scheduler)
 
         # init private vars
-        self._optim = optimizer
-        self._init_states = deepcopy(model.state_dict())
-        self._init_optim = deepcopy(self.optimizer.state_dict())
+        self._early_stopping: Tuple[bool, str] = (False, '')
         self._check_points: Dict[int, Dict] = {}
         self._step_info: List[OrderedDict] = []
         self._total_its: int = 1  # of total iterations
         self._total_epochs: int = 1  # of total epochs
-        self.x_val = None
-        self.y_val = None
-        self.validate_dataset = None
 
-        self._early_stopping: Tuple[bool, str] = (False, '')
+        self._x_val = None
+        self._y_val = None
+        self._validate_dataset = None
+
+    def _set_model(self, model):
+        if model is not None:
+            self._model = model.to(self._device)
+            self._init_states = deepcopy(model.state_dict())
+
+    def _set_lr_scheduler(self, lr_scheduler):
+        if lr_scheduler is not None:
+            self._scheduler = lr_scheduler
+            self._lr_scheduler: Union[_LRScheduler, None] = self._scheduler(self._optimizer)
+
+    def _set_optimizer(self, optim):
+        if self._model is not None:
+            self._optim = optim
+            self._optimizer = self._optim(self._model.parameters())
+            self._init_optim = deepcopy(self._optimizer.state_dict())
+
+    @property
+    def x_val(self):
+        return self._x_val
+
+    @property
+    def y_val(self):
+        return self._y_val
+
+    @property
+    def validate_dataset(self):
+        return self._validate_dataset
+
+    @property
+    def loss_func(self):
+        return self._loss_func
 
     @property
     def step_info(self):
@@ -104,6 +139,22 @@ class Trainer(BaseRunner):
             raise TypeError(
                 'parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(m))
 
+    @property
+    def optimizer(self):
+        return self._optimizer
+
+    @optimizer.setter
+    def optimizer(self, optimizer):
+        self._set_optimizer(optimizer)
+
+    @property
+    def lr_scheduler(self):
+        return self._lr_scheduler
+
+    @lr_scheduler.setter
+    def lr_scheduler(self, scheduler):
+        self._set_lr_scheduler(scheduler)
+
     def early_stop(self, msg: str):
         self._early_stopping = (True, msg)
 
@@ -121,24 +172,21 @@ class Trainer(BaseRunner):
         self._check_points = {}
         self._total_its = 1
         self._total_epochs = 1
+        self._early_stopping = (False, '')
 
         if isinstance(to, Module):
-            self._model = to
-            self._init_states = deepcopy(to.state_dict())
-            self.optimizer = self._optim(self._model.parameters())
-            if self._scheduler is not None:
-                self.lr_scheduler: Union[_LRScheduler, None] = self._scheduler(self.optimizer)
-            else:
-                self.lr_scheduler: Union[_LRScheduler, None] = None
+            self._set_model(to)
+            self._set_optimizer(self._optim)
+            self._set_lr_scheduler(self._scheduler)
         elif isinstance(to, (int, str)):
             cp = self._check_points[to]
             self._model.load_state_dict(cp['check_point'])
-            self.optimizer.load_state_dict(cp['optimizer'])
+            self._optimizer.load_state_dict(cp['optimizer'])
             self._total_epochs = cp['total_epochs']
             self._total_its = to
         else:
             self._model.load_state_dict(self._init_states)
-            self.optimizer.load_state_dict(self._init_optim)
+            self._optimizer.load_state_dict(self._init_optim)
 
         self._reset_proc()
 
@@ -147,7 +195,7 @@ class Trainer(BaseRunner):
             total_epochs=self._total_epochs,
             total_iteration=self._total_its,
             check_point=deepcopy(self._model.state_dict()),
-            optimizer=deepcopy(self.optimizer.state_dict()),
+            optimizer=deepcopy(self._optimizer.state_dict()),
             **kwargs
         )
         if name is None:
@@ -262,18 +310,18 @@ class Trainer(BaseRunner):
         # training step
         def _step(x_, y, i_b=0):
             def closure():
-                self.optimizer.zero_grad()
+                self._optimizer.zero_grad()
                 y_p_ = self._model(*x_, **model_params)
                 y_p_, y_ = self.output_proc(y_p_, y)
-                loss_ = self.loss_func(y_p_, y_)
+                loss_ = self._loss_func(y_p_, y_)
                 loss_.backward()
 
-                if self.clip_grad is not None:
-                    self.clip_grad(self._model.parameters())
+                if self._clip_grad is not None:
+                    self._clip_grad(self._model.parameters())
 
                 return loss_
 
-            train_loss = self.optimizer.step(closure).item()
+            train_loss = self._optimizer.step(closure).item()
 
             step_info = OrderedDict(
                 total_iters=self._total_its,
@@ -284,8 +332,8 @@ class Trainer(BaseRunner):
             self._step_forward(step_info)
             self._step_info.append(step_info)
 
-            if self.lr_scheduler is not None and isinstance(self.lr_scheduler, ReduceLROnPlateau):
-                self.lr_scheduler.step(train_loss, epoch=self._total_epochs)
+            if self._lr_scheduler is not None and isinstance(self._lr_scheduler, ReduceLROnPlateau):
+                self._lr_scheduler.step(train_loss, epoch=self._total_epochs)
 
             self._total_its += 1
             return step_info
@@ -305,10 +353,10 @@ class Trainer(BaseRunner):
             if y_val is not None or x_val is not None:
                 raise RuntimeError('parameter <validation_dataset> is exclusive of <x_val> and <y_val>')
             else:
-                self.validate_dataset = validation_dataset
+                self._validate_dataset = validation_dataset
         else:
             if y_val is not None and x_val is not None:
-                self.x_val, self.y_val = self.input_proc(x_val, y_val, training=False)
+                self._x_val, self._y_val = self.input_proc(x_val, y_val, training=False)
 
         # before processing
         self._before_proc()
@@ -317,8 +365,8 @@ class Trainer(BaseRunner):
             for i_epoch in range(self._total_epochs, epochs + self._total_epochs):
 
                 # decay learning rate
-                if self.lr_scheduler is not None and not isinstance(self.lr_scheduler, ReduceLROnPlateau):
-                    self.lr_scheduler.step(epoch=self._total_its)
+                if self._lr_scheduler is not None and not isinstance(self._lr_scheduler, ReduceLROnPlateau):
+                    self._lr_scheduler.step(epoch=self._total_its)
 
                 self._model.train()
                 for i_batch, (x_train, y_train) in enumerate(training_dataset):
@@ -339,8 +387,8 @@ class Trainer(BaseRunner):
 
             for i_epoch in range(self._total_epochs, epochs + self._total_epochs):
 
-                if self.lr_scheduler is not None and not isinstance(self.lr_scheduler, ReduceLROnPlateau):
-                    self.lr_scheduler.step(epoch=self._total_its)
+                if self._lr_scheduler is not None and not isinstance(self._lr_scheduler, ReduceLROnPlateau):
+                    self._lr_scheduler.step(epoch=self._total_its)
 
                 self._model.train()
                 yield _step(x_train, y_train)

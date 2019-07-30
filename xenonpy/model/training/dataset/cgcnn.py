@@ -121,7 +121,7 @@ class CrystalGraphDataset(Dataset):
             return (torch.cat(batch_atom_fea, dim=0),
                     torch.cat(batch_nbr_fea, dim=0),
                     torch.cat(batch_nbr_fea_idx, dim=0),
-                    crystal_atom_idx), torch.stack(batch_target, dim=0)
+                    torch.LongTensor(crystal_atom_idx)), torch.stack(batch_target, dim=0)
 
         else:
             for i, (atom_fea, nbr_fea, nbr_fea_idx) in enumerate(dataset_list):
@@ -131,4 +131,4 @@ class CrystalGraphDataset(Dataset):
             return (torch.cat(batch_atom_fea, dim=0),
                     torch.cat(batch_nbr_fea, dim=0),
                     torch.cat(batch_nbr_fea_idx, dim=0),
-                    crystal_atom_idx)
+                    torch.LongTensor(crystal_atom_idx))

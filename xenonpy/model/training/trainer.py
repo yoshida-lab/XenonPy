@@ -331,10 +331,10 @@ class Trainer(BaseRunner):
                     if not isinstance(x_train, tuple):
                         x_train = (x_train,)
                     yield _step(x_train, y_train, i_batch)
+                    if self._early_stopping[0]:
+                        warn(f'early stopping is applied: {self._early_stopping[1]}')
+                        return
                 _snapshot()
-                if self._early_stopping[0]:
-                    warn(f'early stopping is applied: {self._early_stopping[1]}')
-                    return
                 self._total_epochs += 1
 
         else:
@@ -349,10 +349,10 @@ class Trainer(BaseRunner):
 
                 self._model.train()
                 yield _step(x_train, y_train)
-                _snapshot()
                 if self._early_stopping[0]:
                     warn(f'early stopping is applied: {self._early_stopping[1]}')
                     return
+                _snapshot()
                 self._total_epochs += 1
 
         # after processing

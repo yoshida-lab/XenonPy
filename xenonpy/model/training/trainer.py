@@ -33,7 +33,6 @@ class Trainer(BaseRunner):
                  cuda: Union[bool, str, torch.device] = False,
                  lr_scheduler: BaseLRScheduler = None,
                  clip_grad: Union[ClipNorm, ClipValue] = None,
-                 verbose: bool = True,
                  ):
         """
         NN model trainer.
@@ -54,8 +53,6 @@ class Trainer(BaseRunner):
             Learning rate scheduler.
         clip_grad : Union[ClipNorm, ClipValue]
             Clip grad before each optimize.
-        verbose: bool
-            Wither to use verbose output.
         """
         super().__init__(cuda=cuda)
         self._loss_func = loss_func
@@ -80,7 +77,7 @@ class Trainer(BaseRunner):
 
         # init private vars
         self._early_stopping: Tuple[bool, str] = (False, '')
-        self._check_points: Dict[int, Dict] = {}
+        self.check_points: Dict[Union[int, str], Union[dict, int]] = {}
         self._step_info: List[OrderedDict] = []
         self._total_its: int = 1  # of total iterations
         self._total_epochs: int = 1  # of total epochs
@@ -104,6 +101,14 @@ class Trainer(BaseRunner):
             self._optim = optim
             self._optimizer = self._optim(self._model.parameters())
             self._init_optim = deepcopy(self._optimizer.state_dict())
+
+    @property
+    def total_epochs(self):
+        return self._total_epochs
+
+    @property
+    def total_iterations(self):
+        return self._total_its
 
     @property
     def x_val(self):
@@ -155,6 +160,25 @@ class Trainer(BaseRunner):
     def lr_scheduler(self, scheduler):
         self._set_lr_scheduler(scheduler)
 
+    def get_checkpoint(self, cp: Union[int, str] = None):
+        if cp is None:
+            return list(self.check_points.keys())
+        if isinstance(cp, (int, str)):
+            return self.check_points[cp]
+        raise TypeError(f'parameter <cp> must be str or int but got {cp.__class__}')
+
+    def set_checkpoint(self, name: str = None):
+        cp = dict(
+            total_epochs=self._total_epochs,
+            total_iteration=self._total_its,
+            check_point=deepcopy(self._model.state_dict()),
+            optimizer=deepcopy(self._optimizer.state_dict()),
+        )
+        if name is None:
+            self.check_points[self._total_its] = cp
+        else:
+            self.check_points[name] = cp
+
     def early_stop(self, msg: str):
         self._early_stopping = (True, msg)
 
@@ -169,7 +193,6 @@ class Trainer(BaseRunner):
             Bind trainer to the given model or reset current model to it's initialization states.
         """
         self._step_info = []
-        self._check_points = {}
         self._total_its = 1
         self._total_epochs = 1
         self._early_stopping = (False, '')
@@ -178,30 +201,17 @@ class Trainer(BaseRunner):
             self._set_model(to)
             self._set_optimizer(self._optim)
             self._set_lr_scheduler(self._scheduler)
+            self.check_points = {}
         elif isinstance(to, (int, str)):
-            cp = self._check_points[to]
+            cp = self.get_checkpoint(to)
             self._model.load_state_dict(cp['check_point'])
             self._optimizer.load_state_dict(cp['optimizer'])
-            self._total_epochs = cp['total_epochs']
-            self._total_its = to
         else:
             self._model.load_state_dict(self._init_states)
             self._optimizer.load_state_dict(self._init_optim)
+            self.check_points = {}
 
         self._reset_proc()
-
-    def snapshot(self, name=None, **kwargs):
-        cp = dict(
-            total_epochs=self._total_epochs,
-            total_iteration=self._total_its,
-            check_point=deepcopy(self._model.state_dict()),
-            optimizer=deepcopy(self._optimizer.state_dict()),
-            **kwargs
-        )
-        if name is None:
-            self._check_points[self._total_its] = cp
-        else:
-            self._check_points[name] = cp
 
     def fit(self,
             x_train: Union[Any, Tuple[Any]] = None,
@@ -308,12 +318,12 @@ class Trainer(BaseRunner):
                 raise RuntimeError('missing parameter <x_train> or <y_train>')
 
         # training step
-        def _step(x_, y, i_b=0):
+        def _step(x_, y_, i_b=0):
             def closure():
                 self._optimizer.zero_grad()
                 y_p_ = self._model(*x_, **model_params)
-                y_p_, y_ = self.output_proc(y_p_, y)
-                loss_ = self._loss_func(y_p_, y_)
+                y_p_, y_t_ = self.output_proc(y_p_, y_)
+                loss_ = self._loss_func(y_p_, y_t_)
                 loss_.backward()
 
                 if self._clip_grad is not None:
@@ -341,13 +351,13 @@ class Trainer(BaseRunner):
         def _snapshot():
             if check_point is not None:
                 if isinstance(check_point, bool) and check_point:
-                    self.snapshot()
+                    self.set_checkpoint()
                 if isinstance(check_point, int):
                     if self._total_epochs % check_point == 0:
-                        self.snapshot()
+                        self.set_checkpoint()
                 if callable(check_point):
                     if check_point(self._total_epochs):
-                        self.snapshot()
+                        self.set_checkpoint()
 
         if validation_dataset is not None:
             if y_val is not None or x_val is not None:
@@ -375,7 +385,7 @@ class Trainer(BaseRunner):
                         x_train = (x_train,)
                     yield _step(x_train, y_train, i_batch)
                     if self._early_stopping[0]:
-                        warn(f'early stopping is applied: {self._early_stopping[1]}')
+                        warn(f'Early stopping is applied: {self._early_stopping[1]}')
                         return
                 _snapshot()
                 self._total_epochs += 1
@@ -434,7 +444,7 @@ class Trainer(BaseRunner):
                 x_ = (x_,)
 
             if check_point:
-                cp = self._check_points[check_point]
+                cp = self.get_checkpoint(check_point)
                 model = deepcopy(self._model.cpu())
                 model.load_state_dict(cp['check_point'])
                 y_p_ = model(*x_, **model_params)
@@ -472,7 +482,7 @@ class Trainer(BaseRunner):
             total_iteration=self._total_its,
             total_epochs=self._total_epochs,
             step_info=self._step_info,
-            check_point=self._check_points,
+            check_point=self.check_points,
             init_states=deepcopy(self._init_states),
             model=deepcopy(self._model.cpu())
         )

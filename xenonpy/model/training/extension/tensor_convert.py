@@ -71,8 +71,7 @@ class TensorConverter(BaseExtension):
                     y_pred: Union[torch.Tensor, Tuple[torch.Tensor]],
                     y_true: Union[torch.Tensor, Tuple[torch.Tensor]] = None,
                     *,
-                    training: bool,
-                    **_):
+                    training: bool):
         """
         Convert :class:`torch.Tensor` to :class:`numpy.ndarray`.
 

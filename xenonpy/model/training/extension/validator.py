@@ -20,7 +20,7 @@ class Validator(BaseExtension):
                  **trace_metrics: Dict[str, float]
                  ):
         self.metrics_func = metrics_func
-        self.patience = early_stopping + 1
+        self.patience = early_stopping + 1 if early_stopping is not None else None
         self._count = early_stopping
         self.order = trace_order
 
@@ -59,8 +59,8 @@ class Validator(BaseExtension):
                     else:
                         index = current.index(score) + 1
                         for i in range(self.order, index, -1):
-                            if f'{name}:{i - 1}' in trainer.check_points:
-                                trainer.check_points[f'{name}:{i}'] = trainer.check_points[f'{name}:{i - 1}']
+                            if f'{name}:{i - 1}' in trainer.checkpoints:
+                                trainer.checkpoints[f'{name}:{i}'] = trainer.checkpoints[f'{name}:{i - 1}']
                         trainer.set_checkpoint(f'{name}:{index}')
 
         if self.patience is not None:

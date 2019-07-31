@@ -78,9 +78,9 @@ class TensorConverter(BaseExtension):
         Parameters
         ----------
         y_pred: Union[torch.Tensor, Tuple[torch.Tensor]]
-        train_mode: bool
+        y_true : Union[torch.Tensor, Tuple[torch.Tensor]]
+        training: bool
             Specify whether the model in the training mode.
-        kwargs
 
         """
 

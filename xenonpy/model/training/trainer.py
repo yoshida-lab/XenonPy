@@ -2,7 +2,7 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from copy import deepcopy
 from typing import Union, Tuple, List, Any, Dict, Callable
 from warnings import warn
@@ -76,12 +76,16 @@ class Trainer(BaseRunner):
         self._set_lr_scheduler(lr_scheduler)
 
         # init private vars
+        _cp_tuple = namedtuple('checkpoint', 'model_state optimizer_state')
+        self._cp_tuple = _cp_tuple
         self._early_stopping: Tuple[bool, str] = (False, '')
-        self.check_points: Dict[Union[int, str], Union[dict, int]] = {}
+        self.checkpoints: Dict[Union[int, str], _cp_tuple] = {}
         self._step_info: List[OrderedDict] = []
         self._total_its: int = 1  # of total iterations
         self._total_epochs: int = 1  # of total epochs
 
+        self._results_tuple = namedtuple('training_results',
+                                         'step_info checkpoints model')
         self._x_val = None
         self._y_val = None
         self._validate_dataset = None
@@ -160,24 +164,22 @@ class Trainer(BaseRunner):
     def lr_scheduler(self, scheduler):
         self._set_lr_scheduler(scheduler)
 
-    def get_checkpoint(self, cp: Union[int, str] = None):
-        if cp is None:
-            return list(self.check_points.keys())
-        if isinstance(cp, (int, str)):
-            return self.check_points[cp]
-        raise TypeError(f'parameter <cp> must be str or int but got {cp.__class__}')
+    def get_checkpoint(self, checkpoint: Union[int, str] = None):
+        if checkpoint is None:
+            return list(self.checkpoints.keys())
+        if isinstance(checkpoint, (int, str)):
+            return self.checkpoints[checkpoint]
+        raise TypeError(f'parameter <cp> must be str or int but got {checkpoint.__class__}')
 
     def set_checkpoint(self, name: str = None):
-        cp = dict(
-            total_epochs=self._total_epochs,
-            total_iteration=self._total_its,
-            check_point=deepcopy(self._model.state_dict()),
-            optimizer=deepcopy(self._optimizer.state_dict()),
+        cp = self._cp_tuple(
+            model_state=deepcopy(self._model.state_dict()),
+            optimizer_state=deepcopy(self._optimizer.state_dict()),
         )
         if name is None:
-            self.check_points[self._total_its] = cp
+            self.checkpoints[self._total_its] = cp
         else:
-            self.check_points[name] = cp
+            self.checkpoints[name] = cp
 
     def early_stop(self, msg: str):
         self._early_stopping = (True, msg)
@@ -201,15 +203,15 @@ class Trainer(BaseRunner):
             self._set_model(to)
             self._set_optimizer(self._optim)
             self._set_lr_scheduler(self._scheduler)
-            self.check_points = {}
+            self.checkpoints = {}
         elif isinstance(to, (int, str)):
             cp = self.get_checkpoint(to)
-            self._model.load_state_dict(cp['check_point'])
-            self._optimizer.load_state_dict(cp['optimizer'])
+            self._model.load_state_dict(cp.model_state)
+            self._optimizer.load_state_dict(cp.optimizer_state)
         else:
             self._model.load_state_dict(self._init_states)
             self._optimizer.load_state_dict(self._init_optim)
-            self.check_points = {}
+            self.checkpoints = {}
 
         self._reset_proc()
 
@@ -222,7 +224,7 @@ class Trainer(BaseRunner):
             y_val: Any = None,
             validation_dataset: DataLoader = None,
             epochs: int = None,
-            check_point: Union[bool, int, Callable[[int], bool]] = None,
+            checkpoint: Union[bool, int, Callable[[int], bool]] = None,
             **model_params):
         """
         Train the Neural Network model
@@ -243,9 +245,9 @@ class Trainer(BaseRunner):
         validation_dataset: DataLoader
         epochs : int
             Epochs. If not ``None``, it will overwrite ``self.epochs`` temporarily.
-        check_point: Union[bool, int, Callable[[int], bool]]
+        checkpoint: Union[bool, int, Callable[[int], bool]]
             If ``True``, will save model states at each step.
-            If ``int``, will save model states every `check_point` steps.
+            If ``int``, will save model states every `checkpoint` steps.
             If ``Callable``, the function should take current ``total_epochs`` as input return ``bool``.
         model_params: dict
             Other model parameters.
@@ -256,7 +258,7 @@ class Trainer(BaseRunner):
         prob = self._total_epochs - 1
         with tqdm(total=epochs, desc='Training') as pbar:
             for _ in self(x_train=x_train, y_train=y_train, training_dataset=training_dataset, x_val=x_val, y_val=y_val,
-                          validation_dataset=validation_dataset, epochs=epochs, check_point=check_point,
+                          validation_dataset=validation_dataset, epochs=epochs, checkpoint=checkpoint,
                           **model_params):
                 t = self._total_epochs - prob
                 pbar.update(t)
@@ -271,7 +273,7 @@ class Trainer(BaseRunner):
                  y_val: Any = None,
                  validation_dataset: DataLoader = None,
                  epochs: int = None,
-                 check_point: Union[bool, int, Callable[[int], bool]] = None,
+                 checkpoint: Union[bool, int, Callable[[int], bool]] = None,
                  **model_params):
         """
         Train the Neural Network model
@@ -292,9 +294,9 @@ class Trainer(BaseRunner):
             Data for validation.
         epochs : int
             Epochs. If not ``None``, it will overwrite ``self.epochs`` temporarily.
-        check_point: Union[bool, int, Callable[[int], bool]]
+        checkpoint: Union[bool, int, Callable[[int], bool]]
             If ``True``, will save model states at each step.
-            If ``int``, will save model states every `check_point` steps.
+            If ``int``, will save model states every `checkpoint` steps.
             If ``Callable``, the function should take current ``total_epochs`` as input return ``bool``.
         model_params: dict
             Other model parameters.
@@ -349,14 +351,14 @@ class Trainer(BaseRunner):
             return step_info
 
         def _snapshot():
-            if check_point is not None:
-                if isinstance(check_point, bool) and check_point:
+            if checkpoint is not None:
+                if isinstance(checkpoint, bool) and checkpoint:
                     self.set_checkpoint()
-                if isinstance(check_point, int):
-                    if self._total_epochs % check_point == 0:
+                if isinstance(checkpoint, int):
+                    if self._total_epochs % checkpoint == 0:
                         self.set_checkpoint()
-                if callable(check_point):
-                    if check_point(self._total_epochs):
+                if callable(checkpoint):
+                    if checkpoint(self._total_epochs):
                         self.set_checkpoint()
 
         if validation_dataset is not None:
@@ -417,7 +419,7 @@ class Trainer(BaseRunner):
                 y_true: Union[Any, Tuple[Any]] = None,
                 *,
                 dataset: DataLoader = None,
-                check_point: Union[int, str] = None, **model_params):
+                checkpoint: Union[int, str] = None, **model_params):
         """
         Predict from x input.
         This is just a simple wrapper for :meth:`~model.nn.utils.Predictor.predict`.
@@ -426,7 +428,7 @@ class Trainer(BaseRunner):
         ----------
         y_true
         dataset
-        check_point
+        checkpoint
         x_in: Union[Any, Tuple[Any]]
             Input data for prediction..
         model_params: dict
@@ -443,10 +445,10 @@ class Trainer(BaseRunner):
             if not isinstance(x_, tuple):
                 x_ = (x_,)
 
-            if check_point:
-                cp = self.get_checkpoint(check_point)
-                model = deepcopy(self._model.cpu())
-                model.load_state_dict(cp['check_point'])
+            if checkpoint:
+                cp = self.get_checkpoint(checkpoint)
+                model = deepcopy(self._model.cpu()).to(self.device)
+                model.load_state_dict(cp.model_state)
                 y_p_ = model(*x_, **model_params)
             else:
                 y_p_ = self._model(*x_, **model_params)
@@ -478,11 +480,8 @@ class Trainer(BaseRunner):
             raise RuntimeError('parameters <x_in> and <dataset> are mutually exclusive')
 
     def as_dict(self):
-        return dict(
-            total_iteration=self._total_its,
-            total_epochs=self._total_epochs,
-            step_info=self._step_info,
-            check_point=self.check_points,
-            init_states=deepcopy(self._init_states),
+        return self._results_tuple(
+            step_info=self.step_info,
+            checkpoints={k: deepcopy(v.model_state) for k, v in self.checkpoints.items()},
             model=deepcopy(self._model.cpu())
         )

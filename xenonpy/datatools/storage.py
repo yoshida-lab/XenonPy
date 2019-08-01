@@ -81,7 +81,7 @@ class Storage(object):
 
     def _make_file_index(self):
         self._files = defaultdict(list)
-        files = [f for f in self._path.iterdir() if f.match('*.pkl.*')]
+        files = [f for f in self._path.iterdir() if f.match('*.pkl.*') or f.match('*.pd.*')]
 
         for f in files:
             # select data

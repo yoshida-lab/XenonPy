@@ -305,6 +305,9 @@ class Trainer(BaseRunner):
         namedtuple
 
         """
+        if self._model is None:
+            raise RuntimeError(
+                'no model to train, use `trainer.model = <model>` or `trainer.reset(to=<model>)` to bind a model')
 
         if epochs is None:
             epochs = self.epochs

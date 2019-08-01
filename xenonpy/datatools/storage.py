@@ -9,6 +9,7 @@ from os import remove
 from os.path import getmtime
 from pathlib import Path
 from shutil import rmtree
+from typing import Any
 from typing import Union
 from warnings import warn
 
@@ -282,7 +283,7 @@ class Storage(object):
         """
         self.save(*unnamed_data, **named_data)
 
-    def save(self, *unnamed_data, **named_data):
+    def save(self, *unnamed_data: Any, **named_data: Any):
         """
         Save data with or without name.
         Data with same name will not be overwritten.

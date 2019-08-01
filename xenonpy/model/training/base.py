@@ -183,6 +183,10 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
 
         """
 
+        def _nest(_name):
+            name_ = _name
+            return lambda s: s._extensions[name_][0]
+
         def _get_keyword_params(func) -> list:
             sig = signature(func)
             return [p.name for p in sig.parameters.values() if
@@ -196,3 +200,10 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             dependency_inject = {k: v for k, v in zip(methods, dependencies)}
 
             self._extensions[name] = (ext, dependency_inject)
+            setattr(self.__class__, f'{name}_', property(_nest(name)))
+
+    def remove_extension(self, *extension: str):
+        for name in extension:
+            if name in self._extensions:
+                del self._extensions[name]
+                delattr(self.__class__, f'{name}_')

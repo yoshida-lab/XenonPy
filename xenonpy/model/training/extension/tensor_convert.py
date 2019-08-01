@@ -7,7 +7,8 @@ import numpy as np
 import pandas as pd
 import torch
 
-from xenonpy.model.training.base import BaseExtension, BaseRunner
+from xenonpy.model.training import Trainer
+from xenonpy.model.training.base import BaseExtension
 
 __all__ = ['TensorConverter']
 
@@ -16,13 +17,14 @@ T_Data = Union[pd.DataFrame, pd.Series, np.ndarray, torch.Tensor]
 
 class TensorConverter(BaseExtension):
 
-    def __init__(self, dtype=None):
+    def __init__(self, dtype=None, empty_cache: bool = False):
+        self.empty_cache = empty_cache
         if dtype is None:
             self.dtype = torch.get_default_dtype()
         else:
             self.dtype = dtype
 
-    def input_proc(self, x_in, y_in, *, trainer: BaseRunner) -> Tuple[torch.Tensor, torch.Tensor]:
+    def input_proc(self, x_in, y_in, *, trainer: Trainer) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Convert data to :class:`torch.Tensor`.
 
@@ -43,7 +45,7 @@ class TensorConverter(BaseExtension):
 
             # if tensor, do nothing
             if isinstance(t, torch.Tensor):
-                return t.to(trainer.device)
+                return t.to(trainer.device, non_blocking=trainer.non_blocking)
             # if pandas, turn to numpy
             if isinstance(t, (pd.DataFrame, pd.Series)):
                 t = t.values
@@ -56,15 +58,20 @@ class TensorConverter(BaseExtension):
             # reshape (1,) to (-1, 1)
             if len(t.size()) == 1:
                 t = t.unsqueeze(-1)
-            return t.to(trainer.device)
+            return t.to(trainer.device, non_blocking=trainer.non_blocking)
 
         return _convert(x_in), _convert(y_in)
+
+    def step_forward(self, step_info, **_):
+        if self.empty_cache:
+            torch.cuda.empty_cache()
 
     def output_proc(self,
                     y_pred: Union[torch.Tensor, Tuple[torch.Tensor]],
                     y_true: Union[torch.Tensor, Tuple[torch.Tensor]] = None,
                     *,
-                    training: bool):
+                    training: bool,
+                    ):
         """
         Convert :class:`torch.Tensor` to :class:`numpy.ndarray`.
 

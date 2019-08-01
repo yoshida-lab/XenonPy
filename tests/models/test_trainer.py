@@ -52,6 +52,10 @@ def test_trainer_1(data):
     assert isinstance(trainer._optim, Adam)
     assert isinstance(trainer.loss_func, MSELoss)
 
+    with pytest.raises(RuntimeError,
+                       match='no model to train, use'):
+        trainer.fit(*data[1])
+
     trainer.model = data[0]
     assert isinstance(trainer.model, torch.nn.Module)
     assert isinstance(trainer.optimizer, torch.optim.Adam)

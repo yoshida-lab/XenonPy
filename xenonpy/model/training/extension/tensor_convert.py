@@ -38,6 +38,9 @@ class TensorConverter(BaseExtension):
         """
 
         def _convert(t):
+            if isinstance(t, (tuple, list)):
+                return tuple([_convert(t_) for t_ in t])
+
             # if tensor, do nothing
             if isinstance(t, torch.Tensor):
                 return t.to(trainer.device)
@@ -55,17 +58,7 @@ class TensorConverter(BaseExtension):
                 t = t.unsqueeze(-1)
             return t.to(trainer.device)
 
-        if isinstance(x_in, tuple):
-            x_in = tuple([_convert(t) for t in x_in])
-        else:
-            x_in = _convert(x_in)
-
-        if isinstance(y_in, tuple):
-            y_in = tuple([_convert(t) for t in y_in])
-        else:
-            y_in = _convert(y_in)
-
-        return x_in, y_in
+        return _convert(x_in), _convert(y_in)
 
     def output_proc(self,
                     y_pred: Union[torch.Tensor, Tuple[torch.Tensor]],

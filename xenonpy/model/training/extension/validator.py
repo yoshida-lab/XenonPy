@@ -68,6 +68,6 @@ class Validator(BaseExtension):
             if self._count == 0:
                 trainer.early_stop(
                     f'no improvement for {[k for k in self.trace]} in the last {self.patience} iterations, '
-                    f'finish training at iterations {trainer.total_epochs}')
+                    f'finish training at iteration {trainer.total_epochs}')
 
         step_info.update({f'val_{k}': v for k, v in metrics.items()})

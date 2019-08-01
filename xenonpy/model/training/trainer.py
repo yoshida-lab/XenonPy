@@ -5,7 +5,6 @@
 from collections import OrderedDict, namedtuple
 from copy import deepcopy
 from typing import Union, Tuple, List, Any, Dict, Callable
-from warnings import warn
 
 import numpy as np
 import pandas as pd
@@ -29,35 +28,37 @@ class Trainer(BaseRunner):
                  loss_func: Module,
                  optimizer: BaseOptimizer,
                  model: Module = None,
-                 epochs: int = 2000,
-                 cuda: Union[bool, str, torch.device] = False,
                  lr_scheduler: BaseLRScheduler = None,
                  clip_grad: Union[ClipNorm, ClipValue] = None,
+                 epochs: int = 2000,
+                 cuda: Union[bool, str, torch.device] = False,
+                 non_blocking: bool = False,
                  ):
         """
         NN model trainer.
 
         Parameters
         ----------
-        model: Module
-            Pytorch NN model.
         loss_func: Tensor
             Loss function.
         optimizer: BaseOptimizer
             Optimizer for model parameters tuning.
-        epochs: int
-            Number of iterations.
-        cuda: Union[bool, str, torch.device]
-            Set training device(s).
+        model: Module
+            Pytorch NN model.
         lr_scheduler: BaseLRScheduler
             Learning rate scheduler.
         clip_grad : Union[ClipNorm, ClipValue]
             Clip grad before each optimize.
+        epochs: int
+            Number of iterations.
+        cuda: Union[bool, str, torch.device]
+            Set training device(s).
         """
         super().__init__(cuda=cuda)
         self._loss_func = loss_func
         self._clip_grad = clip_grad
         self.epochs = epochs
+        self.non_blocking = non_blocking
 
         # set model
         self._model = None
@@ -84,19 +85,17 @@ class Trainer(BaseRunner):
         self._total_its: int = 1  # of total iterations
         self._total_epochs: int = 1  # of total epochs
 
-        self._results_tuple = namedtuple('training_results',
-                                         'step_info checkpoints model')
         self._x_val = None
         self._y_val = None
         self._validate_dataset = None
 
     def _set_model(self, model):
         if model is not None:
-            self._model = model.to(self._device)
+            self._model = model.to(self._device, non_blocking=self.non_blocking)
             self._init_states = deepcopy(model.state_dict())
 
     def _set_lr_scheduler(self, lr_scheduler):
-        if lr_scheduler is not None:
+        if lr_scheduler is not None and self._optimizer is not None:
             self._scheduler = lr_scheduler
             self._lr_scheduler: Union[_LRScheduler, None] = self._scheduler(self._optimizer)
 
@@ -280,7 +279,6 @@ class Trainer(BaseRunner):
 
         Parameters
         ----------
-        validation_dataset : object
         x_train: Union[torch.Tensor, Tuple[torch.Tensor]]
             Training data. Will be ignored will``training_dataset`` is given.
         y_train: torch.Tensor
@@ -292,6 +290,7 @@ class Trainer(BaseRunner):
             Data for validation.
         y_val : Any
             Data for validation.
+        validation_dataset : DataLoader
         epochs : int
             Epochs. If not ``None``, it will overwrite ``self.epochs`` temporarily.
         checkpoint: Union[bool, int, Callable[[int], bool]]
@@ -306,11 +305,14 @@ class Trainer(BaseRunner):
         namedtuple
 
         """
+        if self._model is None:
+            raise RuntimeError(
+                'no model to train, use `trainer.model = <model>` or `trainer.reset(to=<model>)` to bind a model')
 
         if epochs is None:
             epochs = self.epochs
 
-        self._model.to(self._device)
+        self._model.to(self._device, non_blocking=self.non_blocking)
 
         if training_dataset is not None:
             if y_train is not None or x_train is not None:
@@ -387,7 +389,9 @@ class Trainer(BaseRunner):
                         x_train = (x_train,)
                     yield _step(x_train, y_train, i_batch)
                     if self._early_stopping[0]:
-                        warn(f'Early stopping is applied: {self._early_stopping[1]}')
+                        tqdm.write(f'Early stopping is applied: {self._early_stopping[1]}')
+                        self._after_proc()
+                        self._model.eval()
                         return
                 _snapshot()
                 self._total_epochs += 1
@@ -405,32 +409,35 @@ class Trainer(BaseRunner):
                 self._model.train()
                 yield _step(x_train, y_train)
                 if self._early_stopping[0]:
-                    warn(f'early stopping is applied: {self._early_stopping[1]}')
+                    tqdm.write(f'Early stopping is applied: {self._early_stopping[1]}.')
+                    self._after_proc()
+                    self._model.eval()
                     return
                 _snapshot()
                 self._total_epochs += 1
 
         # after processing
         self._after_proc()
-        self._model.cpu().eval()
+        self._model.eval()
 
     def predict(self,
                 x_in: Union[Any, Tuple[Any]] = None,
                 y_true: Union[Any, Tuple[Any]] = None,
                 *,
                 dataset: DataLoader = None,
-                checkpoint: Union[int, str] = None, **model_params):
+                checkpoint: Union[int, str] = None,
+                **model_params):
         """
         Predict from x input.
         This is just a simple wrapper for :meth:`~model.nn.utils.Predictor.predict`.
 
         Parameters
         ----------
-        y_true
-        dataset
-        checkpoint
+        checkpoint: Union[int, str]
         x_in: Union[Any, Tuple[Any]]
-            Input data for prediction..
+            Input data for prediction.
+        y_true: Union[Any, Tuple[Any]]
+        dataset: DataLoader
         model_params: dict
             Model parameters for prediction.
 
@@ -447,7 +454,7 @@ class Trainer(BaseRunner):
 
             if checkpoint:
                 cp = self.get_checkpoint(checkpoint)
-                model = deepcopy(self._model.cpu()).to(self.device)
+                model = deepcopy(self._model).to(self.device)
                 model.load_state_dict(cp.model_state)
                 y_p_ = model(*x_, **model_params)
             else:
@@ -463,6 +470,7 @@ class Trainer(BaseRunner):
             return ls
 
         self._model.eval()
+        self._model.to(self.device, non_blocking=self.non_blocking)
         if dataset is not None:
             y_preds = []
             y_trues = []
@@ -479,8 +487,11 @@ class Trainer(BaseRunner):
         else:
             raise RuntimeError('parameters <x_in> and <dataset> are mutually exclusive')
 
-    def as_dict(self):
-        return self._results_tuple(
+    def to_namedtuple(self):
+        _ret_tuple = namedtuple('training_details', 'total_epochs device step_info checkpoints model')
+        return _ret_tuple(
+            total_epochs=self.total_epochs,
+            device=self.device,
             step_info=self.step_info,
             checkpoints={k: deepcopy(v.model_state) for k, v in self.checkpoints.items()},
             model=deepcopy(self._model.cpu())

@@ -48,6 +48,7 @@ def test_tensor_converter_1():
     class _Trainer(BaseRunner):
         def __init__(self):
             super().__init__()
+            self.non_blocking = False
 
         def predict(self, x_, y_):
             return x_, y_
@@ -99,6 +100,7 @@ def test_tensor_converter_2():
     class _Trainer(BaseRunner):
         def __init__(self):
             super().__init__()
+            self.non_blocking = False
 
         def predict(self, x_, y_):
             return x_, y_

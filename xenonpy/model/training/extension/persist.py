@@ -3,6 +3,7 @@
 #  license that can be found in the LICENSE file.
 
 from datetime import datetime, timedelta
+from pathlib import Path
 from platform import version as sys_ver
 from sys import version as py_ver
 from typing import Union, Callable, Any
@@ -21,12 +22,14 @@ __all__ = ['Persist']
 class Persist(BaseExtension):
 
     def __init__(self,
-                 path: str,
+                 path: Union[Path, str] = '.',
                  *,
                  init_params: Union[list, dict] = None,
                  model_class: Callable = None,
                  increment=False,
+                 save_optimizer_state=False,
                  **describe: Any):
+        self.save_optimizer_state = save_optimizer_state
         self.checker = Checker(path, increment=increment)
         self.describe = dict(
             python=py_ver,
@@ -35,25 +38,35 @@ class Persist(BaseExtension):
             torch=torch.__version__,
             xenonpy=__version__,
             start=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
+            finish='N/A',
+            time_elapsed='N/A',
             **describe,
         )
         if model_class is not None:
-            self.checker.save(model_class=model_class)
+            self.checker(model_class=model_class)
         if init_params is not None:
-            self.checker.save(init_params=init_params)
+            self.checker(init_params=init_params)
 
     def __call__(self, *args: Any, **kwargs: Any):
-        self.checker.save(*args, **kwargs)
+        self.checker(*args, **kwargs)
 
-    def before_proc(self, *, trainer: Trainer) -> None:
+    def on_checkpoint(self, checkpoint: Trainer.checkpoint_tuple) -> None:
+        key = checkpoint.id.replace(':', '_')
+        value = checkpoint._asdict()
+        if not self.save_optimizer_state:
+            del value['optimizer_state']
+        self.checker.set_checkpoint(**{key: value})
+
+    def before_proc(self, trainer: Trainer) -> None:
         self.checker.init_model = trainer.model
 
-    def after_proc(self, *, trainer: Trainer) -> None:
+    def after_proc(self, trainer: Trainer) -> None:
         cp = trainer.to_namedtuple()
-        self.describe.update(done=str(timedelta(seconds=trainer.timer.elapsed)))
+        self.describe.update(
+            finish=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
+            time_elapsed=str(timedelta(seconds=trainer.timer.elapsed)))
         self.checker.trained_model = cp.model
-        self.checker.save(
+        self.checker(
             step_info=cp.step_info,
-            checkpoints=cp.checkpoints,
             describe=self.describe,
         )

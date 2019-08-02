@@ -7,6 +7,8 @@ from pandas import DataFrame, Series
 from sklearn import utils
 from sklearn.model_selection import train_test_split, KFold
 
+__all__ = ['Splitter']
+
 
 class Splitter(object):
     """

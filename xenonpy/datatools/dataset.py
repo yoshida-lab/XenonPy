@@ -12,6 +12,8 @@ import joblib
 import pandas as pd
 import requests
 
+__all__ = ['Dataset']
+
 
 class Dataset(object):
     __extension__ = dict(

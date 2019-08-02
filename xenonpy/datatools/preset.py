@@ -16,6 +16,8 @@ from xenonpy._conf import __cfg_root__
 from xenonpy.datatools.dataset import Dataset
 from xenonpy.utils import config, get_dataset_url, get_sha256, Singleton
 
+__all__ = ['Preset', 'preset']
+
 
 class Preset(Dataset, metaclass=Singleton):
     """

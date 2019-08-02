@@ -97,7 +97,7 @@ class Predictor(BaseRunner):
         """
 
         def _predict(x_, y_=None):
-            x_, y_ = self.input_proc(x_, y_, training=False)
+            x_, y_ = self.input_proc(x_, y_, )
             if not isinstance(x_, tuple):
                 x_ = (x_,)
 
@@ -109,7 +109,7 @@ class Predictor(BaseRunner):
             else:
                 y_p_ = self._model(*x_, **model_params)
 
-            return self.output_proc(y_p_, y_, training=False)
+            return self.output_proc(y_p_, y_, )
 
         def _vstack(ls):
             if isinstance(ls[0], np.ndarray):

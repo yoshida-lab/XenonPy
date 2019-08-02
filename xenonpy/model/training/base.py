@@ -2,7 +2,6 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from collections import OrderedDict
 from inspect import signature
 from typing import Iterable
 from typing import Tuple, Any
@@ -19,22 +18,25 @@ __all__ = ['BaseRunner', 'BaseLRScheduler', 'BaseOptimizer', 'BaseExtension']
 
 
 class BaseExtension(object):
-    def before_proc(self, **dependence) -> None:
+    def before_proc(self, *dependence) -> None:
         pass
 
-    def input_proc(self, x_in, y_in=None, **dependence) -> Tuple[Any, Any]:
+    def input_proc(self, x_in, y_in, *dependence) -> Tuple[Any, Any]:
         return x_in, y_in
 
-    def step_forward(self, step_info: OrderedDict, **dependence) -> None:
+    def step_forward(self, *dependence) -> None:
         pass
 
-    def output_proc(self, y_pred, y_true=None, **dependence) -> Any:
+    def output_proc(self, y_pred, y_true, *dependence) -> Tuple[Any, Any]:
         return y_pred, y_true
 
-    def after_proc(self, **dependence) -> None:
+    def after_proc(self, *dependence) -> None:
         pass
 
-    def reset_proc(self, **dependence) -> None:
+    def on_reset(self, *dependence) -> None:
+        pass
+
+    def on_checkpoint(self, *dependence) -> None:
         pass
 
 
@@ -83,7 +85,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
     T_Extension_Dict = Dict[str, Tuple[BaseExtension, Dict[str, list]]]
 
     def __init__(self, cuda: Union[bool, str, torch.device] = False):
-        self._device = self.check_cuda(cuda)
+        self._device = self.check_device(cuda)
         self._extensions: BaseRunner.T_Extension_Dict = {}
 
     @property
@@ -92,10 +94,10 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
 
     @device.setter
     def device(self, v):
-        self._device = self.check_cuda(v)
+        self._device = self.check_device(v)
 
     @staticmethod
-    def check_cuda(cuda: Union[bool, str, torch.device]) -> torch.device:
+    def check_device(cuda: Union[bool, str, torch.device]) -> torch.device:
         if isinstance(cuda, bool):
             if cuda:
                 if torch.cuda.is_available():
@@ -120,57 +122,47 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         if isinstance(cuda, torch.device):
             return cuda
 
-    def input_proc(self, x_in, y_in=None, training=True):
+    def _make_inject(self, injects, kwargs):
+        _kwargs = {k: self._extensions[k][0] for k in injects if k in self._extensions}
+        _kwargs.update({k: kwargs[k] for k in injects if k in kwargs})
+        return _kwargs
+
+    def input_proc(self, x_in, y_in=None, **kwargs):
         for (ext, injects) in self._extensions.values():
-            kwargs = {k: self._extensions[k][0] for k in injects['input_proc'] if k in self._extensions}
-            if 'trainer' in injects['input_proc']:
-                kwargs.update(trainer=self)
-            if 'training' in injects['input_proc']:
-                kwargs.update(training=training)
-            x_in, y_in = ext.input_proc(x_in, y_in, **kwargs)
+            _kwargs = self._make_inject(injects['input_proc'], kwargs)
+            x_in, y_in = ext.input_proc(x_in, y_in, **_kwargs)
         return x_in, y_in
 
-    def output_proc(self, y_pred, y_true=None, training=True):
+    def output_proc(self, y_pred, y_true=None, **kwargs):
         for (ext, injects) in self._extensions.values():
-            kwargs = {k: self._extensions[k][0] for k in injects['output_proc'] if k in self._extensions}
-            if 'trainer' in injects['output_proc']:
-                kwargs.update(trainer=self)
-            if 'training' in injects['output_proc']:
-                kwargs.update(training=training)
-            y_pred, y_true = ext.output_proc(y_pred, y_true, **kwargs)
+            _kwargs = self._make_inject(injects['output_proc'], kwargs)
+            y_pred, y_true = ext.output_proc(y_pred, y_true, **_kwargs)
         return y_pred, y_true
 
-    def _before_proc(self, training=True):
+    def _before_proc(self, **kwargs):
         for (ext, injects) in self._extensions.values():
-            kwargs = {k: self._extensions[k][0] for k in injects['before_proc'] if k in self._extensions}
-            if 'trainer' in injects['before_proc']:
-                kwargs.update(trainer=self)
-            if 'training' in injects['before_proc']:
-                kwargs.update(training=training)
-            ext.before_proc(**kwargs)
+            _kwargs = self._make_inject(injects['before_proc'], kwargs)
+            ext.before_proc(**_kwargs)
 
-    def _step_forward(self, step_info):
+    def _step_forward(self, **kwargs):
         for (ext, injects) in self._extensions.values():
-            kwargs = {k: self._extensions[k][0] for k in injects['step_forward'] if k in self._extensions}
-            if 'trainer' in injects['step_forward']:
-                kwargs.update(trainer=self)
-            ext.step_forward(step_info, **kwargs)
+            _kwargs = self._make_inject(injects['step_forward'], kwargs)
+            ext.step_forward(**_kwargs)
 
-    def _after_proc(self, training=True):
+    def _after_proc(self, **kwargs):
         for (ext, injects) in self._extensions.values():
-            kwargs = {k: self._extensions[k][0] for k in injects['after_proc'] if k in self._extensions}
-            if 'trainer' in injects['after_proc']:
-                kwargs.update(trainer=self)
-            if 'training' in injects['after_proc']:
-                kwargs.update(training=training)
-            ext.after_proc(**kwargs)
+            _kwargs = self._make_inject(injects['after_proc'], kwargs)
+            ext.after_proc(**_kwargs)
 
-    def _reset_proc(self):
+    def _on_reset(self, **kwargs):
         for (ext, injects) in self._extensions.values():
-            kwargs = {k: self._extensions[k][0] for k in injects['reset_proc'] if k in self._extensions}
-            if 'trainer' in injects['reset_proc']:
-                kwargs.update(trainer=self)
-            ext.reset_proc(**kwargs)
+            _kwargs = self._make_inject(injects['on_reset'], kwargs)
+            ext.on_reset(**_kwargs)
+
+    def _on_checkpoint(self, **kwargs):
+        for (ext, injects) in self._extensions.values():
+            _kwargs = self._make_inject(injects['on_checkpoint'], kwargs)
+            ext.on_checkpoint(**_kwargs)
 
     def extend(self, *extension: BaseExtension):
         """
@@ -183,27 +175,24 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
 
         """
 
-        def _nest(_name):
-            name_ = _name
-            return lambda s: s._extensions[name_][0]
-
         def _get_keyword_params(func) -> list:
             sig = signature(func)
-            return [p.name for p in sig.parameters.values() if
-                    p.kind == p.KEYWORD_ONLY and p.default]
+            return [p.name for p in sig.parameters.values() if p.kind == p.POSITIONAL_OR_KEYWORD]
 
         # merge exts to named_exts
         for ext in extension:
             name = camel_to_snake(ext.__class__.__name__)
-            methods = ['before_proc', 'input_proc', 'step_forward', 'output_proc', 'after_proc', 'reset_proc']
+            methods = ['before_proc', 'input_proc', 'step_forward', 'output_proc', 'after_proc', 'on_reset',
+                       'on_checkpoint']
             dependencies = [_get_keyword_params(getattr(ext, m)) for m in methods]
             dependency_inject = {k: v for k, v in zip(methods, dependencies)}
 
             self._extensions[name] = (ext, dependency_inject)
-            setattr(self.__class__, f'{name}_', property(_nest(name)))
 
     def remove_extension(self, *extension: str):
         for name in extension:
             if name in self._extensions:
                 del self._extensions[name]
-                delattr(self.__class__, f'{name}_')
+
+    def __getitem__(self, item):
+        return self._extensions[item][0]

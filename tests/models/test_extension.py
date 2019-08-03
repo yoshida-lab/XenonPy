@@ -179,12 +179,10 @@ def test_validator_1(data):
 
     val = Validator(metrics_func=regression_metrics)
 
-    step_info = OrderedDict()
-    assert bool(step_info) is False
-
+    step_info = OrderedDict(train_loss=0)
     val.step_forward(trainer=_Trainer(), step_info=step_info)
     assert set(step_info.keys()) == {'val_mae', 'val_mse', 'val_rmse', 'val_r2', 'val_pearsonr', 'val_spearmanr',
-                                     'val_p_value', 'val_max_error'}
+                                     'val_p_value', 'val_max_error', 'train_loss'}
     assert step_info['val_mae'] == regression_metrics(x, y)['mae']
 
 

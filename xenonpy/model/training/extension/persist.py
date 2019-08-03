@@ -71,13 +71,13 @@ class Persist(BaseExtension):
             start=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
         )
         self.checker(describe=self.describe)
-        self.checker.init_model = trainer.model
+        self.checker.model = trainer.model
 
     def after_proc(self, trainer: Trainer) -> None:
         self.describe.update(
             finish=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
             time_elapsed=str(timedelta(seconds=trainer.timer.elapsed)))
-        self.checker.trained_model = trainer.model
+        self.checker.final_state = trainer.model.state_dict()
         self.checker(
             training_info=trainer.training_info,
             describe=self.describe,

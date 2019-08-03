@@ -42,6 +42,7 @@ class Persist(BaseExtension):
             time_elapsed='N/A',
             **describe,
         )
+        self.checker(describe=self.describe)
         if model_class is not None:
             self.checker(model_class=model_class)
         if init_params is not None:

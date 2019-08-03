@@ -3,7 +3,6 @@
 #  license that can be found in the LICENSE file.
 
 import os
-from copy import deepcopy
 from pathlib import Path
 from shutil import rmtree
 
@@ -11,7 +10,6 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from xenonpy.datatools import Storage
 from xenonpy.model.nn import Layer1d
 from xenonpy.model.utils import Checker
 
@@ -48,11 +46,13 @@ def setup():
 
 def test_checker_path(setup):
     checker = Checker(setup['path'])
-    assert isinstance(checker, Storage)
     assert checker.path == str(Path(setup['path']))
 
 
 def test_checker_default_path(setup):
+    checker = Checker(setup['path'])
+    assert checker.path == str(Path(setup['path']))
+
     checker = Checker(setup['path'], increment=True)
     assert checker.path == str(Path(setup['path'] + '@1'))
 
@@ -79,20 +79,21 @@ def test_checker_trained_model_1(setup):
 
 def test_checker_call(setup):
     checker = Checker(setup['path'])
-    checker(**setup['cp'])
+    checker.set_checkpoint(**setup['cp'])
     assert (Path(checker.path) / 'checkpoints').exists()
 
 
 def test_checker_from_cp(setup):
     checker = Checker(setup['path'])
     path = checker.path
-    checker(**setup['cp'])
-    checker2 = Checker.load(str(path))
-    model_state, other = checker2[0]
-    other_ = deepcopy(setup['cp'])
-    del other_['model_state']
-    assert model_state == setup['cp']['model_state']
-    assert other == other_
+    checker.set_checkpoint(test_cp=setup['cp'])
+    checker(a=1)
+    checker2 = Checker.load(path)
+    assert checker2['a'] == 1
+
+    cp = checker2.checkpoints['test_cp']
+    assert 'b' in cp
+    assert cp['model_state'] == setup['cp']['model_state']
 
 
 if __name__ == "__main__":

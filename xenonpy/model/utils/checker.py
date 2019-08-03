@@ -2,28 +2,33 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from functools import partial
 from pathlib import Path
-from typing import Union
+from typing import Any, Union, Dict, Callable, Tuple
 
 import joblib
+import pandas as pd
 import torch
 
-from xenonpy.datatools.storage import Storage
+from xenonpy.model.training.base import BaseRunner
 
 __all__ = ['Checker']
 
 
-class Checker(Storage):
+class Checker(object):
     """
     Check point.
     """
 
-    class __SL(object):
-        load = partial(torch.load, map_location=torch.device('cpu'))
+    class __SL:
         dump = torch.save
+        load = torch.load
 
-    def __init__(self, path: Union[Path, str], *, increment: bool = False):
+    def __init__(self,
+                 path: Union[Path, str] = '.',
+                 *,
+                 increment: bool = False,
+                 device: Union[bool, str, torch.device] = 'cpu',
+                 default_handle: Tuple[Callable, str] = (joblib, '.pkl.z')):
         """
         Parameters
         ----------
@@ -34,16 +39,27 @@ class Checker(Storage):
             Set to ``True`` to prevent the potential risk of overwriting.
             Default ``False``.
         """
+        path = Path(path).resolve()
         if increment:
             i = 1
             while Path(f'{path}@{i}').exists():
                 i += 1
             path = f'{path}@{i}'
-        super().__init__(path)
+        self._path = Path(path)
+        self._path.mkdir(parents=True, exist_ok=True)
+        self._device = BaseRunner.check_device(device)
+        self._handle = default_handle
+
+        self._files: Dict[str, str] = {}
+        self._make_file_index()
 
     @classmethod
     def load(cls, model_path):
         return cls(model_path)
+
+    @property
+    def path(self):
+        return str(self._path)
 
     @property
     def model_name(self):
@@ -75,13 +91,7 @@ class Checker(Storage):
         model:
             The last appended model.
         """
-        self._backend = self.__SL
-        try:
-            return self.last('init_model')
-        except FileNotFoundError:
-            return None
-        finally:
-            self._backend = joblib
+        return torch.load(str(self._path / 'init_model.pth.m'), map_location=self._device)
 
     @init_model.setter
     def init_model(self, model):
@@ -94,13 +104,9 @@ class Checker(Storage):
         model: torch.nn.Module
         """
         if isinstance(model, torch.nn.Module):
-            self._backend = self.__SL
-            super().__call__(init_model=model)
-            self._backend = joblib
+            self(init_model=model)
         else:
-            raise TypeError(
-                'except `torch.nn.Module` object but got {}'.format(
-                    type(model)))
+            raise TypeError(f'except `torch.nn.Module` object but got {type(model)}')
 
     @property
     def trained_model(self):
@@ -114,13 +120,7 @@ class Checker(Storage):
         model:
             The last appended model.
         """
-        self._backend = self.__SL
-        try:
-            return self.last('trained_model')
-        except FileNotFoundError:
-            return None
-        finally:
-            self._backend = joblib
+        return torch.load(str(self._path / 'trained_model.pth.m'), map_location=self._device)
 
     @trained_model.setter
     def trained_model(self, model):
@@ -132,30 +132,86 @@ class Checker(Storage):
         model: torch.nn.Module
         """
         if isinstance(model, torch.nn.Module):
-            self._backend = self.__SL
-            super().__call__(trained_model=model)
-            self._backend = joblib
+            self(trained_model=model)
         else:
-            raise TypeError(
-                'except `torch.nn.Module` object but got {}'.format(
-                    type(model)))
+            raise TypeError(f'except `torch.nn.Module` object but got {type(model)}')
+
+    def _make_file_index(self):
+
+        for f in [f for f in self._path.iterdir() if f.match('*.pkl.*') or f.match('*.pd.*') or f.match('*.pth.*')]:
+            # select data
+            fn = '.'.join(f.name.split('.')[:-2])
+            self._files[fn] = str(f)
+
+    def _save_data(self, data: Any, filename: str, handle) -> str:
+        if isinstance(data, pd.DataFrame):
+            file = str(self._path / (filename + '.pd.xz'))
+            self._files[filename] = file
+            pd.to_pickle(data, file)
+        elif isinstance(data, (torch.Tensor, torch.nn.Module)):
+            file = str(self._path / (filename + '.pth.m'))
+            self._files[filename] = file
+            torch.save(data, file)
+        else:
+            file = str(self._path / (filename + handle[1]))
+            self._files[filename] = file
+            handle[0].dump(data, file)
+
+        return file
+
+    def _load_data(self, file: str, handle):
+        fp = self._files[file]
+        patten = Path(fp).name.split('.')[-2]
+        if patten == 'pd':
+            return pd.read_pickle(fp)
+        if patten == 'pth':
+            return torch.load(fp, map_location=self._device)
+        if patten == 'pkl':
+            return joblib.load(fp)
+        else:
+            return handle.load(fp)
+
+    def __getattr__(self, name: str):
+        """
+        Return sub-dataset.
+
+        Parameters
+        ----------
+        name: str
+            Dataset name.
+
+        Returns
+        -------
+        self
+        """
+        sub_set = self.__class__(self._path / name, increment=False, device=self._device)
+        setattr(self, f'{name}', sub_set)
+        return sub_set
 
     def __getitem__(self, item):
-        if isinstance(item, int):
-            self._backend = self.__SL
-            try:
-                cp = self.checkpoints_[item]
-                model_state = cp['model_state']
-                del cp['model_state']
-                return model_state, cp
-            except IndexError:
-                return None
-            finally:
-                self._backend = joblib
-        raise TypeError('except int as checkpoint index but got {}'.format(
-            type(item)))
 
-    def __call__(self, **kwargs):
-        self._backend = self.__SL
-        self.checkpoints_(kwargs)
-        self._backend = joblib
+        if isinstance(item, str):
+            return self._load_data(item, self._handle[0])
+        else:
+            KeyError()
+
+    def __call__(self, handle=None, **named_data: Any):
+        """
+        Save data with or without name.
+        Data with same name will not be overwritten.
+
+        Parameters
+        ----------
+        handle: Tuple[Callable, str]
+        named_data: dict
+            Named data as k,v pair.
+
+        """
+        if handle is None:
+            handle = self._handle
+
+        for k, v in named_data.items():
+            self._save_data(v, k, handle)
+
+    def set_checkpoint(self, **kwargs):
+        self.checkpoints((Checker.__SL, '.pth.m'), **kwargs)

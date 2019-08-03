@@ -24,7 +24,7 @@ class TensorConverter(BaseExtension):
         else:
             self.dtype = dtype
 
-    def input_proc(self, x_in, y_in, *, trainer: Trainer) -> Tuple[torch.Tensor, torch.Tensor]:
+    def input_proc(self, x_in, y_in, trainer: Trainer) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Convert data to :class:`torch.Tensor`.
 
@@ -62,14 +62,13 @@ class TensorConverter(BaseExtension):
 
         return _convert(x_in), _convert(y_in)
 
-    def step_forward(self, step_info, **_):
+    def step_forward(self):
         if self.empty_cache:
             torch.cuda.empty_cache()
 
     def output_proc(self,
                     y_pred: Union[torch.Tensor, Tuple[torch.Tensor]],
-                    y_true: Union[torch.Tensor, Tuple[torch.Tensor]] = None,
-                    *,
+                    y_true: Union[torch.Tensor, Tuple[torch.Tensor], None],
                     training: bool,
                     ):
         """

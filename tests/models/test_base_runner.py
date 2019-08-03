@@ -29,15 +29,15 @@ def data():
         def after_proc(self) -> None:
             self.after = 'ext1'
 
-        def step_forward(self, step_info) -> None:
+        def step_forward(self, step_info: OrderedDict) -> None:
             step_info['ext1'] = 'ext1'
 
-        def input_proc(self, x_in, y_in):
+        def input_proc(self, x_in, y_in, **_):
             if y_in is None:
                 return x_in * 10, y_in
             return x_in * 10, y_in * 10
 
-        def output_proc(self, y_pred, y_true):
+        def output_proc(self, y_pred, y_true, **_):
             return y_pred * 10, y_true
 
     class Ext2(BaseExtension):
@@ -46,21 +46,22 @@ def data():
             self.before = None
             self.after = None
 
-        def before_proc(self, *, ext1) -> None:
+        def before_proc(self, ext1) -> None:
             self.before = ext1.before + '_ext2'
 
-        def after_proc(self, *, ext1) -> None:
+        def after_proc(self, ext1) -> None:
             self.after = ext1.after + '_ext2'
 
-        def step_forward(self, step_info, **_) -> None:
+        def step_forward(self, step_info: OrderedDict, non_exist='you can not see me!') -> None:
             step_info['ext2'] = step_info['ext1'] + '_ext2'
+            step_info['non_exist'] = non_exist
 
-        def input_proc(self, x_in, y_in, **_):
+        def input_proc(self, x_in, y_in=None, **_):
             if y_in is None:
                 return x_in * 2, y_in
             return x_in * 2, y_in * 2
 
-        def output_proc(self, y_pred, y_true, **_):
+        def output_proc(self, y_pred, y_true=None, **_):
             return y_pred * 2, y_true
 
     yield Ext1, Ext2
@@ -68,23 +69,23 @@ def data():
 
 
 def test_base_runner_1(data):
-    assert BaseRunner.check_cuda(False).type == 'cpu'
-    assert BaseRunner.check_cuda('cpu').type == 'cpu'
+    assert BaseRunner.check_device(False).type == 'cpu'
+    assert BaseRunner.check_device('cpu').type == 'cpu'
 
     with pytest.raises(RuntimeError, match='could not use CUDA on this machine'):
-        BaseRunner.check_cuda(True)
+        BaseRunner.check_device(True)
 
     with pytest.raises(RuntimeError, match='could not use CUDA on this machine'):
-        BaseRunner.check_cuda('cuda')
+        BaseRunner.check_device('cuda')
 
     with pytest.raises(RuntimeError, match='wrong device identifier'):
-        BaseRunner.check_cuda('other illegal')
+        BaseRunner.check_device('other illegal')
 
 
 def test_base_runner_2(data):
     x, y = 1, 2
     runner = BaseRunner()
-    assert runner.input_proc(x, y) == (x, y)
+    assert runner.input_proc(x, y, ) == (x, y)
 
 
 def test_base_runner_3(data):
@@ -103,13 +104,14 @@ def test_base_runner_3(data):
     assert ext2.after == 'ext1_ext2'
 
     step_info = OrderedDict()
-    runner._step_forward(step_info)
+    runner._step_forward(step_info=step_info)
     assert step_info['ext1'] == 'ext1'
     assert step_info['ext2'] == 'ext1_ext2'
+    assert step_info['non_exist'] == 'you can not see me!'
 
-    assert runner.input_proc(x, y) == (x * 10 * 2, y * 10 * 2)
-    assert runner.input_proc(x) == (x * 10 * 2, None)
-    assert runner.output_proc(y) == (y * 10 * 2, None)
+    assert runner.input_proc(x, y, ) == (x * 10 * 2, y * 10 * 2)
+    assert runner.input_proc(x, ) == (x * 10 * 2, None)
+    assert runner.output_proc(y, ) == (y * 10 * 2, None)
 
 
 if __name__ == "__main__":

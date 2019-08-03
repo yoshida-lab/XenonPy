@@ -145,7 +145,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self._model = model
         self._model_name = name
         self.describe(model_struct=str(model), model_name=name)
-        self._checker.init_model = model
+        self._checker.model = model
         self._checker.save(
             runner=dict(epochs=self._epochs, verbose=self._verbose, workspace=self._work_dir))
 
@@ -340,8 +340,8 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         ret._checker = checker
         ret._model_name = checker.model_name
         if not checkpoint:
-            ret._model = checker.trained_model if checker.trained_model else checker.init_model
+            ret._model = checker.trained_model if checker.trained_model else checker.model
         else:
             model_state, _ = checker[checkpoint]
-            ret._model = checker.init_model.load_state_dict(model_state)
+            ret._model = checker.model.load_state_dict(model_state)
         return ret

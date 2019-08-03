@@ -3,6 +3,7 @@
 #  license that can be found in the LICENSE file.
 
 import os
+from collections import OrderedDict
 from pathlib import Path
 from shutil import rmtree
 
@@ -57,24 +58,32 @@ def test_checker_default_path(setup):
     assert checker.path == str(Path(setup['path'] + '@1'))
 
 
-def test_checker_init_model_1(setup):
+def test_checker_model_1(setup):
     checker = Checker(setup['path'])
+
+    assert checker.model is None
     with pytest.raises(TypeError):
-        checker.init_model = None
+        checker.model = None
 
-    checker.init_model = setup['model']
-    assert isinstance(checker.init_model, Layer1d)
-    assert str(checker.init_model) == str(setup['model'])
+    checker.model = setup['model']
+    assert isinstance(checker.model, Layer1d)
+    assert str(checker.model) == str(setup['model'])
 
-
-def test_checker_trained_model_1(setup):
-    checker = Checker(setup['path'])
+    assert checker.init_state is not None
     with pytest.raises(TypeError):
-        checker.trained_model = None
+        checker.init_state = None
+    with pytest.raises(TypeError):
+        checker.init_state = OrderedDict(a=1)
+    assert isinstance(checker.init_state, OrderedDict)
 
-    checker.trained_model = setup['model']
-    assert isinstance(checker.trained_model, Layer1d)
-    assert str(checker.trained_model) == str(setup['model'])
+    assert checker.final_state is None
+    with pytest.raises(TypeError):
+        checker.final_state = None
+    with pytest.raises(TypeError):
+        checker.init_state = OrderedDict(a=1)
+
+    checker.final_state = setup['model'].state_dict()
+    assert isinstance(checker.final_state, OrderedDict)
 
 
 def test_checker_call(setup):

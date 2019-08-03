@@ -2,12 +2,14 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
+from collections import OrderedDict
 from pathlib import Path
 from typing import Any, Union, Dict, Callable, Tuple
 
 import joblib
 import pandas as pd
 import torch
+from torch.nn import Module
 
 from xenonpy.model.training.base import BaseRunner
 
@@ -63,78 +65,85 @@ class Checker(object):
 
     @property
     def model_name(self):
+        """
+
+        Returns
+        -------
+        str
+            Model name.
+        """
         return self._path.name
 
     @property
     def describe(self):
         """
-        Model's description.
-        This is a property with getter/setter.
-        This action don't overwrite anything but add a new object.
+        Description for this model.
 
         Returns
         -------
         dict
             Description.
         """
-        return self.last('describe')
+        return self['describe']
 
     @property
-    def init_model(self):
+    def model(self):
         """
-        Last appended initial model.
-        This is a property with getter/setter.
-        This action don't overwrite anything but add a new object.
 
         Returns
         -------
-        model:
-            The last appended model.
+        model: :class:`torch.nn.Module`
+            A pytorch model.
         """
-        return torch.load(str(self._path / 'init_model.pth.m'), map_location=self._device)
+        if (self._path / 'model.pth.m').exists():
+            return torch.load(str(self._path / 'model.pth.m'), map_location=self._device)
+        return None
 
-    @init_model.setter
-    def init_model(self, model):
+    @model.setter
+    def model(self, model: Module):
         """
-        Set initial model.
-        This action don't overwrite but add a new object.
+        Set a model instance.
 
         Parameters
         ----------
-        model: torch.nn.Module
+        model: :class:`torch.nn.Module`
+            Pytorch model instance.
         """
-        if isinstance(model, torch.nn.Module):
-            self(init_model=model)
+        if isinstance(model, Module):
+            self(model=model)
+            self.init_state = model.state_dict()
         else:
             raise TypeError(f'except `torch.nn.Module` object but got {type(model)}')
 
     @property
-    def trained_model(self):
-        """
-        Last appended pre-trained model.
-        This is a property with getter/setter.
-        This action don't overwrite anything but add a new object.
+    def init_state(self):
+        if (self._path / 'init_state.pth.s').exists():
+            return torch.load(str(self._path / 'init_state.pth.s'), map_location=self._device)
+        return None
 
-        Returns
-        -------
-        model:
-            The last appended model.
-        """
-        return torch.load(str(self._path / 'trained_model.pth.m'), map_location=self._device)
+    @init_state.setter
+    def init_state(self, state: OrderedDict):
+        if not isinstance(state, OrderedDict) or not state:
+            raise TypeError
+        for v in state.values():
+            if not isinstance(v, torch.Tensor):
+                raise TypeError()
+        self((Checker.__SL, '.pth.s'), init_state=state)
 
-    @trained_model.setter
-    def trained_model(self, model):
-        """
-        Set pre-trained model
+    @property
+    def final_state(self):
+        if (self._path / 'final_state.pth.s').exists():
+            return torch.load(str(self._path / 'final_state.pth.s'), map_location=self._device)
+        return None
 
-        Parameters
-        ----------
-        model: torch.nn.Module
-        """
-        if isinstance(model, torch.nn.Module):
-            self(trained_model=model)
-        else:
-            raise TypeError(f'except `torch.nn.Module` object but got {type(model)}')
+    @final_state.setter
+    def final_state(self, state: OrderedDict):
+        if not isinstance(state, OrderedDict) or not state:
+            raise TypeError
+        for v in state.values():
+            if not isinstance(v, torch.Tensor):
+                raise TypeError()
+        self((Checker.__SL, '.pth.s'), final_state=state)
 
     def _make_file_index(self):
 
@@ -214,4 +223,4 @@ class Checker(object):
             self._save_data(v, k, handle)
 
     def set_checkpoint(self, **kwargs):
-        self.checkpoints((Checker.__SL, '.pth.m'), **kwargs)
+        self.checkpoints((Checker.__SL, '.pth.s'), **kwargs)

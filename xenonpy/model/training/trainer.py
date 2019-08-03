@@ -23,6 +23,7 @@ __all__ = ['Trainer']
 
 class Trainer(BaseRunner):
     checkpoint_tuple = namedtuple('checkpoint', 'id iterations model_state optimizer_state')
+    results_tuple = namedtuple('results', 'total_epochs device training_info checkpoints model')
 
     def __init__(self,
                  *,
@@ -79,8 +80,8 @@ class Trainer(BaseRunner):
 
         # init private vars
         self._early_stopping: Tuple[bool, str] = (False, '')
-        self.checkpoints: Dict[Union[int, str], Trainer.checkpoint_tuple] = OrderedDict()
-        self._step_info: List[OrderedDict] = []
+        self._checkpoints: Dict[Union[int, str], Trainer.checkpoint_tuple] = OrderedDict()
+        self._training_info: List[OrderedDict] = []
         self._total_its: int = 1  # of total iterations
         self._total_epochs: int = 1  # of total epochs
 
@@ -129,9 +130,9 @@ class Trainer(BaseRunner):
         return self._loss_func
 
     @property
-    def step_info(self):
-        if self._step_info:
-            return pd.DataFrame(data=self._step_info)
+    def training_info(self):
+        if self._training_info:
+            return pd.DataFrame(data=self._training_info)
         return None
 
     @property
@@ -162,11 +163,15 @@ class Trainer(BaseRunner):
     def lr_scheduler(self, scheduler):
         self._set_lr_scheduler(scheduler)
 
+    @property
+    def checkpoints(self):
+        return self._checkpoints
+
     def get_checkpoint(self, checkpoint: Union[int, str] = None):
         if checkpoint is None:
-            return list(self.checkpoints.keys())
+            return list(self._checkpoints.keys())
         if isinstance(checkpoint, (int, str)):
-            return self.checkpoints[checkpoint]
+            return self._checkpoints[checkpoint]
         raise TypeError(f'parameter <cp> must be str or int but got {checkpoint.__class__}')
 
     def set_checkpoint(self, id_: str = None):
@@ -179,8 +184,8 @@ class Trainer(BaseRunner):
             optimizer_state=deepcopy(self._optimizer.state_dict()),
         )
 
-        self.checkpoints[id_] = cp
-        self._on_checkpoint(checkpoint=cp)
+        self._checkpoints[id_] = cp
+        self._on_checkpoint(checkpoint=cp, trainer=self, training=True)
 
     def early_stop(self, msg: str):
         self._early_stopping = (True, msg)
@@ -195,7 +200,7 @@ class Trainer(BaseRunner):
         to: Union[bool, Module]
             Bind trainer to the given model or reset current model to it's initialization states.
         """
-        self._step_info = []
+        self._training_info = []
         self._total_its = 1
         self._total_epochs = 1
         self._early_stopping = (False, '')
@@ -204,7 +209,7 @@ class Trainer(BaseRunner):
             self._set_model(to)
             self._set_optimizer(self._optim)
             self._set_lr_scheduler(self._scheduler)
-            self.checkpoints = {}
+            self._checkpoints = OrderedDict()
         elif isinstance(to, (int, str)):
             cp = self.get_checkpoint(to)
             self._model.load_state_dict(cp.model_state)
@@ -212,7 +217,7 @@ class Trainer(BaseRunner):
         else:
             self._model.load_state_dict(self._init_states)
             self._optimizer.load_state_dict(self._init_optim)
-            self.checkpoints = {}
+            self._checkpoints = OrderedDict()
 
         self._on_reset()
 
@@ -346,7 +351,7 @@ class Trainer(BaseRunner):
                 train_loss=train_loss)
 
             self._step_forward(step_info=step_info, trainer=self, training=True)
-            self._step_info.append(step_info)
+            self._training_info.append(step_info)
 
             if self._lr_scheduler is not None and isinstance(self._lr_scheduler, ReduceLROnPlateau):
                 self._lr_scheduler.step(train_loss, epoch=self._total_epochs)
@@ -490,11 +495,10 @@ class Trainer(BaseRunner):
             raise RuntimeError('parameters <x_in> and <dataset> are mutually exclusive')
 
     def to_namedtuple(self):
-        _ret_tuple = namedtuple('training_details', 'total_epochs device step_info checkpoints model')
-        return _ret_tuple(
+        return self.results_tuple(
             total_epochs=self.total_epochs,
             device=self.device,
-            step_info=self.step_info,
-            checkpoints={k: deepcopy(v.model_state) for k, v in self.checkpoints.items()},
+            training_info=self.training_info,
+            checkpoints={k: deepcopy(v.model_state) for k, v in self._checkpoints.items()},
             model=deepcopy(self._model.cpu())
         )

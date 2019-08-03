@@ -28,8 +28,10 @@ class Persist(BaseExtension):
                  model_class: Callable = None,
                  increment=False,
                  save_optimizer_state=False,
+                 sync_training_step=False,
                  **describe: Any):
         self.save_optimizer_state = save_optimizer_state
+        self.sync_training_step = sync_training_step
         self.checker = Checker(path, increment=increment)
         self.describe = dict(
             python=py_ver,
@@ -37,7 +39,8 @@ class Persist(BaseExtension):
             numpy=np.__version__,
             torch=torch.__version__,
             xenonpy=__version__,
-            start=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
+            device='N/A',
+            start='N/A',
             finish='N/A',
             time_elapsed='N/A',
             **describe,
@@ -51,23 +54,31 @@ class Persist(BaseExtension):
     def __call__(self, *args: Any, **kwargs: Any):
         self.checker(*args, **kwargs)
 
-    def on_checkpoint(self, checkpoint: Trainer.checkpoint_tuple) -> None:
+    def on_checkpoint(self, checkpoint: Trainer.checkpoint_tuple, trainer: Trainer) -> None:
         key = checkpoint.id.replace(':', '_')
         value = checkpoint._asdict()
         if not self.save_optimizer_state:
             del value['optimizer_state']
         self.checker.set_checkpoint(**{key: value})
+        if self.sync_training_step:
+            self.checker(
+                training_info=trainer.training_info,
+            )
 
     def before_proc(self, trainer: Trainer) -> None:
+        self.describe.update(
+            device=str(trainer.device),
+            start=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
+        )
+        self.checker(describe=self.describe)
         self.checker.init_model = trainer.model
 
     def after_proc(self, trainer: Trainer) -> None:
-        cp = trainer.to_namedtuple()
         self.describe.update(
             finish=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
             time_elapsed=str(timedelta(seconds=trainer.timer.elapsed)))
-        self.checker.trained_model = cp.model
+        self.checker.trained_model = trainer.model
         self.checker(
-            step_info=cp.step_info,
+            training_info=trainer.training_info,
             describe=self.describe,
         )

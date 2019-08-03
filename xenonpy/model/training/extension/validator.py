@@ -30,6 +30,7 @@ class Validator(BaseExtension):
             self.trace[name] = (target, [np.inf] * trace_order)
 
         self.from_dataset = False
+        self.train_loss = np.inf
 
     def before_proc(self, trainer: Trainer) -> None:
         x_val, y_val = trainer.x_val, trainer.y_val
@@ -46,7 +47,12 @@ class Validator(BaseExtension):
         else:
             y_preds, y_trues = trainer.predict(trainer.x_val, trainer.y_val)
 
-        metrics = self.metrics_func(y_preds, y_trues)
+        train_loss = step_info['train_loss']
+        if train_loss < self.train_loss:
+            self.train_loss = train_loss
+            self._count = self.patience
+
+        metrics = self.metrics_func(y_trues, y_preds)
         for name, (target, current) in self.trace.items():
             if name in metrics:
                 score = np.abs(metrics[name] - target)
@@ -69,6 +75,6 @@ class Validator(BaseExtension):
             if self._count == 0:
                 trainer.early_stop(
                     f'no improvement for {[k for k in self.trace]} in the last {self.patience} iterations, '
-                    f'finish training at iteration {trainer.total_epochs}')
+                    f'finish training at iteration {trainer.total_iterations}')
 
         step_info.update({f'val_{k}': v for k, v in metrics.items()})

@@ -22,6 +22,7 @@ __all__ = ['Trainer']
 
 
 class Trainer(BaseRunner):
+    checkpoint_tuple = namedtuple('checkpoint', 'id iterations model_state optimizer_state')
 
     def __init__(self,
                  *,
@@ -77,10 +78,8 @@ class Trainer(BaseRunner):
         self._set_lr_scheduler(lr_scheduler)
 
         # init private vars
-        _cp_tuple = namedtuple('checkpoint', 'model_state optimizer_state')
-        self._cp_tuple = _cp_tuple
         self._early_stopping: Tuple[bool, str] = (False, '')
-        self.checkpoints: Dict[Union[int, str], _cp_tuple] = {}
+        self.checkpoints: Dict[Union[int, str], Trainer.checkpoint_tuple] = OrderedDict()
         self._step_info: List[OrderedDict] = []
         self._total_its: int = 1  # of total iterations
         self._total_epochs: int = 1  # of total epochs
@@ -170,15 +169,18 @@ class Trainer(BaseRunner):
             return self.checkpoints[checkpoint]
         raise TypeError(f'parameter <cp> must be str or int but got {checkpoint.__class__}')
 
-    def set_checkpoint(self, name: str = None):
-        cp = self._cp_tuple(
+    def set_checkpoint(self, id_: str = None):
+        if id_ is None:
+            id_ = f'cp:{self._total_its}'
+        cp = self.checkpoint_tuple(
+            id=id_,
+            iterations=self._total_its,
             model_state=deepcopy(self._model.state_dict()),
             optimizer_state=deepcopy(self._optimizer.state_dict()),
         )
-        if name is None:
-            self.checkpoints[self._total_its] = cp
-        else:
-            self.checkpoints[name] = cp
+
+        self.checkpoints[id_] = cp
+        self._on_checkpoint(checkpoint=cp)
 
     def early_stop(self, msg: str):
         self._early_stopping = (True, msg)
@@ -212,7 +214,7 @@ class Trainer(BaseRunner):
             self._optimizer.load_state_dict(self._init_optim)
             self.checkpoints = {}
 
-        self._reset_proc()
+        self._on_reset()
 
     def fit(self,
             x_train: Union[Any, Tuple[Any]] = None,
@@ -326,7 +328,7 @@ class Trainer(BaseRunner):
             def closure():
                 self._optimizer.zero_grad()
                 y_p_ = self._model(*x_, **model_params)
-                y_p_, y_t_ = self.output_proc(y_p_, y_)
+                y_p_, y_t_ = self.output_proc(y_p_, y_, trainer=self, training=True)
                 loss_ = self._loss_func(y_p_, y_t_)
                 loss_.backward()
 
@@ -343,7 +345,7 @@ class Trainer(BaseRunner):
                 i_batch=i_b + 1,
                 train_loss=train_loss)
 
-            self._step_forward(step_info)
+            self._step_forward(step_info=step_info, trainer=self, training=True)
             self._step_info.append(step_info)
 
             if self._lr_scheduler is not None and isinstance(self._lr_scheduler, ReduceLROnPlateau):
@@ -370,10 +372,10 @@ class Trainer(BaseRunner):
                 self._validate_dataset = validation_dataset
         else:
             if y_val is not None and x_val is not None:
-                self._x_val, self._y_val = self.input_proc(x_val, y_val, training=False)
+                self._x_val, self._y_val = self.input_proc(x_val, y_val, trainer=self, training=False)
 
         # before processing
-        self._before_proc()
+        self._before_proc(trainer=self, training=True)
 
         if training_dataset:
             for i_epoch in range(self._total_epochs, epochs + self._total_epochs):
@@ -384,20 +386,20 @@ class Trainer(BaseRunner):
 
                 self._model.train()
                 for i_batch, (x_train, y_train) in enumerate(training_dataset):
-                    x_train, y_train = self.input_proc(x_train, y_train)
+                    x_train, y_train = self.input_proc(x_train, y_train, trainer=self, training=True)
                     if not isinstance(x_train, tuple):
                         x_train = (x_train,)
                     yield _step(x_train, y_train, i_batch)
                     if self._early_stopping[0]:
                         tqdm.write(f'Early stopping is applied: {self._early_stopping[1]}')
-                        self._after_proc()
+                        self._after_proc(trainer=self, training=True)
                         self._model.eval()
                         return
                 _snapshot()
                 self._total_epochs += 1
 
         else:
-            x_train, y_train = self.input_proc(x_train, y_train)
+            x_train, y_train = self.input_proc(x_train, y_train, trainer=self, training=True)
             if not isinstance(x_train, tuple):
                 x_train = (x_train,)
 
@@ -410,14 +412,14 @@ class Trainer(BaseRunner):
                 yield _step(x_train, y_train)
                 if self._early_stopping[0]:
                     tqdm.write(f'Early stopping is applied: {self._early_stopping[1]}.')
-                    self._after_proc()
+                    self._after_proc(trainer=self, training=True)
                     self._model.eval()
                     return
                 _snapshot()
                 self._total_epochs += 1
 
         # after processing
-        self._after_proc()
+        self._after_proc(trainer=self, training=True)
         self._model.eval()
 
     def predict(self,
@@ -448,7 +450,7 @@ class Trainer(BaseRunner):
         """
 
         def _predict(x_, y_=None):
-            x_, y_ = self.input_proc(x_, y_, training=False)
+            x_, y_ = self.input_proc(x_, y_, trainer=self, training=False)
             if not isinstance(x_, tuple):
                 x_ = (x_,)
 
@@ -460,7 +462,7 @@ class Trainer(BaseRunner):
             else:
                 y_p_ = self._model(*x_, **model_params)
 
-            return self.output_proc(y_p_, y_, training=False)
+            return self.output_proc(y_p_, y_, trainer=self, training=False)
 
         def _vstack(ls):
             if isinstance(ls[0], np.ndarray):

@@ -16,6 +16,8 @@ from tqdm import tqdm
 
 from xenonpy.utils import TimedMetaClass, absolute_path
 
+__all__ = ['MDL']
+
 
 class MDL(BaseEstimator, metaclass=TimedMetaClass):
     def __init__(self, *, save_to='.', api_key=''):

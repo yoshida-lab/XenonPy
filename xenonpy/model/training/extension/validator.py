@@ -1,6 +1,7 @@
 #  Copyright (c) 2019. TsumiNa. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
+from collections import OrderedDict
 from typing import Callable, Any, Dict
 
 import numpy as np
@@ -30,7 +31,7 @@ class Validator(BaseExtension):
 
         self.from_dataset = False
 
-    def before_proc(self, *, trainer: Trainer) -> None:
+    def before_proc(self, trainer: Trainer) -> None:
         x_val, y_val = trainer.x_val, trainer.y_val
         val_dataset = trainer.validate_dataset
 
@@ -39,7 +40,7 @@ class Validator(BaseExtension):
         elif x_val is None or y_val is None:
             raise RuntimeError('no data for validation')
 
-    def step_forward(self, step_info, *, trainer: Trainer) -> None:
+    def step_forward(self, trainer: Trainer, step_info: OrderedDict) -> None:
         if self.from_dataset:
             y_preds, y_trues = trainer.predict(dataset=trainer.validate_dataset)
         else:

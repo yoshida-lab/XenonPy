@@ -71,7 +71,7 @@ class Trainer(BaseRunner):
         self._optim = optimizer
         self._optimizer = None
         self._init_optim = None
-        self._set_optimizer(optimizer)
+        self._set_optimizer()
 
         # set lr_scheduler
         self._scheduler = None
@@ -99,9 +99,11 @@ class Trainer(BaseRunner):
             self._scheduler = lr_scheduler
             self._lr_scheduler: Union[_LRScheduler, None] = self._scheduler(self._optimizer)
 
-    def _set_optimizer(self, optim):
-        if self._model is not None:
+    def _set_optimizer(self, optim=None):
+        if optim is not None:
             self._optim = optim
+
+        if self._model is not None:
             self._optimizer = self._optim(self._model.parameters())
             self._init_optim = deepcopy(self._optimizer.state_dict())
 
@@ -207,7 +209,7 @@ class Trainer(BaseRunner):
 
         if isinstance(to, Module):
             self._set_model(to)
-            self._set_optimizer(self._optim)
+            self._set_optimizer()
             self._set_lr_scheduler(self._scheduler)
             self._checkpoints = OrderedDict()
         elif isinstance(to, (int, str)):
@@ -219,7 +221,7 @@ class Trainer(BaseRunner):
             self._optimizer.load_state_dict(self._init_optim)
             self._checkpoints = OrderedDict()
 
-        self._on_reset()
+        self._on_reset(trainer=self, training=True)
 
     def fit(self,
             x_train: Union[Any, Tuple[Any]] = None,

@@ -282,14 +282,15 @@ class Trainer(BaseRunner):
         if epochs is None:
             epochs = self.epochs
 
-        # prob = self._total_epochs - 1
+        prob = self._total_epochs
         with tqdm(total=epochs, desc='Training') as pbar:
             for _ in self(x_train=x_train, y_train=y_train, x_val=x_val, y_val=y_val, training_dataset=training_dataset,
                           validation_dataset=validation_dataset, epochs=epochs, checkpoint=checkpoint,
                           **model_params):
-                # t = self._total_epochs - prob
-                pbar.update()
-                # prob = self._total_epochs
+                delta = self._total_epochs - prob
+                if delta:
+                    prob = self._total_epochs
+                    pbar.update(delta)
 
     def __call__(self,
                  x_train: Union[Any, Tuple[Any]] = None,

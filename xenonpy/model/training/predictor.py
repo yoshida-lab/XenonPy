@@ -33,7 +33,7 @@ class Predictor(BaseRunner):
         """
         super().__init__(cuda=cuda)
         self.verbose = verbose
-        self._check_points: Dict[int, Dict] = check_points if check_points else {}
+        self._checkpoints: Dict[int, Dict] = check_points if check_points else {}
         self._model = model.to(self._device)
 
     @property
@@ -102,7 +102,7 @@ class Predictor(BaseRunner):
                 x_ = (x_,)
 
             if check_point:
-                cp = self._check_points[check_point]
+                cp = self._checkpoints[check_point]
                 model = deepcopy(self._model.cpu()).to(self._device)
                 model.load_state_dict(cp['check_point'])
                 y_p_ = model(*x_, **model_params)
@@ -124,9 +124,9 @@ class Predictor(BaseRunner):
             y_trues = []
             for x_in, y_true in dataset:
                 y_pred, y_true = _predict(x_in, y_true)
-                y_preds.append(_vstack(y_pred))
-                y_trues.append(_vstack(y_true))
-            return y_preds, y_trues
+                y_preds.append(y_pred)
+                y_trues.append(y_true)
+            return _vstack(y_preds), _vstack(y_trues)
         elif x_in is not None and dataset is None:
             y_preds, y_trues = _predict(x_in, y_true)
             if y_trues is None:

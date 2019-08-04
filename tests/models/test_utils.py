@@ -30,7 +30,7 @@ def test_regression_metrics_1(data):
     noise = data[2]
     metric = regression_metrics(x, y)
     assert isinstance(metric, dict)
-    assert set(metric.keys()) == {'mae', 'mse', 'rmse', 'r2', 'pearsonr', 'spearmanr', 'p_value', 'max_error'}
+    assert set(metric.keys()) == {'mae', 'mse', 'rmse', 'r2', 'pearsonr', 'spearmanr', 'p_value', 'max_ae'}
     assert metric['mae'] < noise
     assert metric['mse'] < noise ** 2
     assert metric['rmse'] < noise
@@ -38,11 +38,11 @@ def test_regression_metrics_1(data):
     assert metric['pearsonr'] > 0.9999
     assert metric['spearmanr'] > 0.9999
     assert np.isclose(metric['p_value'], 0, 1e-4)
-    assert metric['max_error'] < noise
+    assert metric['max_ae'] < noise
 
     assert metric['mae'] == regression_metrics(x.reshape(-1, 1), y)['mae']
     assert metric['rmse'] == regression_metrics(x.reshape(-1, 1), y.reshape(-1, 1))['rmse']
-    assert metric['max_error'] == regression_metrics(x, y.reshape(-1, 1))['max_error']
+    assert metric['max_ae'] == regression_metrics(x, y.reshape(-1, 1))['max_ae']
 
 
 if __name__ == "__main__":

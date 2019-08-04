@@ -17,6 +17,7 @@ from tqdm import tqdm
 
 from xenonpy.model.training import ClipValue, ClipNorm
 from xenonpy.model.training.base import BaseOptimizer, BaseLRScheduler, BaseRunner
+from xenonpy.utils import camel_to_snake
 
 __all__ = ['Trainer']
 
@@ -32,7 +33,7 @@ class Trainer(BaseRunner):
                  model: Module = None,
                  lr_scheduler: BaseLRScheduler = None,
                  clip_grad: Union[ClipNorm, ClipValue] = None,
-                 epochs: int = 2000,
+                 epochs: int = 200,
                  cuda: Union[bool, str, torch.device] = False,
                  non_blocking: bool = False,
                  ):
@@ -58,6 +59,7 @@ class Trainer(BaseRunner):
         """
         super().__init__(cuda=cuda)
         self._loss_func = loss_func
+        self._loss_type = 'train_' + camel_to_snake(loss_func.__class__.__name__)
         self._clip_grad = clip_grad
         self.epochs = epochs
         self.non_blocking = non_blocking
@@ -74,7 +76,7 @@ class Trainer(BaseRunner):
         self._set_optimizer()
 
         # set lr_scheduler
-        self._scheduler = None
+        self._scheduler = lr_scheduler
         self._lr_scheduler = None
         self._set_lr_scheduler(lr_scheduler)
 
@@ -82,8 +84,8 @@ class Trainer(BaseRunner):
         self._early_stopping: Tuple[bool, str] = (False, '')
         self._checkpoints: Dict[Union[int, str], Trainer.checkpoint_tuple] = OrderedDict()
         self._training_info: List[OrderedDict] = []
-        self._total_its: int = 1  # of total iterations
-        self._total_epochs: int = 1  # of total epochs
+        self._total_its: int = 0  # of total iterations
+        self._total_epochs: int = 0  # of total epochs
 
         self._x_val = None
         self._y_val = None
@@ -106,6 +108,10 @@ class Trainer(BaseRunner):
         if self._model is not None:
             self._optimizer = self._optim(self._model.parameters())
             self._init_optim = deepcopy(self._optimizer.state_dict())
+
+    @property
+    def loss_type(self):
+        return self._loss_type
 
     @property
     def total_epochs(self):
@@ -166,13 +172,24 @@ class Trainer(BaseRunner):
         self._set_lr_scheduler(scheduler)
 
     @property
+    def clip_grad(self):
+        return self._clip_grad
+
+    @clip_grad.setter
+    def clip_grad(self, fn):
+        self._clip_grad = fn
+
+    @property
     def checkpoints(self):
         return self._checkpoints
 
     def get_checkpoint(self, checkpoint: Union[int, str] = None):
         if checkpoint is None:
             return list(self._checkpoints.keys())
-        if isinstance(checkpoint, (int, str)):
+        if isinstance(checkpoint, int):
+            id_ = f'cp:{checkpoint}'
+            return self._checkpoints[id_]
+        if isinstance(checkpoint, str):
             return self._checkpoints[checkpoint]
         raise TypeError(f'parameter <cp> must be str or int but got {checkpoint.__class__}')
 
@@ -203,8 +220,8 @@ class Trainer(BaseRunner):
             Bind trainer to the given model or reset current model to it's initialization states.
         """
         self._training_info = []
-        self._total_its = 1
-        self._total_epochs = 1
+        self._total_its = 0
+        self._total_epochs = 0
         self._early_stopping = (False, '')
 
         if isinstance(to, Module):
@@ -216,23 +233,25 @@ class Trainer(BaseRunner):
             cp = self.get_checkpoint(to)
             self._model.load_state_dict(cp.model_state)
             self._optimizer.load_state_dict(cp.optimizer_state)
-        else:
+        elif to is None:
             self._model.load_state_dict(self._init_states)
             self._optimizer.load_state_dict(self._init_optim)
             self._checkpoints = OrderedDict()
+        else:
+            raise TypeError(f'parameter <to> must be torch.nnModule, int, or str but got {type(to)}')
 
         self._on_reset(trainer=self, training=True)
 
     def fit(self,
             x_train: Union[Any, Tuple[Any]] = None,
             y_train: Any = None,
-            *,
-            training_dataset: DataLoader = None,
             x_val: Union[Any, Tuple[Any]] = None,
             y_val: Any = None,
+            *,
+            training_dataset: DataLoader = None,
             validation_dataset: DataLoader = None,
             epochs: int = None,
-            checkpoint: Union[bool, int, Callable[[int], bool]] = None,
+            checkpoint: Union[bool, int, Callable[[int], Tuple[bool, str]]] = None,
             **model_params):
         """
         Train the Neural Network model
@@ -263,22 +282,22 @@ class Trainer(BaseRunner):
         if epochs is None:
             epochs = self.epochs
 
-        prob = self._total_epochs - 1
+        # prob = self._total_epochs - 1
         with tqdm(total=epochs, desc='Training') as pbar:
-            for _ in self(x_train=x_train, y_train=y_train, training_dataset=training_dataset, x_val=x_val, y_val=y_val,
+            for _ in self(x_train=x_train, y_train=y_train, x_val=x_val, y_val=y_val, training_dataset=training_dataset,
                           validation_dataset=validation_dataset, epochs=epochs, checkpoint=checkpoint,
                           **model_params):
-                t = self._total_epochs - prob
-                pbar.update(t)
-                prob = self._total_epochs
+                # t = self._total_epochs - prob
+                pbar.update()
+                # prob = self._total_epochs
 
     def __call__(self,
                  x_train: Union[Any, Tuple[Any]] = None,
                  y_train: Any = None,
-                 *,
-                 training_dataset: DataLoader = None,
                  x_val: Union[Any, Tuple[Any]] = None,
                  y_val: Any = None,
+                 *,
+                 training_dataset: DataLoader = None,
                  validation_dataset: DataLoader = None,
                  epochs: int = None,
                  checkpoint: Union[bool, int, Callable[[int], bool]] = None,
@@ -349,16 +368,15 @@ class Trainer(BaseRunner):
             step_info = OrderedDict(
                 total_iters=self._total_its,
                 i_epoch=self._total_epochs,
-                i_batch=i_b + 1,
-                train_loss=train_loss)
-
+                i_batch=i_b + 1, )
+            step_info[self._loss_type] = train_loss
+            self._total_its += 1
             self._step_forward(step_info=step_info, trainer=self, training=True)
             self._training_info.append(step_info)
 
             if self._lr_scheduler is not None and isinstance(self._lr_scheduler, ReduceLROnPlateau):
                 self._lr_scheduler.step(train_loss, epoch=self._total_epochs)
 
-            self._total_its += 1
             return step_info
 
         def _snapshot():
@@ -369,8 +387,9 @@ class Trainer(BaseRunner):
                     if self._total_epochs % checkpoint == 0:
                         self.set_checkpoint()
                 if callable(checkpoint):
-                    if checkpoint(self._total_epochs):
-                        self.set_checkpoint()
+                    flag, msg = checkpoint(self._total_epochs)
+                    if flag:
+                        self.set_checkpoint(msg)
 
         if validation_dataset is not None:
             if y_val is not None or x_val is not None:
@@ -392,6 +411,7 @@ class Trainer(BaseRunner):
                     self._lr_scheduler.step(epoch=self._total_its)
 
                 self._model.train()
+                self._total_epochs += 1
                 for i_batch, (x_train, y_train) in enumerate(training_dataset):
                     x_train, y_train = self.input_proc(x_train, y_train, trainer=self, training=True)
                     if not isinstance(x_train, tuple):
@@ -403,7 +423,6 @@ class Trainer(BaseRunner):
                         self._model.eval()
                         return
                 _snapshot()
-                self._total_epochs += 1
 
         else:
             x_train, y_train = self.input_proc(x_train, y_train, trainer=self, training=True)
@@ -416,6 +435,7 @@ class Trainer(BaseRunner):
                     self._lr_scheduler.step(epoch=self._total_its)
 
                 self._model.train()
+                self._total_epochs += 1
                 yield _step(x_train, y_train)
                 if self._early_stopping[0]:
                     tqdm.write(f'Early stopping is applied: {self._early_stopping[1]}.')
@@ -423,7 +443,6 @@ class Trainer(BaseRunner):
                     self._model.eval()
                     return
                 _snapshot()
-                self._total_epochs += 1
 
         # after processing
         self._after_proc(trainer=self, training=True)
@@ -480,7 +499,7 @@ class Trainer(BaseRunner):
 
         self._model.eval()
         self._model.to(self.device, non_blocking=self.non_blocking)
-        if dataset is not None:
+        if x_in is None and y_true is None and dataset is not None:
             y_preds = []
             y_trues = []
             for x_in, y_true in dataset:

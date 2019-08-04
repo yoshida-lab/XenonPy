@@ -36,5 +36,5 @@ def regression_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> OrderedDict:
         pearsonr=pr,
         spearmanr=sr,
         p_value=p_val,
-        max_error=maxae
+        max_ae=maxae
     )

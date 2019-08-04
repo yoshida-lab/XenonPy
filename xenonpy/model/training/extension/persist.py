@@ -2,6 +2,7 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
+from copy import deepcopy
 from datetime import datetime, timedelta
 from pathlib import Path
 from platform import version as sys_ver
@@ -24,61 +25,80 @@ class Persist(BaseExtension):
     def __init__(self,
                  path: Union[Path, str] = '.',
                  *,
-                 init_params: Union[list, dict] = None,
                  model_class: Callable = None,
+                 reconstruct_params: Union[list, dict] = None,
                  increment=False,
-                 save_optimizer_state=False,
                  sync_training_step=False,
+                 save_optimizer_state=False,
                  **describe: Any):
+        self._model_class: Callable = model_class
+        self._reconstruct_params: Union[list, dict] = reconstruct_params
         self.save_optimizer_state = save_optimizer_state
         self.sync_training_step = sync_training_step
-        self.checker = Checker(path, increment=increment)
-        self.describe = dict(
+        self._path = path
+        self._increment = increment
+        self._describe = describe
+        self._describe_ = None
+        self._checker: Union[Checker, None] = None
+
+    @property
+    def describe(self):
+        return self._checker.describe
+
+    @property
+    def model_structure(self):
+        return self._checker.model_structure
+
+    def get_checkpoint(self, id_: str = None):
+        if id_ is not None:
+            return self._checker.checkpoints[id_]
+        return self._checker.checkpoints.files
+
+    def __call__(self, *args: Any, **kwargs: Any):
+        self._checker(*args, **kwargs)
+
+    def __getitem__(self, item):
+        return self._checker[item]
+
+    def on_checkpoint(self, checkpoint: Trainer.checkpoint_tuple, trainer: Trainer) -> None:
+        key = checkpoint.id.replace(':', '_')
+        value = deepcopy(checkpoint._asdict())
+        if not self.save_optimizer_state:
+            del value['optimizer_state']
+        # print(self._checker.model_name, key)
+        self._checker.set_checkpoint(**{key: value})
+        if self.sync_training_step and trainer.training_info is not None:
+            self._checker(
+                training_info=trainer.training_info,
+            )
+
+    def before_proc(self, trainer: Trainer) -> None:
+        self._checker = Checker(self._path, increment=self._increment)
+        if self._model_class is not None:
+            self._checker(model_class=self._model_class)
+        if self._reconstruct_params is not None:
+            self._checker(init_params=self._reconstruct_params)
+        self._checker.model = trainer.model
+        self._describe_ = dict(
             python=py_ver,
             system=sys_ver(),
             numpy=np.__version__,
             torch=torch.__version__,
             xenonpy=__version__,
-            device='N/A',
-            start='N/A',
-            finish='N/A',
-            time_elapsed='N/A',
-            **describe,
-        )
-        self.checker(describe=self.describe)
-        if model_class is not None:
-            self.checker(model_class=model_class)
-        if init_params is not None:
-            self.checker(init_params=init_params)
-
-    def __call__(self, *args: Any, **kwargs: Any):
-        self.checker(*args, **kwargs)
-
-    def on_checkpoint(self, checkpoint: Trainer.checkpoint_tuple, trainer: Trainer) -> None:
-        key = checkpoint.id.replace(':', '_')
-        value = checkpoint._asdict()
-        if not self.save_optimizer_state:
-            del value['optimizer_state']
-        self.checker.set_checkpoint(**{key: value})
-        if self.sync_training_step:
-            self.checker(
-                training_info=trainer.training_info,
-            )
-
-    def before_proc(self, trainer: Trainer) -> None:
-        self.describe.update(
             device=str(trainer.device),
             start=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
+            finish='N/A',
+            time_elapsed='N/A',
+            **self._describe,
         )
-        self.checker(describe=self.describe)
-        self.checker.model = trainer.model
+        self._checker(describe=self._describe_)
 
     def after_proc(self, trainer: Trainer) -> None:
-        self.describe.update(
+        self._describe_.update(
             finish=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
             time_elapsed=str(timedelta(seconds=trainer.timer.elapsed)))
-        self.checker.final_state = trainer.model.state_dict()
-        self.checker(
+        self._checker.final_state = trainer.model.state_dict()
+        self._checker(
             training_info=trainer.training_info,
-            describe=self.describe,
+            describe=self._describe_,
         )

@@ -46,27 +46,32 @@ def setup():
 
 
 def test_checker_path(setup):
+    checker = Checker()
+    assert checker.path == str(Path('.').resolve())
+    assert checker.model_name == 'models'
+
     checker = Checker(setup['path'])
     assert checker.path == str(Path(setup['path']))
-
-
-def test_checker_default_path(setup):
-    checker = Checker(setup['path'])
-    assert checker.path == str(Path(setup['path']))
+    assert checker.model_name == setup['name']
 
     checker = Checker(setup['path'], increment=True)
     assert checker.path == str(Path(setup['path'] + '@1'))
+    assert checker.model_name == setup['name'] + '@1'
 
 
 def test_checker_model_1(setup):
     checker = Checker(setup['path'])
 
     assert checker.model is None
+    assert checker.describe is None
+    assert checker.model_structure is None
     with pytest.raises(TypeError):
         checker.model = None
 
     checker.model = setup['model']
     assert isinstance(checker.model, Layer1d)
+    assert isinstance(checker.model_structure, str)
+    assert 'Layer1d' in checker.model_structure
     assert str(checker.model) == str(setup['model'])
 
     assert checker.init_state is not None
@@ -88,6 +93,7 @@ def test_checker_model_1(setup):
 
 def test_checker_call(setup):
     checker = Checker(setup['path'])
+    assert checker['no exists'] is None
     checker.set_checkpoint(**setup['cp'])
     assert (Path(checker.path) / 'checkpoints').exists()
 

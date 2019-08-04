@@ -3,6 +3,7 @@
 #  license that can be found in the LICENSE file.
 
 from collections import OrderedDict
+from collections import defaultdict
 from pathlib import Path
 from typing import Any, Union, Dict, Callable, Tuple
 
@@ -52,7 +53,7 @@ class Checker(object):
         self._device = BaseRunner.check_device(device)
         self._handle = default_handle
 
-        self._files: Dict[str, str] = {}
+        self._files: Dict[str, str] = defaultdict(str)
         self._make_file_index()
 
     @classmethod
@@ -64,6 +65,10 @@ class Checker(object):
         return str(self._path)
 
     @property
+    def files(self):
+        return list(self._files.keys())
+
+    @property
     def model_name(self):
         """
 
@@ -73,6 +78,16 @@ class Checker(object):
             Model name.
         """
         return self._path.name
+
+    @property
+    def model_structure(self):
+        structure = self['model_structure']
+        print(structure)
+        return structure
+
+    @property
+    def training_info(self):
+        return self['training_info']
 
     @property
     def describe(self):
@@ -112,6 +127,7 @@ class Checker(object):
         if isinstance(model, Module):
             self(model=model)
             self.init_state = model.state_dict()
+            self(model_structure=str(model))
         else:
             raise TypeError(f'except `torch.nn.Module` object but got {type(model)}')
 
@@ -170,7 +186,12 @@ class Checker(object):
 
     def _load_data(self, file: str, handle):
         fp = self._files[file]
-        patten = Path(fp).name.split('.')[-2]
+        if fp == '':
+            return None
+        fp_ = Path(fp)
+        if not fp_.exists():
+            return None
+        patten = fp_.name.split('.')[-2]
         if patten == 'pd':
             return pd.read_pickle(fp)
         if patten == 'pth':

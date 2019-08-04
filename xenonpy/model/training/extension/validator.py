@@ -26,11 +26,19 @@ class Validator(BaseExtension):
         self.order = trace_order
 
         self.trace = {}
-        for name, target in trace_metrics.items():
-            self.trace[name] = (target, [np.inf] * trace_order)
+        self.trace_order = trace_order
+        self.trace_metrics = trace_metrics
+        self._set_trace(trace_metrics, trace_order)
 
         self.from_dataset = False
         self.train_loss = np.inf
+
+    def _set_trace(self, trace_metrics: dict, trace_order: int):
+        for name, target in trace_metrics.items():
+            self.trace[name] = (target, [np.inf] * trace_order)
+
+    def on_reset(self) -> None:
+        self._set_trace(self.trace_metrics, self.trace_order)
 
     def before_proc(self, trainer: Trainer) -> None:
         x_val, y_val = trainer.x_val, trainer.y_val
@@ -47,7 +55,7 @@ class Validator(BaseExtension):
         else:
             y_preds, y_trues = trainer.predict(trainer.x_val, trainer.y_val)
 
-        train_loss = step_info['train_loss']
+        train_loss = step_info[trainer.loss_type]
         if train_loss < self.train_loss:
             self.train_loss = train_loss
             self._count = self.patience

@@ -42,7 +42,11 @@ class Checker(object):
             Set to ``True`` to prevent the potential risk of overwriting.
             Default ``False``.
         """
-        path = Path(path).resolve()
+        if path == '.':
+            path = Path(path).resolve()
+            path = path / path.name
+        else:
+            path = Path(path).resolve()
         if increment:
             i = 1
             while Path(f'{path}@{i}').exists():

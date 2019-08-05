@@ -53,7 +53,11 @@ class Persist(BaseExtension):
 
     @path.setter
     def path(self, path: Union[Path, str]):
-        self._path = Path(path).resolve()
+        if path == '.':
+            path = Path(path).resolve()
+            self._path = path / path.name
+        else:
+            self._path = Path(path).resolve()
 
     @property
     def model_structure(self):

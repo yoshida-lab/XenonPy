@@ -47,7 +47,7 @@ def setup():
 
 def test_checker_path(setup):
     checker = Checker()
-    assert checker.path == str(Path('.').resolve())
+    assert checker.path == str(Path('.').resolve() / 'models')
     assert checker.model_name == Path(os.getcwd()).name
 
     checker = Checker(setup['path'])

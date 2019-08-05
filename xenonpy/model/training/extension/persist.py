@@ -35,15 +35,25 @@ class Persist(BaseExtension):
         self._reconstruct_params: Union[list, dict] = reconstruct_params
         self.save_optimizer_state = save_optimizer_state
         self.sync_training_step = sync_training_step
-        self._path = path
+        self.path = path
         self._increment = increment
         self._describe = describe
         self._describe_ = None
         self._checker: Union[Checker, None] = None
+        self._tmp_args: list = []
+        self._tmp_kwargs: dict = {}
 
     @property
     def describe(self):
         return self._checker.describe
+
+    @property
+    def path(self):
+        return str(self._path)
+
+    @path.setter
+    def path(self, path: Union[Path, str]):
+        self._path = Path(path).resolve()
 
     @property
     def model_structure(self):
@@ -54,8 +64,10 @@ class Persist(BaseExtension):
             return self._checker.checkpoints[id_]
         return self._checker.checkpoints.files
 
-    def __call__(self, *args: Any, **kwargs: Any):
-        self._checker(*args, **kwargs)
+    def __call__(self, handle: Any = None, **kwargs: Any):
+        if self._checker is None:
+            raise RuntimeError('calling of this method only after the model training')
+        self._checker(handle=handle, **kwargs)
 
     def __getitem__(self, item):
         return self._checker[item]

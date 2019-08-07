@@ -13,6 +13,7 @@ dependencies:
   - scipy
   - pytorch-cpu
   - pip:
+      - sphinx-autodoc-typehints
       - ruamel.yaml
       - pymatgen
       - tqdm

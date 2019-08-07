@@ -1,22 +1,17 @@
 xenonpy.contrib.foo package
 ===========================
 
-Submodules
-----------
+Subpackages
+-----------
 
-xenonpy.contrib.foo.foo module
-------------------------------
+.. toctree::
 
-.. automodule:: xenonpy.contrib.foo.foo
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   xenonpy.contrib.foo.descriptor
 
 Module contents
 ---------------
 
 .. automodule:: xenonpy.contrib.foo
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -11,6 +11,8 @@ from sklearn import utils
 from sklearn.base import BaseEstimator
 from sklearn.model_selection import train_test_split, KFold
 
+__all__ = ['Splitter']
+
 
 class Splitter(BaseEstimator):
     """

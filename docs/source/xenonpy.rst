@@ -6,31 +6,18 @@ Subpackages
 
 .. toctree::
 
-    xenonpy.contrib
-    xenonpy.datatools
-    xenonpy.descriptor
-    xenonpy.inverse
-    xenonpy.math
-    xenonpy.model
-    xenonpy.pipeline
-    xenonpy.visualization
-
-Submodules
-----------
-
-xenonpy.utils module
---------------------
-
-.. automodule:: xenonpy.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+   xenonpy.contrib
+   xenonpy.datatools
+   xenonpy.descriptor
+   xenonpy.inverse
+   xenonpy.model
+   xenonpy.utils
+   xenonpy.visualization
 
 Module contents
 ---------------
 
 .. automodule:: xenonpy
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -6,12 +6,13 @@ Subpackages
 
 .. toctree::
 
-    xenonpy.contrib.foo
+   xenonpy.contrib.extend_descriptors
+   xenonpy.contrib.foo
 
 Module contents
 ---------------
 
 .. automodule:: xenonpy.contrib
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

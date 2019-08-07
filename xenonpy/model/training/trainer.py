@@ -9,7 +9,6 @@ from typing import Union, Tuple, List, Any, Dict, Callable
 import numpy as np
 import pandas as pd
 import torch
-from torch import Tensor
 from torch.nn import Module
 from torch.optim.lr_scheduler import ReduceLROnPlateau, _LRScheduler
 from torch.utils.data import DataLoader
@@ -28,7 +27,7 @@ class Trainer(BaseRunner):
 
     def __init__(self,
                  *,
-                 loss_func: Module,
+                 loss_func: torch.nn.Module,
                  optimizer: BaseOptimizer,
                  model: Module = None,
                  lr_scheduler: BaseLRScheduler = None,
@@ -42,19 +41,19 @@ class Trainer(BaseRunner):
 
         Parameters
         ----------
-        loss_func: Tensor
+        loss_func
             Loss function.
-        optimizer: BaseOptimizer
+        optimizer
             Optimizer for model parameters tuning.
-        model: Module
+        model
             Pytorch NN model.
-        lr_scheduler: BaseLRScheduler
+        lr_scheduler
             Learning rate scheduler.
-        clip_grad : Union[ClipNorm, ClipValue]
+        clip_grad
             Clip grad before each optimize.
-        epochs: int
+        epochs
             Number of iterations.
-        cuda: Union[bool, str, torch.device]
+        cuda
             Set training device(s).
         """
         super().__init__(cuda=cuda)
@@ -293,7 +292,7 @@ class Trainer(BaseRunner):
                     pbar.update(delta)
 
     def __call__(self,
-                 x_train: Union[Any, Tuple[Any]] = None,
+                 x_train: Union[torch.Tensor, Tuple[torch.Tensor]] = None,
                  y_train: Any = None,
                  x_val: Union[Any, Tuple[Any]] = None,
                  y_val: Any = None,
@@ -308,9 +307,9 @@ class Trainer(BaseRunner):
 
         Parameters
         ----------
-        x_train: Union[torch.Tensor, Tuple[torch.Tensor]]
+        x_train
             Training data. Will be ignored will``training_dataset`` is given.
-        y_train: torch.Tensor
+        y_train
             Test data. Will be ignored will``training_dataset`` is given.
         training_dataset: DataLoader
             Torch DataLoader. If given, will only use this as training dataset.

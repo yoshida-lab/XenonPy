@@ -6,7 +6,7 @@ __all__ = ['Storage', 'Preset', 'preset', 'Splitter', 'Scaler', 'BoxCox', 'MDL',
 
 from .dataset import Dataset
 from .mdl import MDL
-from .preprocess import Splitter
 from .preset import Preset, preset
+from .splitter import Splitter
 from .storage import Storage
 from .transform import Scaler, BoxCox

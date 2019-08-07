@@ -6,11 +6,11 @@ requests
 mordred
 
 ###### Requirements with Version Specifiers ######
-numpy == 1.16.*
-pandas == 0.24.*
-pymatgen == 2019.5.*
-scikit-learn == 0.21.*
-scipy == 1.2.*
+numpy >= 1.16.*
+pandas >= 0.24.*
+pymatgen >= 2019.5.*
+scikit-learn >= 0.21.*
+scipy >= 1.2.*
 ruamel.yaml
 torch == 1.*
-joblib == 0.13.*
+joblib >= 0.13.*

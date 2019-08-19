@@ -9,7 +9,7 @@ we assume that you can use `Jupyter notebook <https://jupyter.org/>`_.
    :maxdepth: 1
    :glob:
 
-   tutorial/*
+   tutorials/*
 
 
 -----------

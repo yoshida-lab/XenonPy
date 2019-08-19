@@ -10,6 +10,7 @@ from typing import Any, Union, Dict, Callable, Tuple
 import joblib
 import pandas as pd
 import torch
+from deprecated import deprecated
 from torch.nn import Module
 
 from xenonpy.model.training.base import BaseRunner
@@ -136,6 +137,17 @@ class Checker(object):
             raise TypeError(f'except `torch.nn.Module` object but got {type(model)}')
 
     @property
+    @deprecated('This property is rotten and will be removed in v0.5.0')
+    def trained_model(self):
+        if (self._path / 'trained_model.@1.pkl.z').exists():
+            return torch.load(str(self._path / 'trained_model.@1.pkl.z'), map_location=self._device)
+        else:
+            tmp = self.final_state
+            if tmp is not None:
+                return tmp
+        return None
+
+    @property
     def init_state(self):
         if (self._path / 'init_state.pth.s').exists():
             return torch.load(str(self._path / 'init_state.pth.s'), map_location=self._device)
@@ -218,16 +230,18 @@ class Checker(object):
         -------
         self
         """
-        sub_set = self.__class__(self._path / name, increment=False, device=self._device)
-        setattr(self, f'{name}', sub_set)
-        return sub_set
+        if name == 'checkpoints':
+            sub_set = self.__class__(self._path / name, increment=False, device=self._device)
+            setattr(self, f'{name}', sub_set)
+            return sub_set
+        raise AttributeError(f'no such attribute named {name}')
 
     def __getitem__(self, item):
 
         if isinstance(item, str):
             return self._load_data(item, self._handle[0])
         else:
-            KeyError()
+            raise KeyError(f'{item}')
 
     def __call__(self, handle=None, **named_data: Any):
         """
@@ -249,3 +263,11 @@ class Checker(object):
 
     def set_checkpoint(self, **kwargs):
         self.checkpoints((Checker.__SL, '.pth.s'), **kwargs)
+
+    def __repr__(self):
+        cont_ls = ['<{}> includes:'.format(self.__class__.__name__)]
+
+        for k, v in self._files.items():
+            cont_ls.append('"{}": {}'.format(k, v))
+
+        return '\n'.join(cont_ls)

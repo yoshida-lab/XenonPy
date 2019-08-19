@@ -12,7 +12,13 @@ dependencies:
   - scikit-learn
   - scipy
   - pytorch-cpu
+  - nbconvert!=5.4
+  - ipykernel
+  - pip
   - pip:
+      - nbsphinx
+      - Python-Deprecated
+      - sphinx-autodoc-typehints
       - ruamel.yaml
       - pymatgen
       - tqdm

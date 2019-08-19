@@ -38,17 +38,23 @@ import xenonpy as package
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.doctest',
-              'sphinx.ext.napoleon',
-              'sphinx.ext.intersphinx',
-              'sphinx.ext.todo',
-              'sphinx.ext.coverage',
-              'sphinx.ext.mathjax',
-              'sphinx.ext.viewcode',
-              'sphinx.ext.githubpages',
-              'sphinx.ext.autosectionlabel'
-              ]
+extensions = [
+    'nbsphinx',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.napoleon',
+    'sphinx_autodoc_typehints',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.githubpages',
+    'sphinx.ext.autosectionlabel'
+]
+
+exclude_patterns = ['_build', '**.ipynb_checkpoints']
+nbsphinx_execute = 'never'
 
 # config autosectionlabel
 autosectionlabel_prefix_document = True
@@ -113,7 +119,15 @@ html_theme = "sphinx_rtd_theme"
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-html_theme_options = {}
+html_theme_options = {
+    'logo_only': True,
+}
+
+# favicon
+html_favicon = 'favicon.ico'
+
+# read the docs banner
+html_logo = '_static/logo_readthedocs.png'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -187,10 +201,13 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None,
-                       'pandas': ('http://pandas.pydata.org/pandas-docs/version/0.24', None),
+                       'pandas': ('http://pandas.pydata.org/pandas-docs/version/0.25', None),
                        'numpy': ('http://docs.scipy.org/doc/numpy', None),
                        'scipy': ('http://docs.scipy.org/doc/scipy/reference', None),
-                       'matplotlib': ('http://matplotlib.org', None)}
+                       'matplotlib': ('http://matplotlib.org', None),
+                       'torch': ('https://pytorch.org/docs/stable/', None)}
+
+nbsphinx_execute = 'never'
 
 
 def skip(app, what, name, obj, skip, options):

@@ -4,6 +4,7 @@ seaborn
 plotly
 requests
 mordred
+Python-Deprecated
 
 ###### Requirements with Version Specifiers ######
 numpy >= 1.16.*

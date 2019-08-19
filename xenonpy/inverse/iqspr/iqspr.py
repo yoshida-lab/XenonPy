@@ -6,7 +6,7 @@
 
 import numpy as np
 
-from ..base import BaseSMC, BaseProposal, BaseLogLikelihood
+from xenonpy.inverse.base import BaseSMC, BaseProposal, BaseLogLikelihood
 
 
 class IQSPR(BaseSMC):

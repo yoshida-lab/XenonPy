@@ -19,8 +19,11 @@ dependencies:
   - sphinx
   - sphinx_rtd_theme
   - jupyter
+  - nbconvert!=5.4
   - pip
   - pip:
+      - nbsphinx
+      - Python-Deprecated
       - ruamel.yaml
       - pymatgen==2019.5.8
       - jupyterlab

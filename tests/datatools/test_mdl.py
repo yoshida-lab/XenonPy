@@ -33,33 +33,17 @@ def test_query_properties(mdl):
 
 
 def test_query_models_1(mdl):
-    ret = mdl._query_models('test')
-    assert isinstance(ret, list)
-    assert len(ret) == 1
-
-
-def test_query_models_2(mdl):
-    ret = mdl._query_models('no exists model set')
-    assert isinstance(ret, list)
-    assert len(ret) == 0
-
-
-def test_fetch_models_1(mdl):
-    # ret = mdl('test', '.')
-    # assert isinstance(ret, pd.DataFrame)
-
-    # rmtree(str(Path.home() / '.xenonpy/userdata' / test['test_dir']))
-
-    ret = mdl('some_thing_not_exist')
-    assert ret is None
-
-    ret = mdl('test', save_to=None)
+    ret = mdl('test')
     assert isinstance(ret, pd.DataFrame)
+    assert ret.shape[0] == 1
     assert ret.index[0] == 'M00000'
+
+    ret = mdl('no exists model set')
+    assert ret is None
 
 
 def test_pull_1(mdl):
-    ret = mdl('Stable inorganic compounds', property_has='volume', save_to=None)
+    ret = mdl('Stable inorganic compounds', property_has='volume')
     urls = ret['url'].iloc[:1]
     paths = mdl.pull(urls=urls)
 
@@ -79,7 +63,7 @@ def test_return_nothing(mdl, monkeypatch):
 
     monkeypatch.setattr("requests.post", Request_Dummy)
     with pytest.raises(HTTPError) as excinfo:
-        mdl("test", save_to=False)
+        mdl("test")
     exc_msg = excinfo.value.args[0]
     assert exc_msg == "status_code: 999, Server did not responce."
 

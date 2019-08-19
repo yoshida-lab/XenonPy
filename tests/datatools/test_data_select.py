@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 from pandas import DataFrame, Series
 
-from xenonpy.datatools.splitter import Splitter
+from xenonpy.datatools import Splitter
 
 
 @pytest.fixture(scope='module')

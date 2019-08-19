@@ -11,7 +11,7 @@ import pandas as pd
 from rdkit import Chem
 from tqdm import tqdm
 
-from ..base import BaseProposal, ProposalError
+from xenonpy.inverse.base import BaseProposal, ProposalError
 
 
 class GetProbError(ProposalError):

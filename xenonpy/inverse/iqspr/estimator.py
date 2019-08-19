@@ -12,8 +12,8 @@ from scipy.stats import norm
 from sklearn.base import BaseEstimator
 from sklearn.linear_model import BayesianRidge
 
-from ..base import BaseLogLikelihood
-from ...descriptor.base import BaseDescriptor, BaseFeaturizer
+from xenonpy.descriptor.base import BaseDescriptor, BaseFeaturizer
+from xenonpy.inverse.base import BaseLogLikelihood
 
 
 class GaussianLogLikelihood(BaseLogLikelihood):

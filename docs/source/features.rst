@@ -282,7 +282,7 @@ XenonPy.MDL provides a rich set of APIs to give users the abilities to interact 
 Through the APIs, users can search for a specific subset of models by keywords and download them via HTTP.
 The tutorials at :doc:`tutorial/5-mdl` will show you how to interact with the database in XenonPy (via the API querying).
 
-Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/mdl.ipynb to get a runnable script.
+Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/pre-trained_model_library.ipynb to get a runnable script.
 
 
 -----------------

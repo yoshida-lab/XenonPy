@@ -9,7 +9,7 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/xenonpy.svg?label=PiPy%20downloads)
 
 <p align="center">
-  <img height="200" src="https://github.com/yoshida-lab/XenonPy/releases/download/v0.3.7/logo.png" alt="xenonpy">
+  <img height="200" src="https://github.com/yoshida-lab/XenonPy/blob/feature/update_docs/logo.png" alt="xenonpy">
 </p>
 
 **XenonPy** is a Python library that implements a comprehensive set of machine learning tools

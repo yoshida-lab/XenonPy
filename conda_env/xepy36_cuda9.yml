@@ -20,6 +20,7 @@ dependencies:
   - pip
   - pip:
       - ruamel.yaml
+      - Python-Deprecated
       - pymatgen==2019.7.2
       - matminer
       - torchtext

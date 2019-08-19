@@ -6,6 +6,7 @@ import json
 import os
 import tarfile
 from pathlib import Path
+from typing import List
 
 import numpy as np
 import pandas as pd
@@ -20,19 +21,15 @@ __all__ = ['MDL']
 
 
 class MDL(BaseEstimator, metaclass=TimedMetaClass):
-    def __init__(self, *, save_to='.', api_key=''):
+    def __init__(self, *, api_key: str = ''):
         """
-        Access to XenonPy.MDL.
+        Access to XenonPy.MDL library.
 
         Parameters
         ----------
-        save_to: str
-            Path to save models.
-            If set to ``None``, only return query result.
-        api_key: str
+        api_key
             Not implement yet.
         """
-        self.save_to = save_to
         self._url = 'http://xenon.ism.ac.jp/api'
         self.api_key = api_key
         self._headers = {'Accept': 'application/json', "content-type": "application/json"}
@@ -67,14 +64,47 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
         variables = {"name": name_has}
         return self.query(query, variables)['queryProperties']
 
-    def _query_models(self, modelset_has, *,
-                      property_has='',
-                      descriptor_has='',
-                      method_has='',
-                      lang_has='',
-                      regress_is=True,
-                      transferred_is=False,
-                      succeed_is=True):
+    def __call__(self, modelset_has, *,
+                 property_has='',
+                 descriptor_has='',
+                 method_has='',
+                 lang_has='',
+                 regress_is=True,
+                 transferred_is=False,
+                 succeed_is=True,
+                 ):
+        """
+        Query models with specific keywords and download to a specific destination
+
+        Parameters
+        ----------
+        modelset_has: str
+            The part of a model set's name.
+            For example, ``modelset_has='test`` will hit ``*test*``
+        property_has: str
+            A part of the name of property.
+        descriptor_has: str
+            A part of the name of descriptor.
+        method_has: str
+            A part of the name of training method.
+        lang_has: str
+            A part of the name of programming language.
+        regress_is: bool
+            If``True``, searching in regression models,
+            else, searching in classification models.
+            Default is ``True``.
+        transferred_is: bool
+            If ``True``, searching in transferred models.
+            Default is ``False``.
+        succeed_is: bool
+            If ``True``, searching in succeed models.
+            Default is ``True``.
+
+        Returns
+        -------
+        ret: pd.DataFrame
+            A summary of all downloaded models.
+        """
         query = '''
         query ($modelSet: String!
                $property: String
@@ -125,75 +155,30 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
             transferred=transferred_is,
             succeed=succeed_is
         )
-        return self.query(query, variables)['queryModels']
 
-    def __call__(self, modelset_has, *,
-                 property_has='',
-                 descriptor_has='',
-                 method_has='',
-                 lang_has='',
-                 regress_is=True,
-                 transferred_is=False,
-                 succeed_is=True,
-                 **kwargs):
+        ret = self.query(query, variables)['queryModels']
+        if not ret:
+            return None
+
+        return pd.DataFrame(ret).set_index('mId', drop=True)
+
+    @classmethod
+    def pull(cls, urls: List[str], save_to: str = '.'):
         """
-        Query models and download to a specific destination
 
         Parameters
         ----------
-        modelset_has: str
-            The part of a model set's name.
-            For example, ``modelset_has='test`` will hit ``*test*``
-        save_to: str or bool
+        urls
+            List of downloadable urls point to the models.
+        save_to
             Path to save models.
             If ``False``, only return query results.
             This is a temporary change that only have effect in the current fetch.
-        property_has: str
-            A part of the name of property.
-        descriptor_has: str
-            A part of the name of descriptor.
-        method_has: str
-            A part of the name of training method.
-        lang_has: str
-            A part of the name of programming language.
-        regress_is: bool
-            If``True``, searching in regression models,
-            else, searching in classification models.
-            Default is ``True``.
-        transferred_is: bool
-            If ``True``, searching in transferred models.
-            Default is ``False``.
-        succeed_is: bool
-            If ``True``, searching in succeed models.
-            Default is ``True``.
 
         Returns
         -------
-        ret: pd.DataFrame
-            A summary of all downloaded models.
+
         """
-        ret = self._query_models(modelset_has,
-                                 property_has=property_has,
-                                 descriptor_has=descriptor_has,
-                                 method_has=method_has,
-                                 lang_has=lang_has,
-                                 regress_is=regress_is,
-                                 transferred_is=transferred_is,
-                                 succeed_is=succeed_is)
-        if not ret:
-            return None
-        ret_ = pd.DataFrame(ret)
-        if 'save_to' not in kwargs:
-            save_to = self.save_to
-        else:
-            save_to = kwargs['save_to']
-        if save_to:
-            ret_['save_path'] = self.pull(ret_['url'], save_to=save_to)
-
-        return ret_.set_index('mId', drop=True)
-
-    @classmethod
-    def pull(cls, urls, save_to='.'):
         path_list = []
         if isinstance(urls, (np.ndarray, pd.Series)):
             urls = urls.tolist()

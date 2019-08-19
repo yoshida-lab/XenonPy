@@ -19,6 +19,11 @@ class CrystalGraphFeaturizer(BaseFeaturizer):
     def __init__(self, *, max_num_nbr=12, radius=8, atom_feature='origin', n_jobs=-1, on_errors='raise',
                  return_type='any'):
         """
+        This featurizer is a port of the original paper [CGCNN]_.
+
+        .. [CGCNN] `Crystal Graph Convolutional Neural Networks for an Accurate and
+            Interpretable Prediction of Material Properties`__
+        __ https://doi.org/10.1103/PhysRevLett.120.145301
 
         Parameters
         ----------

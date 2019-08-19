@@ -63,7 +63,7 @@ def test_return_nothing(mdl, monkeypatch):
 
     monkeypatch.setattr("requests.post", Request_Dummy)
     with pytest.raises(HTTPError) as excinfo:
-        mdl("test", save_to=False)
+        mdl("test")
     exc_msg = excinfo.value.args[0]
     assert exc_msg == "status_code: 999, Server did not responce."
 

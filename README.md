@@ -1,3 +1,13 @@
+<p class="centered">
+  <img height="200" src="https://github.com/yoshida-lab/XenonPy/releases/download/v0.3.7/logo.png" alt="xenonpy">
+</p>
+
+<style>
+.centered {
+    text-align: center;
+}
+</style>
+
 # What is XenonPy project
 
 [![Build Status](https://travis-ci.org/yoshida-lab/XenonPy.svg?branch=master)](https://travis-ci.org/yoshida-lab/XenonPy)
@@ -14,9 +24,9 @@ The current release provides some limited modules:
 
 - Interface to public materials database
 - Library of materials descriptors (compositional/structural descriptors)
-- Pretrained model library **XenonPy.MDL** (v0.1.0b, 2018/12/25: more than 100,000 models in 35 properties of small molecules, polymers, and inorganic compounds)
+- Pre-trained model library **XenonPy.MDL** (v0.1.0.beta, 2019/8/7: more than 140,000 models (include private models) in 35 properties of small molecules, polymers, and inorganic compounds)
 - Machine learning tools.
-- Transfer learning using the pretrained models in XenonPy.MDL
+- Transfer learning using the pre-trained models in XenonPy.MDL
 
 XenonPy inspired by matminer: https://hackingmaterials.github.io/matminer/.
 
@@ -39,11 +49,11 @@ The following table list some core packages in XenonPy images.
 | `scipy`        | 1.2.1      |
 | `scikit-learn` | 0.21.1     |
 | `pandas`       | 0.24.2     |
-| `rdkit`        | 2019.03.2  |
+| `rdkit`        | 2019.03.3  |
 | `jupyter`      | 1.0.0      |
 | `seaborn`      | 0.9.0      |
 | `matplotlib`   | 3.0.3      |
-| `plotly`       | 3.8.1      |
+| `plotly`       | 4.0.0      |
 
 ## Requirements
 

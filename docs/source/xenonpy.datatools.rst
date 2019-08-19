@@ -20,18 +20,18 @@ xenonpy.datatools.mdl module
    :undoc-members:
    :show-inheritance:
 
-xenonpy.datatools.preprocess module
------------------------------------
-
-.. automodule:: xenonpy.datatools.preprocess
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 xenonpy.datatools.preset module
 -------------------------------
 
 .. automodule:: xenonpy.datatools.preset
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+xenonpy.datatools.splitter module
+---------------------------------
+
+.. automodule:: xenonpy.datatools.splitter
    :members:
    :undoc-members:
    :show-inheritance:

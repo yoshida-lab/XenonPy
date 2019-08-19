@@ -1,5 +1,5 @@
 <p align="center">
-  <img height="200" src="https://github.com/yoshida-lab/XenonPy/releases/download/v0.3.7/logo.png" alt="xenonpy">
+  <img src="https://github.com/yoshida-lab/XenonPy/releases/download/v0.3.7/logo.png" alt="xenonpy">
 </p>
 
 

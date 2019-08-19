@@ -43,7 +43,7 @@ def test_query_models_1(mdl):
 
 
 def test_pull_1(mdl):
-    ret = mdl('Stable inorganic compounds', property_has='volume', save_to=None)
+    ret = mdl('Stable inorganic compounds', property_has='volume')
     urls = ret['url'].iloc[:1]
     paths = mdl.pull(urls=urls)
 

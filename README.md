@@ -1,8 +1,3 @@
-<p align="center">
-  <img src="https://github.com/yoshida-lab/XenonPy/releases/download/v0.3.7/logo.png" alt="xenonpy">
-</p>
-
-
 # What is XenonPy project
 
 [![Build Status](https://travis-ci.org/yoshida-lab/XenonPy.svg?branch=master)](https://travis-ci.org/yoshida-lab/XenonPy)
@@ -12,6 +7,10 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/xenonpy.svg)](https://pypi.org/project/xenonpy/)
 [![Downloads](https://pepy.tech/badge/xenonpy)](https://pepy.tech/project/xenonpy)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/xenonpy.svg?label=PiPy%20downloads)
+
+<p align="center">
+  <img src="https://github.com/yoshida-lab/XenonPy/releases/download/v0.3.7/logo.png" alt="xenonpy">
+</p>
 
 **XenonPy** is a Python library that implements a comprehensive set of machine learning tools
 for materials informatics. Its functionalities partially depend on PyTorch and R.

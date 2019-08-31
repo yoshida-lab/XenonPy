@@ -102,11 +102,11 @@ the ``elements_completed`` data set provides only 58 properties of 94 elements (
     ``num_d_unfilled``                  Unfilled electron in d shell
     ``num_d_valence``                   Valance electron in d shell
     ``num_f_unfilled``                  Unfilled electron in f shell
-    ``num_f_valence``                   Valance electron in d shell
+    ``num_f_valence``                   Valance electron in f shell
     ``num_p_unfilled``                  Unfilled electron in p shell
-    ``num_p_valence``                   Valance electron in d shell
+    ``num_p_valence``                   Valance electron in p shell
     ``num_s_unfilled``                  Unfilled electron in s shell
-    ``num_s_valence``                   Valance electron in d shell
+    ``num_s_valence``                   Valance electron in s shell
     =================================   ===================================================================================
 
 For more details on this system, see :doc:`tutorial/1-dataset`.

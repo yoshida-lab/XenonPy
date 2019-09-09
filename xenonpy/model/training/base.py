@@ -164,7 +164,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             _kwargs = self._make_inject(injects['on_checkpoint'], kwargs)
             ext.on_checkpoint(**_kwargs)
 
-    def extend(self, *extension: BaseExtension):
+    def extend(self, *extension: BaseExtension) -> 'BaseRunner':
         """
         Add training extensions to trainer.
 
@@ -188,6 +188,8 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             dependency_inject = {k: v for k, v in zip(methods, dependencies)}
 
             self._extensions[name] = (ext, dependency_inject)
+
+        return self
 
     def remove_extension(self, *extension: str):
         for name in extension:

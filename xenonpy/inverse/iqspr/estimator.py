@@ -17,10 +17,9 @@ from xenonpy.inverse.base import BaseLogLikelihood
 
 
 class GaussianLogLikelihood(BaseLogLikelihood):
-    def __init__(self, descriptor: Union[BaseFeaturizer, BaseDescriptor], **estimators: BaseEstimator):
+    def __init__(self, descriptor: Union[BaseFeaturizer, BaseDescriptor], *, targets={}, **estimators: BaseEstimator):
         """
         Gaussian loglikelihood.
-
         Parameters
         ----------
         descriptor: BaseFeaturizer or BaseDescriptor
@@ -30,17 +29,21 @@ class GaussianLogLikelihood(BaseLogLikelihood):
             These estimators must provide a method named ``predict`` which
             accesses descriptors as input and returns ``(mean, std)`` in order.
             By default, BayesianRidge_ will be used.
-
             .. _BayesianRidge: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianRidge.html#sklearn-linear-model-bayesianridge
+        targets: dictionary
+            Upper and lower bounds for each property to calculate the Gaussian CDF probability
         """
         if estimators:
             self._mdl = deepcopy(estimators)
         else:
             self._mdl = {}
+
         if not isinstance(descriptor, (BaseFeaturizer, BaseDescriptor)):
             raise TypeError('<descriptor> must be a subclass of <BaseFeaturizer> or <BaseDescriptor>')
         self._descriptor = descriptor
         self._descriptor.set_params(on_errors='nan')
+
+        self._targets = deepcopy(targets)
 
     def __getitem__(self, item):
         return self._mdl[item]
@@ -50,10 +53,28 @@ class GaussianLogLikelihood(BaseLogLikelihood):
             raise TypeError('estimator must be a regressor in scikit-learn style')
         self._mdl[key] = deepcopy(value)
 
+    def update_targets(self, *, reset=False, **targets):
+        """
+        Update/set the target area.
+        Parameters
+        ----------
+        reset: bool
+            If ``true``, reset target area.
+        targets: tuple[float, float]
+            Target area.
+            Should be a tuple which have down and up boundary.
+            e.g: ``target1=(10, 20)`` equal to ``target1 should in range [10, 20]``.
+        """
+        if reset:
+            self._targets = {}
+        for k, v in targets.items():
+            if not isinstance(v, tuple) or len(v) != 2 or v[1] <= v[0]:
+                raise ValueError('must be a tuple with (low, up) boundary')
+            self._targets[k] = v
+
     def remove_estimator(self, *properties: str):
         """
         Remove estimators from estimator set.
-
         Parameters
         ----------
         properties : str
@@ -61,9 +82,12 @@ class GaussianLogLikelihood(BaseLogLikelihood):
         """
         if not properties:
             self._mdl = {}
+            self._targets = {}
         else:
             for p in properties:
                 del self._mdl[p]
+                del self._targets[p]
+
 
     def predict(self, smiles, **kwargs):
         fps = self._descriptor.transform(smiles, return_type='df')
@@ -103,7 +127,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
         if not isinstance(y, pd.DataFrame):
             raise TypeError('please package all properties into a pd.DataFrame')
 
-        # remove NaN fromm X
+        # remove NaN from X
         desc = self._descriptor.transform(smiles, return_type='df').reset_index(drop=True)
         y = y.reset_index(drop=True)
         desc.dropna(inplace=True)
@@ -120,6 +144,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
             mdl.fit(desc_, y_)
             self._mdl[c] = mdl
 
+    # log_likelihood returns a dataframe of log-likelihood values of each property & sample
     def log_likelihood(self, smis, **targets):
         def _avoid_overflow(ll_):
             # log(exp(log(UP) - log(C)) - exp(log(LOW) - log(C))) + log(C)
@@ -128,14 +153,22 @@ class GaussianLogLikelihood(BaseLogLikelihood):
             ll_ = np.log(np.exp(ll_[1] - ll_c) - np.exp(ll_[0] - ll_c)) + ll_c
             return ll_
 
-        ll = np.repeat(-1000.0, len(smis))
+        # self.update_targets(reset=False, **targets):
+        for k, v in targets.items():
+            if not isinstance(v, tuple) or len(v) != 2 or v[1] <= v[0]:
+                raise ValueError('must be a tuple with (low, up) boundary')
+            self._targets[k] = v
+
+        if not self._targets:
+            raise RuntimeError('<targets> is empty')
+
+        ll = pd.DataFrame(np.full((len(smis), len(self._mdl)), -1000.0), columns=self._mdl.keys())
         pred = self.predict(smis).reset_index(drop=True)
         tmp = pred.isna().any(axis=1)
         idx = [i for i in range(len(smis)) if ~tmp[i]]
 
         # calculate likelihood
-        ll_mat = []
-        for k, (low, up) in targets.items():  # k: target; v: (low, up)
+        for k, (low, up) in self._targets.items():  # k: target; v: (low, up)
 
             # predict mean, std for all smiles
             mean, std = pred[k + ': mean'], pred[k + ': std']
@@ -149,12 +182,6 @@ class GaussianLogLikelihood(BaseLogLikelihood):
             # zip low and up likelihood to a 1-dim array then save it.
             # like: [(tar_low_smi1, tar_up_smi1),  (tar_low_smi2, tar_up_smi2), ..., (tar_low_smiN, tar_up_smiN)]
             lls = zip(low_ll, up_ll)
-            ll_mat.append(list(lls))
+            ll[k].iloc[idx] = np.array([*map(_avoid_overflow, list(lls))])
 
-        # sum all ll along each smiles
-        # ll_sum = [[sum_low_smi1, sum_up_smi1], [sum_low_smi2, sum_up_smi2],...,[sum_low_smiN, sum_up_smiN],]
-        tmp = [[*map(_avoid_overflow, ll_mat[x])] for x in range(len(ll_mat))]
-        ll_sum = np.sum(np.array(tmp), axis=0)
-
-        np.put(ll, idx, ll_sum)
         return ll

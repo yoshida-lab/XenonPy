@@ -3,6 +3,7 @@
 #  license that can be found in the LICENSE file.
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from xenonpy.inverse.base import BaseLogLikelihood, BaseProposal, BaseResample, BaseSMC
@@ -18,8 +19,8 @@ def data():
 
     class LLH(BaseLogLikelihood):
 
-        def log_likelihood(self, X, **targets):
-            return np.sum(np.asanyarray([X * (j - i) for i, j in targets.values()]), axis=0)
+        def log_likelihood(self, X, **target):
+            return pd.DataFrame(np.asanyarray(X))
 
     class Proposal(BaseProposal):
 
@@ -47,8 +48,9 @@ def data():
 def test_base_loglikelihood_1(data):
     llh = data['llh']()
     X = np.array([1, 2, 3, 3, 4, 4])
-    ll = llh(X, tar1=(5, 10), tar2=(1, 5))
-    assert np.all(ll == np.array([9, 18, 27, 27, 36, 36]))
+    ll = llh(X)
+    print(ll)
+    assert np.all(ll.values.flatten() == X)
 
 
 def test_base_proposer_1(data):
@@ -73,31 +75,7 @@ def test_base_smc_1():
         pass
 
     smc = SMC()
-    with pytest.raises(ValueError):
-        for s in smc(samples, beta=beta):
-            assert s
-    assert not smc.targets
-
     with pytest.raises(NotImplementedError):
-        for s in smc(samples, beta=beta, tar1=(5, 10), tar2=(1, 5)):
-            assert s
-
-    assert smc.targets
-
-    class SMC(BaseSMC):
-
-        def log_likelihood(self, X):
-            return np.sum(np.asanyarray([X * (j - i) for i, j in self._targets.values()]), axis=0)
-
-        def proposal(self, X):
-            return X
-
-        def resample(self, X, size, p):
-            return np.random.choice(X, size, p=p)
-
-    smc = SMC()
-    assert not smc.targets
-    with pytest.raises(ValueError):
         for s in smc(samples, beta=beta):
             assert s
 
@@ -123,10 +101,10 @@ def test_base_smc_3(data):
 
     samples = [1, 2, 100, 4, 5]
     beta = np.linspace(0.05, 1, 5)
-    for s, ll, p, f in smc(samples, beta=beta, tar1=(5, 10), tar2=(1, 5), yield_lpf=True):
+    for s, ll, p, f in smc(samples, beta=beta, yield_lpf=True):
         pass
     assert s == 100
-    assert ll == 900
+    assert np.all(ll == np.array(100))
     assert p == 1.0
     assert f == 5
 

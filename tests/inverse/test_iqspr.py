@@ -8,10 +8,12 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from copy import deepcopy
 from sklearn.linear_model import BayesianRidge
 
-from xenonpy.descriptor import ECFP
+from xenonpy.descriptor import ECFP, RDKitFP
 from xenonpy.inverse.iqspr import GaussianLogLikelihood, NGram, IQSPR, GetProbError, MolConvertError
+from xenonpy.inverse.base import BaseLogLikelihoodSet
 
 
 @pytest.fixture(scope='module')
@@ -28,31 +30,47 @@ def data():
     X = pg_data['smiles']
     y = pg_data.drop(['smiles', 'Unnamed: 0'], axis=1)
     ecfp = ECFP(n_jobs=1, input_type='smiles')
+    rdkitfp = RDKitFP(n_jobs=1, input_type='smiles')
     bre = GaussianLogLikelihood(descriptor=ecfp)
+    bre2 = GaussianLogLikelihood(descriptor=rdkitfp)
+    bre.fit(X, y[['bandgap', 'glass_transition_temperature']])
+    bre2.fit(X, y[['density', 'refractive_index']])
+    bre.update_targets(bandgap=(1, 2), glass_transition_temperature=(200, 300))
+    bre2.update_targets(refractive_index=(2, 3), density=(0.9, 1.2))
+
+    class MyLogLikelihood(BaseLogLikelihoodSet):
+        def __init__(self):
+            super().__init__()
+
+            self.loglike = bre
+            self.loglike = bre2
+
+    like_mdl = MyLogLikelihood()
     ngram = NGram()
+    ngram.fit(X[0:20], train_order=5)
     iqspr = IQSPR(estimator=bre, modifier=ngram)
     # prepare test data
-    yield dict(ecfp=ecfp, bre=bre, ngram=ngram, iqspr=iqspr, pg=(X, y))
+    yield dict(ecfp=ecfp, rdkitfp=rdkitfp, bre=bre, bre2=bre2, like_mdl=like_mdl, ngram=ngram, iqspr=iqspr, pg=(X, y))
 
     print('test over')
 
 
 def test_gaussian_ll_1(data):
-    bre = data['bre']
+    bre = deepcopy(data['bre'])
+    bre2 = data['bre2']
     X, y = data['pg']
-    bre.fit(X, y)
 
     assert 'bandgap' in bre._mdl
-    assert 'refractive_index' in bre._mdl
-    assert 'density' in bre._mdl
     assert 'glass_transition_temperature' in bre._mdl
+    assert 'refractive_index' in bre2._mdl
+    assert 'density' in bre2._mdl
 
     ll = bre.log_likelihood(X.sample(10),
                             bandgap=(7, 8),
                             glass_transition_temperature=(300, 400))
-    assert len(ll) == 10
+    assert ll.shape == (10,2)
     assert isinstance(bre['bandgap'], BayesianRidge)
-    assert isinstance(bre['density'], BayesianRidge)
+    assert isinstance(bre['glass_transition_temperature'], BayesianRidge)
 
     with pytest.raises(KeyError):
         bre['other']
@@ -66,23 +84,30 @@ def test_gaussian_ll_1(data):
 
 
 def test_gaussian_ll_2(data):
-    bre = data['bre']
+    bre = deepcopy(data['bre'])
     X, y = data['pg']
-    bre.fit(X, y)
 
     x = X.sample(10)
     tmp = bre.predict(x)
     assert isinstance(tmp, pd.DataFrame)
-    assert tmp.shape == (10, 8)
+    assert tmp.shape == (10, 4)
 
     x[66666] = 'CCd'
     tmp = bre.predict(x)
     assert isinstance(tmp, pd.DataFrame)
-    assert tmp.shape == (11, 8)
+    assert tmp.shape == (11, 4)
     print(tmp)
     tmp = tmp.loc[66666]
 
     assert tmp.isna().all()
+
+
+def test_gaussian_ll_3(data):
+    like_mdl = data['like_mdl']
+    X, y = data['pg']
+    ll = like_mdl.log_likelihood(X.sample(10))
+
+    assert ll.shape == (10,4)
 
 
 def test_ngram_1(data):
@@ -155,15 +180,31 @@ def test_ngram_3(data):
 
 def test_iqspr_1(data):
     np.random.seed(0)
-    ecfp = ECFP(n_jobs=1, input_type='smiles')
+    ecfp = data['ecfp']
     bre = GaussianLogLikelihood(descriptor=ecfp)
     ngram = NGram()
     iqspr = IQSPR(estimator=bre, modifier=ngram)
     X, y = data['pg']
     bre.fit(X, y)
+    bre.update_targets(reset=True, bandgap=(0.1, 0.2), density=(0.9, 1.2))
     ngram.fit(data['pg'][0][0:20], train_order=10)
     beta = np.linspace(0.05, 1, 10)
-    for s, ll, p, f in iqspr(data['pg'][0][:5], beta, yield_lpf=True, bandgap=(0.1, 0.2), density=(0.9, 1.2)):
+    for s, ll, p, f in iqspr(data['pg'][0][:5], beta, yield_lpf=True):
+        assert np.abs(np.sum(p) - 1.0) < 1e-5
+        assert np.sum(f) == 5, print(f)
+
+
+def test_iqspr_2(data):
+    np.random.seed(0)
+    like_mdl = data['like_mdl']
+    ngram = data['ngram']
+    iqspr = IQSPR(estimator=like_mdl, modifier=ngram)
+
+    beta1 = np.linspace(0.05, 1, 10)
+    beta2 = np.linspace(0.01, 1, 10)
+    beta = pd.DataFrame({'bandgap': beta1, 'glass_transition_temperature': beta2,
+                        'density': beta1, 'refractive_index': beta2})
+    for s, ll, p, f in iqspr(data['pg'][0][:5], beta, yield_lpf=True):
         assert np.abs(np.sum(p) - 1.0) < 1e-5
         assert np.sum(f) == 5, print(f)
 

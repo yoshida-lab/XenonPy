@@ -96,7 +96,7 @@ class NGram(BaseProposal):
 
     @property
     def ngram_table(self):
-        return self._table
+        return deepcopy(self._table)
 
     @ngram_table.setter
     def ngram_table(self, value):
@@ -403,7 +403,7 @@ class NGram(BaseProposal):
 
     def proposal(self, smiles):
         """
-        Proposal new SMILES based on the given SMILES.
+        Propose new SMILES based on the given SMILES.
 
         Parameters
         ----------
@@ -435,3 +435,109 @@ class NGram(BaseProposal):
                 raise e
 
         return new_smis
+
+    def _merge_table(self, ngram_tab, weight=1):
+        """
+        Merge with a given NGram table
+
+        Parameters
+        ----------
+        ngram_tab: NGram
+            the table in the given NGram class variable will be merged to the table in self
+        weight: double
+            a scalar to scale the frequency in the given NGram table
+
+        Returns
+        -------
+        tmp_n_gram: NGram
+            merged NGram tables
+        """
+
+        n_gram_tab1 = self._table  # do not use deepcopy here
+        n_gram_tab2 = ngram_tab.ngram_table  # default deepcopy used
+        w = weight
+
+        ord1 = len(n_gram_tab1)
+        ord2 = len(n_gram_tab2)
+        Bc1 = len(n_gram_tab1[0][0])
+        Bc2 = len(n_gram_tab2[0][0])
+        Bo1 = len(n_gram_tab1[0][1])
+        Bo2 = len(n_gram_tab2[0][1])
+
+        # fix the number of ring mis-match first
+        if Bc1 < Bc2:
+            for ii in range(ord1):
+                n_gram_tab1[ii][0].extend([
+                    pd.DataFrame()
+                    for _ in range(Bc2 - Bc1)
+                ])
+        elif Bc1 > Bc2:
+            for ii in range(ord2):
+                n_gram_tab2[ii][0].extend([
+                    pd.DataFrame()
+                    for _ in range(Bc1 - Bc2)
+                ])
+        if Bo1 < Bo2:
+            for ii in range(ord1):
+                n_gram_tab1[ii][1].extend([
+                    pd.DataFrame()
+                    for _ in range(Bo2 - Bo1)
+                ])
+        elif Bo1 > Bo2:
+            for ii in range(ord2):
+                n_gram_tab2[ii][1].extend([
+                    pd.DataFrame()
+                    for _ in range(Bo1 - Bo2)
+                ])
+
+        # fix order mis-match
+        if ord2 > ord1:
+            n_gram_tab1.extend(n_gram_tab2[ord1:])
+
+        # combine overlapped order (weighted on tab2)
+        for i in range(min(ord1, ord2)):
+            for j in range(len(n_gram_tab1[i])):
+                for k in range(len(n_gram_tab1[i][j])):
+                    n_gram_tab1[i][j][k] = n_gram_tab1[i][j][k].add(w * n_gram_tab2[i][j][k], fill_value=0).fillna(0)
+
+    def merge_table(self, *ngram_tab: 'NGram', weight=1, overwrite=True):
+        """
+        Merge with a given NGram table
+
+        Parameters
+        ----------
+        ngram_tab
+            the table(s) in the given NGram class variable(s) will be merged to the table in self
+        weight: int/float or list/tuple/np.array/pd.Series[int/float]
+            a scalar/vector to scale the frequency in the given NGram table to be merged,
+            must have the same length as ngram_tab
+        overwrite: boolean
+            overwrite the original table (self) or not,
+            do not recommend to be False (may have memory issue)
+
+        Returns
+        -------
+        tmp_n_gram: NGram
+            merged NGram tables
+        """
+
+        if not np.all([isinstance(x, NGram) for x in ngram_tab]):
+            raise TypeError('each element in the input must be <NGram>')
+
+        if isinstance(weight, (int, float)):
+            weight = np.repeat(weight, len(ngram_tab))
+        elif isinstance(weight, (tuple, list, np.array, pd.Series)):
+            if not np.all([isinstance(x, (int, float)) for x in weight]):
+                raise TypeError('each element in weight must be <int> or <float>')
+        else:
+            raise TypeError('weight must be <int> or <float> or a list of them')
+
+        if overwrite:
+            tmp_n_gram = self  # do not use deepcopy here
+        else:
+            tmp_n_gram = deepcopy(self)
+
+        for i, tab in enumerate(ngram_tab):
+            tmp_n_gram._merge_table(ngram_tab=tab, weight=weight[i])
+
+        return tmp_n_gram

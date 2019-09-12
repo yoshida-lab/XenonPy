@@ -22,7 +22,7 @@ class GetProbError(ProposalError):
         self.iR = i_r
         self.old_smi = None
 
-        super().__init__('get_prob: %s not found in n-gram, iB=%i, iR=%i' % (tmp_str, i_b, i_r))
+        super().__init__('get_prob: %s not found in NGram, iB=%i, iR=%i' % (tmp_str, i_b, i_r))
 
 
 class MolConvertError(ProposalError):
@@ -41,40 +41,96 @@ class NGramTrainingError(ProposalError):
 
 
 class NGram(BaseProposal):
-    def __init__(self, *, ngram_tab=None, sample_order=10, del_range=(1, 10), max_len=1000, reorder_prob=0):
+    def __init__(self, *, ngram_tab=None, sample_order=(1, 10), del_range=(1, 10), min_len = 1, max_len=1000, reorder_prob=0):
         """
         N-Garm
 
         Parameters
         ----------
-        ngram_tab: N-Gram table
-            N-Gram table for modify SMILES.
+        ngram_tab: NGram table
+            NGram table for modify SMILES.
+        sample_order: tuple[int, int] or int
+            range of order of ngram table used during proposal,
+            when given int, sample_order = (1, int)
         del_range: tuple[int, int] or int
-            Docs
+            range of random deletion of SMILES string during proposal,
+            when given int, del_range = (1, int)
+        min_len: int
+            minimum length of the extended SMILES,
+            shall be smaller than the lower bound of the sample_order
         max_len: int
-            Docs
+            max length of the extended SMILES to be terminated from continuing modification
         reorder_prob: float
-            Docs
+            probability of the SMILES being reordered during proposal
         """
-        self.sample_order = sample_order
-        self.reorder_prob = reorder_prob
-        self.max_len = max_len
-        self.del_range = del_range
-        if ngram_tab is not None:
-            self._table = deepcopy(ngram_tab)
-            self._train_order = len(ngram_tab)
+
+        if isinstance(sample_order, int):
+            self.sample_order = (1, sample_order)
+        elif isinstance(sample_order, tuple):
+            self.sample_order = sample_order
+        elif isinstance(sample_order, (list,np.array,pd.Series)):
+            self.sample_order = (sample_order[0],sample_order[1])
         else:
+            raise TypeError('please input a <tuple> of two <int> or a single <int> for sample_order')
+
+        if self.sample_order[0] < 1:
+            raise RuntimeError('Min sample_order must be greater than 0')
+        if self.sample_order[1] < self.sample_order[0]:
+            raise RuntimeError('Min sample_order must not be smaller than max sample_order')
+
+        if isinstance(reorder_prob, (int,float)):
+            self.reorder_prob = reorder_prob
+        else:
+            raise TypeError('please input a <float> for reorder_prob')
+
+        if isinstance(min_len, int):
+            self.min_len = min_len
+        else:
+            raise TypeError('please input a <int> for min_len')
+
+        if isinstance(max_len, int):
+            self.max_len = max_len
+        else:
+            raise TypeError('please input a <int> for max_len')
+
+        if isinstance(del_range, int):
+            self.del_range = (1, del_range)
+        elif isinstance(del_range, tuple):
+            self.del_range = del_range
+        elif isinstance(del_range, (list,np.array,pd.Series)):
+            self.del_range = (del_range[0],del_range[1])
+        else:
+            raise TypeError('please input a <tuple> of two <int> or a single <int> for del_range')
+
+        if ngram_tab is None:
             self._table = None
             self._train_order = None
+        else:
+            self._table = deepcopy(ngram_tab)
+            self._train_order = (1, len(ngram_tab))
 
         self._fit_sample_order()
+        self._fit_min_len()
 
     def _fit_sample_order(self):
-        if self._train_order and self._train_order < self.sample_order:
-            warnings.warn('<sample_order>: %s is greater than <train_order>: %s,'
-                          '<sample_order> will be reduced to <train_order>' % (self.sample_order, self._train_order),
+        if self._train_order and self._train_order[1] < self.sample_order[1]:
+            warnings.warn('max <sample_order>: %s is greater than max <train_order>: %s,'
+                          'max <sample_order> will be reduced to max <train_order>' % (self.sample_order[1], self._train_order[1]),
                           RuntimeWarning)
-            self.sample_order = self._train_order
+            self.sample_order = (self.sample_order[0], self._train_order[1])
+        if self._train_order and self._train_order[0] > self.sample_order[0]:
+            warnings.warn('min <sample_order>: %s is smaller than min <train_order>: %s,'
+                          'min <sample_order> will be increased to min <train_order>' % (self.sample_order[0], self._train_order[0]),
+                          RuntimeWarning)
+            self.sample_order = (self._train_order[0], self.sample_order[1])
+
+    def _fit_min_len(self):
+        if self.sample_order[0] > self.min_len:
+            warnings.warn('min <sample_order>: %s is greater than min_len: %s,'
+                          'min_len will be increased to min <sample_order>' % (
+                          self.sample_order[0], self.min_len),
+                          RuntimeWarning)
+            self.min_len = self.sample_order[0]
 
     def on_errors(self, error):
         """
@@ -107,12 +163,9 @@ class NGram(BaseProposal):
         if np.random.random() < self.reorder_prob:
             ext_smi = self.reorder_esmi(ext_smi)
         # number of deletion (randomly pick from given range)
-        if isinstance(self.del_range, int):
-            n_del = np.random.randint(1, self.del_range + 1)
-        else:
-            n_del = np.random.randint(self.del_range[0], self.del_range[1] + 1)
+        n_del = np.random.randint(self.del_range[0], self.del_range[1] + 1)
         # first delete then add
-        ext_smi = self.del_char(ext_smi, min(n_del + 1, len(ext_smi) - 1))  # at least leave 1 character
+        ext_smi = self.del_char(ext_smi, min(n_del + 1, len(ext_smi) - self.min_len))  # at least leave min_len char
         # add until reaching '!' or a given max value
         for i in range(self.max_len - len(ext_smi)):
             ext_smi, _ = self.sample_next_char(ext_smi)
@@ -122,6 +175,9 @@ class NGram(BaseProposal):
         ext_smi = self.validator(ext_smi)
         # fill in the '!'
         new_pd_row = {'esmi': '!', 'n_br': 0, 'n_ring': 0, 'substr': ext_smi['substr'].iloc[-1] + ['!']}
+
+        warnings.warn('Extended SMILES hits max length', RuntimeWarning)
+
         return ext_smi.append(new_pd_row, ignore_index=True)
 
     @classmethod
@@ -222,15 +278,37 @@ class NGram(BaseProposal):
             smi_list.pop()  # remove the final '!'
         return ''.join(smi_list)
 
-    def fit(self, smiles, *, train_order=10):
+    def remove_table(self, max_order = None):
+        """
+        Remove estimators from estimator set.
+
+        Parameters
+        ----------
+        max_order: int
+            max order to be left in the table, the rest is removed.
+        """
+        if max_order:
+            tmp = self._train_order[1] - max_order
+            if tmp < 1:
+                warnings.warn('Nothing removed', RuntimeWarning)
+            else:
+                self._table = self._table[:-tmp]
+                self._train_order = (self._train_order[0], max_order)
+        else:
+            self._table = None
+            self._train_order = None
+
+    def fit(self, smiles, *, train_order=(1, 10)):
         """
 
         Parameters
         ----------
         smiles: list[str]
             SMILES for training.
-        train_order: int
-            Order when train a N-Gram table.
+        train_order: tuple[int, int] or int
+            range of order when train a NGram table,
+            when given int, train_order = (1, int),
+            and train_order[0] must be > 0
 
         Returns
         -------
@@ -258,7 +336,7 @@ class NGram(BaseProposal):
                         tar_char = ext_smi['esmi'][idx_R + 1].tolist()
                         tar_substr = ext_smi['substr'][idx_R].tolist()
 
-                        for iO in range(len(self._table)):
+                        for iO in range(self._train_order[0]-1, self._train_order[1]):
                             # index for char with substring length not less than order
                             idx_O = [x for x in range(len(tar_substr)) if len(tar_substr[x]) > iO]
                             for iC in idx_O:
@@ -271,9 +349,30 @@ class NGram(BaseProposal):
                                 # somehow 'at' not ok with mixed char and int column names
                                 self._table[iO][iB][iR].loc[tmp_row, tar_char[iC]] += 1
 
-        self._table = [[[], []] for _ in range(train_order)]
-        self._train_order = train_order
+        if self._table:
+            raise RuntimeError('NGram table existed.'
+                               'If you want to re-train the table,'
+                               'please use `remove_table()` method first.')
+
+        if isinstance(train_order, int):
+            tmp_train_order = (1, train_order)
+        elif isinstance(train_order, tuple):
+            tmp_train_order = train_order
+        elif isinstance(train_order, (list,np.array,pd.Series)):
+            tmp_train_order = (train_order[0],train_order[1])
+        else:
+            raise TypeError('please input a <tuple> of two <int> or a single <int> for train_order')
+
+        if tmp_train_order[0] < 1:
+            raise RuntimeError('Min train_order must be greater than 0')
+        if tmp_train_order[1] < tmp_train_order[0]:
+            raise RuntimeError('Min train_order must not be smaller than max train_order')
+
+        self._train_order = tmp_train_order
+        self._table = [[[], []] for _ in range(self._train_order[1])]
+
         self._fit_sample_order()
+        self._fit_min_len()
         for smi in tqdm(smiles):
             try:
                 _fit_one(self.smi2esmi(smi))
@@ -295,14 +394,14 @@ class NGram(BaseProposal):
         cand_char = []
         cand_prob = 1
         iB = int(iB)
-        for iO in range(self.sample_order - 1, -1, -1):
+        for iO in range(self.sample_order[1] - 1, self.sample_order[0] - 2, -1):
             # if (len(tmp_str) > iO) & (str(tmp_str[-(iO + 1):]) in self._table[iO][iB][iR].index.tolist()):
             if len(tmp_str) > iO and str(tmp_str[-(iO + 1):]) in self._table[iO][iB][iR].index.tolist():
                 cand_char = self._table[iO][iB][iR].columns.tolist()
                 cand_prob = np.array(self._table[iO][iB][iR].loc[str(tmp_str[-(iO + 1):])])
                 break
         if len(cand_char) == 0:
-            warnings.warn('get_prob: %s not found in n-gram, iB=%i, iR=%i' % (tmp_str, iB, iR), RuntimeWarning)
+            warnings.warn('get_prob: %s not found in NGram, iB=%i, iR=%i' % (tmp_str, iB, iR), RuntimeWarning)
             raise GetProbError(tmp_str, iB, iR)
         return cand_char, cand_prob / np.sum(cand_prob)
 
@@ -348,7 +447,10 @@ class NGram(BaseProposal):
 
     @classmethod
     def del_char(cls, ext_smi, n_char):
-        return ext_smi[:-n_char]
+        if n_char > 0:
+            return ext_smi[:-n_char]
+        else:
+            return ext_smi
 
     # need to make sure esmi_pd is a completed SMILES to use this function
     # todo: kekuleSmiles?
@@ -453,6 +555,10 @@ class NGram(BaseProposal):
             merged NGram tables
         """
 
+        self._train_order = (min(self._train_order[0],ngram_tab._train_order[0]), max(self._train_order[1],ngram_tab._train_order[1]))
+        self._fit_sample_order()
+        self._fit_min_len()
+
         n_gram_tab1 = self._table  # do not use deepcopy here
         n_gram_tab2 = ngram_tab.ngram_table  # default deepcopy used
         w = weight
@@ -541,3 +647,33 @@ class NGram(BaseProposal):
             tmp_n_gram._merge_table(ngram_tab=tab, weight=weight[i])
 
         return tmp_n_gram
+
+    def split_table(self, cut_order):
+        """
+        Split NGram table into two
+
+        Parameters
+        ----------
+        cut_order: int
+            split NGram table between cut_order and cut_order+1
+
+        Returns
+        -------
+        n_gram1: NGram
+        n_gram2: NGram
+        """
+
+        n_gram1 = deepcopy(self)
+        n_gram1.remove_table(max_order=cut_order)
+        n_gram1._fit_sample_order()
+        n_gram1._fit_min_len()
+
+        n_gram2 = deepcopy(self)
+        for iB in [0, 1]:
+            for ii in range(cut_order):
+                n_gram2._table[ii][iB] = [pd.DataFrame() for _ in range(len(n_gram2._table[ii][iB]))]
+        n_gram2._train_order = (cut_order+1, self._train_order[1])
+        n_gram2._fit_sample_order()
+        n_gram2._fit_min_len()
+
+        return n_gram1, n_gram2

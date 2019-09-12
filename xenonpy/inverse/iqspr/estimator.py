@@ -20,6 +20,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
     def __init__(self, descriptor: Union[BaseFeaturizer, BaseDescriptor], *, targets={}, **estimators: BaseEstimator):
         """
         Gaussian loglikelihood.
+
         Parameters
         ----------
         descriptor: BaseFeaturizer or BaseDescriptor
@@ -56,6 +57,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
     def update_targets(self, *, reset=False, **targets):
         """
         Update/set the target area.
+
         Parameters
         ----------
         reset: bool
@@ -75,6 +77,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
     def remove_estimator(self, *properties: str):
         """
         Remove estimators from estimator set.
+
         Parameters
         ----------
         properties : str
@@ -105,6 +108,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
     # todo: implement scale function
     def fit(self, smiles, y=None, *, X_scaler=None, y_scaler=None, **kwargs):
         """
+
         Parameters
         ----------
         smiles: list[str]

@@ -116,7 +116,7 @@ def test_ngram_1(data):
     assert ngram.max_len == 1000
     assert ngram.del_range == (1, 10)
     assert ngram.reorder_prob == 0
-    assert ngram.sample_order == 10
+    assert ngram.sample_order == (1, 10)
     assert ngram._train_order is None
 
     ngram.set_params(max_len=500, reorder_prob=0.2)
@@ -132,8 +132,8 @@ def test_ngram_2(data):
     with pytest.warns(RuntimeWarning, match='<sample_order>'):
         ngram.fit(data['pg'][0][:20], train_order=5)
 
-    assert ngram._train_order == 5
-    assert ngram.sample_order == 5
+    assert ngram._train_order == (1, 5)
+    assert ngram.sample_order == (1, 5)
     assert ngram.ngram_table is not None
 
     np.random.seed(123456)
@@ -182,8 +182,9 @@ def test_ngram_4():
     smis1 = ['CCCc1ccccc1', 'CC(CCc1ccccc1)CC', 'Cc1ccccc1CC', 'C(CC(C))CC', 'CCCC']
     n_gram1 = NGram()  # base case
     n_gram1.fit(smis1, train_order=3)
-    tmp_tab = n_gram1._table
+    assert n_gram1._train_order == (1, 3)
 
+    tmp_tab = n_gram1._table
     assert (len(tmp_tab),len(tmp_tab[0][0])) == (3,2)
 
     check_close = [[(4, 5), (2, 2)], [(6, 5), (3, 2)], [(8, 4), (4, 2)]]
@@ -207,18 +208,44 @@ def test_ngram_5():
     n_gram3.fit(smis3, train_order=2)
 
     tmp_ngram = n_gram1.merge_table(n_gram2, weight=1, overwrite=False)
+    assert tmp_ngram._train_order == (1, 4)
     tmp_tab = tmp_ngram._table
     assert (len(tmp_tab), len(tmp_tab[0][0])) == (4,2)
 
     tmp_ngram = n_gram1.merge_table(n_gram3, weight=1, overwrite=False)
+    assert tmp_ngram._train_order == (1, 3)
     tmp_tab = tmp_ngram._table
     assert (len(tmp_tab), len(tmp_tab[0][0])) == (3, 4)
 
     n_gram1.merge_table(n_gram2, n_gram3, weight=[0.5, 1])
     tmp_tab = n_gram1._table
+    assert n_gram1._train_order == (1, 4)
     assert (len(tmp_tab), len(tmp_tab[0][0])) == (4, 4)
     assert tmp_tab[0][0][0].loc["['C']","C"] == 11.0
     assert tmp_tab[0][1][0].loc["['(']", "C"] == 3.0
+
+
+def test_ngram_6(data):
+    smis0 = ['CCCc1ccccc1', 'CC(CCc1ccccc1)CC', 'Cc1ccccc1CC', 'C(CC(C))CC', 'CCCC']
+    n_gram0 = NGram()  # base case
+    n_gram0.fit(smis0, train_order=5)
+
+    n_gram1, n_gram2 = n_gram0.split_table(cut_order=2)
+    assert n_gram1._train_order == (1, 2)
+    assert n_gram1.min_len == 1
+    assert n_gram2._train_order == (3, 5)
+    assert n_gram2.min_len == 3
+
+    n_gram3 = n_gram2.merge_table(n_gram1, weight=1, overwrite=False)
+    assert n_gram3._train_order == (1, 5)
+    assert n_gram3.min_len == 3
+    assert np.all(n_gram3._table[3][0][1] == n_gram0._table[3][0][1])
+    assert np.all(n_gram3._table[2][1][0] == n_gram0._table[2][1][0])
+    n_gram1.merge_table(n_gram2, weight=1)
+    assert n_gram1._train_order == (1, 5)
+    assert n_gram1.min_len == 1
+    assert np.all(n_gram1._table[3][0][1] == n_gram0._table[3][0][1])
+    assert np.all(n_gram1._table[2][1][0] == n_gram0._table[2][1][0])
 
 
 def test_iqspr_1(data):

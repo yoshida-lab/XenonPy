@@ -102,8 +102,8 @@ class GaussianLogLikelihood(BaseLogLikelihood):
                                'If you want to re-train these estimators,'
                                'please use `remove_estimator()` method first.')
 
-        if not isinstance(y, pd.DataFrame):
-            raise TypeError('please package all properties into a pd.DataFrame')
+        if not isinstance(y, (pd.DataFrame, pd.Series)):
+            raise TypeError('please package all properties into a pd.DataFrame or pd.Series')
 
         # remove NaN fromm X
         desc = self._descriptor.transform(smiles, return_type='df').reset_index(drop=True)

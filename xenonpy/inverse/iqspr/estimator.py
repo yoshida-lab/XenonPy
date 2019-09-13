@@ -107,7 +107,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
         desc = self._descriptor.transform(smiles, return_type='df').reset_index(drop=True)
         y = y.reset_index(drop=True)
         desc.dropna(inplace=True)
-        y = y.loc[desc.index]
+        y = pd.DataFrame(y.loc[desc.index])
 
         for c in y:
             y_ = y[c]  # get target property.

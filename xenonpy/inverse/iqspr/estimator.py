@@ -81,6 +81,8 @@ class GaussianLogLikelihood(BaseLogLikelihood):
     # todo: implement scale function
     def fit(self, smiles, y=None, *, X_scaler=None, y_scaler=None, **kwargs):
         """
+        Default - automatically remove NaN data rows
+        
         Parameters
         ----------
         smiles: list[str]

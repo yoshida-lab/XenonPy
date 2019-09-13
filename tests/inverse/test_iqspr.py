@@ -110,6 +110,17 @@ def test_gaussian_ll_3(data):
     assert ll.shape == (10,4)
 
 
+def test_gaussian_ll_4(data):
+    # check if training of NaN data and pd.Series input are ok
+    ecfp = data['ecfp']
+    bre = GaussianLogLikelihood(descriptor=ecfp)
+    train_data = pd.DataFrame({'x': ['C','CC','CCC','CCCC','CCCCC'], 'a': [np.nan, np.nan, 3, 4, 5], 'b': [1, 2, 3, np.nan, np.nan]})
+    bre.fit(train_data['x'], train_data['a'])
+
+    bre.remove_estimator()
+    bre.fit(train_data['x'], train_data[['a','b']])
+
+
 def test_ngram_1(data):
     ngram = NGram()
     assert ngram.ngram_table is None

@@ -93,7 +93,7 @@ class Persist(BaseExtension):
         if self._model_class is not None:
             self._checker(model_class=self._model_class)
         if self._model_params is not None:
-            self._checker(init_params=self._model_params)
+            self._checker(model_params=self._model_params)
         self._checker.model = trainer.model
         self._describe_ = dict(
             python=py_ver,

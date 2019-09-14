@@ -156,6 +156,18 @@ class Checker(object):
         return None
 
     @property
+    def model_class(self):
+        if (self._path / 'model_class.pkl.z').exists():
+            return self['model_class']
+        return None
+
+    @property
+    def model_params(self):
+        if (self._path / 'model_params.pkl.z').exists():
+            return self['model_params']
+        return None
+
+    @property
     def init_state(self):
         if (self._path / 'init_state.pth.s').exists():
             return torch.load(str(self._path / 'init_state.pth.s'), map_location=self._device)

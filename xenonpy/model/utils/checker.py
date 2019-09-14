@@ -116,7 +116,13 @@ class Checker(object):
             A pytorch model.
         """
         if (self._path / 'model.pth.m').exists():
-            return torch.load(str(self._path / 'model.pth.m'), map_location=self._device)
+            model = torch.load(str(self._path / 'model.pth.m'), map_location=self._device)
+            state = self.final_state
+            if state is not None:
+                model.load_state_dict(state)
+                return model
+            else:
+                return model
         return None
 
     @model.setter
@@ -137,14 +143,16 @@ class Checker(object):
             raise TypeError(f'except `torch.nn.Module` object but got {type(model)}')
 
     @property
-    @deprecated('This property is rotten and will be removed in v0.5.0')
+    @deprecated('This property is rotten and will be removed in v0.5.0, use `checker.model` instead')
     def trained_model(self):
         if (self._path / 'trained_model.@1.pkl.z').exists():
             return torch.load(str(self._path / 'trained_model.@1.pkl.z'), map_location=self._device)
         else:
             tmp = self.final_state
             if tmp is not None:
-                return tmp
+                model: torch.nn.Module = self.model
+                model.load_state_dict(tmp)
+                return model
         return None
 
     @property

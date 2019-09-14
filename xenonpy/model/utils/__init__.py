@@ -3,4 +3,5 @@
 #  license that can be found in the LICENSE file.
 
 from .checker import *
-from .metrics import regression_metrics
+from .metrics import *
+from .parameter_gen import *

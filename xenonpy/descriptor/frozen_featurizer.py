@@ -9,6 +9,7 @@ import pandas as pd
 import torch
 
 from xenonpy.descriptor.base import BaseFeaturizer
+from xenonpy.model import SequentialLinear
 
 __all__ = ['FrozenFeaturizer']
 
@@ -64,9 +65,16 @@ class FrozenFeaturizer(BaseFeaturizer):
         else:
             x_.cpu()
             self.model.cpu()
-        for l in self.model[:-1]:
-            x_ = l.layer(x_)
-            hlayers.append(x_.data)
+
+        if isinstance(self.model, SequentialLinear):
+            for n, m in self.model.named_children():
+                if 'layer_' in n:
+                    hlayers.append(m.linear(x_).data)
+                    x_ = m(x_)
+        else:
+            for m in self.model[:-1]:
+                hlayers.append(m.layer(x_).data)
+                x_ = m(x_)
 
         if depth is None:
             depth = self.depth

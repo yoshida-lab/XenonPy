@@ -11,8 +11,7 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 
-from xenonpy.model.training import Trainer, MSELoss, Adam, ExponentialLR, SGD, ClipValue, ReduceLROnPlateau, ClipNorm, \
-    Predictor
+from xenonpy.model.training import Trainer, MSELoss, Adam, ExponentialLR, SGD, ClipValue, ReduceLROnPlateau, ClipNorm
 from xenonpy.model.training.extension import TensorConverter
 
 
@@ -48,8 +47,7 @@ def data():
 
 
 def test_trainer_1(data):
-    trainer = Trainer(optimizer=Adam(), loss_func=MSELoss(), lr_scheduler=ExponentialLR(gamma=0.99),
-                      clip_grad=ClipValue(clip_value=0.1))
+    trainer = Trainer()
     assert trainer.device == torch.device('cpu')
     assert trainer.model is None
     assert trainer.optimizer is None
@@ -58,19 +56,24 @@ def test_trainer_1(data):
     assert trainer.y_val is None
     assert trainer.validate_dataset is None
     assert trainer._init_states is None
-    assert trainer._init_optim is None
+    assert trainer._optimizer_state is None
     assert trainer.total_epochs == 0
     assert trainer.total_iterations == 0
     assert trainer.training_info is None
-    assert trainer.loss_type == 'train_mse_loss'
-    assert trainer.loss_func.__class__ == MSELoss
+    assert trainer.loss_type is None
+    assert trainer.loss_func is None
+
+    trainer = Trainer(optimizer=Adam(), loss_func=MSELoss(), lr_scheduler=ExponentialLR(gamma=0.99),
+                      clip_grad=ClipValue(clip_value=0.1))
     assert isinstance(trainer._scheduler, ExponentialLR)
     assert isinstance(trainer._optim, Adam)
     assert isinstance(trainer.clip_grad, ClipValue)
     assert isinstance(trainer.loss_func, MSELoss)
 
-    with pytest.raises(RuntimeError,
-                       match='no model to train, use'):
+
+def test_trainer_2(data):
+    trainer = Trainer()
+    with pytest.raises(RuntimeError, match='no model for training'):
         trainer.fit(*data[1])
 
     with pytest.raises(TypeError, match='parameter `m` must be a instance of <torch.nn.modules>'):
@@ -78,18 +81,30 @@ def test_trainer_1(data):
 
     trainer.model = data[0]
     assert isinstance(trainer.model, torch.nn.Module)
+    with pytest.raises(RuntimeError, match='no loss function for training'):
+        trainer.fit(*data[1])
+
+    trainer.loss_func = MSELoss()
+    assert trainer.loss_type == 'train_mse_loss'
+    assert trainer.loss_func.__class__ == MSELoss
+    with pytest.raises(RuntimeError, match='no optimizer for training'):
+        trainer.fit(*data[1])
+
+    trainer.optimizer = Adam()
     assert isinstance(trainer.optimizer, torch.optim.Adam)
-    assert isinstance(trainer.lr_scheduler, torch.optim.lr_scheduler.ExponentialLR)
-    assert isinstance(trainer._init_optim, dict)
+    assert isinstance(trainer._optimizer_state, dict)
     assert isinstance(trainer._init_states, dict)
 
+    trainer.lr_scheduler = ExponentialLR(gamma=0.99)
+    assert isinstance(trainer.lr_scheduler, torch.optim.lr_scheduler.ExponentialLR)
 
-def test_trainer_2(data):
+
+def test_trainer_3(data):
     model = data[0]
     trainer = Trainer(model=model, optimizer=Adam(), loss_func=MSELoss())
     assert isinstance(trainer.model, torch.nn.Module)
     assert isinstance(trainer.optimizer, torch.optim.Adam)
-    assert isinstance(trainer._init_optim, dict)
+    assert isinstance(trainer._optimizer_state, dict)
     assert isinstance(trainer._init_states, dict)
     assert trainer.clip_grad is None
     assert trainer.lr_scheduler is None
@@ -226,28 +241,20 @@ def test_trainer_prediction_1(data):
     trainer = Trainer(model=model, optimizer=Adam(lr=0.1), loss_func=MSELoss(), epochs=200)
     trainer.extend(TensorConverter())
     trainer.fit(*data[1], *data[1])
-    predictor = Predictor(model, cuda=trainer.device)
 
+    trainer = Trainer(model=model).extend(TensorConverter())
     y_p = trainer.predict(data[1][0])
     assert np.any(np.not_equal(y_p, data[1][1].numpy()))
     assert np.allclose(y_p, data[1][1].numpy(), rtol=0, atol=0.2)
-    y_pp = predictor(data[1][0]).detach().numpy()
-    assert np.all(np.equal(y_p, y_pp))
 
     y_p, y_t = trainer.predict(*data[1])
     assert np.any(np.not_equal(y_p, y_t))
     assert np.allclose(y_p, y_t, rtol=0, atol=0.2)
-    y_pp, _ = predictor(*data[1])
-    assert np.all(np.equal(y_p, y_pp.detach().numpy()))
 
-    train_set = DataLoader(TensorDataset(*data[1]), batch_size=50)
     val_set = DataLoader(TensorDataset(*data[1]), batch_size=50)
-    trainer.fit(training_dataset=train_set)
     y_p, y_t = trainer.predict(dataset=val_set)
     assert np.any(np.not_equal(y_p, y_t))
     assert np.allclose(y_p, y_t, rtol=0, atol=0.2)
-    y_pp, _ = predictor(dataset=val_set)
-    assert np.all(np.equal(y_p, y_pp.detach().numpy()))
 
     with pytest.raises(RuntimeError, match='parameters <x_in> and <dataset> are mutually exclusive'):
         trainer.predict(*data[1], dataset='not none')

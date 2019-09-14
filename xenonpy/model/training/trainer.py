@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.nn import Module
-from torch.optim.lr_scheduler import ReduceLROnPlateau, _LRScheduler
+from torch.optim.lr_scheduler import _LRScheduler, ReduceLROnPlateau
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
@@ -27,8 +27,8 @@ class Trainer(BaseRunner):
 
     def __init__(self,
                  *,
-                 loss_func: torch.nn.Module,
-                 optimizer: BaseOptimizer,
+                 loss_func: torch.nn.Module = None,
+                 optimizer: BaseOptimizer = None,
                  model: Module = None,
                  lr_scheduler: BaseLRScheduler = None,
                  clip_grad: Union[ClipNorm, ClipValue] = None,
@@ -57,27 +57,27 @@ class Trainer(BaseRunner):
             Set training device(s).
         """
         super().__init__(cuda=cuda)
-        self._loss_func = loss_func
-        self._loss_type = 'train_' + camel_to_snake(loss_func.__class__.__name__)
+        # None able
         self._clip_grad = clip_grad
         self.epochs = epochs
         self.non_blocking = non_blocking
 
-        # set model
+        # loss function placeholder
+        self._loss_func = None
+        self._loss_type = None
+
+        # model placeholder
         self._model = None
         self._init_states = None
-        self._set_model(model)
 
-        # set optimizer
-        self._optim = optimizer
+        # optimizer placeholder
+        self._optim = None
         self._optimizer = None
-        self._init_optim = None
-        self._set_optimizer()
+        self._optimizer_state = None
 
-        # set lr_scheduler
-        self._scheduler = lr_scheduler
+        # lr_scheduler placeholder
+        self._scheduler = None
         self._lr_scheduler = None
-        self._set_lr_scheduler(lr_scheduler)
 
         # init private vars
         self._early_stopping: Tuple[bool, str] = (False, '')
@@ -90,23 +90,11 @@ class Trainer(BaseRunner):
         self._y_val = None
         self._validate_dataset = None
 
-    def _set_model(self, model):
-        if model is not None:
-            self._model = model.to(self._device, non_blocking=self.non_blocking)
-            self._init_states = deepcopy(model.state_dict())
-
-    def _set_lr_scheduler(self, lr_scheduler):
-        if lr_scheduler is not None and self._optimizer is not None:
-            self._scheduler = lr_scheduler
-            self._lr_scheduler: Union[_LRScheduler, None] = self._scheduler(self._optimizer)
-
-    def _set_optimizer(self, optim=None):
-        if optim is not None:
-            self._optim = optim
-
-        if self._model is not None:
-            self._optimizer = self._optim(self._model.parameters())
-            self._init_optim = deepcopy(self._optimizer.state_dict())
+        # init
+        self.model = model
+        self.optimizer = optimizer
+        self.lr_scheduler = lr_scheduler
+        self.loss_func = loss_func
 
     @property
     def loss_type(self):
@@ -136,6 +124,12 @@ class Trainer(BaseRunner):
     def loss_func(self):
         return self._loss_func
 
+    @loss_func.setter
+    def loss_func(self, loss_func):
+        if loss_func is not None:
+            self._loss_func = loss_func
+            self._loss_type = 'train_' + camel_to_snake(loss_func.__class__.__name__)
+
     @property
     def training_info(self):
         if self._training_info:
@@ -147,12 +141,18 @@ class Trainer(BaseRunner):
         return self._model
 
     @model.setter
-    def model(self, m):
-        if isinstance(m, torch.nn.Module):
-            self.reset(to=m)
-        else:
-            raise TypeError(
-                'parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(m))
+    def model(self, model):
+        if model is not None:
+            if isinstance(model, torch.nn.Module):
+                self._model = model.to(self._device, non_blocking=self.non_blocking)
+                self._init_states = deepcopy(model.state_dict())
+
+                if self._model is not None:
+                    self.optimizer = None
+                    self.lr_scheduler = None
+            else:
+                raise TypeError(
+                    'parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(model))
 
     @property
     def optimizer(self):
@@ -160,7 +160,14 @@ class Trainer(BaseRunner):
 
     @optimizer.setter
     def optimizer(self, optimizer):
-        self._set_optimizer(optimizer)
+        if optimizer is not None:
+            self._optim = optimizer
+
+        if self._optim is not None and self._model is not None:
+            self._optimizer = self._optim(self._model.parameters())
+            self._optimizer_state = deepcopy(self._optimizer.state_dict())
+
+            self.lr_scheduler = None
 
     @property
     def lr_scheduler(self):
@@ -168,7 +175,11 @@ class Trainer(BaseRunner):
 
     @lr_scheduler.setter
     def lr_scheduler(self, scheduler):
-        self._set_lr_scheduler(scheduler)
+        if scheduler is not None:
+            self._scheduler = scheduler
+
+        if self._scheduler is not None and self._optimizer is not None:
+            self._lr_scheduler: Union[_LRScheduler, None] = self._scheduler(self._optimizer)
 
     @property
     def clip_grad(self):
@@ -224,9 +235,7 @@ class Trainer(BaseRunner):
         self._early_stopping = (False, '')
 
         if isinstance(to, Module):
-            self._set_model(to)
-            self._set_optimizer()
-            self._set_lr_scheduler(self._scheduler)
+            self.model = to
             self._checkpoints = OrderedDict()
         elif isinstance(to, (int, str)):
             cp = self.get_checkpoint(to)
@@ -234,7 +243,7 @@ class Trainer(BaseRunner):
             self._optimizer.load_state_dict(cp.optimizer_state)
         elif to is None:
             self._model.load_state_dict(self._init_states)
-            self._optimizer.load_state_dict(self._init_optim)
+            self._optimizer.load_state_dict(self._optimizer_state)
             self._checkpoints = OrderedDict()
         else:
             raise TypeError(f'parameter <to> must be torch.nnModule, int, or str but got {type(to)}')
@@ -335,7 +344,13 @@ class Trainer(BaseRunner):
         """
         if self._model is None:
             raise RuntimeError(
-                'no model to train, use `trainer.model = <model>` or `trainer.reset(to=<model>)` to bind a model')
+                'no model for training, use `trainer.model = <model>` or `trainer.reset(to=<model>)` to set one')
+        if self._loss_func is None:
+            raise RuntimeError(
+                'no loss function for training, use `trainer.loss_func = <loss_func>` to set one')
+        if self._optimizer is None:
+            raise RuntimeError(
+                'no optimizer for training, use `trainer.optimizer = <optimizer>` to set one')
 
         if epochs is None:
             epochs = self.epochs
@@ -374,8 +389,11 @@ class Trainer(BaseRunner):
             self._step_forward(step_info=step_info, trainer=self, training=True)
             self._training_info.append(step_info)
 
-            if self._lr_scheduler is not None and isinstance(self._lr_scheduler, ReduceLROnPlateau):
-                self._lr_scheduler.step(train_loss, epoch=self._total_epochs)
+            if self._lr_scheduler is not None:
+                if isinstance(self._lr_scheduler, ReduceLROnPlateau):
+                    self._lr_scheduler.step(train_loss, epoch=self._total_epochs)
+                else:
+                    self._lr_scheduler.step(epoch=self._total_its)
 
             return step_info
 
@@ -406,10 +424,6 @@ class Trainer(BaseRunner):
         if training_dataset:
             for i_epoch in range(self._total_epochs, epochs + self._total_epochs):
 
-                # decay learning rate
-                if self._lr_scheduler is not None and not isinstance(self._lr_scheduler, ReduceLROnPlateau):
-                    self._lr_scheduler.step(epoch=self._total_its)
-
                 self._model.train()
                 self._total_epochs += 1
                 for i_batch, (x_train, y_train) in enumerate(training_dataset):
@@ -430,9 +444,6 @@ class Trainer(BaseRunner):
                 x_train = (x_train,)
 
             for i_epoch in range(self._total_epochs, epochs + self._total_epochs):
-
-                if self._lr_scheduler is not None and not isinstance(self._lr_scheduler, ReduceLROnPlateau):
-                    self._lr_scheduler.step(epoch=self._total_its)
 
                 self._model.train()
                 self._total_epochs += 1

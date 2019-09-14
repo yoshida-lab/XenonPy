@@ -4,3 +4,4 @@
 
 from .cgcnn import *
 from .extern import *
+from .sequential import *

@@ -26,13 +26,13 @@ class Persist(BaseExtension):
                  path: Union[Path, str] = '.',
                  *,
                  model_class: Callable = None,
-                 reconstruct_params: Union[list, dict] = None,
+                 model_params: Union[list, dict] = None,
                  increment=False,
                  sync_training_step=False,
                  save_optimizer_state=False,
                  **describe: Any):
         self._model_class: Callable = model_class
-        self._reconstruct_params: Union[list, dict] = reconstruct_params
+        self._model_params: Union[list, dict] = model_params
         self.save_optimizer_state = save_optimizer_state
         self.sync_training_step = sync_training_step
         self.path = path
@@ -92,8 +92,8 @@ class Persist(BaseExtension):
         self._checker = Checker(self._path, increment=self._increment)
         if self._model_class is not None:
             self._checker(model_class=self._model_class)
-        if self._reconstruct_params is not None:
-            self._checker(init_params=self._reconstruct_params)
+        if self._model_params is not None:
+            self._checker(init_params=self._model_params)
         self._checker.model = trainer.model
         self._describe_ = dict(
             python=py_ver,

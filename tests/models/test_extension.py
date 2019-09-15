@@ -178,13 +178,18 @@ def test_validator_1(data):
         def predict(self, x_, y_):
             return x_, y_
 
-    val = Validator(metrics_func=regression_metrics)
+    val = Validator(metrics_func=regression_metrics, each_iteration=False)
 
-    step_info = OrderedDict(train_loss=0)
+    step_info = OrderedDict(train_loss=0, i_epoch=0)
     val.step_forward(trainer=_Trainer(), step_info=step_info)
-    assert set(step_info.keys()) == {'val_mae', 'val_mse', 'val_rmse', 'val_r2', 'val_pearsonr', 'val_spearmanr',
-                                     'val_p_value', 'val_max_ae', 'train_loss'}
+    assert 'val_mae' not in step_info
+
+    step_info = OrderedDict(train_loss=0, i_epoch=1)
+    val.step_forward(trainer=_Trainer(), step_info=step_info)
     assert step_info['val_mae'] == regression_metrics(x, y)['mae']
+    assert set(step_info.keys()) == {'i_epoch', 'val_mae', 'val_mse', 'val_rmse', 'val_r2', 'val_pearsonr',
+                                     'val_spearmanr',
+                                     'val_p_value', 'val_max_ae', 'train_loss'}
 
 
 if __name__ == "__main__":

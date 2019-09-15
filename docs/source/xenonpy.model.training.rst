@@ -60,14 +60,6 @@ xenonpy.model.training.optimizer module
    :undoc-members:
    :show-inheritance:
 
-xenonpy.model.training.predictor module
----------------------------------------
-
-.. automodule:: xenonpy.model.training.predictor
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 xenonpy.model.training.trainer module
 -------------------------------------
 

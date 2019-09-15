@@ -32,7 +32,8 @@ class Checker(object):
                  *,
                  increment: bool = False,
                  device: Union[bool, str, torch.device] = 'cpu',
-                 default_handle: Tuple[Callable, str] = (joblib, '.pkl.z')):
+                 default_handle: Tuple[Callable, str] = (joblib, '.pkl.z'),
+                 ):
         """
         Parameters
         ----------
@@ -62,6 +63,7 @@ class Checker(object):
         self._make_file_index()
 
     @classmethod
+    @deprecated('This method is rotten and will be removed in v0.5.0, use `Checker(<model path>)` instead')
     def load(cls, model_path):
         return cls(model_path)
 

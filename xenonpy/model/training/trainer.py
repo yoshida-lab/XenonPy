@@ -4,6 +4,7 @@
 
 from collections import OrderedDict, namedtuple
 from copy import deepcopy
+from pathlib import Path
 from typing import Union, Tuple, List, Any, Dict, Callable
 
 import numpy as np
@@ -14,7 +15,7 @@ from torch.optim.lr_scheduler import _LRScheduler, ReduceLROnPlateau
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from xenonpy.model.training import ClipValue, ClipNorm
+from xenonpy.model.training import ClipValue, ClipNorm, Checker
 from xenonpy.model.training.base import BaseOptimizer, BaseLRScheduler, BaseRunner
 from xenonpy.utils import camel_to_snake
 
@@ -22,7 +23,7 @@ __all__ = ['Trainer']
 
 
 class Trainer(BaseRunner):
-    checkpoint_tuple = namedtuple('checkpoint', 'id iterations model_state optimizer_state')
+    checkpoint_tuple = namedtuple('checkpoint', 'id iterations model_state')
     results_tuple = namedtuple('results', 'total_epochs device training_info checkpoints model')
 
     def __init__(self,
@@ -210,7 +211,6 @@ class Trainer(BaseRunner):
             id=id_,
             iterations=self._total_its,
             model_state=deepcopy(self._model.state_dict()),
-            optimizer_state=deepcopy(self._optimizer.state_dict()),
         )
 
         self._checkpoints[id_] = cp
@@ -240,7 +240,6 @@ class Trainer(BaseRunner):
         elif isinstance(to, (int, str)):
             cp = self.get_checkpoint(to)
             self._model.load_state_dict(cp.model_state)
-            self._optimizer.load_state_dict(cp.optimizer_state)
         elif to is None:
             self._model.load_state_dict(self._init_states)
             self._optimizer.load_state_dict(self._optimizer_state)
@@ -355,8 +354,6 @@ class Trainer(BaseRunner):
         if epochs is None:
             epochs = self.epochs
 
-        self._model.to(self._device, non_blocking=self.non_blocking)
-
         if training_dataset is not None:
             if y_train is not None or x_train is not None:
                 raise RuntimeError('parameter <training_dataset> is exclusive of <x_train> and <y_train>')
@@ -377,6 +374,10 @@ class Trainer(BaseRunner):
                     self._clip_grad(self._model.parameters())
 
                 return loss_
+
+            # make sure running in training mode
+            if not self._model.training:
+                self._model.train()
 
             train_loss = self._optimizer.step(closure).item()
 
@@ -424,7 +425,6 @@ class Trainer(BaseRunner):
         if training_dataset:
             for i_epoch in range(self._total_epochs, epochs + self._total_epochs):
 
-                self._model.train()
                 self._total_epochs += 1
                 for i_batch, (x_train, y_train) in enumerate(training_dataset):
                     x_train, y_train = self.input_proc(x_train, y_train, trainer=self, training=True)
@@ -445,7 +445,6 @@ class Trainer(BaseRunner):
 
             for i_epoch in range(self._total_epochs, epochs + self._total_epochs):
 
-                self._model.train()
                 self._total_epochs += 1
                 yield _step(x_train, y_train)
                 if self._early_stopping[0]:
@@ -458,6 +457,22 @@ class Trainer(BaseRunner):
         # after processing
         self._after_proc(trainer=self, training=True)
         self._model.eval()
+
+    @classmethod
+    def load(cls, *, from_: Union[str, Path, Checker]):
+        if isinstance(from_, (str, Path)):
+            checker = Checker(from_)
+        else:
+            checker = from_
+        if len(checker.files) == 0:
+            raise RuntimeError(f'{checker.path} is not a model dir')
+
+        tmp = cls(model=checker.model)
+        tmp._training_info = checker.training_info.values
+        if Path(checker.path + '/checkpoints').is_dir():
+            for k in checker.checkpoints.files:
+                tmp._checkpoints[k] = cls.checkpoint_tuple(**checker.checkpoints[k])
+        return tmp
 
     def predict(self,
                 x_in: Union[Any, Tuple[Any]] = None,
@@ -508,8 +523,9 @@ class Trainer(BaseRunner):
                 return torch.cat(ls, dim=0)
             return ls
 
+        # maker sure eval mode
         self._model.eval()
-        self._model.to(self.device, non_blocking=self.non_blocking)
+
         if x_in is None and y_true is None and dataset is not None:
             y_preds = []
             y_trues = []

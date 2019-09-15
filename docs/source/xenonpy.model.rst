@@ -29,6 +29,14 @@ xenonpy.model.extern module
    :undoc-members:
    :show-inheritance:
 
+xenonpy.model.sequential module
+-------------------------------
+
+.. automodule:: xenonpy.model.sequential
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Module contents
 ---------------

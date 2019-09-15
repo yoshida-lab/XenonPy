@@ -11,8 +11,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from xenonpy.model.nn import Layer1d
-from xenonpy.model.utils import Checker
+from xenonpy.model import LinearLayer
+from xenonpy.model.training import Checker
 
 
 @pytest.fixture(scope='module')
@@ -27,7 +27,7 @@ def setup():
         cp=dict(model_state=1, b=2),
         path=f'{dir_}/test/{name}',
         dot=str(dot),
-        model=Layer1d(10, 1),
+        model=LinearLayer(10, 1),
         np=np.ones((2, 3)),
         df=pd.DataFrame(np.ones((2, 3)))
     )
@@ -69,9 +69,9 @@ def test_checker_model_1(setup):
         checker.model = None
 
     checker.model = setup['model']
-    assert isinstance(checker.model, Layer1d)
+    assert isinstance(checker.model, LinearLayer)
     assert isinstance(checker.model_structure, str)
-    assert 'Layer1d' in checker.model_structure
+    assert 'LinearLayer' in checker.model_structure
     assert str(checker.model) == str(setup['model'])
 
     assert checker.init_state is not None

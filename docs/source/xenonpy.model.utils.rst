@@ -20,6 +20,14 @@ xenonpy.model.utils.metrics module
    :undoc-members:
    :show-inheritance:
 
+xenonpy.model.utils.parameter\_gen module
+-----------------------------------------
+
+.. automodule:: xenonpy.model.utils.parameter_gen
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 Module contents
 ---------------

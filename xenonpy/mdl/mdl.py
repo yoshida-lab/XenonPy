@@ -256,7 +256,7 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
 
     def update_modelset(self, *,
                         modelset_id: int,
-                        name: str,
+                        name: str = None,
                         describe: str = None,
                         sample_code: str = None,
                         tags: List[str] = None,

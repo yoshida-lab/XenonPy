@@ -2,11 +2,9 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from xenonpy.mdl.base import BaseQuery
+import pandas as pd
 
-__all__ = ['QueryModelDetailsWith', 'QueryModelDetails', 'GetModelDetail', 'GetModelDetails', 'GetModelUrl',
-           'GetModelUrls', 'GetSupplementary', 'GetTrainingEnv', 'GetTrainingInfo', 'ListModelsWithDescriptor',
-           'ListModelsWithMethod', 'ListModelsWithModelset', 'ListModelsWithProperty', 'UploadModel']
+from xenonpy.mdl.base import BaseQuery
 
 
 class QueryModelDetailsWith(BaseQuery):
@@ -188,7 +186,6 @@ class GetModelUrls(BaseQuery):
         'id',
         'etag',
         'url',
-        'path'
     ]
 
     def __init__(self, variables, *, api_key: str = 'anonymous.user.key',
@@ -218,7 +215,6 @@ class GetModelUrl(BaseQuery):
         'id',
         'etag',
         'url',
-        'path'
     ]
 
     def __init__(self, variables, *, api_key: str = 'anonymous.user.key',
@@ -411,7 +407,10 @@ class GetTrainingInfo(BaseQuery):
             Not implement yet.
         """
         super().__init__(variables=variables, api_key=api_key, endpoint=endpoint)
-        self._return_raw = True
+
+    @staticmethod
+    def _post(ret, return_json):
+        return pd.DataFrame(ret)
 
     def gql(self, *query_vars: str):
         return f'''
@@ -435,7 +434,7 @@ class GetTrainingEnv(BaseQuery):
             Not implement yet.
         """
         super().__init__(variables=variables, api_key=api_key, endpoint=endpoint)
-        self._return_raw = True
+        self._return_json = True
 
     def gql(self, *query_vars: str):
         return f'''
@@ -459,7 +458,7 @@ class GetSupplementary(BaseQuery):
             Not implement yet.
         """
         super().__init__(variables=variables, api_key=api_key, endpoint=endpoint)
-        self._return_raw = True
+        self._return_json = True
 
     def gql(self, *query_vars: str):
         return f'''

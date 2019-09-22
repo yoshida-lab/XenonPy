@@ -5,13 +5,11 @@
 from xenonpy.mdl.base import BaseQuery
 
 
-class QueryModelsetsWith(BaseQuery):
+class QueryMethodsWith(BaseQuery):
     queryable = [
-        'id',
         'name',
+        'fullName',
         'describe',
-        'deprecated',
-        'private',
     ]
 
     def __init__(self, variables, *, api_key: str = 'anonymous.user.key',
@@ -30,17 +28,13 @@ class QueryModelsetsWith(BaseQuery):
         return f'''
             query (
                 $name_has: [String!]
-                $tag_has: [String!]
+                $fullName_has: [String!]
                 $describe_has: [String!]
-                $private: Boolean
-                $deprecated: Boolean
             ) {{
-                queryModelsetsWith(
+                queryMethodsWith(
                     name_has: $name_has
-                    tag_has: $tag_has
+                    fullName_has: $fullName_has
                     describe_has: $describe_has
-                    private: $private
-                    deprecated: $deprecated
                 ) {{
                     {' '.join(query_vars)}
                 }}
@@ -48,13 +42,11 @@ class QueryModelsetsWith(BaseQuery):
             '''
 
 
-class QueryModelsets(BaseQuery):
+class QueryMethods(BaseQuery):
     queryable = [
-        'id',
         'name',
+        'fullName',
         'describe',
-        'deprecated',
-        'private',
     ]
 
     def __init__(self, variables, *, api_key: str = 'anonymous.user.key',
@@ -72,24 +64,18 @@ class QueryModelsets(BaseQuery):
     def gql(self, *query_vars: str):
         return f'''
             query ($query: [String!]!) {{
-                queryModelsets(query: $query) {{
+                queryMethods(query: $query) {{
                     {' '.join(query_vars)}
                 }}
             }}
             '''
 
 
-class GetModelsetDetail(BaseQuery):
+class GetMethodDetail(BaseQuery):
     queryable = [
-        'id',
         'name',
+        'fullName',
         'describe',
-        'deprecated',
-        'private',
-        'contributors',
-        'owner',
-        'sampleCode',
-        'tags',
         'count'
     ]
 
@@ -108,21 +94,19 @@ class GetModelsetDetail(BaseQuery):
 
     def gql(self, *query_vars: str):
         return f'''
-            query ($id: Int!) {{
-                getModelsetDetail(id: $id) {{
+            query ($name: String!) {{
+                getMethodDetail(name: $name) {{
                     {' '.join(query_vars)}
                 }}
             }}
             '''
 
 
-class ListModelsets(BaseQuery):
+class ListMethods(BaseQuery):
     queryable = [
-        'id',
         'name',
+        'fullName',
         'describe',
-        'deprecated',
-        'private',
     ]
 
     def __init__(self, *, api_key: str = 'anonymous.user.key',
@@ -140,20 +124,18 @@ class ListModelsets(BaseQuery):
     def gql(self, *query_vars: str):
         return f'''
             query {{
-                listModelsets {{
+                listMethods {{
                     {' '.join(query_vars)}
                 }}
             }}
             '''
 
 
-class CreateModelset(BaseQuery):
+class CreateMethod(BaseQuery):
     queryable = [
-        'id',
         'name',
+        'fullName',
         'describe',
-        'deprecated',
-        'private',
     ]
 
     def __init__(self, variables, *, api_key: str = 'anonymous.user.key',
@@ -171,21 +153,19 @@ class CreateModelset(BaseQuery):
 
     def gql(self, *query_vars: str):
         return f'''
-            mutation ($with_: CreateModelsetInput!) {{
-                createModelset (with_: $with_) {{
+            mutation ($with_: CreateMethodInput!) {{
+                createMethod (with_: $with_) {{
                     {' '.join(query_vars)}
                 }}
             }}
             '''
 
 
-class UpdateModelset(BaseQuery):
+class UpdateMethod(BaseQuery):
     queryable = [
-        'id',
         'name',
+        'fullName',
         'describe',
-        'deprecated',
-        'private',
     ]
 
     def __init__(self, variables, *, api_key: str = 'anonymous.user.key',
@@ -204,11 +184,11 @@ class UpdateModelset(BaseQuery):
     def gql(self, *query_vars: str):
         return f'''
             mutation (
-                $id: Int!
-                $with_: UpdateModelsetInput!
+                $name: String!
+                $with_: UpdateMethodInput!
             ) {{
-                updateModelset (
-                    id: $id
+                updateMethod (
+                    name: $name
                     with_: $with_
                 ) {{
                     {' '.join(query_vars)}

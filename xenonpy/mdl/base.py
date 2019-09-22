@@ -24,7 +24,7 @@ class BaseQuery(BaseEstimator, metaclass=TimedMetaClass):
             raise RuntimeError('Query class must give a queryable field in list of string')
 
         self._results = None
-        self._return_raw = False
+        self._return_json = False
         self._endpoint = endpoint
         self._api_key = api_key
         self._variables = variables
@@ -48,13 +48,23 @@ class BaseQuery(BaseEstimator, metaclass=TimedMetaClass):
     def gql(self, *query_vars: str):
         raise NotImplementedError()
 
+    @staticmethod
+    def _post(ret, return_json):
+        if return_json:
+            return ret
+
+        if not isinstance(ret, list):
+            ret = [ret]
+        ret = pd.DataFrame(ret)
+        return ret
+
     def check_query_vars(self, *query_vars: str):
         if not set(query_vars) <= set(self.queryable):
             raise RuntimeError(f'`query_vars` contains illegal variables, '
                                f'available querying variables are: {self.queryable}')
         return query_vars
 
-    def __call__(self, *querying_vars, file=None, raw_results=None):
+    def __call__(self, *querying_vars, file=None, return_json=None):
         if len(querying_vars) == 0:
             query = self.gql(*self.queryable)
         else:
@@ -100,15 +110,10 @@ class BaseQuery(BaseEstimator, metaclass=TimedMetaClass):
         if not ret:
             return None
 
-        if raw_results is None:
-            raw_results = self._return_raw
-        if raw_results:
-            self._results = ret
-            return ret
+        if return_json is None:
+            return_json = self._return_json
 
-        if not isinstance(ret, list):
-            ret = [ret]
-        ret = pd.DataFrame(ret)
+        ret = self._post(ret, return_json)
         self._results = ret
         return ret
 

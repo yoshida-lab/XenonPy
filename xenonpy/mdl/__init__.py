@@ -3,4 +3,3 @@
 #  license that can be found in the LICENSE file.
 
 from .mdl import *
-from .model import *

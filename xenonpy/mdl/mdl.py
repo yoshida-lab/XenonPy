@@ -14,13 +14,25 @@ from sklearn.base import BaseEstimator
 from tqdm import tqdm
 
 from xenonpy.utils import TimedMetaClass
+from .descriptor import QueryDescriptors, QueryDescriptorsWith, UpdateDescriptor, CreateDescriptor, ListDescriptors, \
+    GetDescriptorDetail
+from .method import QueryMethods, QueryMethodsWith, UpdateMethod, CreateMethod, ListMethods, GetMethodDetail
 from .model import QueryModelDetails, QueryModelDetailsWith, UploadModel, GetTrainingInfo, GetTrainingEnv, \
     GetSupplementary, GetModelUrls, GetModelUrl, GetModelDetails, GetModelDetail, ListModelsWithProperty, \
     ListModelsWithModelset, ListModelsWithMethod, ListModelsWithDescriptor
 from .modelset import QueryModelsets, QueryModelsetsWith, UpdateModelset, CreateModelset, ListModelsets, \
     GetModelsetDetail
+from .property import QueryPropertiesWith, QueryProperties, UpdateProperty, CreateProperty, ListProperties, \
+    GetPropertyDetail
 
-__all__ = ['MDL']
+__all__ = ['MDL', 'QueryModelsetsWith', 'QueryModelsets', 'QueryModelDetailsWith', 'QueryModelDetails',
+           'UpdateModelset', 'UploadModel', 'GetModelsetDetail', 'GetModelDetail', 'GetModelDetails', 'GetModelUrls',
+           'GetModelUrl', 'GetTrainingInfo', 'GetSupplementary', 'GetTrainingEnv', 'ListModelsets',
+           'ListModelsWithDescriptor', 'ListModelsWithMethod', 'ListModelsWithModelset', 'ListModelsWithProperty',
+           'QueryPropertiesWith', 'QueryProperties', 'GetPropertyDetail', 'ListProperties', 'CreateProperty',
+           'CreateModelset', 'UpdateProperty', 'QueryDescriptorsWith', 'QueryDescriptors', 'QueryMethodsWith',
+           'QueryMethods', 'UpdateDescriptor', 'UpdateMethod', 'ListDescriptors', 'ListMethods', 'GetMethodDetail',
+           'GetDescriptorDetail', 'CreateDescriptor', 'CreateMethod']
 
 
 class MDL(BaseEstimator, metaclass=TimedMetaClass):
@@ -55,7 +67,7 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
         """"""
         self._api_key = k
 
-    def __call__(self, query: str = None, *,
+    def __call__(self, *query: str,
                  modelset_has: Union[List[str]] = None,
                  property_has: Union[List[str]] = None,
                  descriptor_has: Union[List[str]] = None,
@@ -104,7 +116,7 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
             A summary of all downloaded models.
         """
 
-        if query is not None:
+        if len(query) > 0:
             return QueryModelDetails(dict(query=query), api_key=self.api_key, endpoint=self.endpoint)
         else:
             variables = dict(
@@ -330,6 +342,331 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
 
     def get_modelset_detail(self, modelset_id: int):
         return GetModelsetDetail({'id': modelset_id}, api_key=self.api_key, endpoint=self.endpoint)
+
+    def query_descriptors(self, query: str = None, *,
+                          name_has: Union[List[str]] = None,
+                          fullname_has: Union[List[str]] = None,
+                          describe_has: Union[List[str]] = None,
+                          ):
+        """
+        Query models with specific keywords and download to a specific destination
+
+        Parameters
+        ----------
+        query
+            Lowercase string for database querying.
+            This is a fuzzy searching, any information contains given string will hit.
+        name_has
+            The part of a model set's name.
+            For example, ``modelset_has='test`` will hit ``*test*``
+        fullname_has
+            A part of the name of descriptor.
+        describe_has
+            A part of the name of descriptor.
+
+        Returns
+        -------
+        ret: pd.DataFrame
+            Matched modelsets.
+        """
+
+        if query is not None:
+            return QueryDescriptors(dict(query=query), api_key=self.api_key, endpoint=self.endpoint)
+        else:
+            variables = dict(
+                name_has=name_has,
+                fullName_has=fullname_has,
+                describe_has=describe_has,
+            )
+            variables = {k: v for k, v in variables.items() if v is not None}
+
+            return QueryDescriptorsWith(variables, api_key=self.api_key, endpoint=self.endpoint)
+
+    def update_descriptor(self, *,
+                          name: str,
+                          new_name: str = None,
+                          describe: str = None,
+                          fullname: str = None,
+                          ):
+        """
+        Upload model to XenonPy.MDL server.
+
+        Parameters
+        ----------
+        name
+        new_name
+        describe
+        fullname
+
+        Returns
+        -------
+
+        """
+        with_ = dict(
+            name=new_name,
+            describe=describe,
+            fullName=fullname,
+        )
+        with_ = {k: v for k, v in with_.items() if v is not None}
+
+        return UpdateDescriptor({'name': name, 'with_': with_}, api_key=self.api_key, endpoint=self.endpoint)
+
+    def creat_descriptor(self, *,
+                         name: str,
+                         describe: str = None,
+                         fullname: str = None,
+                         ):
+        """
+        Create modelset..
+
+        Parameters
+        ----------
+        name
+        describe
+        fullname
+
+        Returns
+        -------
+
+        """
+        with_ = dict(
+            name=name,
+            describe=describe,
+            fullName=fullname,
+        )
+        with_ = {k: v for k, v in with_.items() if v is not None}
+
+        return CreateDescriptor({'with_': with_}, api_key=self.api_key, endpoint=self.endpoint)
+
+    def list_descriptors(self):
+        return ListDescriptors(api_key=self.api_key, endpoint=self.endpoint)
+
+    def get_descriptor_detail(self, name: str):
+        return GetDescriptorDetail({'name': name}, api_key=self.api_key, endpoint=self.endpoint)
+
+    def query_methods(self, query: str = None, *,
+                      name_has: Union[List[str]] = None,
+                      fullname_has: Union[List[str]] = None,
+                      describe_has: Union[List[str]] = None,
+                      ):
+        """
+        Query models with specific keywords and download to a specific destination
+
+        Parameters
+        ----------
+        query
+            Lowercase string for database querying.
+            This is a fuzzy searching, any information contains given string will hit.
+        name_has
+            The part of a model set's name.
+            For example, ``modelset_has='test`` will hit ``*test*``
+        fullname_has
+            A part of the name of method.
+        describe_has
+            A part of the name of descriptor.
+
+        Returns
+        -------
+        ret: pd.DataFrame
+            Matched modelsets.
+        """
+
+        if query is not None:
+            return QueryMethods(dict(query=query), api_key=self.api_key, endpoint=self.endpoint)
+        else:
+            variables = dict(
+                name_has=name_has,
+                fullName_has=fullname_has,
+                describe_has=describe_has,
+            )
+            variables = {k: v for k, v in variables.items() if v is not None}
+
+            return QueryMethodsWith(variables, api_key=self.api_key, endpoint=self.endpoint)
+
+    def update_method(self, *,
+                      name: str,
+                      new_name: str = None,
+                      describe: str = None,
+                      fullname: str = None,
+                      ):
+        """
+        Upload model to XenonPy.MDL server.
+
+        Parameters
+        ----------
+        name
+        new_name
+        describe
+        fullname
+
+        Returns
+        -------
+
+        """
+        with_ = dict(
+            name=new_name,
+            describe=describe,
+            fullName=fullname,
+        )
+        with_ = {k: v for k, v in with_.items() if v is not None}
+
+        return UpdateMethod({'name': name, 'with_': with_}, api_key=self.api_key, endpoint=self.endpoint)
+
+    def creat_method(self, *,
+                     name: str,
+                     describe: str = None,
+                     fullname: str = None,
+                     ):
+        """
+        Create modelset..
+
+        Parameters
+        ----------
+        name
+        describe
+        fullname
+
+        Returns
+        -------
+
+        """
+        with_ = dict(
+            name=name,
+            describe=describe,
+            fullName=fullname,
+        )
+        with_ = {k: v for k, v in with_.items() if v is not None}
+
+        return CreateMethod({'with_': with_}, api_key=self.api_key, endpoint=self.endpoint)
+
+    def list_methods(self):
+        return ListMethods(api_key=self.api_key, endpoint=self.endpoint)
+
+    def get_method_detail(self, name: str):
+        return GetMethodDetail({'name': name}, api_key=self.api_key, endpoint=self.endpoint)
+
+    def query_properties(self, query: str = None, *,
+                         name_has: Union[List[str]] = None,
+                         fullname_has: Union[List[str]] = None,
+                         describe_has: Union[List[str]] = None,
+                         symbol_has: Union[List[str]] = None,
+                         unit_has: Union[List[str]] = None,
+                         ):
+        """
+        Query models with specific keywords and download to a specific destination
+
+        Parameters
+        ----------
+        query
+            Lowercase string for database querying.
+            This is a fuzzy searching, any information contains given string will hit.
+        name_has
+            The part of a model set's name.
+            For example, ``modelset_has='test`` will hit ``*test*``
+        fullname_has
+            A part of the name of methods.
+        describe_has
+            A part of the name of descriptor.
+        symbol_has
+            If``True``, searching in regression models,
+            else, searching in classification models.
+            Default is ``True``.
+        unit_has
+            Model with this mark is deprecated.
+
+        Returns
+        -------
+        ret: pd.DataFrame
+            Matched modelsets.
+        """
+
+        if query is not None:
+            return QueryProperties(dict(query=query), api_key=self.api_key, endpoint=self.endpoint)
+        else:
+            variables = dict(
+                name_has=name_has,
+                fullName_has=fullname_has,
+                describe_has=describe_has,
+                symbol_has=symbol_has,
+                unit_has=unit_has,
+            )
+            variables = {k: v for k, v in variables.items() if v is not None}
+
+            return QueryPropertiesWith(variables, api_key=self.api_key, endpoint=self.endpoint)
+
+    def update_property(self, *,
+                        name: str,
+                        new_name: str = None,
+                        describe: str = None,
+                        fullname: str = None,
+                        symbol: str = None,
+                        unit: str = None,
+                        ):
+        """
+        Upload model to XenonPy.MDL server.
+
+        Parameters
+        ----------
+        name
+        new_name
+        describe
+        fullname
+        symbol
+        unit
+
+        Returns
+        -------
+
+        """
+        with_ = dict(
+            name=new_name,
+            describe=describe,
+            fullName=fullname,
+            symbol=symbol,
+            priunitvate=unit,
+        )
+        with_ = {k: v for k, v in with_.items() if v is not None}
+
+        return UpdateProperty({'name': name, 'with_': with_}, api_key=self.api_key, endpoint=self.endpoint)
+
+    def creat_property(self, *,
+                       name: str,
+                       describe: str = None,
+                       fullname: str = None,
+                       symbol: str = None,
+                       unit: str = None,
+                       ):
+        """
+        Create modelset..
+
+        Parameters
+        ----------
+        name
+        describe
+        fullname
+        symbol
+        unit
+
+        Returns
+        -------
+
+        """
+        with_ = dict(
+            name=name,
+            describe=describe,
+            fullName=fullname,
+            symbol=symbol,
+            unit=unit
+        )
+        with_ = {k: v for k, v in with_.items() if v is not None}
+
+        return CreateProperty({'with_': with_}, api_key=self.api_key, endpoint=self.endpoint)
+
+    def list_properties(self):
+        return ListProperties(api_key=self.api_key, endpoint=self.endpoint)
+
+    def get_property_detail(self, name: str):
+        return GetPropertyDetail({'name': name}, api_key=self.api_key, endpoint=self.endpoint)
 
     def pull(self, model_ids: Union[Tuple[int], List[int], pd.Series, pd.DataFrame], save_to: str = '.'):
         """

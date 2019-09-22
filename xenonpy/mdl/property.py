@@ -5,13 +5,13 @@
 from xenonpy.mdl.base import BaseQuery
 
 
-class QueryModelsetsWith(BaseQuery):
+class QueryPropertiesWith(BaseQuery):
     queryable = [
-        'id',
         'name',
+        'fullName',
+        'symbol',
+        'unit',
         'describe',
-        'deprecated',
-        'private',
     ]
 
     def __init__(self, variables, *, api_key: str = 'anonymous.user.key',
@@ -30,17 +30,17 @@ class QueryModelsetsWith(BaseQuery):
         return f'''
             query (
                 $name_has: [String!]
-                $tag_has: [String!]
+                $fullName_has: [String!]
                 $describe_has: [String!]
-                $private: Boolean
-                $deprecated: Boolean
+                $symbol_has: [String!]
+                $unit_has: [String!]
             ) {{
-                queryModelsetsWith(
+                queryPropertiesWith(
                     name_has: $name_has
-                    tag_has: $tag_has
+                    fullName_has: $fullName_has
                     describe_has: $describe_has
-                    private: $private
-                    deprecated: $deprecated
+                    symbol_has: $symbol_has
+                    unit_has: $unit_has
                 ) {{
                     {' '.join(query_vars)}
                 }}
@@ -48,13 +48,13 @@ class QueryModelsetsWith(BaseQuery):
             '''
 
 
-class QueryModelsets(BaseQuery):
+class QueryProperties(BaseQuery):
     queryable = [
-        'id',
         'name',
+        'fullName',
+        'symbol',
+        'unit',
         'describe',
-        'deprecated',
-        'private',
     ]
 
     def __init__(self, variables, *, api_key: str = 'anonymous.user.key',
@@ -72,24 +72,20 @@ class QueryModelsets(BaseQuery):
     def gql(self, *query_vars: str):
         return f'''
             query ($query: [String!]!) {{
-                queryModelsets(query: $query) {{
+                queryProperties(query: $query) {{
                     {' '.join(query_vars)}
                 }}
             }}
             '''
 
 
-class GetModelsetDetail(BaseQuery):
+class GetPropertyDetail(BaseQuery):
     queryable = [
-        'id',
         'name',
+        'fullName',
+        'symbol',
+        'unit',
         'describe',
-        'deprecated',
-        'private',
-        'contributors',
-        'owner',
-        'sampleCode',
-        'tags',
         'count'
     ]
 
@@ -108,21 +104,21 @@ class GetModelsetDetail(BaseQuery):
 
     def gql(self, *query_vars: str):
         return f'''
-            query ($id: Int!) {{
-                getModelsetDetail(id: $id) {{
+            query ($name: String!) {{
+                getPropertyDetail(name: $name) {{
                     {' '.join(query_vars)}
                 }}
             }}
             '''
 
 
-class ListModelsets(BaseQuery):
+class ListProperties(BaseQuery):
     queryable = [
-        'id',
         'name',
+        'fullName',
+        'symbol',
+        'unit',
         'describe',
-        'deprecated',
-        'private',
     ]
 
     def __init__(self, *, api_key: str = 'anonymous.user.key',
@@ -140,20 +136,20 @@ class ListModelsets(BaseQuery):
     def gql(self, *query_vars: str):
         return f'''
             query {{
-                listModelsets {{
+                listProperties {{
                     {' '.join(query_vars)}
                 }}
             }}
             '''
 
 
-class CreateModelset(BaseQuery):
+class CreateProperty(BaseQuery):
     queryable = [
-        'id',
         'name',
+        'fullName',
+        'symbol',
+        'unit',
         'describe',
-        'deprecated',
-        'private',
     ]
 
     def __init__(self, variables, *, api_key: str = 'anonymous.user.key',
@@ -171,21 +167,21 @@ class CreateModelset(BaseQuery):
 
     def gql(self, *query_vars: str):
         return f'''
-            mutation ($with_: CreateModelsetInput!) {{
-                createModelset (with_: $with_) {{
+            mutation ($with_: CreatePropertyInput!) {{
+                createProperty (with_: $with_) {{
                     {' '.join(query_vars)}
                 }}
             }}
             '''
 
 
-class UpdateModelset(BaseQuery):
+class UpdateProperty(BaseQuery):
     queryable = [
-        'id',
         'name',
+        'fullName',
+        'symbol',
+        'unit',
         'describe',
-        'deprecated',
-        'private',
     ]
 
     def __init__(self, variables, *, api_key: str = 'anonymous.user.key',
@@ -204,11 +200,11 @@ class UpdateModelset(BaseQuery):
     def gql(self, *query_vars: str):
         return f'''
             mutation (
-                $id: Int!
-                $with_: UpdateModelsetInput!
+                $name: String!
+                $with_: UpdatePropertyInput!
             ) {{
-                updateModelset (
-                    id: $id
+                updateProperty (
+                    name: $name
                     with_: $with_
                 ) {{
                     {' '.join(query_vars)}

@@ -11,6 +11,14 @@ Subpackages
 Submodules
 ----------
 
+xenonpy.utils.parameter\_gen module
+-----------------------------------
+
+.. automodule:: xenonpy.utils.parameter_gen
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 xenonpy.utils.useful\_cls module
 --------------------------------
 

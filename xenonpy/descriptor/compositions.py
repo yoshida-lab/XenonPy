@@ -318,7 +318,9 @@ class Compositions(BaseDescriptor):
     Calculate elemental descriptors from compound's composition.
     """
 
-    def __init__(self, *, n_jobs: int = -1, featurizers: Union[str, List[str]] = 'all', on_errors: str = 'nan'):
+    classic = ['WeightedAverage', 'WeightedSum', 'WeightedVariance', 'MaxPooling', 'MinPooling']
+
+    def __init__(self, *, n_jobs: int = -1, featurizers: Union[str, List[str]] = 'classic', on_errors: str = 'nan'):
         """
 
         Parameters
@@ -342,8 +344,7 @@ class Compositions(BaseDescriptor):
         """
 
         if featurizers == 'classic':
-            super().__init__(
-                featurizers=['WeightedAverage', 'WeightedSum', 'WeightedVariance', 'MaxPooling', 'MinPooling'])
+            super().__init__(featurizers=self.classic)
         else:
             super().__init__(featurizers=featurizers)
         self.n_jobs = n_jobs

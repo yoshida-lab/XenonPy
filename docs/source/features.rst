@@ -203,33 +203,33 @@ The following lists contain the information of current available pre-trained mod
 
 .. table:: Information on model sets
 
-    +-----------+-----------------------------------+-------------------------------------------------------------------+
-    |  sId      |  name                             |  description                                                      |
-    +===========+===================================+===================================================================+
-    |           | | Stable inorganic compounds      | | Models in this set are trained on ~20,000 stable inorganic      |
-    |  ``S1``   | | in materials project (MP)       | | compounds selected from the materials project.                  |
-    |           |                                   |                                                                   |
-    +-----------+-----------------------------------+-------------------------------------------------------------------+
-    |           | | All inorganic compounds         | | Models in this set are trained on ~70,000 inorganic compounds   |
-    |  ``S2``   | | in materials project (MP)       | | selected from the materials project.                            |
-    |           |                                   |                                                                   |
-    +-----------+-----------------------------------+-------------------------------------------------------------------+
-    |           | | QM9 Dataset from                | | Quantum-Machine project can be access                           |
-    |  ``S3``   | | Quantum-Machine website         | | from http://quantum-machine.org/.                               |
-    |           |                                   |                                                                   |
-    +-----------+-----------------------------------+-------------------------------------------------------------------+
-    |           |   PHYSPROP Dataset                | | PHYSPROP database contains chemical structures,                 |
-    |  ``S4``   |                                   | | names and physical properties for over 41,000 chemicals.        |
-    |           |                                   |                                                                   |
-    +-----------+-----------------------------------+-------------------------------------------------------------------+
-    |           | | Jean-Claude Bradley Open        | | Jean-Claude Bradley's dataset of Open Melting Points.           |
-    |  ``S5``   | | Melting Point Dataset           |                                                                   |
-    |           |                                   |                                                                   |
-    +-----------+-----------------------------------+-------------------------------------------------------------------+
-    |           | | Polymer Genome Dataset (PG)     | | Polymer Genome is an informatics platform for polymer property  |
-    |  ``S6``   |                                   | | prediction and design using machine learning.                   |
-    |           |                                   | | It can be accessed via https://www.polymergenome.org/.          |
-    +-----------+-----------------------------------+-------------------------------------------------------------------+
+    +----------+-----------------------------------+-------------------------------------------------------------------+
+    |  id      |  name                             |  description                                                      |
+    +==========+===================================+===================================================================+
+    |          | | Stable inorganic compounds      | | Models in this set are trained on ~20,000 stable inorganic      |
+    |  ``1``   | | in materials project (MP)       | | compounds selected from the materials project.                  |
+    |          |                                   |                                                                   |
+    +----------+-----------------------------------+-------------------------------------------------------------------+
+    |          | | All inorganic compounds         | | Models in this set are trained on ~70,000 inorganic compounds   |
+    |  ``2``   | | in materials project (MP)       | | selected from the materials project.                            |
+    |          |                                   |                                                                   |
+    +----------+-----------------------------------+-------------------------------------------------------------------+
+    |          | | QM9 Dataset from                | | Quantum-Machine project can be access                           |
+    |  ``3``   | | Quantum-Machine website         | | from http://quantum-machine.org/.                               |
+    |          |                                   |                                                                   |
+    +----------+-----------------------------------+-------------------------------------------------------------------+
+    |          |   PHYSPROP Dataset                | | PHYSPROP database contains chemical structures,                 |
+    |  ``4``   |                                   | | names and physical properties for over 41,000 chemicals.        |
+    |          |                                   |                                                                   |
+    +----------+-----------------------------------+-------------------------------------------------------------------+
+    |          | | Jean-Claude Bradley Open        | | Jean-Claude Bradley's dataset of Open Melting Points.           |
+    |  ``5``   | | Melting Point Dataset           |                                                                   |
+    |          |                                   |                                                                   |
+    +----------+-----------------------------------+-------------------------------------------------------------------+
+    |          | | Polymer Genome Dataset (PG)     | | Polymer Genome is an informatics platform for polymer property  |
+    |  ``6``   |                                   | | prediction and design using machine learning.                   |
+    |          |                                   | | It can be accessed via https://www.polymergenome.org/.          |
+    +----------+-----------------------------------+-------------------------------------------------------------------+
 
 
 .. table:: Information of properties

@@ -5,6 +5,20 @@
 Changes
 =======
 
+v0.4.0
+======
+
+**Breaking change**
+
+* Remove ``xenonpy.datatools.MDL``.
+* Remove ``xenonpy.model.nn`` modules. Part of them will be keep until v1.0.0 for compatible.
+
+**New features**
+
+* Add ``xenonpy.mdl`` modules for XenonPy.MDL access.
+* Add ``xenonpy.model.training`` modules for model training.
+
+
 v0.3.6
 ======
 

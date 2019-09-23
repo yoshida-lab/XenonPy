@@ -5,7 +5,7 @@
 import numpy as np
 import pytest
 
-from xenonpy.model.utils import ParameterGenerator
+from xenonpy.utils import ParameterGenerator
 
 
 @pytest.fixture(scope='module')

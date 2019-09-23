@@ -4,26 +4,10 @@ xenonpy.model.utils package
 Submodules
 ----------
 
-xenonpy.model.utils.checker module
-----------------------------------
-
-.. automodule:: xenonpy.model.utils.checker
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 xenonpy.model.utils.metrics module
 ----------------------------------
 
 .. automodule:: xenonpy.model.utils.metrics
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-xenonpy.model.utils.parameter\_gen module
------------------------------------------
-
-.. automodule:: xenonpy.model.utils.parameter_gen
    :members:
    :undoc-members:
    :show-inheritance:

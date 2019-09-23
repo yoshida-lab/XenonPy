@@ -3,12 +3,14 @@
 #  license that can be found in the LICENSE file.
 
 
+from collections import defaultdict
+from collections.abc import Iterable
+
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator
+
 from xenonpy.utils import TimedMetaClass
-from collections import defaultdict
-from collections.abc import Iterable
 
 
 class LogLikelihoodError(Exception):
@@ -63,13 +65,13 @@ class BaseLogLikelihood(BaseEstimator, metaclass=TimedMetaClass):
 
 
 class BaseLogLikelihoodSet(BaseEstimator, metaclass=TimedMetaClass):
-    
     """
     Abstract class to organize log-likelihoods.
     
     Examples
     --------
     .. code::
+
         class MyLogLikelihood(BaseLogLikelihoodSet):
             def __init__(self):
                 super().__init__()
@@ -78,8 +80,9 @@ class BaseLogLikelihoodSet(BaseEstimator, metaclass=TimedMetaClass):
                 self.loglike1 = SomeFeature2()
                 self.loglike2 = SomeFeature3()
                 self.loglike2 = SomeFeature4()
+
     """
-    
+
     def __init__(self, *, loglikelihoods='all'):
         """
             
@@ -92,20 +95,20 @@ class BaseLogLikelihoodSet(BaseEstimator, metaclass=TimedMetaClass):
         self.loglikelihoods = loglikelihoods
         self.__loglikelihoods__ = set()
         self.__loglikelihood_sets__ = defaultdict(list)
-    
+
     @property
     def elapsed(self):
         return self._timer.elapsed
-        
+
     def __setattr__(self, key, value):
-        
+
         if key == '__loglikelihood_sets__':
             if not isinstance(value, defaultdict):
                 raise RuntimeError('Can not set "self.__loglikelihood_sets__" by yourself')
             super().__setattr__(key, value)
         if isinstance(value, BaseLogLikelihood):
-#            if value.__class__.__name__ in self.__loglikelihoods__:
-#                raise RuntimeError('Duplicated log-likelihood <%s>' % value.__class__.__name__)
+            #            if value.__class__.__name__ in self.__loglikelihoods__:
+            #                raise RuntimeError('Duplicated log-likelihood <%s>' % value.__class__.__name__)
             self.__loglikelihood_sets__[key].append(value)
             self.__loglikelihoods__.add(value.__class__.__name__)
         else:
@@ -114,40 +117,40 @@ class BaseLogLikelihoodSet(BaseEstimator, metaclass=TimedMetaClass):
     @property
     def all_loglikelihoods(self):
         return list(self.__loglikelihoods__)
-    
+
     def _check_input(self, X, y=None, **kwargs):
         def _reformat(x):
             if x is None:
                 return x
-            
+
             keys = list(self.__loglikelihood_sets__.keys())
             if len(keys) == 1:
                 if isinstance(x, list):
                     return pd.DataFrame(pd.Series(x), columns=keys)
-                
+
                 if isinstance(x, np.ndarray):
                     if len(x.shape) == 1:
                         return pd.DataFrame(x, columns=keys)
-            
+
                 if isinstance(x, pd.Series):
                     return pd.DataFrame(x.values, columns=keys, index=x.index)
-        
+
             if isinstance(x, pd.Series):
                 x = pd.DataFrame(x)
-                    
+
             if isinstance(x, pd.DataFrame):
                 tmp = set(x.columns) | set(kwargs.keys())
                 if set(keys).isdisjoint(tmp):
                     raise KeyError(
                         'name of columns do not match any log-likelihood set')
                 return x
-                
+
             raise TypeError(
                 'you can not ues a array-like input'
                 'because there are multiply log-likelihood sets or the dim of input is not 1')
-            
+
         return _reformat(X), _reformat(y)
-            
+
     def __call__(self, X, **kwargs):
         return self.log_likelihood(X, **kwargs)
 
@@ -168,22 +171,22 @@ class BaseLogLikelihoodSet(BaseEstimator, metaclass=TimedMetaClass):
             Estimated log-likelihood of each sample's property values.
         """
         # raise NotImplementedError('<log_likelihood> have no implementation')
-        #raise NotImplementedError('<log_likelihood> method must be implemented')
-            
+        # raise NotImplementedError('<log_likelihood> method must be implemented')
+
         if not isinstance(X, Iterable):
             raise TypeError('parameter "entries" must be a iterable object')
-                
+
         if len(X) is 0:
             return None
-                        
+
         if 'loglikelihoods' in kwargs:
             loglikelihoods = kwargs['loglikelihoods']
             if loglikelihoods != 'all' and not isinstance(loglikelihoods, list):
                 raise TypeError('parameter "loglikelihoods" must be a list')
         else:
             loglikelihoods = self.loglikelihoods
-                            
-        #if 'return_type' in kwargs:
+
+        # if 'return_type' in kwargs:
         #    del kwargs['return_type']
 
         results = []
@@ -191,14 +194,14 @@ class BaseLogLikelihoodSet(BaseEstimator, metaclass=TimedMetaClass):
         X, _ = self._check_input(X, **kwargs)
         for k, lls in self.__loglikelihood_sets__.items():
             if k in kwargs:
-                k = kwargs[k] # what is this for? even if k not in kwargs... nothing happen right?
+                k = kwargs[k]  # what is this for? even if k not in kwargs... nothing happen right?
             if k in X:
                 for f in lls:
                     if loglikelihoods != 'all' and f.__class__.__name__ not in loglikelihoods:
                         continue
                     ret = f.log_likelihood(X[k])
                     results.append(ret)
-                                
+
         return pd.concat(results, axis=1)
 
 

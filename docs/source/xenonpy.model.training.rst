@@ -20,10 +20,10 @@ xenonpy.model.training.base module
    :undoc-members:
    :show-inheritance:
 
-xenonpy.model.training.center module
-------------------------------------
+xenonpy.model.training.checker module
+-------------------------------------
 
-.. automodule:: xenonpy.model.training.center
+.. automodule:: xenonpy.model.training.checker
    :members:
    :undoc-members:
    :show-inheritance:

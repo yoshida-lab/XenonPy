@@ -20,6 +20,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
     def __init__(self, descriptor: Union[BaseFeaturizer, BaseDescriptor], *, targets={}, **estimators: BaseEstimator):
         """
         Gaussian loglikelihood.
+
         Parameters
         ----------
         descriptor: BaseFeaturizer or BaseDescriptor
@@ -29,6 +30,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
             These estimators must provide a method named ``predict`` which
             accesses descriptors as input and returns ``(mean, std)`` in order.
             By default, BayesianRidge_ will be used.
+
             .. _BayesianRidge: https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.BayesianRidge.html#sklearn-linear-model-bayesianridge
         targets: dictionary
             Upper and lower bounds for each property to calculate the Gaussian CDF probability
@@ -56,6 +58,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
     def update_targets(self, *, reset=False, **targets):
         """
         Update/set the target area.
+
         Parameters
         ----------
         reset: bool
@@ -75,6 +78,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
     def remove_estimator(self, *properties: str):
         """
         Remove estimators from estimator set.
+
         Parameters
         ----------
         properties : str
@@ -87,7 +91,6 @@ class GaussianLogLikelihood(BaseLogLikelihood):
             for p in properties:
                 del self._mdl[p]
                 del self._targets[p]
-
 
     def predict(self, smiles, **kwargs):
         fps = self._descriptor.transform(smiles, return_type='df')

@@ -11,7 +11,9 @@ import pandas as pd
 import pytest
 from requests import HTTPError
 
-from xenonpy.datatools import MDL
+from xenonpy.mdl import MDL
+
+pytestmark = pytest.mark.skipif(True, reason="no way of currently testing this, skipping tests")
 
 
 @pytest.fixture(scope='module')
@@ -45,7 +47,7 @@ def test_query_models_1(mdl):
 def test_pull_1(mdl):
     ret = mdl('Stable inorganic compounds', property_has='volume')
     urls = ret['url'].iloc[:1]
-    paths = mdl.pull(urls=urls)
+    paths = mdl.pull(model_ids=urls)
 
     assert Path(paths[0]).exists()
     assert Path(paths[0]).is_dir()

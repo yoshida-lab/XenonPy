@@ -218,6 +218,7 @@ class CyclicLR(BaseLRScheduler):
         `step` should be called after a batch has been used for training.
 
         This class has three built-in policies, as put forth in the paper:
+
         "triangular":
             A basic triangular cycle w/ no amplitude scaling.
         "triangular2":

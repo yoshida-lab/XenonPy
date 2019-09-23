@@ -10,6 +10,7 @@ Subpackages
    xenonpy.datatools
    xenonpy.descriptor
    xenonpy.inverse
+   xenonpy.mdl
    xenonpy.model
    xenonpy.utils
    xenonpy.visualization

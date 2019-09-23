@@ -24,6 +24,7 @@ dependencies:
   - pip:
       - nbsphinx
       - Python-Deprecated
+      - sphinx-autodoc-typehints
       - ruamel.yaml
       - pymatgen==2019.5.8
       - jupyterlab

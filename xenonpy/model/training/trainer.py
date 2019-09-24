@@ -145,12 +145,7 @@ class Trainer(BaseRunner):
     def model(self, model):
         if model is not None:
             if isinstance(model, torch.nn.Module):
-                self._model = model.to(self._device, non_blocking=self.non_blocking)
-                self._init_states = deepcopy(model.state_dict())
-
-                if self._model is not None:
-                    self.optimizer = None
-                    self.lr_scheduler = None
+                self.reset(to=model)
             else:
                 raise TypeError(
                     'parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(model))
@@ -235,8 +230,12 @@ class Trainer(BaseRunner):
         self._early_stopping = (False, '')
 
         if isinstance(to, Module):
-            self.model = to
+            self._model = to.to(self._device, non_blocking=self.non_blocking)
+            self._init_states = deepcopy(to.state_dict())
             self._checkpoints = OrderedDict()
+
+            self.optimizer = None
+            self.lr_scheduler = None
         elif isinstance(to, (int, str)):
             cp = self.get_checkpoint(to)
             self._model.load_state_dict(cp.model_state)

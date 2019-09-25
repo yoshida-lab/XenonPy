@@ -133,9 +133,18 @@ class Trainer(BaseRunner):
 
     @property
     def training_info(self):
-        if self._training_info:
+        if self._training_info is not None:
             return pd.DataFrame(data=self._training_info)
         return None
+
+    @property
+    def device(self):
+        return self._device
+
+    @device.setter
+    def device(self, v):
+        self._device = self.check_device(v)
+        self.model = None
 
     @property
     def model(self):
@@ -458,7 +467,21 @@ class Trainer(BaseRunner):
         self._model.eval()
 
     @classmethod
-    def load(cls, *, from_: Union[str, Path, Checker]):
+    def load(cls, *, from_: Union[str, Path, Checker], cuda=False) -> 'Trainer':
+        """
+        Load model for local path or :class:`~Checker`.
+
+        Parameters
+        ----------
+        from_
+            Path to the model dir or :class:`~Checker` object.
+        cuda
+            Set cuda usage.
+
+        Returns
+        -------
+
+        """
         if isinstance(from_, (str, Path)):
             checker = Checker(from_)
         else:
@@ -466,8 +489,8 @@ class Trainer(BaseRunner):
         if len(checker.files) == 0:
             raise RuntimeError(f'{checker.path} is not a model dir')
 
-        tmp = cls(model=checker.model)
-        tmp._training_info = checker.training_info.values
+        tmp = cls(model=checker.model, cuda=cuda)
+        tmp._training_info = checker.training_info
         if Path(checker.path + '/checkpoints').is_dir():
             for k in checker.checkpoints.files:
                 tmp._checkpoints[k] = cls.checkpoint_tuple(**checker.checkpoints[k])

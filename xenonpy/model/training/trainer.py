@@ -56,6 +56,9 @@ class Trainer(BaseRunner):
             Number of iterations.
         cuda
             Set training device(s).
+        non_blocking
+            When non_blocking is ``True``,
+            it tries to convert/move asynchronously with respect to the host if possible.
         """
         super().__init__(cuda=cuda)
         # None able
@@ -324,9 +327,9 @@ class Trainer(BaseRunner):
         Parameters
         ----------
         x_train
-            Training data. Will be ignored will``training_dataset`` is given.
+            Training data. Will be ignored will ``training_dataset`` is given.
         y_train
-            Test data. Will be ignored will``training_dataset`` is given.
+            Test data. Will be ignored will ``training_dataset`` is given.
         training_dataset: DataLoader
             Torch DataLoader. If given, will only use this as training dataset.
             When loop over this dataset, it should yield a tuple contains ``x_train`` and ``y_train`` in order.
@@ -467,16 +470,37 @@ class Trainer(BaseRunner):
         self._model.eval()
 
     @classmethod
-    def load(cls, *, from_: Union[str, Path, Checker], cuda=False) -> 'Trainer':
+    def load(cls, from_: Union[str, Path, Checker], *,
+             loss_func: torch.nn.Module = None,
+             optimizer: BaseOptimizer = None,
+             lr_scheduler: BaseLRScheduler = None,
+             clip_grad: Union[ClipNorm, ClipValue] = None,
+             epochs: int = 200,
+             cuda: Union[bool, str, torch.device] = False,
+             non_blocking: bool = False,
+             ) -> 'Trainer':
         """
-        Load model for local path or :class:`~Checker`.
+        Load model for local path or :class:`xenonpy.model.training.Checker`.
 
         Parameters
         ----------
         from_
-            Path to the model dir or :class:`~Checker` object.
+            Path to the model dir or :class:`xenonpy.model.training.Checker` object.
+        loss_func
+            Loss function.
+        optimizer
+            Optimizer for model parameters tuning.
+        lr_scheduler
+            Learning rate scheduler.
+        clip_grad
+            Clip grad before each optimize.
+        epochs
+            Number of iterations.
         cuda
-            Set cuda usage.
+            Set training device(s).
+        non_blocking
+            When non_blocking is ``True``,
+            it tries to convert/move asynchronously with respect to the host if possible.
 
         Returns
         -------
@@ -489,8 +513,9 @@ class Trainer(BaseRunner):
         if len(checker.files) == 0:
             raise RuntimeError(f'{checker.path} is not a model dir')
 
-        tmp = cls(model=checker.model, cuda=cuda)
-        tmp._training_info = checker.training_info
+        tmp = cls(model=checker.model, cuda=cuda, loss_func=loss_func, optimizer=optimizer, lr_scheduler=lr_scheduler,
+                  clip_grad=clip_grad, epochs=epochs, non_blocking=non_blocking)
+        tmp._training_info = checker.training_info.to_dict(orient='records')
         if Path(checker.path + '/checkpoints').is_dir():
             for k in checker.checkpoints.files:
                 tmp._checkpoints[k] = cls.checkpoint_tuple(**checker.checkpoints[k])

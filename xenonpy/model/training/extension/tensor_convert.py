@@ -40,6 +40,8 @@ class TensorConverter(BaseExtension):
         """
 
         def _convert(t):
+            if t is None:
+                return t
             if isinstance(t, (tuple, list)):
                 return tuple([_convert(t_) for t_ in t])
 

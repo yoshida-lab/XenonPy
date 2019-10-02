@@ -61,6 +61,8 @@ class QueryModelDetailsWith(BaseQuery):
 
     def gql(self, *query_vars: str):
         reg, cls = [], []
+        if 'id' not in query_vars:
+            query_vars = query_vars + ('id',)
         for var in query_vars:
             if var in self.common:
                 # common.append(var)
@@ -158,6 +160,8 @@ class QueryModelDetails(BaseQuery):
 
     def gql(self, *query_vars: str):
         reg, cls = [], []
+        if 'id' not in query_vars:
+            query_vars = query_vars + ('id',)
         for var in query_vars:
             if var in self.common:
                 reg.append(var)

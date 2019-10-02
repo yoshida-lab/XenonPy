@@ -57,8 +57,8 @@ def data():
 
     class _FakeDescriptor(BaseDescriptor):
 
-        def __init__(self, featurizers='all'):
-            super().__init__(featurizers=featurizers)
+        def __init__(self, featurizers='all', on_errors='raise'):
+            super().__init__(featurizers=featurizers, on_errors=on_errors)
             self.g1 = _FakeFeaturier1()
             self.g1 = _FakeFeaturier2()
             self.g2 = _FakeFeaturier3()
@@ -82,6 +82,11 @@ def test_base_feature_props():
             return ['labels']
 
     bf = _FakeFeaturier()
+    with pytest.raises(ValueError, match='`on_errors`'):
+        bf.on_errors = 'illegal'
+
+    with pytest.raises(ValueError, match='`return_type`'):
+        bf.return_type = 'illegal'
 
     # test n_jobs
     assert bf.n_jobs == cpu_count()
@@ -161,12 +166,21 @@ def test_base_descriptor_1(data):
     assert hasattr(bd, '__featurizers__')
     assert not bd.__featurizer_sets__
 
+    with pytest.raises(ValueError, match='`on_errors`'):
+        bd.on_errors = 'illegal'
+
 
 def test_base_descriptor_2(data):
     bd = data['descriptor']()
     assert len(bd.all_featurizers) == 3
     assert 'g1' in bd.__featurizer_sets__
     assert 'g2' in bd.__featurizer_sets__
+
+    assert bd.on_errors == 'raise'
+    assert bd.__featurizer_sets__['g1'][0].on_errors == 'raise'
+    bd.set_params(on_errors='nan')
+    assert bd.on_errors == 'nan'
+    assert bd.__featurizer_sets__['g1'][0].on_errors == 'nan'
 
 
 def test_base_descriptor_3(data):

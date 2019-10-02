@@ -43,7 +43,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
         if not isinstance(descriptor, (BaseFeaturizer, BaseDescriptor)):
             raise TypeError('<descriptor> must be a subclass of <BaseFeaturizer> or <BaseDescriptor>')
         self._descriptor = descriptor
-        self._descriptor.set_params(on_errors='nan')
+        self._descriptor.on_errors = 'nan'
 
         self._targets = deepcopy(targets)
 

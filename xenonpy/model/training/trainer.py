@@ -133,7 +133,7 @@ class Trainer(BaseRunner):
 
     @property
     def training_info(self):
-        if self._training_info is not None:
+        if len(self._training_info) > 0:
             return pd.DataFrame(data=self._training_info)
         return None
 

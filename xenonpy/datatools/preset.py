@@ -191,7 +191,9 @@ class Preset(Dataset, metaclass=Singleton):
         # fetch data from source if not in local
         if not dataset.exists():
             raise RuntimeError(
-                "data {0} not exist, please run <Preset.sync('{0}')> to download from the repository".format(data))
+                "data {0} not exist, please run <preset.sync('{0}')> to download from the repository".format(data),
+                'See also: https://xenonpy.readthedocs.io/en/latest/tutorials/1-dataset.html'
+            )
 
         # check sha256 value
         sha256_file.touch()  # make sure sha256_file file exist.

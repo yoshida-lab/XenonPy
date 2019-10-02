@@ -78,6 +78,12 @@ Use the following codes to load ``elements`` and ``elements_completed``.
     >>> preset.elements
     >>> preset.elements_completed
 
+If you will get a ``file not exist`` error, please run the following code to sync your local dataset.
+
+    >>> from xenonpy.datatools import preset
+    >>> preset.sync('elements')
+    >>> preset.sync('elements_completed')
+
 These are still some advanced uses of ``Dataset`` and ``preset``. For more details, see :ref:`tutorial/1-dataset:Advance`.
 
 Also see the jupyter files at:

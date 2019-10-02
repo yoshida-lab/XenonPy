@@ -7,6 +7,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from copy import copy
 from multiprocessing import Pool, cpu_count
+from typing import DefaultDict, List
 
 import numpy as np
 import pandas as pd
@@ -83,21 +84,21 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
     __citations__ = ['No citations']
     _n_jobs = 1
 
-    def __init__(self, n_jobs=-1, *, on_errors='raise', return_type='any'):
+    def __init__(self, n_jobs: int = -1, *, on_errors: str = 'raise', return_type: str = 'any'):
         """
         Parameters
         ----------
-        n_jobs: int
+        n_jobs
             The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
             Inputs ``X`` will be split into some blocks then run on each cpu cores.
             When set to 0, input X will be treated as a block and pass to ``Featurizer.featurize`` directly.
-        on_errors: string
+        on_errors
             How to handle the exceptions in a feature calculations. Can be 'nan', 'keep', 'raise'.
             When 'nan', return a column with ``np.nan``.
             The length of column corresponding to the number of feature labs.
             When 'keep', return a column with exception objects.
             The default is 'raise' which will raise up the exception.
-        return_type: str
+        return_type
             Specific the return type.
             Can be ``any``, ``array`` and ``df``.
             ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
@@ -110,6 +111,26 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         self.n_jobs = n_jobs
         self.on_errors = on_errors
         self._kwargs = {}
+
+    @property
+    def return_type(self):
+        return self._return_type
+
+    @return_type.setter
+    def return_type(self, val):
+        if val not in {'any', 'array', 'df'}:
+            raise ValueError('`return_type` must be `any`, `array` or `df`')
+        self._return_type = val
+
+    @property
+    def on_errors(self):
+        return self._on_errors
+
+    @on_errors.setter
+    def on_errors(self, val):
+        if val not in {'nan', 'keep', 'raise'}:
+            raise ValueError('`on_errors` must be `nan`, `keep` or `raise`')
+        self._on_errors = val
 
     @property
     def n_jobs(self):
@@ -322,7 +343,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
     _n_jobs = 1
 
-    def __init__(self, *, featurizers='all'):
+    def __init__(self, *, featurizers='all', on_errors: str = 'raise'):
         """
 
         Parameters
@@ -330,10 +351,30 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         featurizers: list[str] or 'all'
             Featurizers that will be used.
             Default is 'all'.
+        on_errors
+            How to handle the exceptions in a feature calculations. Can be 'nan', 'keep', 'raise'.
+            When 'nan', return a column with ``np.nan``.
+            The length of column corresponding to the number of feature labs.
+            When 'keep', return a column with exception objects.
+            The default is 'raise' which will raise up the exception.
         """
-        self.featurizers = featurizers
         self.__featurizers__ = set()
-        self.__featurizer_sets__ = defaultdict(list)
+        self.__featurizer_sets__: DefaultDict[str, List[BaseFeaturizer]] = defaultdict(list)
+        self.featurizers = featurizers
+        self.on_errors = on_errors
+
+    @property
+    def on_errors(self):
+        return self._on_errors
+
+    @on_errors.setter
+    def on_errors(self, val):
+        if val not in {'nan', 'keep', 'raise'}:
+            raise ValueError('`on_errors` must be `nan`, `keep` or `raise`')
+        self._on_errors = val
+        for fea_set in self.__featurizer_sets__.values():
+            for fea in fea_set:
+                fea.on_errors = val
 
     @property
     def elapsed(self):

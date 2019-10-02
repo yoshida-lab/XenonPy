@@ -114,6 +114,14 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         if isinstance(cuda, torch.device):
             return cuda
 
+    @property
+    def device(self):
+        return self._device
+
+    @device.setter
+    def device(self, v):
+        self._device = self.check_device(v)
+
     def _make_inject(self, injects, kwargs):
         _kwargs = {k: self._extensions[k][0] for k in injects if k in self._extensions}
         _kwargs.update({k: kwargs[k] for k in injects if k in kwargs})

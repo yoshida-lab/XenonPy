@@ -2,7 +2,9 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
+import shutil
 from copy import deepcopy
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -12,7 +14,19 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 
 from xenonpy.model.training import Trainer, MSELoss, Adam, ExponentialLR, SGD, ClipValue, ReduceLROnPlateau, ClipNorm
-from xenonpy.model.training.extension import TensorConverter
+from xenonpy.model.training.extension import TensorConverter, Persist
+
+
+class _Net(torch.nn.Module):
+    def __init__(self, n_feature, n_hidden, n_output):
+        super().__init__()
+        self.hidden = torch.nn.Linear(n_feature, n_hidden)  # hidden layer
+        self.predict = torch.nn.Linear(n_hidden, n_output)  # output layer
+
+    def forward(self, x_):
+        x_ = F.relu(self.hidden(x_))  # activation function for hidden layer
+        x_ = self.predict(x_)  # linear output
+        return x_
 
 
 @pytest.fixture(scope='module')
@@ -23,25 +37,19 @@ def data():
     warnings.filterwarnings("ignore", message="numpy.dtype size changed")
     warnings.filterwarnings("ignore", message="numpy.ndarray size changed")
 
-    class Net(torch.nn.Module):
-        def __init__(self, n_feature, n_hidden, n_output):
-            super(Net, self).__init__()
-            self.hidden = torch.nn.Linear(n_feature, n_hidden)  # hidden layer
-            self.predict = torch.nn.Linear(n_hidden, n_output)  # output layer
-
-        def forward(self, x_):
-            x_ = F.relu(self.hidden(x_))  # activation function for hidden layer
-            x_ = self.predict(x_)  # linear output
-            return x_
+    model_dir: Path = Path(__file__).parent / 'model_dir'
 
     torch.manual_seed(0)
     np.random.seed(0)
     x = torch.unsqueeze(torch.linspace(-1, 1, 100), dim=1)  # x data (tensor), shape=(100, 1)
     y = x.pow(2) + 0.2 * torch.rand(x.size())  # noisy y data (tensor), shape=(100, 1)
 
-    net = Net(n_feature=1, n_hidden=10, n_output=1)
+    net = _Net(n_feature=1, n_hidden=10, n_output=1)
 
     yield net, (x, y)
+
+    if model_dir.exists():
+        shutil.rmtree(str(model_dir.resolve()))
 
     print('test over')
 
@@ -234,6 +242,44 @@ def test_trainer_fit_4(data):
         count += 1
     assert trainer.total_iterations == 3
     assert trainer._early_stopping == (True, 'stop!!!')
+
+
+def test_persist_1(data):
+    model = deepcopy(data[0])
+    trainer = Trainer(model=model, optimizer=Adam(lr=0.1), loss_func=MSELoss(), epochs=200)
+    trainer.extend(TensorConverter(), Persist('model_dir'))
+    trainer.fit(*data[1], *data[1])
+
+    persist = trainer['persist']
+    checker = persist._checker
+    assert isinstance(persist, Persist)
+    assert isinstance(checker.model, torch.nn.Module)
+    assert isinstance(checker.describe, dict)
+    assert isinstance(checker.files, list)
+    assert set(checker.files) == {'model', 'init_state', 'model_structure', 'describe', 'training_info', 'final_state'}
+
+    trainer = Trainer.load(checker)
+    assert isinstance(trainer.training_info, pd.DataFrame)
+    assert isinstance(trainer.model, torch.nn.Module)
+    assert isinstance(trainer._training_info, list)
+    assert trainer.optimizer is None
+    assert trainer.lr_scheduler is None
+    assert trainer.x_val is None
+    assert trainer.y_val is None
+    assert trainer.validate_dataset is None
+    assert trainer._optimizer_state is None
+    assert trainer.total_epochs == 0
+    assert trainer.total_iterations == 0
+    assert trainer.loss_type is None
+    assert trainer.loss_func is None
+
+    trainer = Trainer.load(from_=checker.path, optimizer=Adam(), loss_func=MSELoss(),
+                           lr_scheduler=ExponentialLR(gamma=0.99),
+                           clip_grad=ClipValue(clip_value=0.1))
+    assert isinstance(trainer._scheduler, ExponentialLR)
+    assert isinstance(trainer._optim, Adam)
+    assert isinstance(trainer.clip_grad, ClipValue)
+    assert isinstance(trainer.loss_func, MSELoss)
 
 
 def test_trainer_prediction_1(data):

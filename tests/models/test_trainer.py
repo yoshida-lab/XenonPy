@@ -183,31 +183,34 @@ def test_trainer_fit_3(data):
     assert len(trainer.checkpoints.keys()) == 0
 
     trainer.reset()
+    assert trainer.total_iterations == 0
+    assert trainer.total_epochs == 0
+    assert len(trainer.get_checkpoint()) == 0
+
     trainer.fit(*data[1], checkpoint=True)
     assert len(trainer.get_checkpoint()) == 5
     assert isinstance(trainer.get_checkpoint(2), trainer.checkpoint_tuple)
-    assert isinstance(trainer.get_checkpoint('cp:2'), trainer.checkpoint_tuple)
+    assert isinstance(trainer.get_checkpoint('cp_2'), trainer.checkpoint_tuple)
 
     with pytest.raises(TypeError, match='parameter <cp> must be str or int'):
         trainer.get_checkpoint([])
 
-    trainer.reset(to=3)
-    assert trainer.total_iterations == 0
-    assert trainer.total_epochs == 0
+    trainer.reset(to=3, remove_checkpoints=False)
+    assert len(trainer.get_checkpoint()) == 5
+    assert isinstance(trainer.get_checkpoint(2), trainer.checkpoint_tuple)
+    assert isinstance(trainer.get_checkpoint('cp_2'), trainer.checkpoint_tuple)
 
-    trainer.reset(to='cp:3')
+    trainer.reset(to='cp_3')
     assert trainer.total_iterations == 0
     assert trainer.total_epochs == 0
+    assert len(trainer.get_checkpoint()) == 0
 
     with pytest.raises(TypeError, match='parameter <to> must be torch.nnModule, int, or str'):
         trainer.reset(to=[])
 
     # todo: need a real testing
+    trainer.fit(*data[1], checkpoint=True)
     trainer.predict(*data[1], checkpoint=3)
-
-    trainer.reset()
-    trainer.fit(*data[1], checkpoint=2)
-    assert len(trainer.get_checkpoint()) == 2
 
     trainer.reset()
     trainer.fit(*data[1], checkpoint=lambda i: (True, f'new:{i}'))

@@ -457,13 +457,13 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
 
         return UpdateModelset({'id': modelset_id, 'with_': with_}, api_key=self.api_key, endpoint=self.endpoint)
 
-    def creat_modelset(self, *,
-                       name: str,
-                       describe: str = None,
-                       sample_code: str = None,
-                       tags: List[str] = None,
-                       private: bool = False
-                       ):
+    def create_modelset(self, *,
+                        name: str,
+                        describe: str = None,
+                        sample_code: str = None,
+                        tags: List[str] = None,
+                        private: bool = False
+                        ):
         """
         Create modelset.
 
@@ -587,11 +587,11 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
 
         return UpdateDescriptor({'name': name, 'with_': with_}, api_key=self.api_key, endpoint=self.endpoint)
 
-    def creat_descriptor(self, *,
-                         name: str,
-                         describe: str = None,
-                         fullname: str = None,
-                         ) -> CreateDescriptor:
+    def create_descriptor(self, *,
+                          name: str,
+                          describe: str = None,
+                          fullname: str = None,
+                          ) -> CreateDescriptor:
         """
         Create descriptor.
 
@@ -712,11 +712,11 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
 
         return UpdateMethod({'name': name, 'with_': with_}, api_key=self.api_key, endpoint=self.endpoint)
 
-    def creat_method(self, *,
-                     name: str,
-                     describe: str = None,
-                     fullname: str = None,
-                     ) -> CreateMethod:
+    def create_method(self, *,
+                      name: str,
+                      describe: str = None,
+                      fullname: str = None,
+                      ) -> CreateMethod:
         """
         Create method.
 
@@ -850,13 +850,13 @@ class MDL(BaseEstimator, metaclass=TimedMetaClass):
 
         return UpdateProperty({'name': name, 'with_': with_}, api_key=self.api_key, endpoint=self.endpoint)
 
-    def creat_property(self, *,
-                       name: str,
-                       describe: str = None,
-                       fullname: str = None,
-                       symbol: str = None,
-                       unit: str = None,
-                       ) -> CreateProperty:
+    def create_property(self, *,
+                        name: str,
+                        describe: str = None,
+                        fullname: str = None,
+                        symbol: str = None,
+                        unit: str = None,
+                        ) -> CreateProperty:
         """
         Create property.
 

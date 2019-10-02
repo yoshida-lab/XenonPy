@@ -205,7 +205,7 @@ class Trainer(BaseRunner):
         if checkpoint is None:
             return list(self._checkpoints.keys())
         if isinstance(checkpoint, int):
-            id_ = f'cp:{checkpoint}'
+            id_ = f'cp_{checkpoint}'
             return self._checkpoints[id_]
         if isinstance(checkpoint, str):
             return self._checkpoints[checkpoint]
@@ -213,7 +213,7 @@ class Trainer(BaseRunner):
 
     def set_checkpoint(self, id_: str = None):
         if id_ is None:
-            id_ = f'cp:{self._total_its}'
+            id_ = f'cp_{self._total_its}'
         cp = self.checkpoint_tuple(
             id=id_,
             iterations=self._total_its,
@@ -226,7 +226,7 @@ class Trainer(BaseRunner):
     def early_stop(self, msg: str):
         self._early_stopping = (True, msg)
 
-    def reset(self, *, to: Union[Module, int, str] = None):
+    def reset(self, *, to: Union[Module, int, str] = None, remove_checkpoints: bool = True):
         """
         Reset trainer.
         This will reset all trainer states and drop all training step information.
@@ -235,6 +235,8 @@ class Trainer(BaseRunner):
         ----------
         to: Union[bool, Module]
             Bind trainer to the given model or reset current model to it's initialization states.
+        remove_checkpoints
+            Set to ``True`` to remove all checkpoints when resetting. Default ``true``.
         """
         self._training_info = []
         self._total_its = 0
@@ -244,7 +246,6 @@ class Trainer(BaseRunner):
         if isinstance(to, Module):
             self._model = to.to(self._device, non_blocking=self.non_blocking)
             self._init_states = deepcopy(to.state_dict())
-            self._checkpoints = OrderedDict()
 
             self.optimizer = None
             self.lr_scheduler = None
@@ -254,9 +255,11 @@ class Trainer(BaseRunner):
         elif to is None:
             self._model.load_state_dict(self._init_states)
             self._optimizer.load_state_dict(self._optimizer_state)
-            self._checkpoints = OrderedDict()
         else:
             raise TypeError(f'parameter <to> must be torch.nnModule, int, or str but got {type(to)}')
+
+        if remove_checkpoints:
+            self._checkpoints = OrderedDict()
 
         self._on_reset(trainer=self, training=True)
 

@@ -68,9 +68,7 @@ Some samples are available here: https://github.com/yoshida-lab/XenonPy/tree/mas
 Reference
 ---------
 
-Yamada, H., Liu, C., Wu, S., Koyama, Y., Ju, S., Shiomi, J., Morikawa, J., Yoshida, R.
-*Transfer learning: a key driver of accelerating materials discovery with machine learning*, in preparation.
-
+.. [1] Yamada, H. et al. Predicting Materials Properties with Little Data Using Shotgun Transfer Learning. ACS Cent. Sci. acscentsci.9b00804 (2019). doi:10.1021/acscentsci.9b00804
 
 ------------
 Contributing

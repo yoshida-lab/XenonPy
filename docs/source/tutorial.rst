@@ -34,5 +34,5 @@ You can use the following codes to build your sample data. These data will be sa
 
 If you want to know what exactly the code did, please check:
 
-    https://github.com/yoshida-lab/XenonPy/blob/master/samples/build_sample_data.ipynb
+    https://github.com/yoshida-lab/XenonPy/blob/master/samples/sample_data_building.ipynb
 

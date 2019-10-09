@@ -28,6 +28,10 @@ XenonPy is a open source project https://github.com/yoshida-lab/XenonPy.
 
 See our documents for details: http://xenonpy.readthedocs.io
 
+
+## Publications
+1. Yamada, H. et al. Predicting Materials Properties with Little Data Using Shotgun Transfer Learning. ACS Cent. Sci. acscentsci.9b00804 (2019). doi:10.1021/acscentsci.9b00804
+
 ## XenonPy images
 
 XenonPy images packed a lot of useful packages for materials informatics using.

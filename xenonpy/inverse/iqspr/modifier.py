@@ -64,43 +64,11 @@ class NGram(BaseProposal):
             probability of the SMILES being reordered during proposal
         """
 
-        if isinstance(sample_order, int):
-            self.sample_order = (1, sample_order)
-        elif isinstance(sample_order, tuple):
-            self.sample_order = sample_order
-        elif isinstance(sample_order, (list,np.array,pd.Series)):
-            self.sample_order = (sample_order[0],sample_order[1])
-        else:
-            raise TypeError('please input a <tuple> of two <int> or a single <int> for sample_order')
-
-        if self.sample_order[0] < 1:
-            raise RuntimeError('Min sample_order must be greater than 0')
-        if self.sample_order[1] < self.sample_order[0]:
-            raise RuntimeError('Min sample_order must not be smaller than max sample_order')
-
-        if isinstance(reorder_prob, (int,float)):
-            self.reorder_prob = reorder_prob
-        else:
-            raise TypeError('please input a <float> for reorder_prob')
-
-        if isinstance(min_len, int):
-            self.min_len = min_len
-        else:
-            raise TypeError('please input a <int> for min_len')
-
-        if isinstance(max_len, int):
-            self.max_len = max_len
-        else:
-            raise TypeError('please input a <int> for max_len')
-
-        if isinstance(del_range, int):
-            self.del_range = (1, del_range)
-        elif isinstance(del_range, tuple):
-            self.del_range = del_range
-        elif isinstance(del_range, (list,np.array,pd.Series)):
-            self.del_range = (del_range[0],del_range[1])
-        else:
-            raise TypeError('please input a <tuple> of two <int> or a single <int> for del_range')
+        self.sample_order = sample_order
+        self.reorder_prob = reorder_prob
+        self.min_len = min_len
+        self.max_len = max_len
+        self.del_range = del_range
 
         if ngram_tab is None:
             self._table = None
@@ -111,6 +79,75 @@ class NGram(BaseProposal):
 
         self._fit_sample_order()
         self._fit_min_len()
+
+    @property
+    def sample_order(self):
+        return self._sample_order
+
+    @sample_order.setter
+    def sample_order(self, val):
+        if isinstance(val, int):
+            self._sample_order = (1, val)
+        elif isinstance(val, tuple):
+            self._sample_order = val
+        elif isinstance(val, (list, np.array, pd.Series)):
+            self._sample_order = (val[0], val[1])
+        else:
+            raise TypeError('please input a <tuple> of two <int> or a single <int> for sample_order')
+        if self._sample_order[0] < 1:
+            raise RuntimeError('Min sample_order must be greater than 0')
+        if self._sample_order[1] < self._sample_order[0]:
+            raise RuntimeError('Min sample_order must not be smaller than max sample_order')
+
+    @property
+    def reorder_prob(self):
+        return self._reorder_prob
+
+    @reorder_prob.setter
+    def reorder_prob(self, val):
+        if isinstance(val, (int, float)):
+            self._reorder_prob = val
+        else:
+            raise TypeError('please input a <float> for reorder_prob')
+
+    @property
+    def min_len(self):
+        return self._min_len
+
+    @min_len.setter
+    def min_len(self, val):
+        if isinstance(val, int):
+            self._min_len = val
+        else:
+            raise TypeError('please input a <int> for min_len')
+
+    @property
+    def max_len(self):
+        return self._max_len
+
+    @max_len.setter
+    def max_len(self, val):
+        if isinstance(val, int):
+            self._max_len = val
+        else:
+            raise TypeError('please input a <int> for max_len')
+
+    @property
+    def del_range(self):
+        return self._del_range
+
+    @del_range.setter
+    def del_range(self, val):
+        if isinstance(val, int):
+            self._del_range = (1, val)
+        elif isinstance(val, tuple):
+            self._del_range = val
+        elif isinstance(val, (list, np.array, pd.Series)):
+            self._del_range = (val[0], val[1])
+        else:
+            raise TypeError('please input a <tuple> of two <int> or a single <int> for del_range')
+        if self._del_range[1] < self._del_range[0]:
+            raise RuntimeError('Min del_range must not be smaller than max del_range')
 
     def _fit_sample_order(self):
         if self._train_order and self._train_order[1] < self.sample_order[1]:

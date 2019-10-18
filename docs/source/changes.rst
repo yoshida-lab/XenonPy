@@ -5,13 +5,31 @@
 Changes
 =======
 
+v0.4.2
+======
+
+**Bug fix**
+
+* fix ``set_param`` method dose not set the children in ``BaseDescriptor`` and ``NGram``. ( `#163`_, `#159`_ )
+
+**Enhance**
+
+* Setting ``optimizer``, ``loss_func``, and etc. can be done in ``Trainer.load``. ( `#158`_ )
+* Improve docs.  ( `#155`_ )
+
+.. _#163: https://github.com/yoshida-lab/XenonPy/issues/163
+.. _#159: https://github.com/yoshida-lab/XenonPy/issues/159
+.. _#158: https://github.com/yoshida-lab/XenonPy/issues/159
+.. _#155: https://github.com/yoshida-lab/XenonPy/issues/159
+
+
 v0.4.0
 ======
 
 **Breaking change**
 
 * Remove ``xenonpy.datatools.MDL``.
-* Remove ``xenonpy.model.nn`` modules. Part of them will be keep until v1.0.0 for compatible.
+* Remove ``xenonpy.model.nn`` modules. Part of them will be kept until v1.0.0 for compatible.
 
 **New features**
 

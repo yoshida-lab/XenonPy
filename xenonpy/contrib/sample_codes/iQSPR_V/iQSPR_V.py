@@ -115,7 +115,7 @@ class IQSPR_V(BaseSMC):
         for i, step in enumerate(np.delete(beta, 0, 0)):
             try:
                 re_samples = self.resample(unique, smc_size, p)
-                samples = self.proposal(re_samples) + np.random.choice(reservoir,size=res_size).tolist()
+                samples = self.proposal(re_samples + np.random.choice(reservoir,size=res_size).tolist()) 
 
                 unique, frequency = self.unique(samples)
 

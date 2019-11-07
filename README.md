@@ -39,14 +39,14 @@ The following table list some core packages in XenonPy images.
 
 | Package        | Version    |
 | -------------- | ---------- |
-| `PyTorch`      | 1.2.0      |
+| `PyTorch`      | 1.3.0      |
 | `tensorly`     | 0.4.4      |
-| `pymatgen`     | 2019.9.12  |
+| `pymatgen`     | 2019.10.2  |
 | `matminer`     | 0.6.0      |
 | `mordred`      | 1.2.0      |
 | `scipy`        | 1.3.1      |
 | `scikit-learn` | 0.21.2     |
-| `pandas`       | 0.25.1     |
+| `pandas`       | 0.25.2     |
 | `rdkit`        | 2019.03.3  |
 | `jupyter`      | 1.0.0      |
 | `seaborn`      | 0.9.0      |

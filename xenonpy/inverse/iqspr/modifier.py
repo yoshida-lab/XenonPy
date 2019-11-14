@@ -520,10 +520,15 @@ class NGram(BaseProposal):
             # prepare for delete (1st letter shall not be '&')
             tmp_idx = ext_smi.iloc[1:].index
             tmp_count = np.array(ext_smi['n_ring'].iloc[1:]) - np.array(ext_smi['n_ring'].iloc[:-1])
-            num_open = tmp_idx[tmp_count == 1]
-            num_close = ext_smi['esmi'][tmp_count == -1]
+            num_open = tmp_idx[tmp_count == 1].values.tolist()
+            num_open.reverse()
+            num_close = tmp_idx[tmp_count == -1].values.tolist()
+            idx_pop = []
             for i in num_close:
-                num_open.pop(ext_smi['esmi'].iloc[i])
+                idx_pop.append(ext_smi['esmi'][i])
+            for ii, i in enumerate(idx_pop):
+                ext_smi['esmi'][num_close[ii]] += sum([x < i for x in idx_pop[ii+1:]]) - i 
+                num_open.pop(i)
             # delete all irrelevant rows and reconstruct esmi
             ext_smi = self.smi2esmi(
                 self.esmi2smi(ext_smi.drop(ext_smi.index[num_open]).reset_index(drop=True)))

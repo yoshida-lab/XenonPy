@@ -11,7 +11,8 @@ dependencies:
   - rdkit
   - scikit-learn
   - scipy
-  - pytorch-cpu
+  - pytorch
+  - cpuonly
   - nbconvert!=5.4
   - ipykernel
   - pip

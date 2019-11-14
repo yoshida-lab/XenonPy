@@ -8,11 +8,11 @@ dependencies:
   - pandas
   - seaborn
   - requests
-  - rdkit=2019.03.2
+  - rdkit=2019.09.1.0
   - plotly
   - scikit-learn
   - scipy
-  - pytorch=1.1.0
+  - pytorch=1.3.0
   - pytest
   - pytest-cov
   - pylint

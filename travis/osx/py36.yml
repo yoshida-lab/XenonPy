@@ -7,9 +7,10 @@ dependencies:
   - python=3.6
   - pandas
   - seaborn
+  - numpy
+  - scipy
   - requests
   - rdkit
-  - plotly
   - scikit-learn
   - scipy
   - pytorch=1.3.0

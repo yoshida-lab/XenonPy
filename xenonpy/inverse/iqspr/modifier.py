@@ -504,7 +504,7 @@ class NGram(BaseProposal):
     def validator(self, ext_smi):
         # delete all ending '(' or '&'
         for i in range(len(ext_smi)):
-            if not ((ext_smi['esmi'].iloc[-1] == '(') and (ext_smi['esmi'].iloc[-1] == '&')):
+            if not ((ext_smi['esmi'].iloc[-1] == '(') or (ext_smi['esmi'].iloc[-1] == '&')):
                 break
             ext_smi = self.del_char(ext_smi, 1)
         # delete or fill in ring closing

@@ -2,6 +2,7 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
+from os import getenv
 from pathlib import Path
 
 import pandas as pd
@@ -11,6 +12,8 @@ from pymatgen import Structure as pmg_S
 
 from xenonpy.descriptor import CrystalGraphFeaturizer
 
+pytestmark = pytest.mark.skipif(getenv('TRAVIS_OS_NAME') == 'osx',
+                                reason="no way of currently testing this, skipping tests")
 
 @pytest.fixture(scope='module')
 def data():

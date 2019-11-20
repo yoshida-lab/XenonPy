@@ -19,11 +19,11 @@ matrix:
       env: PYENV=py37
     - os: osx
       osx_image: xcode11.2
-      #      language: shell
+      language: shell
       env: PYENV=py36
     - os: osx
       osx_image: xcode11.2
-      #      language: shell
+      language: shell
       env: PYENV=py37
 
 before_install:

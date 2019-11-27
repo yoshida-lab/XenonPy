@@ -6,6 +6,7 @@ task:
   env:
     MPLBACKEN: Agg
   install_conda_script:
+    - echo $SHELL
     - brew update
     - brew cask install miniconda
     - conda config --set always_yes yes --set changeps1 no

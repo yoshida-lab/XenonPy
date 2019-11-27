@@ -2,7 +2,7 @@ name: xepy36
 channels:
   - defaults
   - pytorch
-  - rdkit
+  - conda-forge
 dependencies:
   - python=3.6
   - pandas
@@ -14,13 +14,13 @@ dependencies:
   - scikit-learn
   - scipy
   - pytorch=1.3.0
+  - pymatgen==2019.11.11
+  - ruamel.yaml
+  - matminer
+  - mordred
+  - tqdm
   - pytest
   - pytest-cov
   - pip
   - pip:
-      - ruamel.yaml
       - Python-Deprecated
-      - mordred
-      - matminer
-      - pymatgen==2019.10.2
-      - tqdm

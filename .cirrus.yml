@@ -5,7 +5,7 @@ task:
   name: py36_osx
   env:
     MPLBACKEN: Agg
-    AUTH_TOKEN: ENCRYPTED[api_key]
+    api_key: ENCRYPTED[API_KEY]
   install_conda_script:
     - echo $SHELL
     - echo $api_key

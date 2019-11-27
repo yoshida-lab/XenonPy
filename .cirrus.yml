@@ -6,15 +6,16 @@ task:
   env:
     MPLBACKEN: Agg
   install_conda_script:
-  node_modules_cache:
-    folder: /usr/local/miniconda36
+    - brew update
+    - brew cask install miniconda
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    - conda info -a
+    - conda init bash
+  conda_env_cache:
+    folder: /usr/local/miniconda3/envs
     fingerprint_script: cat travis/osx/py36.yml
     populate_script:
-      - brew update
-      - brew cask install miniconda
-      - conda config --set always_yes yes --set changeps1 no
-      - conda update -q conda
-      - conda info -a
       - conda env create -f travis/osx/py36.yml
       - conda activate xepy36
       - python --version

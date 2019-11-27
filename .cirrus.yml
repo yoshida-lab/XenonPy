@@ -1,0 +1,30 @@
+osx_instance:
+  image: mojave-xcode
+
+task:
+  name: py36_osx
+  env:
+    MPLBACKEN: Agg
+    PATH: $HOME/miniconda/bin:$PATH
+  install_conda_script:
+    - brew update
+    - brew cask install miniconda -y
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    - conda info -a
+  create_conda_env_script:
+    - conda env create -f travis/osx/py36.yml
+    - source activate xepy36
+    - python --version
+    - python -c "import numpy; print('numpy %s' % numpy.__version__)"
+    - python -c "import scipy; print('scipy %s' % scipy.__version__)"
+    - python -c "import pandas; print('pandas %s' % pandas.__version__)"
+    - python -c "import torch; print('pytorch %s' % torch.__version__)"
+    - python -c "import pymatgen; print('pymatgen %s' % pymatgen.__version__)"
+    - python -c "import rdkit; print('rdkit %s' % rdkit.__version__)"
+    - python -c "from rdkit import Chem; print(Chem)"
+  test_script:
+    - echo "Hello World from macOS!"
+    - source activate xepy36
+    - pip install -e .
+    - pytest --cov=./ tests

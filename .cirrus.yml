@@ -5,8 +5,10 @@ task:
   name: py36_osx
   env:
     MPLBACKEN: Agg
+    AUTH_TOKEN: ENCRYPTED[api_key]
   install_conda_script:
     - echo $SHELL
+    - echo $api_key
     - brew update
     - brew cask install miniconda
     - conda config --set always_yes yes --set changeps1 no

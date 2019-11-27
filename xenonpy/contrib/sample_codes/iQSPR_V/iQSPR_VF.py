@@ -1,6 +1,7 @@
 # IQSPR with focus on molecule variety: bring in new initial molecules from reservoir in every step of SMC and allow mutation based on fragmentation
 
 import numpy as np
+import pandas as pd
 
 from rdkit import Chem
 from xenonpy.inverse.iqspr import NGram

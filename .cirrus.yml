@@ -8,7 +8,7 @@ task:
     PATH: $HOME/miniconda/bin:$PATH
   install_conda_script:
     - brew update
-    - brew cask install miniconda -y
+    - brew cask install miniconda
     - conda config --set always_yes yes --set changeps1 no
     - conda update -q conda
     - conda info -a

@@ -8,7 +8,7 @@
 What is XenonPy project
 ========================
 
-|travis-ci| |appveyor| |codecov| |version| |python| |total-dl| |per-dl|
+|travis-ci| |cirrus-ci| |appveyor| |codecov| |version| |python| |total-dl| |per-dl|
 
 --------
 Overview
@@ -88,6 +88,10 @@ Code contributions are also very welcomed. See :doc:`contribution` for more deta
 .. |travis-ci| image:: https://travis-ci.org/yoshida-lab/XenonPy.svg?branch=master
     :alt: Build Status
     :target: https://travis-ci.org/yoshida-lab/XenonPy
+
+.. |cirrus-ci| image:: https://api.cirrus-ci.com/github/yoshida-lab/XenonPy.svg?branch=master
+    :alt: Build Status
+    :target: https://cirrus-ci.com/github/yoshida-lab/XenonPy?branch=master
 
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/vnh350xqffp6t9nk/branch/master?svg=true
     :alt: Build Status

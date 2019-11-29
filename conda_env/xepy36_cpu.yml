@@ -3,6 +3,7 @@ channels:
   - defaults
   - pytorch
   - rdkit
+  - conda-forge
 dependencies:
   - python=3.6
   - pandas=0.25.3
@@ -13,6 +14,7 @@ dependencies:
   - torchvision
   - rdkit=2019.09.1.0
   - jupyter=1.0.0
+  - pymatgen==2019.11.11
   - seaborn
   - requests
   - plotly
@@ -20,7 +22,6 @@ dependencies:
   - pip:
       - ruamel.yaml
       - Python-Deprecated
-      - pymatgen==2019.10.2
       - matminer
       - torchtext
       - jupyterlab

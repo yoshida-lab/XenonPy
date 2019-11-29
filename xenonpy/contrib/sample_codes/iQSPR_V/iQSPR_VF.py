@@ -1,6 +1,7 @@
 # IQSPR with focus on molecule variety: bring in new initial molecules from reservoir in every step of SMC and allow mutation based on fragmentation
 
 import numpy as np
+import pandas as pd
 
 from rdkit import Chem
 from xenonpy.inverse.iqspr import NGram
@@ -44,7 +45,7 @@ class IQSPR_VF(BaseSMC):
     def estimator(self, value):
         self._log_likelihood = value
         
-    def fragmenting(smis):
+    def fragmenting(self, smis):
         frag_list = []
         
         for smi in smis:
@@ -54,7 +55,7 @@ class IQSPR_VF(BaseSMC):
                 
         return list(set(frag_list))
     
-    def combine_fragments(smis_base, smis_frag):
+    def combine_fragments(self, smis_base, smis_frag):
         """
         combine two SMILES strings with '*' as connection points
         Parameters
@@ -202,7 +203,7 @@ class IQSPR_VF(BaseSMC):
                 re_samples = self.resample(unique, smc_size, p)
                 if np.random.random() < p_frag:
                     frag_list = self.fragmenting(re_samples + np.random.choice(reservoir,size=res_size).tolist())
-                    samples = [combine_fragments(np.random.choice(frag_list), np.random.choice(frag_list)) for _ in range(size)]
+                    samples = [self.combine_fragments(np.random.choice(frag_list), np.random.choice(frag_list)) for _ in range(size)]
                 else:
                     samples = self.proposal(re_samples + np.random.choice(reservoir,size=res_size).tolist()) 
 

@@ -8,20 +8,14 @@ git:
 matrix:
   include:
     - os: linux
-      dist: xenial
+      dist: bionic
       sudo: false
       env:
         - PYENV=py36
         - DEPLOY=true
     - os: linux
-      dist: xenial
+      dist: bionic
       sudo: false
-      env: PYENV=py37
-    - os: osx
-      language: generic
-      env: PYENV=py36
-    - os: osx
-      language: generic
       env: PYENV=py37
 
 before_install:

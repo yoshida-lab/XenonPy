@@ -1,0 +1,42 @@
+osx_instance:
+  image: mojave-xcode
+
+task:
+  name: test_on_osx
+  env:
+    MPLBACKEN: Agg
+    api_key: ENCRYPTED[!432a349969ff43e2d08fa1f291b3ef0296904b14240c6eeafd7364e91f762519e6f95a5693633a341d3963ba84b84c9a!]
+    matrix:
+      - PY_ENV: py36
+      - PY_ENV: py37
+  install_conda_script:
+    - echo $SHELL
+    - echo $api_key
+    - brew update
+    - brew cask install miniconda
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    - conda info -a
+    - conda init bash
+  conda_env_cache:
+    folder: /usr/local/Caskroom/miniconda/base/envs
+    fingerprint_script: cat travis/osx/${PY_ENV}.yml
+    populate_script:
+      - conda env create -f travis/osx/${PY_ENV}.yml
+      - source /Users/anka/.bash_profile
+      - conda activate xe${PY_ENV}
+      - which python
+      - python --version
+      - python -c "import numpy; print('numpy %s' % numpy.__version__)"
+      - python -c "import scipy; print('scipy %s' % scipy.__version__)"
+      - python -c "import pandas; print('pandas %s' % pandas.__version__)"
+      - python -c "import torch; print('pytorch %s' % torch.__version__)"
+      - python -c "import pymatgen; print('pymatgen %s' % pymatgen.__version__)"
+      - python -c "import rdkit; print('rdkit %s' % rdkit.__version__)"
+      - python -c "from rdkit import Chem; print(Chem)"
+  test_script:
+    - echo "Test with pytest"
+    - source /Users/anka/.bash_profile
+    - conda activate xe${PY_ENV}
+    - pip install -e .
+    - pytest tests

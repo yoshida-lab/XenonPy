@@ -1,6 +1,7 @@
 # IQSPR with focus on molecule variety: bring in new initial molecules from reservoir in every step of SMC
 
 import numpy as np
+import pandas as pd
 
 from xenonpy.inverse.base import BaseSMC, BaseProposal, BaseLogLikelihood
 

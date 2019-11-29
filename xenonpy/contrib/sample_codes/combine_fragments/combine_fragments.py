@@ -8,7 +8,7 @@ from xenonpy.inverse.iqspr import NGram
 
 def combine_fragments(smis_base, smis_frag):
     """
-    combine two SMILES strings with '*' as connection points
+    combine two SMILES strings with '*' as connection points, note that no proper treatment for '-*', '=*', or '#*' yet.
 
     Parameters
     ----------
@@ -31,7 +31,7 @@ def combine_fragments(smis_base, smis_frag):
         raise RuntimeError('Invalid base SMILES!')
     idx_base = [i for i in range(mols_base.GetNumAtoms()) if mols_base.GetAtomWithIdx(i).GetSymbol() == '*']
 
-    # rearrange base SMILES to avoid 1st char = '*'
+    # rearrange base SMILES to avoid 1st char = '*' (assume no '**')
     if len(idx_base) == 1 and idx_base[0] == 0:
         smis_base_head = Chem.MolToSmiles(mols_base,rootedAtAtom=1)
     elif len(idx_base) == 0:
@@ -44,7 +44,11 @@ def combine_fragments(smis_base, smis_frag):
     esmi_base = esmi_base[:-1]
     idx_base = esmi_base.index[esmi_base['esmi'] == '*'].tolist()
     if idx_base[0] == 0:
-        idx_base = idx_base[1]
+        if len(idx_base) == 1:
+            # put treatment here
+            raise RuntimeError('Probably -*, =*, and/or #* exist')
+        else:
+            idx_base = idx_base[1]
     else:
         idx_base = idx_base[0]
 
@@ -53,7 +57,7 @@ def combine_fragments(smis_base, smis_frag):
     if mols_frag is None:
         raise RuntimeError('Invalid frag SMILES!')
     idx_frag = [i for i in range(mols_frag.GetNumAtoms()) if mols_frag.GetAtomWithIdx(i).GetSymbol() == '*']
-    if len(idx_frag) == 0:
+    if len(idx_frag) == 0: # if -*, =*, and/or #* exist, not counted as * right now
         esmi_frag = ngram.smi2esmi(smis_frag)
         # remove last '!'
         esmi_frag = esmi_frag[:-1]

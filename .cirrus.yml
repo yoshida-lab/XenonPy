@@ -25,7 +25,6 @@ task:
       - conda env create -f travis/osx/${PY_ENV}.yml
       - source /Users/anka/.bash_profile
       - conda activate xe${PY_ENV}
-      - which python
       - python --version
       - python -c "import numpy; print('numpy %s' % numpy.__version__)"
       - python -c "import scipy; print('scipy %s' % scipy.__version__)"

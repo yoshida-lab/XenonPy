@@ -17,14 +17,6 @@ matrix:
       dist: bionic
       sudo: false
       env: PYENV=py37
-    - os: osx
-      osx_image: xcode11.2
-      language: shell
-      env: PYENV=py36
-    - os: osx
-      osx_image: xcode11.2
-      language: shell
-      env: PYENV=py37
 
 before_install:
   - source travis/before_install.sh

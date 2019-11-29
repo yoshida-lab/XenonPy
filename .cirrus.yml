@@ -2,10 +2,13 @@ osx_instance:
   image: mojave-xcode
 
 task:
-  name: py36_osx
+  name: test_on_osx
   env:
     MPLBACKEN: Agg
     api_key: ENCRYPTED[!432a349969ff43e2d08fa1f291b3ef0296904b14240c6eeafd7364e91f762519e6f95a5693633a341d3963ba84b84c9a!]
+    matrix:
+      - PY_ENV: py36
+      - PY_ENV: py37
   install_conda_script:
     - echo $SHELL
     - echo $api_key
@@ -17,11 +20,12 @@ task:
     - conda init bash
   conda_env_cache:
     folder: /usr/local/miniconda3/envs
-    fingerprint_script: cat travis/osx/py36.yml
+    fingerprint_script: cat travis/osx/${PY_ENV}.yml
     populate_script:
-      - conda env create -f travis/osx/py36.yml
+      - conda env create -f travis/osx/${PY_ENV}.yml
       - source /Users/anka/.bash_profile
-      - conda activate xepy36
+      - conda activate xe${PY_ENV}
+      - where python
       - python --version
       - python -c "import numpy; print('numpy %s' % numpy.__version__)"
       - python -c "import scipy; print('scipy %s' % scipy.__version__)"
@@ -31,8 +35,8 @@ task:
       - python -c "import rdkit; print('rdkit %s' % rdkit.__version__)"
       - python -c "from rdkit import Chem; print(Chem)"
   test_script:
-    - echo "Hello World from macOS!"
+    - echo "Test with pytest"
     - source /Users/anka/.bash_profile
-    - conda activate xepy36
+    - conda activate xe${PY_ENV}
     - pip install -e .
-    - pytest --cov=./ tests
+    - pytest tests

@@ -168,9 +168,15 @@ class GaussianLogLikelihood(BaseLogLikelihood):
             raise RuntimeError('<targets> is empty')
 
         ll = pd.DataFrame(np.full((len(smis), len(self._mdl)), -1000.0), columns=self._mdl.keys())
-        pred = self.predict(smis).reset_index(drop=True)
-        tmp = pred.isna().any(axis=1)
-        idx = [i for i in range(len(smis)) if ~tmp[i]]
+
+        # 1. apply prediction on given sims
+        # 2. reset returns' index to [0, 1, ..., len(smis) - 1], this should be consistent with ll's index
+        # 3. drop all rows which have NaN value(s)
+        pred = self.predict(smis).reset_index(drop=True).dropna(axis='index', how='any')
+
+        # because pred only contains available data
+        # 'pred.index.values' should eq to the previous implementation
+        idx = pred.index.values
 
         # calculate likelihood
         for k, (low, up) in self._targets.items():  # k: target; v: (low, up)

@@ -111,5 +111,32 @@ def test_frozen_featurizer_4(data):
     assert ff_features.shape == (20, 11)
 
 
+def test_frozen_featurizer_5(data):
+    ff = FrozenFeaturizer(data[0])
+
+    with pytest.warns(UserWarning, match='is over the max depth of hidden layers starting at the given'):
+        ff_features = ff.fit_transform(data[1], depth=2, n_layer=3)
+        assert ff_features.shape == (10, 11)
+    with pytest.warns(UserWarning, match='is greater than the max depth of hidden layers'):
+        ff_features = ff.fit_transform(data[4], depth=3, n_layer=2)
+        assert ff_features.shape == (20, 11)
+
+    ff = FrozenFeaturizer(data[5])
+    ff_features = ff.transform(data[1], depth=2, return_type='df')
+
+    desc_ori = []
+    for i in [1, 2]:
+        desc_ori.append(ff_features[ff_features.columns[[f'L(-{i})' in s for s in ff_features.columns.values]]])
+
+    desc_new = []
+    for i in [1, 2]:
+        for j in [1, 2]:
+            desc_new.append(ff.transform(data[1], depth=j, n_layer=i, return_type='df'))
+
+    for i in range(2):
+        tmp = desc_new[i] == desc_ori[i]
+        assert all(tmp.all())
+
+
 if __name__ == "__main__":
     pytest.main()

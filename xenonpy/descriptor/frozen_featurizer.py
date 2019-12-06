@@ -80,40 +80,33 @@ class FrozenFeaturizer(BaseFeaturizer):
                 hlayers.append(m.layer(x_).data)
                 x_ = m(x_)
         
-        # get predefined values if necessary
+        # get predefined values when depth/n_layer is not given initially
         if depth is None:
             depth = self.depth
         if n_layer is None:
             n_layer = self.n_layer
-            
+
+        # check updated depth values
+        if depth is None: # self.depth must be None
+            self.depth = len(hlayers) # update self.depth
+            self._depth = len(hlayers)
+        elif depth > len(hlayers):
+            warnings.warn('<depth> is greater than the max depth of hidden layers')
+            self._depth = len(hlayers)
+        else:
+            self._depth = depth
+
         if n_layer is None:
             l_end = 0
         else:
-            l_end = n_layer-depth
-            
-        self._depth = len(hlayers)
+            l_end = n_layer-self._depth
+
         if l_end > -1:
             if l_end > 0:
                 warnings.warn('<n_layer> is over the max depth of hidden layers starting at the given <depth>')
-            if depth is not None:
-                ret = hlayers[-depth:]
-                if depth > len(hlayers):
-                    warnings.warn('<depth> is greater than the max depth of hidden layers')
-                else:
-                    self._depth = depth
-            else:
-                ret = hlayers
-                self.depth = len(hlayers)
+            ret = hlayers[-self._depth:]
         else:
-            if depth is not None:
-                ret = hlayers[-depth:l_end]
-                if depth > len(hlayers):
-                    warnings.warn('<depth> is greater than the max depth of hidden layers')
-                else:
-                    self._depth = depth
-            else:
-                ret = hlayers[:l_end]
-                self.depth = len(hlayers)
+            ret = hlayers[-self._depth:l_end]
         
         if self.cuda:
             ret = [l.cpu().numpy() for l in ret]

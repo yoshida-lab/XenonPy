@@ -42,7 +42,7 @@ The following table list some core packages in XenonPy images.
 | -------------- | ---------- |
 | `PyTorch`      | 1.3.0      |
 | `tensorly`     | 0.4.4      |
-| `pymatgen`     | 2019.10.2  |
+| `pymatgen`     | 2019.12.3  |
 | `matminer`     | 0.6.0      |
 | `mordred`      | 1.2.0      |
 | `scipy`        | 1.3.1      |
@@ -90,10 +90,10 @@ Docker image tags .
 
 | Image tag | CUDA | PyTorch |
 | --------- | ---- | ------- |
-| `latest`  | 10.0 | 1.1.0   |
-| `cpu`     | None | 1.1.0   |
-| `cuda10`  | 10.0 | 1.1.0   |
-| `cuda9`   | 9.0  | 1.1.0   |
+| `latest`  | 10.1 | 1.3.0   |
+| `cpu`     | None | 1.3.0   |
+| `cuda10`  | 10.1 | 1.3.0   |
+| `cuda9`   | 9.2  | 1.3.0   |
 
 ### Running XenonPy
 

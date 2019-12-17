@@ -3,15 +3,15 @@ tqdm
 seaborn
 plotly
 requests
+ruamel.yaml
 mordred
 Python-Deprecated
 
 ###### Requirements with Version Specifiers ######
-numpy >= 1.16.*
-pandas >= 0.24.*
-pymatgen >= 2019.5.*
-scikit-learn >= 0.21.*
-scipy >= 1.2.*
-ruamel.yaml
-torch == 1.*
-joblib >= 0.13.*
+numpy >= 1.16.0
+pandas >= 0.24.0
+pymatgen >= 2019.10.0
+scikit-learn >= 0.21.0
+scipy >= 1.2.0
+torch == 1.0
+joblib >= 0.13.0

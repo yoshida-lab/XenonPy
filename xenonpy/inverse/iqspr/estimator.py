@@ -150,7 +150,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
             self._mdl[c] = mdl
 
     # log_likelihood returns a dataframe of log-likelihood values of each property & sample
-    def log_likelihood(self, smis, **targets):
+    def log_likelihood(self, smis, *, log_0=-1000.0, **targets):
         def _avoid_overflow(ll_):
             # log(exp(log(UP) - log(C)) - exp(log(LOW) - log(C))) + log(C)
             # where C = max(log(UP), max(LOW))
@@ -167,7 +167,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
         if not self._targets:
             raise RuntimeError('<targets> is empty')
 
-        ll = pd.DataFrame(np.full((len(smis), len(self._mdl)), -1000.0), columns=self._mdl.keys())
+        ll = pd.DataFrame(np.full((len(smis), len(self._mdl)), log_0), columns=self._mdl.keys())
 
         # 1. apply prediction on given sims
         # 2. reset returns' index to [0, 1, ..., len(smis) - 1], this should be consistent with ll's index

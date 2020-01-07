@@ -143,4 +143,4 @@ Advance
 -------
 
 There are more details of the descriptor calculator system that are not yet included in this tutorial.
-Before we complete this document, you can check out https://github.com/yoshida-lab/XenonPy/blob/master/samples/build_your_own_descriptor_calculator.ipynb for more information.
+Before we complete this document, you can check out https://github.com/yoshida-lab/XenonPy/blob/master/samples/custom_descriptor_calculator.ipynb for more information.

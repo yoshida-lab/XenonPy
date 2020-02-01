@@ -40,19 +40,21 @@ The following table list some core packages in XenonPy images.
 
 | Package        | Version    |
 | -------------- | ---------- |
-| `PyTorch`      | 1.3.0      |
+| `PyTorch`      | 1.4.0      |
 | `tensorly`     | 0.4.4      |
-| `pymatgen`     | 2019.12.3  |
-| `matminer`     | 0.6.0      |
+| `pymatgen`     | 2020.1.28  |
+| `matminer`     | 0.6.2      |
 | `mordred`      | 1.2.0      |
 | `scipy`        | 1.3.1      |
-| `scikit-learn` | 0.21.2     |
-| `pandas`       | 0.25.2     |
+| `scikit-learn` | 0.22.1     |
+| `xgboost`      | 1.0.0      |
+| `ngboost`      | master     |
+| `pandas`       | 1.0.0      |
 | `rdkit`        | 2019.03.3  |
 | `jupyter`      | 1.0.0      |
 | `seaborn`      | 0.9.0      |
-| `matplotlib`   | 3.1.1      |
-| `plotly`       | 4.0.0      |
+| `matplotlib`   | 3.1.2      |
+| `plotly`       | 4.5.0      |
 
 ## Requirements
 

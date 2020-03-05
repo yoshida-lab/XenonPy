@@ -5,9 +5,9 @@ import pandas as pd
 
 from xenonpy.inverse.base import BaseSMC, BaseProposal, BaseLogLikelihood, SMCError
 
-# class SMCError(Exception):
-#     """Base exception for SMC classes"""
-#     pass
+#class SMCError(Exception):
+#    """Base exception for SMC classes"""
+#    pass
 
 class IQSPR_V(BaseSMC):
 
@@ -81,7 +81,7 @@ class IQSPR_V(BaseSMC):
             samples = np.random.choice(reservoir,size=size).tolist()
         # refill samples if len(samples) not equals given size
         elif len(samples) < size:
-            samples = samples + np.random.choice(reservoir,size=size-len(samples)).tolist()
+            samples = np.concatenate([np.array(samples), np.random.choice(reservoir,size=size-len(samples))])
             
         res_size = int(size*ratio)
         smc_size = size - res_size
@@ -116,7 +116,7 @@ class IQSPR_V(BaseSMC):
         for i, step in enumerate(np.delete(beta, 0, 0)):
             try:
                 re_samples = self.resample(unique, smc_size, p)
-                samples = self.proposal(re_samples + np.random.choice(reservoir,size=res_size).tolist()) 
+                samples = self.proposal(np.concatenate([re_samples, np.random.choice(reservoir,size=res_size)]))
 
                 unique, frequency = self.unique(samples)
 

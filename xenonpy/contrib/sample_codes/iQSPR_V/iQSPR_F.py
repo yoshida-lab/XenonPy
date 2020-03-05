@@ -5,11 +5,11 @@ import pandas as pd
 
 from rdkit import Chem
 from xenonpy.inverse.iqspr import NGram
-from xenonpy.inverse.base import BaseSMC, BaseProposal, BaseLogLikelihood
+from xenonpy.inverse.base import BaseSMC, BaseProposal, BaseLogLikelihood, SMCError
 
-class SMCError(Exception):
-    """Base exception for SMC classes"""
-    pass
+# class SMCError(Exception):
+#     """Base exception for SMC classes"""
+#     pass
 
 class IQSPR_F(BaseSMC):
 

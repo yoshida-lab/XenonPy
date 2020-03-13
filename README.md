@@ -136,5 +136,5 @@ option.
 
 ## Copyright and license
 
-©Copyright 2019 The XenonPy project, all rights reserved.
+©Copyright 2020 The XenonPy project, all rights reserved.
 Released under the `BSD-3 license`.

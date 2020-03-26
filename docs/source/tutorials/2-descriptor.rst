@@ -25,7 +25,7 @@ The following list shows a summary.
     "ECFP", "Fingerprint", "Morgan (Circular) fingerprints (ECFP)"
     "FCFP", "Fingerprint", "Morgan (Circular) fingerprints + feature-based (FCFP)"
     "TopologicalTorsionFP", "Fingerprint", "Topological Torsion fingerprints"
-    "ObitalFieldMatrix", "Structure", "Representation based on the valence shell electrons of neighboring atoms"
+    "OrbitalFieldMatrix", "Structure", "Representation based on the valence shell electrons of neighboring atoms"
     "RadialDistributionFunction", "Structure", "Radial distribution in crystal"
     "FrozenFeaturizer", "NN ", "Neural Network Extracted "
 
@@ -119,9 +119,9 @@ Similar to the ``Compositions`` calculator, ``Structures`` accepts ``pymatgen.St
     Structures:
       |- structure:
       |  |- RadialDistributionFunction
-      |  |- ObitalFieldMatrix
+      |  |- OrbitalFieldMatrix
 
-``Structures`` contains one featurizer group called **structure** with ``RadialDistributionFunction`` and ``ObitalFieldMatrix`` in it.
+``Structures`` contains one featurizer group called **structure** with ``RadialDistributionFunction`` and ``OrbitalFieldMatrix`` in it.
 ``samples`` also has the structure information. We can use these to calculate structural descriptors.
 
     >>> descriptor = cal.transform(samples)

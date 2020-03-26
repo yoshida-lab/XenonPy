@@ -48,7 +48,7 @@ We will use ``Composition`` and ``density`` as the descriptors and target proper
 
         heatmap = DescriptorHeatmap(
                 bc=True,  # use box-cox transform
-                save=dict(fname='heatmap_density', dpi=200, bbox_inches='tight'),  # save fingure to file
+                save=dict(fname='heatmap_density', dpi=200, bbox_inches='tight'),  # save figure to file
                 figsize=(70, 10))
         heatmap.fit(sorted_desc)
         heatmap.draw(sorted_prop)

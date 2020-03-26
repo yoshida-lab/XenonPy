@@ -3,7 +3,6 @@ channels:
   - defaults
   - pytorch
   - rdkit
-  - conda-forge
 dependencies:
   - python=3.7
   - pandas
@@ -11,7 +10,6 @@ dependencies:
   - requests
   - rdkit
   - scikit-learn
-  - pymatgen
   - scipy
   - pytorch
   - cpuonly
@@ -19,6 +17,7 @@ dependencies:
   - ipykernel
   - pip
   - pip:
+      - pymatgen
       - nbsphinx
       - Python-Deprecated
       - sphinx-autodoc-typehints

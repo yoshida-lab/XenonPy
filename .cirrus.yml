@@ -7,8 +7,8 @@ task:
     MPLBACKEN: Agg
     api_key: ENCRYPTED[!432a349969ff43e2d08fa1f291b3ef0296904b14240c6eeafd7364e91f762519e6f95a5693633a341d3963ba84b84c9a!]
     matrix:
-      - PY_ENV: 3.6
-      - PY_ENV: 3.7
+      - PYENV: 3.6
+      - PYENV: 3.7
   install_conda_script:
     - echo $SHELL
     - echo $api_key

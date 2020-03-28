@@ -30,28 +30,14 @@ conda info -a
 # Create conda env from environment files
 case "${TRAVIS_OS_NAME}" in
     osx)
-        case "${PYENV}" in
-            py36)
-                conda env create -f travis/osx/py36.yml
-                source activate xepy36
-                ;;
-            py37)
-                conda env create -f travis/osx/py37.yml
-                source activate xepy37
-                ;;
-        esac
+        conda create -n tests python=${PYENV}
+        conda env update -n tests -f travis/osx_env.yml
+        source activate tests
         ;;
     linux)
-        case "${PYENV}" in
-            py36)
-                conda env create -f travis/linux-win/py36.yml
-                source activate xepy36
-                ;;
-            py37)
-                conda env create -f travis/linux-win/py37.yml
-                source activate xepy37
-                ;;
-        esac
+        conda create -n tests python=${PYENV}
+        conda env update -n tests -f travis/linux_win_env.yml
+        source activate tests
         ;;
 esac
 
@@ -68,4 +54,3 @@ python -c "import pymatgen; print('pymatgen %s' % pymatgen.__version__)"
 python -c "import rdkit; print('rdkit %s' % rdkit.__version__)"
 python -c "from rdkit import Chem; print(Chem)"
 
-#python setup.py install

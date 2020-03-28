@@ -35,7 +35,7 @@ def data():
     raw_err_4x1 = a
     raw_err_4x4 = np.concatenate((a, a, a, a), axis=1)
 
-    a_ = boxcox(raw_err, 0)
+    a_ = np.log(raw_err)
     a_ = a_.reshape(-1, 1)
     trans_err_4x1 = a_
     trans_err_4x4 = np.concatenate((a_, a_, a_, a_), axis=1)
@@ -160,9 +160,12 @@ def test_transform_err_4x4_3(data):
 
 
 def test_transform_err():
-    bc = BoxCox(on_err='raise')
-    with pytest.raises(FloatingPointError):
+    with pytest.raises(ValueError):
+        bc = BoxCox(on_err='raise')
         bc.fit_transform([1, 1, 1])
+    with pytest.raises(FloatingPointError):
+        bc = BoxCox(on_err='raise')
+        bc.fit_transform([1e20, 1, 1e20])
 
 
 if __name__ == "__main__":

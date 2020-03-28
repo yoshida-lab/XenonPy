@@ -132,6 +132,8 @@ class BoxCox(BaseEstimator, TransformerMixin):
                         if not self._tolerance[0] < lmd < self._tolerance[1]:
                             raise FloatingPointError()
                     self._lmd.append(lmd)
+                except ValueError as e:
+                    self._handle_err(e)
                 except FloatingPointError as e:
                     self._handle_err(e)
 

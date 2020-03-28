@@ -32,10 +32,8 @@ def test_data():
     pkl_path = str(file_path / 'test.pkl.z')
     df_path = str(file_path / 'test.pd.xz')
     csv_path = str(file_path / 'test.csv')
-    msg_path = str(file_path / 'test.msg')
 
     joblib.dump(ary, pkl_path)
-    df.to_msgpack(msg_path)
     df.to_csv(csv_path)
     df.to_pickle(df_path)
 
@@ -64,7 +62,6 @@ def test_data():
     remove(pkl_path)
     remove(df_path)
     remove(csv_path)
-    remove(msg_path)
 
     print('test over')
 
@@ -126,16 +123,6 @@ def test_dataset_2(test_data):
     tmp = ds.pickle(str(path / 'test.pkl.z'))
     assert [[1, 2], [3, 4]] == tmp
 
-    ds.__extension__['msg'] = ('msg', pd.read_msgpack)
-    tmp = ds.msg
-    assert hasattr(tmp, 'test')
-    tmp = tmp.test
-    assert isinstance(tmp, pd.DataFrame)
-    assert np.all(np.array([[1, 2], [3, 4]]) == tmp.values)
-
-    tmp = ds.msg(str(path / 'test.msg'))
-    assert np.all(np.array([[1, 2], [3, 4]]) == tmp.values)
-
 
 def test_dataset_3(test_data):
     with pytest.raises(RuntimeError, match='is not a legal path'):
@@ -154,7 +141,7 @@ def test_dataset_3(test_data):
         assert f.readline() == 'Test xenonpy.utils.Loader._fetch_data'
 
 
-def test_dateset_4(test_data):
+def test_dataset_4(test_data):
     file_path = test_data[2]
     data = pd.DataFrame([[1, 2], [3, 4]])
 

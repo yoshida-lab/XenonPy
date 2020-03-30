@@ -530,6 +530,7 @@ class Trainer(BaseRunner):
                 *,
                 dataset: DataLoader = None,
                 checkpoint: Union[int, str] = None,
+                classification: bool = False,
                 **model_params):
         """
         Predict from x input.
@@ -542,6 +543,8 @@ class Trainer(BaseRunner):
             Input data for prediction.
         y_true: Union[Any, Tuple[Any]]
         dataset: DataLoader
+        classification: bool
+            If ``True``, will apply ``torch.max(out, 1)[1]`` to the output.
         model_params: dict
             Model parameters for prediction.
 

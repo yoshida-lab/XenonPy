@@ -17,12 +17,38 @@ T_Data = Union[pd.DataFrame, pd.Series, np.ndarray, torch.Tensor]
 
 class TensorConverter(BaseExtension):
 
-    def __init__(self, dtype=None, empty_cache: bool = False):
+    def __init__(self,
+                 x_dtype: Union[torch.dtype, Tuple[torch.dtype]] = None,
+                 y_dtype: Union[torch.dtype, Tuple[torch.dtype]] = None,
+                 empty_cache: bool = False,
+                 classification: bool = False,
+                 ):
+
+        self.classification = classification
         self.empty_cache = empty_cache
-        if dtype is None:
-            self.dtype = torch.get_default_dtype()
+        if x_dtype is None:
+            self._x_dtype = torch.get_default_dtype()
+        elif isinstance(x_dtype, Tuple):
+            self._x_dtype = x_dtype
         else:
-            self.dtype = dtype
+            self._x_dtype = x_dtype
+
+        if y_dtype is None:
+            self._y_dtype = torch.get_default_dtype()
+        elif isinstance(y_dtype, Tuple):
+            self._y_dtype = y_dtype
+        else:
+            self._y_dtype = y_dtype
+
+    def _get_x_dtype(self, i=0):
+        if isinstance(self._x_dtype, Tuple):
+            return self._x_dtype[i]
+        return self._x_dtype
+
+    def _get_y_dtype(self, i=0):
+        if isinstance(self._y_dtype, Tuple):
+            return self._y_dtype[i]
+        return self._y_dtype
 
     def input_proc(self, x_in, y_in, trainer: Trainer) -> Tuple[torch.Tensor, torch.Tensor]:
         """
@@ -39,11 +65,9 @@ class TensorConverter(BaseExtension):
 
         """
 
-        def _convert(t):
+        def _convert(t, dtype):
             if t is None:
                 return t
-            if isinstance(t, (tuple, list)):
-                return tuple([_convert(t_) for t_ in t])
 
             # if tensor, do nothing
             if isinstance(t, torch.Tensor):
@@ -53,7 +77,7 @@ class TensorConverter(BaseExtension):
                 t = t.values
             # if numpy, turn to tensor
             if isinstance(t, np.ndarray):
-                t = torch.from_numpy(t).to(self.dtype)
+                t = torch.from_numpy(t).to(dtype)
             # return others
             if not isinstance(t, torch.Tensor):
                 return t
@@ -62,7 +86,15 @@ class TensorConverter(BaseExtension):
                 t = t.unsqueeze(-1)
             return t.to(trainer.device, non_blocking=trainer.non_blocking)
 
-        return _convert(x_in), _convert(y_in)
+        if isinstance(x_in, [tuple, list]):
+            x_in = tuple([_convert(t, self._get_x_dtype(i)) for i, t in enumerate(x_in)])
+        x_in = _convert(x_in, self._get_x_dtype())
+
+        if isinstance(y_in, [tuple, list]):
+            x_in = tuple([_convert(t, self._get_y_dtype(i)) for i, t in enumerate(y_in)])
+        x_in = _convert(x_in, self._get_y_dtype())
+
+        return x_in, y_in
 
     def step_forward(self):
         if self.empty_cache:
@@ -92,6 +124,8 @@ class TensorConverter(BaseExtension):
                 y_ = tuple([t.detach().cpu().numpy() for t in y_])
             else:
                 y_ = y_.detach().cpu().numpy()
+            if self.classification:
+                return np.argmax(y_, 1)
             return y_
 
         if not training:

@@ -36,7 +36,8 @@ You can use these files to create a runnable environment on your local machine.
 
 .. code-block:: bash
 
-    $ conda env create -f <path_to_file>
+    $ conda create -n <env_name_you_liked> python={3.6 or 3.7}  # use `conda create` command to create a fresh environment with specific name and python version
+    $ conda env update -n <env_name_you_created> -f <path_to_env_file>  # use `conda env update` command to sync packages with the preset environment
 
 .. note::
 
@@ -44,55 +45,50 @@ You can use these files to create a runnable environment on your local machine.
     We highly recommend you to install the `Visual C++ Build Tools <https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16>`_ before creating your environment.
     Also, confirm that you have checked the **Windows 10 SDK** (assuming the computer is Windows 10) on when installing the build tools.
 
-The following example shows how to create an environment from a preset step-by-step.
+The following example shows how to create an environment named ``xenonpy`` in ``python3.7`` and ``cuda10`` supports step-by-step.
 
 1. **Chose an environment preset and download it**.
 
- For example, you want to run XenonPy in python 3.7 with cuda10 supports. The **xepy37_cuda10.yml** preset will surely satisfy you.
- If `curl <https://curl.haxx.se/>`_ has been installed, the following command will download the configuration file to your local machine.
+ Because we want to have cuda10 supports, The **cuda10.yml** preset will surely satisfy this work.
+ If `curl <https://curl.haxx.se/>`_ has been installed, the following command will download the environment file to your local machine.
 
  .. code-block:: bash
 
-  $ curl -O https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/conda_env/xepy37_cuda10.yml
+  $ curl -O https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/conda_env/cuda10.yml
 
-2. **Create the environment from file**.
+2. **Create the environment and install packages using environment file**.
 
- The following commands will rebuild the python environment based on the configuration file **xepy37_cuda10.yml**.
-
- .. code-block:: bash
-
-    $ conda env create -f xepy37_cuda10.yml
-
-
-3. **Enter the environment**.
-
- The environment name is the same as the configuration file. In this example, it's  **xepy37_cuda10**.
+ The following commands will rebuild a python3.7 environment, and install the packages which are listed in **cuda10.yml**.
 
  .. code-block:: bash
 
-    $ source activate xepy37_cuda10
+    $ conda create -n xenonpy python=3.7
+    $ conda env update -n xenonpy -f cuda10.yml
+
+
+3. **Enter the environment by name**.
+
+ In this example, it's ``xenonpy``.
+
+ .. code-block:: bash
+
+    $ source activate xenonpy
 
     # or
 
-    $ activate xepy37_cuda10
+    $ activate xenonpy
 
     # or
 
-    $ conda activate xepy37_cuda10
+    $ conda activate xenonpy
 
  .. note::
      Which command should be used is based on your system and your conda configuration.
 
-4. **Install XenonPy**
+4. **Update XenonPy**
 
- When you reached here, the remains are very simple.
- Using ``pip install xenonpy`` to install XenonPy into the environment.
-
- .. code-block:: bash
-
-    $ pip install xenonpy
-
- And, the old version could be updated as follow.
+ When you reached here, XenonPy has been installed successfully.
+ If you want to update your old installation of XenonPy, ssing ``pip install -U xenonpy``.
 
  .. code-block:: bash
 

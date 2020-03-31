@@ -8,22 +8,28 @@ import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import TensorDataset
+from typing import Sequence, Union
 
 __all__ = ['ArrayDataset']
 
 
 class ArrayDataset(TensorDataset):
+    def __init__(self,
+                 *array: Union[np.ndarray, pd.DataFrame, pd.Series,
+                               torch.Tensor],
+                 dtypes: Union[None, Sequence[torch.dtype]] = None):
+        if dtypes is None:
+            dtypes = [torch.get_default_dtype()] * len(array)
+        if len(dtypes) != len(array):
+            raise ValueError('length of dtypes not equal to length of array')
 
-    def __init__(self, *array: Union[np.ndarray, pd.DataFrame, pd.Series, torch.Tensor], dtype=None):
-        if dtype is None:
-            self.dtype = torch.get_default_dtype()
-        else:
-            self.dtype = dtype
-
-        array = [self._convert(data) for data in array]
+        array = [
+            self._convert(data, dtype) for data, dtype in zip(array, dtypes)
+        ]
         super().__init__(*array)
 
-    def _convert(self, data):
+    @staticmethod
+    def _convert(data, dtype):
         if isinstance(data, torch.Tensor):
             return data
         if isinstance(data, (pd.DataFrame, pd.Series)):
@@ -32,9 +38,7 @@ class ArrayDataset(TensorDataset):
             data = torch.from_numpy(data)
         if not isinstance(data, torch.Tensor):
             raise RuntimeError(
-                'input must be pd.DataFrame, pd.Series, np.ndarray, or torch.Tensor but got %s' % data.__class__)
+                'input must be pd.DataFrame, pd.Series, np.ndarray, or torch.Tensor but got %s'
+                % data.__class__)
 
-        if len(data.size()) == 1:
-            data = data.unsqueeze(-1)
-
-        return data.to(self.dtype)
+        return data.to(dtype)

@@ -1,7 +1,7 @@
 #  Copyright (c) 2019. TsumiNa. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
-from typing import Union, Tuple
+from typing import Union, Tuple, Any, Sequence
 
 import numpy as np
 import pandas as pd
@@ -16,27 +16,24 @@ T_Data = Union[pd.DataFrame, pd.Series, np.ndarray, torch.Tensor]
 
 
 class TensorConverter(BaseExtension):
-
-    def __init__(self,
-                 x_dtype: Union[torch.dtype, Tuple[torch.dtype]] = None,
-                 y_dtype: Union[torch.dtype, Tuple[torch.dtype]] = None,
-                 empty_cache: bool = False,
-                 classification: bool = False,
-                 ):
+    def __init__(
+        self,
+        *,
+        x_dtype: Union[torch.dtype, Sequence[torch.dtype]] = None,
+        y_dtype: Union[torch.dtype, Sequence[torch.dtype]] = None,
+        empty_cache: bool = False,
+        classification: bool = False,
+    ):
 
         self.classification = classification
         self.empty_cache = empty_cache
         if x_dtype is None:
             self._x_dtype = torch.get_default_dtype()
-        elif isinstance(x_dtype, Tuple):
-            self._x_dtype = x_dtype
         else:
             self._x_dtype = x_dtype
 
         if y_dtype is None:
             self._y_dtype = torch.get_default_dtype()
-        elif isinstance(y_dtype, Tuple):
-            self._y_dtype = y_dtype
         else:
             self._y_dtype = y_dtype
 
@@ -50,7 +47,15 @@ class TensorConverter(BaseExtension):
             return self._y_dtype[i]
         return self._y_dtype
 
-    def input_proc(self, x_in, y_in, trainer: Trainer) -> Tuple[torch.Tensor, torch.Tensor]:
+    def input_proc(self, x_in: Union[Sequence[Union[torch.Tensor, pd.DataFrame,
+                                                    pd.Series, np.ndarray,
+                                                    Any]], torch.Tensor,
+                                     pd.DataFrame, pd.Series, np.ndarray, Any],
+                   y_in: Union[Sequence[Union[torch.Tensor, pd.DataFrame,
+                                              pd.Series, np.ndarray, Any]],
+                               torch.Tensor, pd.DataFrame, pd.Series,
+                               np.ndarray, Any],
+                   trainer: Trainer) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Convert data to :class:`torch.Tensor`.
 
@@ -64,7 +69,6 @@ class TensorConverter(BaseExtension):
         Union[Any, Tuple[Any, Any]]
 
         """
-
         def _convert(t, dtype):
             if t is None:
                 return t
@@ -82,17 +86,23 @@ class TensorConverter(BaseExtension):
             if not isinstance(t, torch.Tensor):
                 return t
             # reshape (1,) to (-1, 1)
-            if len(t.size()) == 1:
-                t = t.unsqueeze(-1)
+            if len(t.size()) == 1 and not self.classification:
+                t = t.unsqueeze(1)
             return t.to(trainer.device, non_blocking=trainer.non_blocking)
 
-        if isinstance(x_in, [tuple, list]):
-            x_in = tuple([_convert(t, self._get_x_dtype(i)) for i, t in enumerate(x_in)])
-        x_in = _convert(x_in, self._get_x_dtype())
+        if isinstance(x_in, Sequence):
+            x_in = tuple([
+                _convert(t, self._get_x_dtype(i)) for i, t in enumerate(x_in)
+            ])
+        else:
+            x_in = _convert(x_in, self._get_x_dtype())
 
-        if isinstance(y_in, [tuple, list]):
-            x_in = tuple([_convert(t, self._get_y_dtype(i)) for i, t in enumerate(y_in)])
-        x_in = _convert(x_in, self._get_y_dtype())
+        if isinstance(y_in, Sequence):
+            y_in = tuple([
+                _convert(t, self._get_y_dtype(i)) for i, t in enumerate(y_in)
+            ])
+        else:
+            y_in = _convert(y_in, self._get_y_dtype())
 
         return x_in, y_in
 
@@ -100,11 +110,14 @@ class TensorConverter(BaseExtension):
         if self.empty_cache:
             torch.cuda.empty_cache()
 
-    def output_proc(self,
-                    y_pred: Union[torch.Tensor, Tuple[torch.Tensor]],
-                    y_true: Union[torch.Tensor, Tuple[torch.Tensor], None],
-                    training: bool,
-                    ):
+    def output_proc(
+        self,
+        y_pred: Union[Sequence[Union[torch.Tensor, np.ndarray, Any]],
+                      torch.Tensor, Any],
+        y_true: Union[Sequence[Union[torch.Tensor, np.ndarray, Any]],
+                      torch.Tensor, Any, None],
+        training: bool,
+    ):
         """
         Convert :class:`torch.Tensor` to :class:`numpy.ndarray`.
 
@@ -116,19 +129,26 @@ class TensorConverter(BaseExtension):
             Specify whether the model in the training mode.
 
         """
-
-        def _convert(y_):
+        def _convert(y_, cls_=False):
             if y_ is None:
                 return y_
-            if isinstance(y_, tuple):
-                y_ = tuple([t.detach().cpu().numpy() for t in y_])
             else:
                 y_ = y_.detach().cpu().numpy()
-            if self.classification:
+            if cls_:
                 return np.argmax(y_, 1)
             return y_
 
         if not training:
-            return _convert(y_pred), _convert(y_true)
+            if isinstance(y_pred, tuple):
+                if self.classification:
+                    return tuple([_convert(t, True)
+                                  for t in y_pred]), _convert(y_true)
+                else:
+                    return tuple([_convert(t)
+                                  for t in y_pred]), _convert(y_true)
+            else:
+                if self.classification:
+                    return _convert(y_pred, True), _convert(y_true)
+                return _convert(y_pred), _convert(y_true)
         else:
             return y_pred, y_true

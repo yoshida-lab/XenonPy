@@ -15,6 +15,8 @@ from torch.optim.lr_scheduler import _LRScheduler, ReduceLROnPlateau
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
+from deprecated import deprecated
+
 from xenonpy.model.training import ClipValue, ClipNorm, Checker
 from xenonpy.model.training.base import BaseOptimizer, BaseLRScheduler, BaseRunner
 from xenonpy.utils import camel_to_snake
@@ -24,19 +26,21 @@ __all__ = ['Trainer']
 
 class Trainer(BaseRunner):
     checkpoint_tuple = namedtuple('checkpoint', 'id iterations model_state')
-    results_tuple = namedtuple('results', 'total_epochs device training_info checkpoints model')
+    results_tuple = namedtuple(
+        'results', 'total_epochs device training_info checkpoints model')
 
-    def __init__(self,
-                 *,
-                 loss_func: torch.nn.Module = None,
-                 optimizer: BaseOptimizer = None,
-                 model: Module = None,
-                 lr_scheduler: BaseLRScheduler = None,
-                 clip_grad: Union[ClipNorm, ClipValue] = None,
-                 epochs: int = 200,
-                 cuda: Union[bool, str, torch.device] = False,
-                 non_blocking: bool = False,
-                 ):
+    def __init__(
+        self,
+        *,
+        loss_func: torch.nn.Module = None,
+        optimizer: BaseOptimizer = None,
+        model: Module = None,
+        lr_scheduler: BaseLRScheduler = None,
+        clip_grad: Union[ClipNorm, ClipValue] = None,
+        epochs: int = 200,
+        cuda: Union[bool, str, torch.device] = False,
+        non_blocking: bool = False,
+    ):
         """
         NN model trainer.
 
@@ -85,7 +89,8 @@ class Trainer(BaseRunner):
 
         # init private vars
         self._early_stopping: Tuple[bool, str] = (False, '')
-        self._checkpoints: Dict[Union[int, str], Trainer.checkpoint_tuple] = OrderedDict()
+        self._checkpoints: Dict[Union[int, str],
+                                Trainer.checkpoint_tuple] = OrderedDict()
         self._training_info: List[OrderedDict] = []
         self._total_its: int = 0  # of total iterations
         self._total_epochs: int = 0  # of total epochs
@@ -132,7 +137,8 @@ class Trainer(BaseRunner):
     def loss_func(self, loss_func):
         if loss_func is not None:
             self._loss_func = loss_func
-            self._loss_type = 'train_' + camel_to_snake(loss_func.__class__.__name__)
+            self._loss_type = 'train_' + camel_to_snake(
+                loss_func.__class__.__name__)
 
     @property
     def training_info(self):
@@ -160,7 +166,8 @@ class Trainer(BaseRunner):
                 self.reset(to=model)
             else:
                 raise TypeError(
-                    'parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(model))
+                    'parameter `m` must be a instance of <torch.nn.modules> but got %s'
+                    % type(model))
 
     @property
     def optimizer(self):
@@ -187,7 +194,8 @@ class Trainer(BaseRunner):
             self._scheduler = scheduler
 
         if self._scheduler is not None and self._optimizer is not None:
-            self._lr_scheduler: Union[_LRScheduler, None] = self._scheduler(self._optimizer)
+            self._lr_scheduler: Union[_LRScheduler,
+                                      None] = self._scheduler(self._optimizer)
 
     @property
     def clip_grad(self):
@@ -209,7 +217,9 @@ class Trainer(BaseRunner):
             return self._checkpoints[id_]
         if isinstance(checkpoint, str):
             return self._checkpoints[checkpoint]
-        raise TypeError(f'parameter <cp> must be str or int but got {checkpoint.__class__}')
+        raise TypeError(
+            f'parameter <cp> must be str or int but got {checkpoint.__class__}'
+        )
 
     def set_checkpoint(self, id_: str = None):
         if id_ is None:
@@ -226,7 +236,10 @@ class Trainer(BaseRunner):
     def early_stop(self, msg: str):
         self._early_stopping = (True, msg)
 
-    def reset(self, *, to: Union[Module, int, str] = None, remove_checkpoints: bool = True):
+    def reset(self,
+              *,
+              to: Union[Module, int, str] = None,
+              remove_checkpoints: bool = True):
         """
         Reset trainer.
         This will reset all trainer states and drop all training step information.
@@ -256,7 +269,9 @@ class Trainer(BaseRunner):
             self._model.load_state_dict(self._init_states)
             self._optimizer.load_state_dict(self._optimizer_state)
         else:
-            raise TypeError(f'parameter <to> must be torch.nnModule, int, or str but got {type(to)}')
+            raise TypeError(
+                f'parameter <to> must be torch.nnModule, int, or str but got {type(to)}'
+            )
 
         if remove_checkpoints:
             self._checkpoints = OrderedDict()
@@ -272,7 +287,8 @@ class Trainer(BaseRunner):
             training_dataset: DataLoader = None,
             validation_dataset: DataLoader = None,
             epochs: int = None,
-            checkpoint: Union[bool, int, Callable[[int], Tuple[bool, str]]] = None,
+            checkpoint: Union[bool, int, Callable[[int], Tuple[bool,
+                                                               str]]] = None,
             **model_params):
         """
         Train the Neural Network model
@@ -305,8 +321,14 @@ class Trainer(BaseRunner):
 
         prob = self._total_epochs
         with tqdm(total=epochs, desc='Training') as pbar:
-            for _ in self(x_train=x_train, y_train=y_train, x_val=x_val, y_val=y_val, training_dataset=training_dataset,
-                          validation_dataset=validation_dataset, epochs=epochs, checkpoint=checkpoint,
+            for _ in self(x_train=x_train,
+                          y_train=y_train,
+                          x_val=x_val,
+                          y_val=y_val,
+                          training_dataset=training_dataset,
+                          validation_dataset=validation_dataset,
+                          epochs=epochs,
+                          checkpoint=checkpoint,
                           **model_params):
                 delta = self._total_epochs - prob
                 if delta:
@@ -357,20 +379,25 @@ class Trainer(BaseRunner):
         """
         if self._model is None:
             raise RuntimeError(
-                'no model for training, use `trainer.model = <model>` or `trainer.reset(to=<model>)` to set one')
+                'no model for training, use `trainer.model = <model>` or `trainer.reset(to=<model>)` to set one'
+            )
         if self._loss_func is None:
             raise RuntimeError(
-                'no loss function for training, use `trainer.loss_func = <loss_func>` to set one')
+                'no loss function for training, use `trainer.loss_func = <loss_func>` to set one'
+            )
         if self._optimizer is None:
             raise RuntimeError(
-                'no optimizer for training, use `trainer.optimizer = <optimizer>` to set one')
+                'no optimizer for training, use `trainer.optimizer = <optimizer>` to set one'
+            )
 
         if epochs is None:
             epochs = self.epochs
 
         if training_dataset is not None:
             if y_train is not None or x_train is not None:
-                raise RuntimeError('parameter <training_dataset> is exclusive of <x_train> and <y_train>')
+                raise RuntimeError(
+                    'parameter <training_dataset> is exclusive of <x_train> and <y_train>'
+                )
         else:
             if y_train is None or x_train is None:
                 raise RuntimeError('missing parameter <x_train> or <y_train>')
@@ -380,7 +407,10 @@ class Trainer(BaseRunner):
             def closure():
                 self._optimizer.zero_grad()
                 y_p_ = self._model(*x_, **model_params)
-                y_p_, y_t_ = self.output_proc(y_p_, y_, trainer=self, training=True)
+                y_p_, y_t_ = self.output_proc(y_p_,
+                                              y_,
+                                              trainer=self,
+                                              training=True)
                 loss_ = self._loss_func(y_p_, y_t_)
                 loss_.backward()
 
@@ -398,15 +428,19 @@ class Trainer(BaseRunner):
             step_info = OrderedDict(
                 total_iters=self._total_its,
                 i_epoch=self._total_epochs,
-                i_batch=i_b + 1, )
+                i_batch=i_b + 1,
+            )
             step_info[self._loss_type] = train_loss
             self._total_its += 1
-            self._step_forward(step_info=step_info, trainer=self, training=True)
+            self._step_forward(step_info=step_info,
+                               trainer=self,
+                               training=True)
             self._training_info.append(step_info)
 
             if self._lr_scheduler is not None:
                 if isinstance(self._lr_scheduler, ReduceLROnPlateau):
-                    self._lr_scheduler.step(train_loss, epoch=self._total_epochs)
+                    self._lr_scheduler.step(train_loss,
+                                            epoch=self._total_epochs)
                 else:
                     self._lr_scheduler.step(epoch=self._total_its)
 
@@ -426,43 +460,60 @@ class Trainer(BaseRunner):
 
         if validation_dataset is not None:
             if y_val is not None or x_val is not None:
-                raise RuntimeError('parameter <validation_dataset> is exclusive of <x_val> and <y_val>')
+                raise RuntimeError(
+                    'parameter <validation_dataset> is exclusive of <x_val> and <y_val>'
+                )
             else:
                 self._validate_dataset = validation_dataset
         else:
             if y_val is not None and x_val is not None:
-                self._x_val, self._y_val = self.input_proc(x_val, y_val, trainer=self, training=False)
+                self._x_val, self._y_val = self.input_proc(x_val,
+                                                           y_val,
+                                                           trainer=self,
+                                                           training=False)
 
         # before processing
         self._before_proc(trainer=self, training=True)
 
         if training_dataset:
-            for i_epoch in range(self._total_epochs, epochs + self._total_epochs):
+            for i_epoch in range(self._total_epochs,
+                                 epochs + self._total_epochs):
 
                 self._total_epochs += 1
                 for i_batch, (x_train, y_train) in enumerate(training_dataset):
-                    x_train, y_train = self.input_proc(x_train, y_train, trainer=self, training=True)
+                    x_train, y_train = self.input_proc(x_train,
+                                                       y_train,
+                                                       trainer=self,
+                                                       training=True)
                     if not isinstance(x_train, tuple):
-                        x_train = (x_train,)
+                        x_train = (x_train, )
                     yield _step(x_train, y_train, i_batch)
                     if self._early_stopping[0]:
-                        tqdm.write(f'Early stopping is applied: {self._early_stopping[1]}')
+                        tqdm.write(
+                            f'Early stopping is applied: {self._early_stopping[1]}'
+                        )
                         self._after_proc(trainer=self, training=True)
                         self._model.eval()
                         return
                 _snapshot()
 
         else:
-            x_train, y_train = self.input_proc(x_train, y_train, trainer=self, training=True)
+            x_train, y_train = self.input_proc(x_train,
+                                               y_train,
+                                               trainer=self,
+                                               training=True)
             if not isinstance(x_train, tuple):
-                x_train = (x_train,)
+                x_train = (x_train, )
 
-            for i_epoch in range(self._total_epochs, epochs + self._total_epochs):
+            for i_epoch in range(self._total_epochs,
+                                 epochs + self._total_epochs):
 
                 self._total_epochs += 1
                 yield _step(x_train, y_train)
                 if self._early_stopping[0]:
-                    tqdm.write(f'Early stopping is applied: {self._early_stopping[1]}.')
+                    tqdm.write(
+                        f'Early stopping is applied: {self._early_stopping[1]}.'
+                    )
                     self._after_proc(trainer=self, training=True)
                     self._model.eval()
                     return
@@ -473,21 +524,49 @@ class Trainer(BaseRunner):
         self._model.eval()
 
     @classmethod
-    def load(cls, from_: Union[str, Path, Checker], *,
-             loss_func: torch.nn.Module = None,
-             optimizer: BaseOptimizer = None,
-             lr_scheduler: BaseLRScheduler = None,
-             clip_grad: Union[ClipNorm, ClipValue] = None,
-             epochs: int = 200,
-             cuda: Union[bool, str, torch.device] = False,
-             non_blocking: bool = False,
-             ) -> 'Trainer':
+    @deprecated(
+        reason=
+        "will be removed in v1.0.0, please use `Trainer.from_checker` instead")
+    def load(
+            cls,
+            from_: Union[str, Path, Checker],
+            *,
+            loss_func: torch.nn.Module = None,
+            optimizer: BaseOptimizer = None,
+            lr_scheduler: BaseLRScheduler = None,
+            clip_grad: Union[ClipNorm, ClipValue] = None,
+            epochs: int = 200,
+            cuda: Union[bool, str, torch.device] = False,
+            non_blocking: bool = False,
+    ) -> 'Trainer':
+        return cls.from_checker(from_,
+                                loss_func=loss_func,
+                                optimizer=optimizer,
+                                lr_scheduler=lr_scheduler,
+                                clip_grad=clip_grad,
+                                epochs=epochs,
+                                cuda=cuda,
+                                non_blocking=non_blocking)
+
+    @classmethod
+    def from_checker(
+            cls,
+            checker: Union[str, Path, Checker],
+            *,
+            loss_func: torch.nn.Module = None,
+            optimizer: BaseOptimizer = None,
+            lr_scheduler: BaseLRScheduler = None,
+            clip_grad: Union[ClipNorm, ClipValue] = None,
+            epochs: int = 200,
+            cuda: Union[bool, str, torch.device] = False,
+            non_blocking: bool = False,
+    ) -> 'Trainer':
         """
         Load model for local path or :class:`xenonpy.model.training.Checker`.
 
         Parameters
         ----------
-        from_
+        checker
             Path to the model dir or :class:`xenonpy.model.training.Checker` object.
         loss_func
             Loss function.
@@ -509,19 +588,26 @@ class Trainer(BaseRunner):
         -------
 
         """
-        if isinstance(from_, (str, Path)):
-            checker = Checker(from_)
+        if isinstance(checker, (str, Path)):
+            checker = Checker(checker)
         else:
-            checker = from_
+            checker = checker
         if len(checker.files) == 0:
             raise RuntimeError(f'{checker.path} is not a model dir')
 
-        tmp = cls(model=checker.model, cuda=cuda, loss_func=loss_func, optimizer=optimizer, lr_scheduler=lr_scheduler,
-                  clip_grad=clip_grad, epochs=epochs, non_blocking=non_blocking)
+        tmp = cls(model=checker.model,
+                  cuda=cuda,
+                  loss_func=loss_func,
+                  optimizer=optimizer,
+                  lr_scheduler=lr_scheduler,
+                  clip_grad=clip_grad,
+                  epochs=epochs,
+                  non_blocking=non_blocking)
         tmp._training_info = checker.training_info.to_dict(orient='records')
         if Path(checker.path + '/checkpoints').is_dir():
             for k in checker.checkpoints.files:
-                tmp._checkpoints[k] = cls.checkpoint_tuple(**checker.checkpoints[k])
+                tmp._checkpoints[k] = cls.checkpoint_tuple(
+                    **checker.checkpoints[k])
         return tmp
 
     def predict(self,
@@ -530,34 +616,33 @@ class Trainer(BaseRunner):
                 *,
                 dataset: DataLoader = None,
                 checkpoint: Union[int, str] = None,
-                classification: bool = False,
-                **model_params):
+                **model_params) -> Union[Tuple[np.ndarray], np.ndarray]:
         """
         Predict from x input.
         This is just a simple wrapper for :meth:`~model.nn.utils.Predictor.predict`.
 
         Parameters
         ----------
-        checkpoint: Union[int, str]
-        x_in: Union[Any, Tuple[Any]]
+        x_in
             Input data for prediction.
-        y_true: Union[Any, Tuple[Any]]
-        dataset: DataLoader
-        classification: bool
-            If ``True``, will apply ``torch.max(out, 1)[1]`` to the output.
+        y_true
+            True values.
+        dataset
+            Pytorch :class:`torch.utils.data.DataLoader`.
+        checkpoint
+            Reset to checkpoint if given.
         model_params: dict
             Model parameters for prediction.
 
         Returns
         -------
-        ret: T_Prediction
-            Predict results.
+        ret
+            Predict results. If ``y_true`` is not ``None``, ``y_true`` will be returned in second.
         """
-
         def _predict(x_, y_=None):
             x_, y_ = self.input_proc(x_, y_, trainer=self, training=False)
             if not isinstance(x_, tuple):
-                x_ = (x_,)
+                x_ = (x_, )
 
             if checkpoint:
                 cp = self.get_checkpoint(checkpoint)
@@ -571,7 +656,7 @@ class Trainer(BaseRunner):
 
         def _vstack(ls):
             if isinstance(ls[0], np.ndarray):
-                return np.vstack(ls)
+                return np.concatenate(ls)
             if isinstance(ls[0], torch.Tensor):
                 return torch.cat(ls, dim=0)
             return ls
@@ -593,13 +678,15 @@ class Trainer(BaseRunner):
                 return y_preds
             return y_preds, y_trues
         else:
-            raise RuntimeError('parameters <x_in> and <dataset> are mutually exclusive')
+            raise RuntimeError(
+                'parameters <x_in> and <dataset> are mutually exclusive')
 
     def to_namedtuple(self):
-        return self.results_tuple(
-            total_epochs=self.total_epochs,
-            device=self.device,
-            training_info=self.training_info,
-            checkpoints={k: deepcopy(v.model_state) for k, v in self._checkpoints.items()},
-            model=deepcopy(self._model.cpu())
-        )
+        return self.results_tuple(total_epochs=self.total_epochs,
+                                  device=self.device,
+                                  training_info=self.training_info,
+                                  checkpoints={
+                                      k: deepcopy(v.model_state)
+                                      for k, v in self._checkpoints.items()
+                                  },
+                                  model=deepcopy(self._model.cpu()))

@@ -63,7 +63,7 @@ def regression_metrics(y_true: Union[np.ndarray, pd.Series],
 
 
 def classification_metrics(
-        y_true: Union[np.ndarray, pd.Series],
+        y_true: Union[np.ndarray, pd.DataFrame, pd.Series],
         y_pred: Union[np.ndarray, pd.Series]) -> OrderedDict:
     """
     Calculate most common classification scores.

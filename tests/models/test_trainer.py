@@ -368,18 +368,22 @@ def test_trainer_prediction_2():
                       loss_func=CrossEntropyLoss(),
                       epochs=200)
     trainer.extend(
-        TensorConverter(x_dtype=torch.float32,
-                        y_dtype=torch.long,
-                        classification=True))
+        TensorConverter(x_dtype=torch.float32, y_dtype=torch.long,
+                        argmax=True))
     trainer.fit(x, y)
 
     y_p, y_t = trainer.predict(x, y)
+    assert y_p.shape == (200, )
     assert np.all(y_p == y_t)
 
     # trainer.reset()
     val_set = DataLoader(ArrayDataset(x, y, dtypes=(torch.float, torch.long)),
                          batch_size=20)
+    trainer.extend(TensorConverter(x_dtype=torch.float32, y_dtype=torch.long))
     y_p, y_t = trainer.predict(dataset=val_set)
+    assert y_p.shape == (200, 2)
+
+    y_p = np.argmax(y_p, 1)
     assert np.all(y_p == y_t)
 
 

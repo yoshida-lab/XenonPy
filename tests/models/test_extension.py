@@ -191,7 +191,7 @@ def test_tensor_converter_3():
     assert isinstance(y[0], np.ndarray)
     assert np.all(y[0] == tensor_.numpy())
 
-    converter = TensorConverter(classification=True)
+    converter = TensorConverter(argmax=True)
     y, y_ = converter.output_proc(tensor_, tensor_, training=False)
     assert isinstance(y, np.ndarray)
     assert isinstance(y_, np.ndarray)
@@ -237,8 +237,10 @@ def test_validator_1():
 
 
 def test_validator_2():
-    x = np.random.randint(3, size=10)  # input
     y = np.random.randint(3, size=10)  # true labels
+    x = np.zeros((10, 3))  # input
+    for i, j in enumerate(y):
+        x[i, j] = 1
 
     class _Trainer(BaseRunner):
         def __init__(self):

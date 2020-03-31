@@ -22,11 +22,29 @@ class TensorConverter(BaseExtension):
         x_dtype: Union[torch.dtype, Sequence[torch.dtype]] = None,
         y_dtype: Union[torch.dtype, Sequence[torch.dtype]] = None,
         empty_cache: bool = False,
-        classification: bool = False,
+        argmax: bool = False,
     ):
+        """
+        Covert tensor like data into :class:`torch.Tensor` automatically.
+        
+        Parameters
+        ----------
+        x_dtype
+            The :class:`torch.dtype`s of **X** data.
+            If ``None``, will convert all data into ``torch.get_default_dtype()`` type.
+            Can be a tuple of ``torch.dtype`` when your **X** is a tuple.
+        y_dtype
+            The :class:`torch.dtype`s of **y** data.
+            If ``None``, will convert all data into ``torch.get_default_dtype()`` type.
+            Can be a tuple of ``torch.dtype`` when your **y** is a tuple.
+        empty_cache
+            See Also: https://pytorch.org/docs/stable/cuda.html#torch.cuda.empty_cache
+        argmax
+            Apply ``np.argmax(out, 1)`` on the output. This should only be used with classification model.
+        """
 
-        self.classification = classification
-        self.empty_cache = empty_cache
+        self._argmax = argmax
+        self._empty_cache = empty_cache
         if x_dtype is None:
             self._x_dtype = torch.get_default_dtype()
         else:
@@ -86,7 +104,7 @@ class TensorConverter(BaseExtension):
             if not isinstance(t, torch.Tensor):
                 return t
             # reshape (1,) to (-1, 1)
-            if len(t.size()) == 1 and not self.classification:
+            if len(t.size()) == 1 and not self._argmax:
                 t = t.unsqueeze(1)
             return t.to(trainer.device, non_blocking=trainer.non_blocking)
 
@@ -107,7 +125,7 @@ class TensorConverter(BaseExtension):
         return x_in, y_in
 
     def step_forward(self):
-        if self.empty_cache:
+        if self._empty_cache:
             torch.cuda.empty_cache()
 
     def output_proc(
@@ -140,14 +158,14 @@ class TensorConverter(BaseExtension):
 
         if not training:
             if isinstance(y_pred, tuple):
-                if self.classification:
+                if self._argmax:
                     return tuple([_convert(t, True)
                                   for t in y_pred]), _convert(y_true)
                 else:
                     return tuple([_convert(t)
                                   for t in y_pred]), _convert(y_true)
             else:
-                if self.classification:
+                if self._argmax:
                     return _convert(y_pred, True), _convert(y_true)
                 return _convert(y_pred), _convert(y_true)
         else:

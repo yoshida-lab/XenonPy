@@ -13,8 +13,9 @@ import torch
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 
-from xenonpy.model.training import Trainer, MSELoss, Adam, ExponentialLR, SGD, ClipValue, ReduceLROnPlateau, ClipNorm
+from xenonpy.model.training import Trainer, MSELoss, CrossEntropyLoss, Adam, ExponentialLR, SGD, ClipValue, ReduceLROnPlateau, ClipNorm
 from xenonpy.model.training.extension import TensorConverter, Persist
+from xenonpy.model.training.dataset import ArrayDataset
 
 
 class _Net(torch.nn.Module):
@@ -41,8 +42,10 @@ def data():
 
     torch.manual_seed(0)
     np.random.seed(0)
-    x = torch.unsqueeze(torch.linspace(-1, 1, 100), dim=1)  # x data (tensor), shape=(100, 1)
-    y = x.pow(2) + 0.2 * torch.rand(x.size())  # noisy y data (tensor), shape=(100, 1)
+    x = torch.unsqueeze(torch.linspace(-1, 1, 100),
+                        dim=1)  # x data (tensor), shape=(100, 1)
+    y = x.pow(2) + 0.2 * torch.rand(
+        x.size())  # noisy y data (tensor), shape=(100, 1)
 
     net = _Net(n_feature=1, n_hidden=10, n_output=1)
 
@@ -71,7 +74,9 @@ def test_trainer_1(data):
     assert trainer.loss_type is None
     assert trainer.loss_func is None
 
-    trainer = Trainer(optimizer=Adam(), loss_func=MSELoss(), lr_scheduler=ExponentialLR(gamma=0.99),
+    trainer = Trainer(optimizer=Adam(),
+                      loss_func=MSELoss(),
+                      lr_scheduler=ExponentialLR(gamma=0.99),
                       clip_grad=ClipValue(clip_value=0.1))
     assert isinstance(trainer._scheduler, ExponentialLR)
     assert isinstance(trainer._optim, Adam)
@@ -84,7 +89,9 @@ def test_trainer_2(data):
     with pytest.raises(RuntimeError, match='no model for training'):
         trainer.fit(*data[1])
 
-    with pytest.raises(TypeError, match='parameter `m` must be a instance of <torch.nn.modules>'):
+    with pytest.raises(
+            TypeError,
+            match='parameter `m` must be a instance of <torch.nn.modules>'):
         trainer.model = {}
 
     trainer.model = data[0]
@@ -104,7 +111,8 @@ def test_trainer_2(data):
     assert isinstance(trainer._init_states, dict)
 
     trainer.lr_scheduler = ExponentialLR(gamma=0.99)
-    assert isinstance(trainer.lr_scheduler, torch.optim.lr_scheduler.ExponentialLR)
+    assert isinstance(trainer.lr_scheduler,
+                      torch.optim.lr_scheduler.ExponentialLR)
 
 
 def test_trainer_3(data):
@@ -118,7 +126,8 @@ def test_trainer_3(data):
     assert trainer.lr_scheduler is None
 
     trainer.lr_scheduler = ExponentialLR(gamma=0.1)
-    assert isinstance(trainer.lr_scheduler, torch.optim.lr_scheduler.ExponentialLR)
+    assert isinstance(trainer.lr_scheduler,
+                      torch.optim.lr_scheduler.ExponentialLR)
 
     trainer.optimizer = SGD()
     assert isinstance(trainer.optimizer, torch.optim.SGD)
@@ -153,16 +162,24 @@ def test_trainer_fit_1(data):
     assert isinstance(ret, trainer.results_tuple)
 
     train_set = DataLoader(TensorDataset(*data[1]))
-    with pytest.raises(RuntimeError, match='parameter <training_dataset> is exclusive of <x_train> and <y_train>'):
+    with pytest.raises(
+            RuntimeError,
+            match=
+            'parameter <training_dataset> is exclusive of <x_train> and <y_train>'
+    ):
         trainer.fit(*data[1], training_dataset=train_set)
 
-    with pytest.raises(RuntimeError, match='missing parameter <x_train> or <y_train>'):
+    with pytest.raises(RuntimeError,
+                       match='missing parameter <x_train> or <y_train>'):
         trainer.fit(data[1][0])
 
 
 def test_trainer_fit_2(data):
     model = deepcopy(data[0])
-    trainer = Trainer(model=model, optimizer=Adam(), loss_func=MSELoss(), epochs=20)
+    trainer = Trainer(model=model,
+                      optimizer=Adam(),
+                      loss_func=MSELoss(),
+                      epochs=20)
     trainer.fit(*data[1], *data[1])
     assert trainer.total_iterations == 20
     assert trainer.total_epochs == 20
@@ -178,7 +195,10 @@ def test_trainer_fit_2(data):
 
 def test_trainer_fit_3(data):
     model = deepcopy(data[0])
-    trainer = Trainer(model=model, optimizer=Adam(), loss_func=MSELoss(), epochs=5)
+    trainer = Trainer(model=model,
+                      optimizer=Adam(),
+                      loss_func=MSELoss(),
+                      epochs=5)
     trainer.fit(*data[1])
     assert len(trainer.checkpoints.keys()) == 0
 
@@ -205,7 +225,9 @@ def test_trainer_fit_3(data):
     assert trainer.total_epochs == 0
     assert len(trainer.get_checkpoint()) == 0
 
-    with pytest.raises(TypeError, match='parameter <to> must be torch.nnModule, int, or str'):
+    with pytest.raises(
+            TypeError,
+            match='parameter <to> must be torch.nnModule, int, or str'):
         trainer.reset(to=[])
 
     # todo: need a real testing
@@ -220,8 +242,12 @@ def test_trainer_fit_3(data):
 
 def test_trainer_fit_4(data):
     model = deepcopy(data[0])
-    trainer = Trainer(model=model, optimizer=Adam(), loss_func=MSELoss(), clip_grad=ClipValue(0.1),
-                      lr_scheduler=ReduceLROnPlateau(), epochs=10)
+    trainer = Trainer(model=model,
+                      optimizer=Adam(),
+                      loss_func=MSELoss(),
+                      clip_grad=ClipValue(0.1),
+                      lr_scheduler=ReduceLROnPlateau(),
+                      epochs=10)
 
     count = 1
     for i in trainer(*data[1]):
@@ -249,7 +275,10 @@ def test_trainer_fit_4(data):
 
 def test_persist_1(data):
     model = deepcopy(data[0])
-    trainer = Trainer(model=model, optimizer=Adam(lr=0.1), loss_func=MSELoss(), epochs=200)
+    trainer = Trainer(model=model,
+                      optimizer=Adam(lr=0.1),
+                      loss_func=MSELoss(),
+                      epochs=200)
     trainer.extend(TensorConverter(), Persist('model_dir'))
     trainer.fit(*data[1], *data[1])
 
@@ -259,7 +288,10 @@ def test_persist_1(data):
     assert isinstance(checker.model, torch.nn.Module)
     assert isinstance(checker.describe, dict)
     assert isinstance(checker.files, list)
-    assert set(checker.files) == {'model', 'init_state', 'model_structure', 'describe', 'training_info', 'final_state'}
+    assert set(checker.files) == {
+        'model', 'init_state', 'model_structure', 'describe', 'training_info',
+        'final_state'
+    }
 
     trainer = Trainer.load(checker)
     assert isinstance(trainer.training_info, pd.DataFrame)
@@ -276,7 +308,9 @@ def test_persist_1(data):
     assert trainer.loss_type is None
     assert trainer.loss_func is None
 
-    trainer = Trainer.load(from_=checker.path, optimizer=Adam(), loss_func=MSELoss(),
+    trainer = Trainer.load(from_=checker.path,
+                           optimizer=Adam(),
+                           loss_func=MSELoss(),
                            lr_scheduler=ExponentialLR(gamma=0.99),
                            clip_grad=ClipValue(clip_value=0.1))
     assert isinstance(trainer._scheduler, ExponentialLR)
@@ -287,7 +321,10 @@ def test_persist_1(data):
 
 def test_trainer_prediction_1(data):
     model = deepcopy(data[0])
-    trainer = Trainer(model=model, optimizer=Adam(lr=0.1), loss_func=MSELoss(), epochs=200)
+    trainer = Trainer(model=model,
+                      optimizer=Adam(lr=0.1),
+                      loss_func=MSELoss(),
+                      epochs=200)
     trainer.extend(TensorConverter())
     trainer.fit(*data[1], *data[1])
 
@@ -305,8 +342,45 @@ def test_trainer_prediction_1(data):
     assert np.any(np.not_equal(y_p, y_t))
     assert np.allclose(y_p, y_t, rtol=0, atol=0.2)
 
-    with pytest.raises(RuntimeError, match='parameters <x_in> and <dataset> are mutually exclusive'):
+    with pytest.raises(
+            RuntimeError,
+            match='parameters <x_in> and <dataset> are mutually exclusive'):
         trainer.predict(*data[1], dataset='not none')
+
+
+def test_trainer_prediction_2():
+    model = _Net(n_feature=2, n_hidden=10, n_output=2)
+
+    n_data = np.ones((100, 2))
+    x0 = np.random.normal(2 * n_data, 1)
+    y0 = np.zeros(100)
+    x1 = np.random.normal(-2 * n_data, 1)
+    y1 = np.ones(100)
+
+    x = np.vstack((x0, x1))
+    y = np.concatenate((y0, y1))
+    s = np.arange(x.shape[0])
+    np.random.shuffle(s)
+    x, y = x[s], y[s]
+
+    trainer = Trainer(model=model,
+                      optimizer=Adam(lr=0.1),
+                      loss_func=CrossEntropyLoss(),
+                      epochs=200)
+    trainer.extend(
+        TensorConverter(x_dtype=torch.float32,
+                        y_dtype=torch.long,
+                        classification=True))
+    trainer.fit(x, y)
+
+    y_p, y_t = trainer.predict(x, y)
+    assert np.all(y_p == y_t)
+
+    # trainer.reset()
+    val_set = DataLoader(ArrayDataset(x, y, dtypes=(torch.float, torch.long)),
+                         batch_size=20)
+    y_p, y_t = trainer.predict(dataset=val_set)
+    assert np.all(y_p == y_t)
 
 
 if __name__ == "__main__":

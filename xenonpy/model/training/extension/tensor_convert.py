@@ -93,7 +93,7 @@ class TensorConverter(BaseExtension):
 
             # if tensor, do nothing
             if isinstance(t, torch.Tensor):
-                return t.to(trainer.device, non_blocking=trainer._non_blocking)
+                return t.to(trainer.device, non_blocking=trainer.non_blocking)
             # if pandas, turn to numpy
             if isinstance(t, (pd.DataFrame, pd.Series)):
                 t = t.values
@@ -106,7 +106,7 @@ class TensorConverter(BaseExtension):
             # reshape (1,) to (-1, 1)
             if len(t.size()) == 1 and not self._argmax:
                 t = t.unsqueeze(1)
-            return t.to(trainer.device, non_blocking=trainer._non_blocking)
+            return t.to(trainer.device, non_blocking=trainer.non_blocking)
 
         if isinstance(x_in, Sequence):
             x_in = tuple([

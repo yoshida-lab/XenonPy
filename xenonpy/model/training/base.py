@@ -9,8 +9,8 @@ from typing import Union, Dict
 
 import torch
 from sklearn.base import BaseEstimator
-from torch.optim import Optimizer
-from torch.optim.lr_scheduler import _LRScheduler
+from torch.optim import Optimizer  # noqa
+from torch.optim.lr_scheduler import _LRScheduler  # noqa
 
 from xenonpy.utils import TimedMetaClass, camel_to_snake
 
@@ -56,7 +56,7 @@ class BaseOptimizer(object):
 
         Returns
         -------
-        optimizeer: Optimizer
+        optimizer: Optimizer
         """
         return self._optimizer(params, **self._kwargs)
 
@@ -88,6 +88,10 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self._device = self.check_device(cuda)
         self._extensions: BaseRunner.T_Extension_Dict = {}
 
+    @property
+    def cuda(self):
+        return self._device
+
     @staticmethod
     def check_device(cuda: Union[bool, str, torch.device]) -> torch.device:
         if isinstance(cuda, bool):
@@ -108,8 +112,10 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             elif 'cpu' in cuda:
                 return torch.device('cpu')
             else:
-                raise RuntimeError('wrong device identifier'
-                                   'see also: https://pytorch.org/docs/stable/tensor_attributes.html#torch.torch.device')
+                raise RuntimeError(
+                    'wrong device identifier'
+                    'see also: https://pytorch.org/docs/stable/tensor_attributes.html#torch.torch.device'
+                )
 
         if isinstance(cuda, torch.device):
             return cuda
@@ -123,7 +129,10 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self._device = self.check_device(v)
 
     def _make_inject(self, injects, kwargs):
-        _kwargs = {k: self._extensions[k][0] for k in injects if k in self._extensions}
+        _kwargs = {
+            k: self._extensions[k][0]
+            for k in injects if k in self._extensions
+        }
         _kwargs.update({k: kwargs[k] for k in injects if k in kwargs})
         return _kwargs
 
@@ -174,17 +183,23 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             Extension.
 
         """
-
         def _get_keyword_params(func) -> list:
             sig = signature(func)
-            return [p.name for p in sig.parameters.values() if p.kind == p.POSITIONAL_OR_KEYWORD]
+            return [
+                p.name for p in sig.parameters.values()
+                if p.kind == p.POSITIONAL_OR_KEYWORD
+            ]
 
         # merge exts to named_exts
         for ext in extension:
             name = camel_to_snake(ext.__class__.__name__)
-            methods = ['before_proc', 'input_proc', 'step_forward', 'output_proc', 'after_proc', 'on_reset',
-                       'on_checkpoint']
-            dependencies = [_get_keyword_params(getattr(ext, m)) for m in methods]
+            methods = [
+                'before_proc', 'input_proc', 'step_forward', 'output_proc',
+                'after_proc', 'on_reset', 'on_checkpoint'
+            ]
+            dependencies = [
+                _get_keyword_params(getattr(ext, m)) for m in methods
+            ]
             dependency_inject = {k: v for k, v in zip(methods, dependencies)}
 
             self._extensions[name] = (ext, dependency_inject)

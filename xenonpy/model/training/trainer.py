@@ -67,8 +67,8 @@ class Trainer(BaseRunner):
         super().__init__(cuda=cuda)
         # None able
         self._clip_grad = clip_grad
-        self.epochs = epochs
-        self.non_blocking = non_blocking
+        self._epochs = epochs
+        self._non_blocking = non_blocking
 
         # loss function placeholder
         self._loss_func = None
@@ -104,6 +104,14 @@ class Trainer(BaseRunner):
         self.optimizer = optimizer
         self.lr_scheduler = lr_scheduler
         self.loss_func = loss_func
+
+    @property
+    def epochs(self):
+        return self._epochs
+
+    @property
+    def non_blocking(self):
+        return self._non_blocking
 
     @property
     def loss_type(self):
@@ -257,7 +265,7 @@ class Trainer(BaseRunner):
         self._early_stopping = (False, '')
 
         if isinstance(to, Module):
-            self._model = to.to(self._device, non_blocking=self.non_blocking)
+            self._model = to.to(self._device, non_blocking=self._non_blocking)
             self._init_states = deepcopy(to.state_dict())
 
             self.optimizer = None
@@ -317,7 +325,7 @@ class Trainer(BaseRunner):
             Other model parameters.
         """
         if epochs is None:
-            epochs = self.epochs
+            epochs = self._epochs
 
         prob = self._total_epochs
         with tqdm(total=epochs, desc='Training') as pbar:
@@ -391,7 +399,7 @@ class Trainer(BaseRunner):
             )
 
         if epochs is None:
-            epochs = self.epochs
+            epochs = self._epochs
 
         if training_dataset is not None:
             if y_train is not None or x_train is not None:

@@ -29,7 +29,7 @@ def data():
 
         @property
         def feature_labels(self):
-            return ['labels']
+            return ['label1']
 
     class _FakeFeaturier2(BaseFeaturizer):
 
@@ -41,7 +41,7 @@ def data():
 
         @property
         def feature_labels(self):
-            return ['labels']
+            return ['label2']
 
     class _FakeFeaturier3(BaseFeaturizer):
 
@@ -53,7 +53,7 @@ def data():
 
         @property
         def feature_labels(self):
-            return ['labels']
+            return ['label3']
 
     class _FakeDescriptor(BaseDescriptor):
 
@@ -70,7 +70,9 @@ def data():
 
 
 def test_base_feature_props():
+
     class _FakeFeaturier(BaseFeaturizer):
+
         def __init__(self):
             super().__init__()
 
@@ -105,7 +107,7 @@ def test_base_feature_1(data):
     assert isinstance(featurizer, BaseFeaturizer)
     assert featurizer.n_jobs == 1
     assert featurizer.featurize(10) == 10
-    assert featurizer.feature_labels == ['labels']
+    assert featurizer.feature_labels == ['label1']
     with pytest.raises(TypeError):
         featurizer.fit_transform(56)
 
@@ -126,7 +128,25 @@ def test_base_feature_2(data):
     assert (ret.values.ravel() == np.array([1, 2, 3, 4])).all()
 
 
+def test_base_feature_para(data):
+    featurizer = data['featurizer'](n_jobs=2)
+    featurizer.parallel_verbose = 1
+    ret = featurizer.fit_transform([1, 2, 3, 4])
+    assert isinstance(ret, list)
+    ret = featurizer.fit_transform([1, 2, 3, 4], return_type='array')
+    assert isinstance(ret, np.ndarray)
+    ret = featurizer.fit_transform([1, 2, 3, 4], return_type='df')
+    assert isinstance(ret, pd.DataFrame)
+    ret = featurizer.fit_transform(np.array([1, 2, 3, 4]))
+    assert isinstance(ret, np.ndarray)
+    assert (ret == np.array([1, 2, 3, 4])).all()
+    ret = featurizer.fit_transform(pd.Series([1, 2, 3, 4]))
+    assert isinstance(ret, pd.DataFrame)
+    assert (ret.values.ravel() == np.array([1, 2, 3, 4])).all()
+
+
 def test_base_feature_3(data):
+
     class _ErrorFeaturier(BaseFeaturizer):
 
         def __init__(self, n_jobs=1, on_errors='raise'):
@@ -158,9 +178,6 @@ def test_base_descriptor_1(data):
 
     # test n_jobs
     assert bd.elapsed == 0
-    assert bd.n_jobs == 1
-    bd.n_jobs = 100
-    assert bd.n_jobs == cpu_count()
 
     # test featurizers list
     assert hasattr(bd, '__featurizers__')
@@ -205,7 +222,7 @@ def test_base_descriptor_4(data):
 
 def test_base_descriptor_5(data):
     bd = data['descriptor']()
-    x = pd.DataFrame({'g1': [1, 2, 3, 4], 'g3': [1, 2, 3, 4]})
+    x = pd.DataFrame({'g1': [1, 2, 3, 4], 'g3': [10, 20, 30, 40]})
     tmp = bd.fit_transform(x)
     assert isinstance(tmp, pd.DataFrame)
     assert np.all(tmp.values == np.array([[1, 1], [2, 2], [3, 3], [4, 4]]))
@@ -255,34 +272,35 @@ def test_base_descriptor_7(data):
 
 
 def test_base_descriptor_8(data):
-    x = pd.DataFrame({'g1': [1, 2, 3, 4], 'g2': [1, 2, 3, 4]})
+    x = pd.DataFrame({'g1': [1, 2, 3, 4], 'g2': [10, 20, 30, 40]})
+
+    bd = data['descriptor'](featurizers='_FakeFeaturier1')
+    tmp = bd.transform(x)
+    assert bd.featurizers == ('_FakeFeaturier1',)
+    assert tmp.shape == (4, 1)
+    assert tmp.columns == ['label1']
+    assert np.all(tmp.values == np.array([[1], [2], [3], [4]]))
+
+    bd = data['descriptor'](featurizers=['_FakeFeaturier3'])
+    tmp = bd.transform(x)
+    assert bd.featurizers == ('_FakeFeaturier3',)
+    assert tmp.shape == (4, 1)
+    assert tmp.columns == ['label3']
+    assert np.all(tmp.values == np.array([[10], [20], [30], [40]]))
 
     bd = data['descriptor'](featurizers=['_FakeFeaturier1', '_FakeFeaturier3'])
     tmp = bd.transform(x)
-    assert bd.featurizers == ['_FakeFeaturier1', '_FakeFeaturier3']
-    assert np.all(tmp.values == np.array([[1, 1], [2, 2], [3, 3], [4, 4]]))
+    assert tmp.shape == (4, 2)
+    assert tmp.columns.tolist() == ['label1', 'label3']
+    assert bd.featurizers == ('_FakeFeaturier1', '_FakeFeaturier3')
+    assert np.all(tmp.values == np.array([[1, 10], [2, 20], [3, 30], [4, 40]]))
 
     bd = data['descriptor']()
-
-    # use all featurizers
+    # use all featurizers by default
     tmp = bd.fit_transform(x)
-    assert np.all(tmp.values == np.array([[1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4]]))
-
-    # use '_FakeFeaturier1' and '_FakeFeaturier3' temporarily
-    tmp = bd.transform(x, featurizers=['_FakeFeaturier1', '_FakeFeaturier3'])
-    assert np.all(tmp.values == np.array([[1, 1], [2, 2], [3, 3], [4, 4]]))
-    tmp = bd.transform(x)
-    assert np.all(tmp.values == np.array([[1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4]]))
-
-    # use '_FakeFeaturier1' and '_FakeFeaturier3' from now ony
-    bd.fit(x, featurizers=['_FakeFeaturier1', '_FakeFeaturier3'])
-    tmp = bd.transform(x)
-    assert np.all(tmp.values == np.array([[1, 1], [2, 2], [3, 3], [4, 4]]))
-
-    # reset
-    bd.fit(x, featurizers='all')
-    tmp = bd.transform(x)
-    assert np.all(tmp.values == np.array([[1, 1, 1], [2, 2, 2], [3, 3, 3], [4, 4, 4]]))
+    assert tmp.shape == (4, 3)
+    assert tmp.columns.tolist() == ['label1', 'label2', 'label3']
+    assert np.all(tmp.values == np.array([[1, 1, 10], [2, 2, 20], [3, 3, 30], [4, 4, 40]]))
 
 
 if __name__ == "__main__":

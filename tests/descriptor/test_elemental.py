@@ -11,7 +11,9 @@ from xenonpy.descriptor.base import BaseCompositionFeaturizer
 
 
 def test_compositional_feature_1():
+
     class FakeFeaturizer(BaseCompositionFeaturizer):
+
         @property
         def feature_labels(self):
             return ['min:' + s for s in self._elements]
@@ -67,15 +69,6 @@ def test_comp_descriptor_1():
     assert isinstance(tmp2, pd.DataFrame)
 
     assert np.all(tmp1.values == tmp2.values)
-
-    tmp = desc.transform([{'H': 2}], featurizers=['WeightedAverage'])
-    assert tmp.shape == (1, 58)
-
-    tmp = desc.transform([{'H': 2}], featurizers='all')
-    assert tmp.shape == (1, 500)
-
-    tmp = desc.transform([{'H': 2}], featurizers=Compositions.classic)
-    assert tmp.shape == (1, 290)
 
 
 if __name__ == "__main__":

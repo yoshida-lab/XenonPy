@@ -11,12 +11,16 @@ import torch
 from pymatgen import Structure as pmg_S
 
 from xenonpy.descriptor import CrystalGraphFeaturizer
+from xenonpy.datatools import preset
 
 pytestmark = pytest.mark.skipif(getenv('TRAVIS_OS_NAME') == 'osx',
                                 reason="no way of currently testing this, skipping tests")
 
+
 @pytest.fixture(scope='module')
 def data():
+    preset.sync('atom_init')
+
     # prepare path
     pwd = Path(__file__).parent
     cif1 = pmg_S.from_file(str(pwd / '1.cif'))
@@ -84,7 +88,6 @@ def test_crystal_1(data):
 #     assert isinstance(tmp, pd.DataFrame)
 #     assert tmp.shape == (2, 3)
 #     assert tmp.values[0, 0][0].numpy().tolist() == [1, 2, 3, 4]
-
 
 if __name__ == "__main__":
     pytest.main()

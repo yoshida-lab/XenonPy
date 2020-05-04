@@ -192,9 +192,8 @@ class OrbitalFieldMatrix(BaseFeaturizer):
         }
 
         general_electron_subshells = [
-            's1', 's2', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6',
-            'd7', 'd8', 'd9', 'd10', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10',
-            'f11', 'f12', 'f13', 'f14'
+            's1', 's2', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7', 'd8', 'd9', 'd10',
+            'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12', 'f13', 'f14'
         ]
 
         if name == 'H':
@@ -203,8 +202,7 @@ class OrbitalFieldMatrix(BaseFeaturizer):
             element_electronic_structure = ['s2']
         else:
             element_electronic_structure = [
-                ''.join(pair)
-                for pair in re.findall(r"\.\d(\w+)<sup>(\d+)</sup>", element.electronic_structure)
+                ''.join(pair) for pair in re.findall(r"\.\d(\w+)<sup>(\d+)</sup>", element.electronic_structure)
             ]
         for eletron_subshell in element_electronic_structure:
             general_element_electronic[eletron_subshell] = 1.0
@@ -237,7 +235,7 @@ class OrbitalFieldMatrix(BaseFeaturizer):
                 w = nn['weight']
                 site_x_label = site_x.species_string
                 neigh_vector = self.get_element_representation(site_x_label)
-                d = np.sqrt(np.sum((site.coords - site_x.coords) ** 2))
+                d = np.sqrt(np.sum((site.coords - site_x.coords)**2))
                 if self._including_d:
                     env_vector += neigh_vector * w / d
                 else:
@@ -252,9 +250,8 @@ class OrbitalFieldMatrix(BaseFeaturizer):
     @property
     def feature_labels(self):
         labels = np.array([
-            's1', 's2', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6',
-            'd7', 'd8', 'd9', 'd10', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10',
-            'f11', 'f12', 'f13', 'f14'
+            's1', 's2', 'p1', 'p2', 'p3', 'p4', 'p5', 'p6', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7', 'd8', 'd9', 'd10',
+            'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12', 'f13', 'f14'
         ])
 
         return [i + '_' + j for i in labels for j in labels]

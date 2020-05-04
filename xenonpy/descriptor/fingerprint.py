@@ -10,19 +10,14 @@ from rdkit.ML.Descriptors import MoleculeDescriptors
 
 from xenonpy.descriptor.base import BaseDescriptor, BaseFeaturizer
 
-__all__ = ['RDKitFP', 'AtomPairFP', 'TopologicalTorsionFP', 'MACCS', 'FCFP', 'ECFP', 'DescriptorFeature',
-           'Fingerprints']
+__all__ = [
+    'RDKitFP', 'AtomPairFP', 'TopologicalTorsionFP', 'MACCS', 'FCFP', 'ECFP', 'DescriptorFeature', 'Fingerprints'
+]
 
 
 class RDKitFP(BaseFeaturizer):
 
-    def __init__(self,
-                 n_jobs=-1,
-                 *,
-                 fp_size=2048,
-                 input_type='mol',
-                 on_errors='raise',
-                 return_type='any'):
+    def __init__(self, n_jobs=-1, *, fp_size=2048, input_type='mol', on_errors='raise', return_type='any'):
         """
         RDKit fingerprint.
 
@@ -74,13 +69,7 @@ class RDKitFP(BaseFeaturizer):
 
 class AtomPairFP(BaseFeaturizer):
 
-    def __init__(self,
-                 n_jobs=-1,
-                 *,
-                 n_bits=2048,
-                 input_type='mol',
-                 on_errors='raise',
-                 return_type='any'):
+    def __init__(self, n_jobs=-1, *, n_bits=2048, input_type='mol', on_errors='raise', return_type='any'):
         """
         Atom Pair fingerprints.
         Returns the atom-pair fingerprint for a molecule.The algorithm used is described here:
@@ -136,13 +125,7 @@ class AtomPairFP(BaseFeaturizer):
 
 class TopologicalTorsionFP(BaseFeaturizer):
 
-    def __init__(self,
-                 n_jobs=-1,
-                 *,
-                 n_bits=2048,
-                 input_type='mol',
-                 on_errors='raise',
-                 return_type='any'):
+    def __init__(self, n_jobs=-1, *, n_bits=2048, input_type='mol', on_errors='raise', return_type='any'):
         """
         Topological Torsion fingerprints.
         Returns the topological-torsion fingerprint for a molecule.
@@ -244,14 +227,7 @@ class MACCS(BaseFeaturizer):
 
 class FCFP(BaseFeaturizer):
 
-    def __init__(self,
-                 n_jobs=-1,
-                 *,
-                 radius=3,
-                 n_bits=2048,
-                 input_type='mol',
-                 on_errors='raise',
-                 return_type='any'):
+    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, input_type='mol', on_errors='raise', return_type='any'):
         """
         Morgan (Circular) fingerprints + feature-based (FCFP)
         The algorithm used is described in the paper Rogers, D. & Hahn, M. Extended-Connectivity Fingerprints.
@@ -300,9 +276,7 @@ class FCFP(BaseFeaturizer):
                 x = Chem.MolFromSmiles(x)
                 if x is None:
                     raise ValueError('can not convert Mol from SMILES %s' % x_)
-        return list(
-            rdMol.GetMorganFingerprintAsBitVect(
-                x, self.radius, nBits=self.n_bits, useFeatures=True))
+        return list(rdMol.GetMorganFingerprintAsBitVect(x, self.radius, nBits=self.n_bits, useFeatures=True))
 
     @property
     def feature_labels(self):
@@ -311,14 +285,7 @@ class FCFP(BaseFeaturizer):
 
 class ECFP(BaseFeaturizer):
 
-    def __init__(self,
-                 n_jobs=-1,
-                 *,
-                 radius=3,
-                 n_bits=2048,
-                 input_type='mol',
-                 on_errors='raise',
-                 return_type='any'):
+    def __init__(self, n_jobs=-1, *, radius=3, n_bits=2048, input_type='mol', on_errors='raise', return_type='any'):
         """
         Morgan (Circular) fingerprints (ECFP)
         The algorithm used is described in the paper Rogers, D. & Hahn, M. Extended-Connectivity Fingerprints.
@@ -472,15 +439,11 @@ class Fingerprints(BaseDescriptor):
         """
 
         super().__init__(featurizers=featurizers)
-        self.n_jobs = n_jobs
 
         self.mol = RDKitFP(n_jobs, fp_size=fp_size, input_type=input_type, on_errors=on_errors)
         self.mol = AtomPairFP(n_jobs, n_bits=n_bits, input_type=input_type, on_errors=on_errors)
-        self.mol = TopologicalTorsionFP(
-            n_jobs, n_bits=n_bits, input_type=input_type, on_errors=on_errors)
+        self.mol = TopologicalTorsionFP(n_jobs, n_bits=n_bits, input_type=input_type, on_errors=on_errors)
         self.mol = MACCS(n_jobs, input_type=input_type, on_errors=on_errors)
-        self.mol = ECFP(
-            n_jobs, radius=radius, n_bits=n_bits, input_type=input_type, on_errors=on_errors)
-        self.mol = FCFP(
-            n_jobs, radius=radius, n_bits=n_bits, input_type=input_type, on_errors=on_errors)
+        self.mol = ECFP(n_jobs, radius=radius, n_bits=n_bits, input_type=input_type, on_errors=on_errors)
+        self.mol = FCFP(n_jobs, radius=radius, n_bits=n_bits, input_type=input_type, on_errors=on_errors)
         self.mol = DescriptorFeature(n_jobs, input_type=input_type, on_errors=on_errors)

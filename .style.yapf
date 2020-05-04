@@ -1,7 +1,4 @@
-[aliases]
-test = pytest
-
-[yapf]
+[style]
 based_on_style = google
 
 # The column limit.

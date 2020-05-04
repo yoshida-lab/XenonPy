@@ -6,8 +6,9 @@ from abc import ABCMeta, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable
 from copy import copy
-from multiprocessing import Pool, cpu_count
-from typing import DefaultDict, List
+from multiprocessing import cpu_count
+from typing import DefaultDict, List, Sequence, Union
+from joblib import Parallel, delayed
 
 import numpy as np
 import pandas as pd
@@ -15,7 +16,7 @@ from pymatgen.core.composition import Composition as PMGComp
 from sklearn.base import TransformerMixin, BaseEstimator
 
 from xenonpy.datatools.preset import preset
-from xenonpy.utils import TimedMetaClass
+from xenonpy.utils import TimedMetaClass, Switch
 
 
 class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
@@ -82,9 +83,15 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
     __authors__ = ['anonymous']
     __citations__ = ['No citations']
-    _n_jobs = 1
 
-    def __init__(self, n_jobs: int = -1, *, on_errors: str = 'raise', return_type: str = 'any'):
+    def __init__(
+        self,
+        n_jobs: int = -1,
+        *,
+        on_errors: str = 'raise',
+        return_type: str = 'any',
+        parallel_verbose: int = 0,
+    ):
         """
         Parameters
         ----------
@@ -104,12 +111,15 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
             If ``any``, the return type dependent on the input type.
             Default is ``any``
+        parallel_verbose
+            The verbosity level: if non zero, progress messages are printed. Above 50, the output is sent to stdout.
+            The frequency of the messages increases with the verbosity level.
+            If it more than 10, all iterations are reported. Default ``0``.
         """
-        if return_type not in ['any', 'array', 'df']:
-            raise ValueError('`return_type` must be `any`, `array` or `df`')
         self.return_type = return_type
         self.n_jobs = n_jobs
         self.on_errors = on_errors
+        self.parallel_verbose = parallel_verbose
         self._kwargs = {}
 
     @property
@@ -133,12 +143,24 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         self._on_errors = val
 
     @property
+    def parallel_verbose(self):
+        return self._parallel_verbose
+
+    @parallel_verbose.setter
+    def parallel_verbose(self, val):
+        if not isinstance(val, int):
+            raise ValueError('`parallel_verbose` must be int')
+        self._parallel_verbose = val
+
+    @property
     def n_jobs(self):
         return self._n_jobs
 
     @n_jobs.setter
     def n_jobs(self, n_jobs):
         """Set the number of threads for this """
+        if n_jobs < -1:
+            n_jobs = -1
         if n_jobs > cpu_count() or n_jobs == -1:
             self._n_jobs = cpu_count()
         else:
@@ -183,7 +205,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             # fit method of arity 2 (supervised transformation)
             return self.fit(X, y, **fit_params).transform(X, **fit_params)
 
-    def transform(self, entries, *, return_type=None, **kwargs):
+    def transform(self, entries: Sequence, *, return_type=None, **kwargs):
         """
         Featurize a list of entries.
         If `featurize` takes multiple inputs, supply inputs as a list of tuples.
@@ -215,14 +237,17 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         if len(entries) is 0:
             return []
 
-        # Run the actual featurization
-        if self.n_jobs == 0:
-            ret = self.featurize(entries, **kwargs)
-        elif self.n_jobs == 1:
-            ret = [self._wrapper(x) for x in entries]
-        else:
-            with Pool(self.n_jobs, maxtasksperchild=200) as p:
-                ret = p.map(self._wrapper, entries)
+        for c in Switch(self._n_jobs):
+            if c(0):
+                # Run the actual featurization
+                ret = self.featurize(entries, **kwargs)
+                break
+            if c(1):
+                ret = [self._wrapper(x) for x in entries]
+                break
+            if c():
+                ret = Parallel(n_jobs=self._n_jobs,
+                               verbose=self._parallel_verbose)(delayed(self._wrapper)(x) for x in entries)
 
         try:
             labels = self.feature_labels
@@ -263,9 +288,9 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
                 return self.featurize(x, **self._kwargs)
             return self.featurize(*x, **self._kwargs)
         except Exception as e:
-            if self.on_errors == 'nan':
+            if self._on_errors == 'nan':
                 return [np.nan] * len(self.feature_labels)
-            elif self.on_errors == 'keep':
+            elif self._on_errors == 'keep':
                 return [e] * len(self.feature_labels)
             else:
                 raise e
@@ -341,15 +366,13 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
     """
 
-    _n_jobs = 1
-
-    def __init__(self, *, featurizers='all', on_errors: str = 'raise'):
+    def __init__(self, *, featurizers: Union[List[str], str] = 'all', on_errors: str = 'raise'):
         """
 
         Parameters
         ----------
-        featurizers: list[str] or 'all'
-            Featurizers that will be used.
+        featurizers
+            Specify which Featurizer(s) will be used.
             Default is 'all'.
         on_errors
             How to handle the exceptions in a feature calculations. Can be 'nan', 'keep', 'raise'.
@@ -377,20 +400,24 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
                 fea.on_errors = val
 
     @property
-    def elapsed(self):
-        return self._timer.elapsed
+    def featurizers(self):
+        return self._featurizers
+
+    @featurizers.setter
+    def featurizers(self, val):
+        if isinstance(val, str):
+            if val != 'all':
+                self._featurizers = (val,)
+            else:
+                self._featurizers = val
+        elif isinstance(val, (tuple, List)):
+            self._featurizers = tuple(val)
+        else:
+            raise ValueError('parameter `featurizers` must be `all`, name of featurizer, or list of name of featurizer')
 
     @property
-    def n_jobs(self):
-        return self._n_jobs
-
-    @n_jobs.setter
-    def n_jobs(self, n_jobs):
-        """Set the number of threads for this """
-        if n_jobs > cpu_count() or n_jobs == -1:
-            self._n_jobs = cpu_count()
-        else:
-            self._n_jobs = n_jobs
+    def elapsed(self):
+        return self._timer.elapsed
 
     def __setattr__(self, key, value):
 
@@ -413,6 +440,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
                     self.__featurizer_sets__.items()])
 
     def _check_input(self, X, y=None, **kwargs):
+
         def _reformat(x):
             if x is None:
                 return x
@@ -435,13 +463,11 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
             if isinstance(x, pd.DataFrame):
                 tmp = set(x.columns) | set(kwargs.keys())
                 if set(keys).isdisjoint(tmp):
-                    raise KeyError(
-                        'name of columns do not match any feature set')
+                    raise KeyError('name of columns do not match any feature set')
                 return x
 
-            raise TypeError(
-                'you can not ues a array-like input'
-                'because there are multiply feature sets or the dim of input is not 1')
+            raise TypeError('you can not ues a array-like input'
+                            'because there are multiply feature sets or the dim of input is not 1')
 
         return _reformat(X), _reformat(y)
 
@@ -457,11 +483,6 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
     def fit(self, X, y=None, **kwargs):
         if not isinstance(X, Iterable):
             raise TypeError('parameter "entries" must be a iterable object')
-        if 'featurizers' in kwargs:
-            featurizers = kwargs['featurizers']
-            if featurizers != 'all' and not isinstance(featurizers, list):
-                raise TypeError('parameter "featurizers" must be a list')
-            self.featurizers = copy(featurizers)
 
         self._rename(**kwargs)
 
@@ -469,7 +490,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         for k, features in self.__featurizer_sets__.items():
             if k in X:
                 for f in features:
-                    if self.featurizers != 'all' and f.__class__.__name__ not in self.featurizers:
+                    if self._featurizers != 'all' and f.__class__.__name__ not in self._featurizers:
                         continue
                     if y is not None and k in y:
                         f.fit(X[k], y[k], **kwargs)
@@ -485,13 +506,6 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         if len(X) is 0:
             return None
 
-        if 'featurizers' in kwargs:
-            featurizers = kwargs['featurizers']
-            if featurizers != 'all' and not isinstance(featurizers, list):
-                raise TypeError('parameter "featurizers" must be a list')
-        else:
-            featurizers = self.featurizers
-
         if 'return_type' in kwargs:
             del kwargs['return_type']
 
@@ -503,7 +517,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
                 k = kwargs[k]
             if k in X:
                 for f in features:
-                    if featurizers != 'all' and f.__class__.__name__ not in featurizers:
+                    if self._featurizers != 'all' and f.__class__.__name__ not in self._featurizers:
                         continue
                     ret = f.transform(X[k], return_type='df', **kwargs)
                     results.append(ret)

@@ -8,12 +8,20 @@ import numpy as np
 
 from xenonpy.descriptor.base import BaseDescriptor, BaseCompositionFeaturizer
 
-__all__ = ['Compositions', 'Counting', 'WeightedAverage', 'WeightedSum', 'WeightedVariance', 'HarmonicMean',
-           'GeometricMean', 'MaxPooling', 'MinPooling']
+__all__ = [
+    'Compositions', 'Counting', 'WeightedAverage', 'WeightedSum',
+    'WeightedVariance', 'HarmonicMean', 'GeometricMean', 'MaxPooling',
+    'MinPooling'
+]
 
 
 class Counting(BaseCompositionFeaturizer):
-    def __init__(self, *, one_hot_vec=False, n_jobs=-1, on_errors='raise', return_type='any'):
+    def __init__(self,
+                 *,
+                 one_hot_vec=False,
+                 n_jobs=-1,
+                 on_errors='raise',
+                 return_type='any'):
         """
 
         Parameters
@@ -38,7 +46,9 @@ class Counting(BaseCompositionFeaturizer):
             Default is ``any``
         """
 
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        super().__init__(n_jobs=n_jobs,
+                         on_errors=on_errors,
+                         return_type=return_type)
         self.one_hot_vec = one_hot_vec
         self._elems = self._elements.index.tolist()
         self.__authors__ = ['TsumiNa']
@@ -82,7 +92,9 @@ class WeightedAverage(BaseCompositionFeaturizer):
             Default is ``any``
         """
 
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        super().__init__(n_jobs=n_jobs,
+                         on_errors=on_errors,
+                         return_type=return_type)
 
     def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
@@ -118,7 +130,9 @@ class WeightedSum(BaseCompositionFeaturizer):
             Default is ``any``
         """
 
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        super().__init__(n_jobs=n_jobs,
+                         on_errors=on_errors,
+                         return_type=return_type)
 
     def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
@@ -154,12 +168,14 @@ class GeometricMean(BaseCompositionFeaturizer):
             Default is ``any``
         """
 
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        super().__init__(n_jobs=n_jobs,
+                         on_errors=on_errors,
+                         return_type=return_type)
 
     def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
         w_ = np.array(nums).reshape(-1, 1)
-        tmp = elems_ ** w_
+        tmp = elems_**w_
         return np.power(tmp.prod(axis=0), 1 / sum(w_))
 
     @property
@@ -191,7 +207,9 @@ class HarmonicMean(BaseCompositionFeaturizer):
             Default is ``any``
         """
 
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        super().__init__(n_jobs=n_jobs,
+                         on_errors=on_errors,
+                         return_type=return_type)
 
     def mix_function(self, elems, nums):
         elems_ = 1 / self._elements.loc[elems, :].values
@@ -229,14 +247,16 @@ class WeightedVariance(BaseCompositionFeaturizer):
             Default is ``any``
         """
 
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        super().__init__(n_jobs=n_jobs,
+                         on_errors=on_errors,
+                         return_type=return_type)
 
     def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
         w_ = nums / np.sum(nums)
         mean_ = w_.dot(elems_)
         var_ = elems_ - mean_
-        return w_.dot(var_ ** 2)
+        return w_.dot(var_**2)
 
     @property
     def feature_labels(self):
@@ -267,7 +287,9 @@ class MaxPooling(BaseCompositionFeaturizer):
             Default is ``any``
         """
 
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        super().__init__(n_jobs=n_jobs,
+                         on_errors=on_errors,
+                         return_type=return_type)
 
     def mix_function(self, elems, _):
         elems_ = self._elements.loc[elems, :]
@@ -302,7 +324,9 @@ class MinPooling(BaseCompositionFeaturizer):
             Default is ``any``
         """
 
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        super().__init__(n_jobs=n_jobs,
+                         on_errors=on_errors,
+                         return_type=return_type)
 
     def mix_function(self, elems, _):
         elems_ = self._elements.loc[elems, :]
@@ -318,9 +342,16 @@ class Compositions(BaseDescriptor):
     Calculate elemental descriptors from compound's composition.
     """
 
-    classic = ['WeightedAverage', 'WeightedSum', 'WeightedVariance', 'MaxPooling', 'MinPooling']
+    classic = [
+        'WeightedAverage', 'WeightedSum', 'WeightedVariance', 'MaxPooling',
+        'MinPooling'
+    ]
 
-    def __init__(self, *, n_jobs: int = -1, featurizers: Union[str, List[str]] = 'classic', on_errors: str = 'nan'):
+    def __init__(self,
+                 *,
+                 n_jobs: int = -1,
+                 featurizers: Union[str, List[str]] = 'classic',
+                 on_errors: str = 'nan'):
         """
 
         Parameters
@@ -347,7 +378,6 @@ class Compositions(BaseDescriptor):
             super().__init__(featurizers=self.classic)
         else:
             super().__init__(featurizers=featurizers)
-        self.n_jobs = n_jobs
 
         self.composition = Counting(n_jobs=n_jobs, on_errors=on_errors)
         self.composition = WeightedAverage(n_jobs=n_jobs, on_errors=on_errors)

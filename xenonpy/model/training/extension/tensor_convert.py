@@ -16,12 +16,14 @@ T_Data = Union[pd.DataFrame, pd.Series, np.ndarray, torch.Tensor]
 
 
 class TensorConverter(BaseExtension):
+
     def __init__(
         self,
         *,
         x_dtype: Union[torch.dtype, Sequence[torch.dtype]] = None,
         y_dtype: Union[torch.dtype, Sequence[torch.dtype]] = None,
         empty_cache: bool = False,
+        auto_reshape: bool = True,
         argmax: bool = False,
     ):
         """
@@ -39,10 +41,13 @@ class TensorConverter(BaseExtension):
             Can be a tuple of ``torch.dtype`` when your **y** is a tuple.
         empty_cache
             See Also: https://pytorch.org/docs/stable/cuda.html#torch.cuda.empty_cache
+        auto_reshape
+            Reshape tensor to (-1, 1) if tensor shape is (n,). Default ``True``.
         argmax
             Apply ``np.argmax(out, 1)`` on the output. This should only be used with classification model.
         """
 
+        self._auto_reshape = auto_reshape
         self._argmax = argmax
         self._empty_cache = empty_cache
         if x_dtype is None:
@@ -65,15 +70,11 @@ class TensorConverter(BaseExtension):
             return self._y_dtype[i]
         return self._y_dtype
 
-    def input_proc(self, x_in: Union[Sequence[Union[torch.Tensor, pd.DataFrame,
-                                                    pd.Series, np.ndarray,
-                                                    Any]], torch.Tensor,
-                                     pd.DataFrame, pd.Series, np.ndarray, Any],
-                   y_in: Union[Sequence[Union[torch.Tensor, pd.DataFrame,
-                                              pd.Series, np.ndarray, Any]],
-                               torch.Tensor, pd.DataFrame, pd.Series,
-                               np.ndarray, Any],
-                   trainer: Trainer) -> Tuple[torch.Tensor, torch.Tensor]:
+    def input_proc(self, x_in: Union[Sequence[Union[torch.Tensor, pd.DataFrame, pd.Series, np.ndarray, Any]],
+                                     torch.Tensor, pd.DataFrame, pd.Series, np.ndarray, Any],
+                   y_in: Union[Sequence[Union[torch.Tensor, pd.DataFrame, pd.Series, np.ndarray,
+                                              Any]], torch.Tensor, pd.DataFrame, pd.Series, np.ndarray,
+                               Any], trainer: Trainer) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Convert data to :class:`torch.Tensor`.
 
@@ -87,6 +88,7 @@ class TensorConverter(BaseExtension):
         Union[Any, Tuple[Any, Any]]
 
         """
+
         def _convert(t, dtype):
             if t is None:
                 return t
@@ -104,21 +106,17 @@ class TensorConverter(BaseExtension):
             if not isinstance(t, torch.Tensor):
                 return t
             # reshape (1,) to (-1, 1)
-            if len(t.size()) == 1 and not self._argmax:
+            if len(t.size()) == 1 and self._auto_reshape:
                 t = t.unsqueeze(1)
             return t.to(trainer.device, non_blocking=trainer.non_blocking)
 
         if isinstance(x_in, Sequence):
-            x_in = tuple([
-                _convert(t, self._get_x_dtype(i)) for i, t in enumerate(x_in)
-            ])
+            x_in = tuple([_convert(t, self._get_x_dtype(i)) for i, t in enumerate(x_in)])
         else:
             x_in = _convert(x_in, self._get_x_dtype())
 
         if isinstance(y_in, Sequence):
-            y_in = tuple([
-                _convert(t, self._get_y_dtype(i)) for i, t in enumerate(y_in)
-            ])
+            y_in = tuple([_convert(t, self._get_y_dtype(i)) for i, t in enumerate(y_in)])
         else:
             y_in = _convert(y_in, self._get_y_dtype())
 
@@ -130,10 +128,8 @@ class TensorConverter(BaseExtension):
 
     def output_proc(
         self,
-        y_pred: Union[Sequence[Union[torch.Tensor, np.ndarray, Any]],
-                      torch.Tensor, Any],
-        y_true: Union[Sequence[Union[torch.Tensor, np.ndarray, Any]],
-                      torch.Tensor, Any, None],
+        y_pred: Union[Sequence[Union[torch.Tensor, np.ndarray, Any]], torch.Tensor, Any],
+        y_true: Union[Sequence[Union[torch.Tensor, np.ndarray, Any]], torch.Tensor, Any, None],
         training: bool,
     ):
         """
@@ -147,6 +143,7 @@ class TensorConverter(BaseExtension):
             Specify whether the model in the training mode.
 
         """
+
         def _convert(y_, cls_=False):
             if y_ is None:
                 return y_
@@ -159,11 +156,9 @@ class TensorConverter(BaseExtension):
         if not training:
             if isinstance(y_pred, tuple):
                 if self._argmax:
-                    return tuple([_convert(t, True)
-                                  for t in y_pred]), _convert(y_true)
+                    return tuple([_convert(t, True) for t in y_pred]), _convert(y_true)
                 else:
-                    return tuple([_convert(t)
-                                  for t in y_pred]), _convert(y_true)
+                    return tuple([_convert(t) for t in y_pred]), _convert(y_true)
             else:
                 if self._argmax:
                     return _convert(y_pred, True), _convert(y_true)

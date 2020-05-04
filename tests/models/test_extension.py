@@ -33,17 +33,19 @@ def test_base_runner_1():
     assert ext.input_proc(x, y) == (x, y)
     assert ext.output_proc(y, None) == (y, None)
 
-    x, y = (1, ), 2
+    x, y = (1,), 2
     assert ext.input_proc(x, y) == (x, y)
     assert ext.output_proc(y, None) == (y, None)
 
-    x, y = (1, ), (2, )
+    x, y = (1,), (2,)
     assert ext.input_proc(x, y) == (x, y)
     assert ext.output_proc(y, y) == (y, y)
 
 
 def test_tensor_converter_1():
+
     class _Trainer(BaseRunner):
+
         def __init__(self):
             super().__init__()
             self.non_blocking = False
@@ -52,11 +54,42 @@ def test_tensor_converter_1():
             return x_, y_
 
     trainer = _Trainer()
-    converter = TensorConverter()
-    np_ = np.asarray([[1, 2, 3], [4, 5, 6]])
+    arr_1 = [1, 2, 3]
+    np_1 = np.asarray(arr_1)
+    se_1 = pd.Series(arr_1)
+    pd_1 = pd.DataFrame(arr_1)
+    np_ = np.asarray([arr_1, arr_1])
     pd_ = pd.DataFrame(np_)
     tensor_ = torch.Tensor(np_)
 
+    # test auto reshape; #189
+    converter = TensorConverter(auto_reshape=False)
+    x, y = converter.input_proc(np_1, None, trainer=trainer)  # noqa
+    assert isinstance(x, torch.Tensor)
+    assert x.shape == (3,)
+
+    x, y = converter.input_proc(se_1, None, trainer=trainer)  # noqa
+    assert isinstance(x, torch.Tensor)
+    assert x.shape == (3,)
+
+    x, y = converter.input_proc(pd_1, None, trainer=trainer)  # noqa
+    assert isinstance(x, torch.Tensor)
+    assert x.shape == (3, 1)
+
+    converter = TensorConverter()
+    x, y = converter.input_proc(np_1, None, trainer=trainer)  # noqa
+    assert isinstance(x, torch.Tensor)
+    assert x.shape == (3, 1)
+
+    x, y = converter.input_proc(se_1, None, trainer=trainer)  # noqa
+    assert isinstance(x, torch.Tensor)
+    assert x.shape == (3, 1)
+
+    x, y = converter.input_proc(pd_1, None, trainer=trainer)  # noqa
+    assert isinstance(x, torch.Tensor)
+    assert x.shape == (3, 1)
+
+    # normal tests
     x, y = converter.input_proc(np_, None, trainer=trainer)  # noqa
     assert isinstance(x, torch.Tensor)
     assert x.shape == (2, 3)
@@ -100,8 +133,7 @@ def test_tensor_converter_1():
     assert x[0].dtype == torch.long
     assert x[1].dtype == torch.long
 
-    converter = TensorConverter(x_dtype=(torch.long, torch.float32),
-                                y_dtype=torch.long)
+    converter = TensorConverter(x_dtype=(torch.long, torch.float32), y_dtype=torch.long)
     x, y = converter.input_proc((np_, np_), np_, trainer=trainer)  # noqa
     assert isinstance(x, tuple)
     assert len(x) == 2
@@ -118,8 +150,7 @@ def test_tensor_converter_1():
 
     # for tensor input, dtype change will never be executed
     converter = TensorConverter(x_dtype=(torch.long, torch.long))
-    x, y = converter.input_proc((tensor_, tensor_), tensor_,
-                                trainer=trainer)  # noqa
+    x, y = converter.input_proc((tensor_, tensor_), tensor_, trainer=trainer)  # noqa
     assert isinstance(x, tuple)
     assert len(x) == 2
     assert x[0].dtype == torch.float32
@@ -127,7 +158,9 @@ def test_tensor_converter_1():
 
 
 def test_tensor_converter_2():
+
     class _Trainer(BaseRunner):
+
         def __init__(self):
             super().__init__()
             self.non_blocking = False
@@ -153,7 +186,7 @@ def test_tensor_converter_2():
 
     x, y = converter.input_proc(tensor_, tensor_[0], trainer=trainer)  # noqa
     assert isinstance(y, torch.Tensor)
-    assert y.shape == (3, )
+    assert y.shape == (3,)
     assert torch.equal(y, tensor_[0])
 
 
@@ -175,7 +208,7 @@ def test_tensor_converter_3():
     assert y.shape == (2, 3)
     assert torch.equal(y, tensor_)
 
-    y, _ = converter.output_proc((tensor_, ), None, training=True)
+    y, _ = converter.output_proc((tensor_,), None, training=True)
     assert isinstance(y, tuple)
     assert isinstance(y[0], torch.Tensor)
     assert torch.equal(y[0], tensor_)
@@ -187,7 +220,7 @@ def test_tensor_converter_3():
     assert y.shape == (2, 3)
     assert np.all(y == tensor_.numpy())
 
-    y, _ = converter.output_proc((tensor_, ), None, training=False)
+    y, _ = converter.output_proc((tensor_,), None, training=False)
     assert isinstance(y, tuple)
     assert isinstance(y[0], np.ndarray)
     assert np.all(y[0] == tensor_.numpy())
@@ -196,14 +229,14 @@ def test_tensor_converter_3():
     y, y_ = converter.output_proc(tensor_, tensor_, training=False)
     assert isinstance(y, np.ndarray)
     assert isinstance(y_, np.ndarray)
-    assert y.shape == (2, )
+    assert y.shape == (2,)
     assert y_.shape == (2, 3)
     assert np.all(y == np.argmax(np_, 1))
 
     y, y_ = converter.output_proc((tensor_, tensor_), None, training=False)
     assert isinstance(y, tuple)
     assert y_ is None
-    assert y[0].shape == (2, )
+    assert y[0].shape == (2,)
     assert y[0].shape == y[1].shape
     assert np.all(y[0] == np.argmax(np_, 1))
 
@@ -213,6 +246,7 @@ def test_validator_1():
     y = x + np.random.rand() * 0.001  # true values
 
     class _Trainer(BaseRunner):
+
         def __init__(self):
             super().__init__()
             self.x_val = x
@@ -232,8 +266,8 @@ def test_validator_1():
     val.step_forward(trainer=_Trainer(), step_info=step_info)  # noqa
     assert step_info['val_mae'] == regression_metrics(y, x)['mae']
     assert set(step_info.keys()) == {
-        'i_epoch', 'val_mae', 'val_mse', 'val_rmse', 'val_r2', 'val_pearsonr',
-        'val_spearmanr', 'val_p_value', 'val_max_ae', 'train_loss'
+        'i_epoch', 'val_mae', 'val_mse', 'val_rmse', 'val_r2', 'val_pearsonr', 'val_spearmanr', 'val_p_value',
+        'val_max_ae', 'train_loss'
     }
 
 
@@ -244,6 +278,7 @@ def test_validator_2():
         x[i, j] = 1
 
     class _Trainer(BaseRunner):
+
         def __init__(self):
             super().__init__()
             self.x_val = x
@@ -263,8 +298,8 @@ def test_validator_2():
     val.step_forward(trainer=_Trainer(), step_info=step_info)  # noqa
     assert step_info['val_f1'] == classification_metrics(y, x)['f1']
     assert set(step_info.keys()) == {
-        'i_epoch', 'val_accuracy', 'val_f1', 'val_precision', 'val_recall',
-        'val_macro_f1', 'val_macro_precision', 'val_macro_recall', 'train_loss'
+        'i_epoch', 'val_accuracy', 'val_f1', 'val_precision', 'val_recall', 'val_macro_f1', 'val_macro_precision',
+        'val_macro_recall', 'train_loss'
     }
 
 

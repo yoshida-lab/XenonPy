@@ -47,8 +47,8 @@ class TensorConverter(BaseExtension):
             Apply ``np.argmax(out, 1)`` on the output. This should only be used with classification model.
         """
 
-        self._auto_reshape = auto_reshape
         self._argmax = argmax
+        self._auto_reshape = False if argmax else auto_reshape
         self._empty_cache = empty_cache
         if x_dtype is None:
             self._x_dtype = torch.get_default_dtype()

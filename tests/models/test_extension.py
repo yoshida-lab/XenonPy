@@ -31,9 +31,9 @@ def data():
 
     yield
 
-    rmtree(f'{dir_}/test_model')
-    rmtree(f'{dir_}/test_model@1')
-    rmtree(f'{dir_}/models')
+    rmtree(str(Path('.').resolve() / 'test_model'))
+    rmtree(str(Path('.').resolve() / 'test_model@1'))
+    rmtree(str(Path('.').resolve() / 'models'))
 
     print('test over')
 
@@ -331,7 +331,7 @@ def test_persist_1(data):
         p.path
 
     p.before_proc(trainer=_Trainer())
-    assert p.path == str(Path('.').resolve() / 'models')
+    assert p.path == str(Path('.').resolve() / Path(os.getcwd()).name)
 
     p = Persist('test_model')
     p.before_proc(trainer=_Trainer())

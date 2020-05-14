@@ -3,14 +3,19 @@
 #  license that can be found in the LICENSE file.
 
 from collections import OrderedDict
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
-import torch
+from shutil import rmtree
 
+import torch
+import os
+
+from xenonpy.model import SequentialLinear
 from xenonpy.model.training.base import BaseExtension, BaseRunner
-from xenonpy.model.training.extension import TensorConverter, Validator
+from xenonpy.model.training.extension import TensorConverter, Validator, Persist
 from xenonpy.model.utils import regression_metrics, classification_metrics
 
 
@@ -22,7 +27,13 @@ def data():
     warnings.filterwarnings("ignore", message="numpy.dtype size changed")
     warnings.filterwarnings("ignore", message="numpy.ndarray size changed")
 
+    dir_ = os.path.dirname(os.path.abspath(__file__))
+
     yield
+
+    rmtree(f'{dir_}/test_model')
+    rmtree(f'{dir_}/test_model@1')
+    rmtree(f'{dir_}/models')
 
     print('test over')
 
@@ -301,6 +312,39 @@ def test_validator_2():
         'i_epoch', 'val_accuracy', 'val_f1', 'val_precision', 'val_recall', 'val_macro_f1', 'val_macro_precision',
         'val_macro_recall', 'train_loss'
     }
+
+
+def test_persist_1(data):
+
+    class _Trainer(BaseRunner):
+
+        def __init__(self):
+            super().__init__()
+            self.model = SequentialLinear(50, 2)
+
+        def predict(self, x_, y_):  # noqa
+            return x_, y_
+
+    p = Persist()
+
+    with pytest.raises(ValueError, match='can not access property `path` before training'):
+        p.path
+
+    p.before_proc(trainer=_Trainer())
+    assert p.path == str(Path('.').resolve() / 'models')
+
+    p = Persist('test_model')
+    p.before_proc(trainer=_Trainer())
+    assert p.path == str(Path('.').resolve() / 'test_model')
+
+    assert (Path('.').resolve() / 'test_model' / 'describe.pkl.z').exists()
+    assert (Path('.').resolve() / 'test_model' / 'init_state.pth.s').exists()
+    assert (Path('.').resolve() / 'test_model' / 'model.pth.m').exists()
+    assert (Path('.').resolve() / 'test_model' / 'model_structure.pkl.z').exists()
+
+    p = Persist('test_model', increment=True)
+    p.before_proc(trainer=_Trainer())
+    assert p.path == str(Path('.').resolve() / 'test_model@1')
 
 
 if __name__ == "__main__":

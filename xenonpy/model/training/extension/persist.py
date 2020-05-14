@@ -73,7 +73,9 @@ class Persist(BaseExtension):
 
     @property
     def path(self):
-        return str(self._path)
+        if self._checker is None:
+            raise ValueError('can not access property `path` before training')
+        return str(self._checker.path)
 
     @path.setter
     def path(self, path: Union[Path, str]):
@@ -140,9 +142,8 @@ class Persist(BaseExtension):
         self._checker(describe=self._describe_)
 
     def after_proc(self, trainer: Trainer) -> None:
-        self._describe_.update(
-            finish=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
-            time_elapsed=str(timedelta(seconds=trainer.timer.elapsed)))
+        self._describe_.update(finish=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
+                               time_elapsed=str(timedelta(seconds=trainer.timer.elapsed)))
         self._checker.final_state = trainer.model.state_dict()
         self._checker(
             training_info=trainer.training_info,

@@ -58,7 +58,6 @@ class Persist(BaseExtension):
         self._model_class: Callable = model_class
         self._model_params: Union[list, dict] = model_params
         self.sync_training_step = sync_training_step
-        self.path = path
         self._increment = increment
         self._describe = describe
         self._describe_ = None
@@ -66,22 +65,25 @@ class Persist(BaseExtension):
         self._tmp_args: list = []
         self._tmp_kwargs: dict = {}
         self._epoch_count = 0
+        self.path = path
 
     @property
     def describe(self):
+        if self._checker is None:
+            raise ValueError('can not access property `describe` before training')
         return self._checker.describe
 
     @property
     def path(self):
-        return str(self._path)
+        if self._checker is None:
+            raise ValueError('can not access property `path` before training')
+        return str(self._checker.path)
 
     @path.setter
     def path(self, path: Union[Path, str]):
-        if path == '.':
-            path = Path(path).resolve()
-            self._path = path / path.name
-        else:
-            self._path = Path(path).resolve()
+        if self._checker is not None:
+            raise ValueError('can not reset property `path` after training')
+        self._path = path
 
     @property
     def model_structure(self):
@@ -140,9 +142,8 @@ class Persist(BaseExtension):
         self._checker(describe=self._describe_)
 
     def after_proc(self, trainer: Trainer) -> None:
-        self._describe_.update(
-            finish=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
-            time_elapsed=str(timedelta(seconds=trainer.timer.elapsed)))
+        self._describe_.update(finish=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
+                               time_elapsed=str(timedelta(seconds=trainer.timer.elapsed)))
         self._checker.final_state = trainer.model.state_dict()
         self._checker(
             training_info=trainer.training_info,

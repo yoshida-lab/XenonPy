@@ -21,16 +21,14 @@ def setup():
     name = 'checker'
     dir_ = os.path.dirname(os.path.abspath(__file__))
     dot = Path()
-    test = dict(
-        name=name,
-        dir_=dir_,
-        cp=dict(model_state=1, b=2),
-        path=f'{dir_}/test/{name}',
-        dot=str(dot),
-        model=LinearLayer(10, 1),
-        np=np.ones((2, 3)),
-        df=pd.DataFrame(np.ones((2, 3)))
-    )
+    test = dict(name=name,
+                dir_=dir_,
+                cp=dict(model_state=1, b=2),
+                path=f'{dir_}/test/{name}',
+                dot=str(dot),
+                model=LinearLayer(10, 1),
+                np=np.ones((2, 3)),
+                df=pd.DataFrame(np.ones((2, 3))))
 
     # ignore numpy warning
     import warnings

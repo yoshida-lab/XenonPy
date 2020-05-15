@@ -27,13 +27,14 @@ class Checker(object):
         dump = torch.save
         load = torch.load
 
-    def __init__(self,
-                 path: Union[Path, str] = '.',
-                 *,
-                 increment: bool = False,
-                 device: Union[bool, str, torch.device] = 'cpu',
-                 default_handle: Tuple[Callable, str] = (joblib, '.pkl.z'),
-                 ):
+    def __init__(
+            self,
+            path: Union[Path, str] = '.',
+            *,
+            increment: bool = False,
+            device: Union[bool, str, torch.device] = 'cpu',
+            default_handle: Tuple[Callable, str] = (joblib, '.pkl.z'),
+    ):
         """
         Parameters
         ----------
@@ -46,16 +47,17 @@ class Checker(object):
         """
         if path == '.':
             path = Path(path).resolve()
-            path = path / path.name
+            self._path = path / path.name
         else:
-            path = Path(path).resolve()
+            self._path = Path(path).absolute()
         if increment:
             i = 1
             while Path(f'{path}@{i}').exists():
                 i += 1
             path = f'{path}@{i}'
-        self._path = Path(path)
+            self._path = Path(path).absolute()
         self._path.mkdir(parents=True, exist_ok=True)
+        self._path = self._path.resolve()
         self._device = BaseRunner.check_device(device)
         self._handle = default_handle
 

@@ -33,7 +33,7 @@ def data():
 
     rmtree(str(Path('.').resolve() / 'test_model'))
     rmtree(str(Path('.').resolve() / 'test_model@1'))
-    rmtree(str(Path('.').resolve() / 'models'))
+    rmtree(str(Path('.').resolve() / Path(os.getcwd()).name))
 
     print('test over')
 

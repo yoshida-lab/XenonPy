@@ -49,14 +49,15 @@ class Checker(object):
             path = Path(path).resolve()
             self._path = path / path.name
         else:
-            self._path = Path(path).resolve()
+            self._path = Path(path).absolute()
         if increment:
             i = 1
             while Path(f'{path}@{i}').exists():
                 i += 1
             path = f'{path}@{i}'
-            self._path = Path(path).resolve()
+            self._path = Path(path).absolute()
         self._path.mkdir(parents=True, exist_ok=True)
+        self._path = self._path.resolve()
         self._device = BaseRunner.check_device(device)
         self._handle = default_handle
 

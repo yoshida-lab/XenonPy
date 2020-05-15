@@ -332,6 +332,8 @@ def test_persist_1(data):
 
     p.before_proc(trainer=_Trainer())
     assert p.path == str(Path('.').resolve() / Path(os.getcwd()).name)
+    with pytest.raises(ValueError, match='can not reset property `path` after training'):
+        p.path = 'aa'
 
     p = Persist('test_model')
     p.before_proc(trainer=_Trainer())

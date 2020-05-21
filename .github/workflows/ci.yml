@@ -60,10 +60,6 @@ jobs:
         os: ['macos-latest']
 
     steps:
-      - env:
-          OS: ${{ matrix.os }}
-          PYTHON: ${{ matrix.python-version }}
-
       - uses: actions/checkout@v2
 
       - name: Install Python ${{ matrix.python-version }} on macOS Catalina latest

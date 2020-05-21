@@ -38,6 +38,8 @@ jobs:
 
       - name: Test XenonPy
         shell: bash -l {0}
+        env:
+          api_key: ${{ secrets.api_key }}
         run: |
           pytest --cov=./ --cov-report=xml tests
 
@@ -82,6 +84,8 @@ jobs:
 
       - name: Test XenonPy
         shell: bash -l {0}
+        env:
+          api_key: ${{ secrets.api_key }}
         run: |
           pytest --cov=./ --cov-report=xml tests
 

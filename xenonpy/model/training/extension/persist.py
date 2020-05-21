@@ -26,7 +26,7 @@ class Persist(BaseExtension):
     """
 
     def __init__(self,
-                 path: Union[Path, str] = '.',
+                 path: Union[Path, str] = None,
                  *,
                  model_class: Callable = None,
                  model_params: Union[tuple, dict, any] = None,

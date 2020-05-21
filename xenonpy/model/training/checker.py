@@ -29,7 +29,7 @@ class Checker(object):
 
     def __init__(
             self,
-            path: Union[Path, str] = '.',
+            path: Union[Path, str] = None,
             *,
             increment: bool = False,
             device: Union[bool, str, torch.device] = 'cpu',
@@ -45,19 +45,18 @@ class Checker(object):
             Set to ``True`` to prevent the potential risk of overwriting.
             Default ``False``.
         """
-        if path == '.':
-            path = Path(path).resolve()
+        if path is None:
+            path = Path().resolve()
             self._path = path / path.name
         else:
-            self._path = Path(path).absolute()
+            self._path = Path(path).resolve()
         if increment:
             i = 1
             while Path(f'{path}@{i}').exists():
                 i += 1
-            path = f'{path}@{i}'
-            self._path = Path(path).absolute()
+            self._path = Path(f'{path}@{i}').resolve()
         self._path.mkdir(parents=True, exist_ok=True)
-        self._path = self._path.resolve()
+        # self._path = self._path.resolve()
         self._device = BaseRunner.check_device(device)
         self._handle = default_handle
 

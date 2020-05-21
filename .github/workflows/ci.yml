@@ -16,10 +16,6 @@ jobs:
         os: ['ubuntu-latest', 'windows-latest']
 
     steps:
-      - env:
-          OS: ${{ matrix.os }}
-          PYTHON: ${{ matrix.python-version }}
-
       - uses: actions/checkout@v2
 
       - name: Install Python ${{ matrix.python-version }} on ${{ matrix.os }}
@@ -47,6 +43,9 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
+        env:
+          OS: ${{ matrix.os }}
+          PYTHON: ${{ matrix.python-version }}
         with:
           env_vars: OS,PYTHON
           fail_ci_if_error: false
@@ -92,6 +91,9 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
+        env:
+          OS: ${{ matrix.os }}
+          PYTHON: ${{ matrix.python-version }}
         with:
           env_vars: OS,PYTHON
           fail_ci_if_error: false

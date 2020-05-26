@@ -1,3 +1,4 @@
+name: test
 channels:
   - defaults
   - pytorch
@@ -11,8 +12,7 @@ dependencies:
   - rdkit
   - scikit-learn
   - scipy
-  - pytorch=1.4.0
-  - cpuonly
+  - pytorch=1.5.0
   - pytest
   - pytest-cov
   - pip

@@ -24,6 +24,7 @@ def test_data():
     file_path = Path(__file__).parent
     file_name = 'rename.txt'
     file_url = 'https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/travis/fetch_test.txt'
+    # file_url = 'https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/.github/fetch_test.txt'
 
     # create data
     ary = [[1, 2], [3, 4]]
@@ -37,7 +38,7 @@ def test_data():
     df.to_csv(csv_path)
     df.to_pickle(df_path)
 
-    yield (file_name, file_url, file_path)
+    yield file_name, file_url, file_path
 
     tmp = file_path / file_name
     if tmp.exists():

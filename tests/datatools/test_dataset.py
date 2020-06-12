@@ -23,8 +23,7 @@ def test_data():
 
     file_path = Path(__file__).parent
     file_name = 'rename.txt'
-    file_url = 'https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/travis/fetch_test.txt'
-    # file_url = 'https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/.github/fetch_test.txt'
+    file_url = 'https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/.github/fetch_test.txt'
 
     # create data
     ary = [[1, 2], [3, 4]]

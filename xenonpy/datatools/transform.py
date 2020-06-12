@@ -4,12 +4,9 @@
 
 import numpy as np
 from pandas import DataFrame, Series
-from scipy.special import inv_boxcox, boxcox
-from scipy.stats import boxcox as bc
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.preprocessing import MinMaxScaler, StandardScaler, PowerTransformer as PT
-
-from xenonpy.utils import Switch
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import PowerTransformer as PTran
 
 __all__ = ['PowerTransformer', 'Scaler']
 
@@ -19,7 +16,7 @@ class PowerTransformer(BaseEstimator, TransformerMixin):
     Box-cox transform.
     References
     ----------
-    G.E.P. Box and D.R. Cox, "An Analysis of Transformations",
+    G.E.P. Box and D.R. Cox, “An Analysis of Transformations”,
     Journal of the Royal Statistical Society B, 26, 211-252 (1964).
     """
 
@@ -28,15 +25,15 @@ class PowerTransformer(BaseEstimator, TransformerMixin):
         Parameters
         ----------
         method: 'yeo-johnson' or 'box-cox'
-            'yeo-johnson' works with positive and negative values
-            'box-cox' only works with strictly positive values
+            ‘yeo-johnson’ works with positive and negative values
+            ‘box-cox’ only works with strictly positive values
         standardize: boolean
             Normalize to standard normal or not.
-            Recommend using a sepearate `standard`_ function instead of using this option.
+            Recommend using a separate `standard`_ function instead of using this option.
         lmd: list or 1-dim ndarray
             You might assign each input xs with a specific lmd yourself.
             Leave None(default) to use a inferred value.
-            See `PowerTransformer`_ for detials.
+            See `PowerTransformer`_ for details.
         tolerance: tuple
             Tolerance of lmd. Set None to accept any.
             Default is **(-np.inf, np.inf)** but recommend **(-2, 2)** for Box-cox transform
@@ -46,14 +43,28 @@ class PowerTransformer(BaseEstimator, TransformerMixin):
             **nan** return ``ndarray`` with shape xs.shape filled with``np.nan``.
             **raise** raise a FloatingPointError. You can catch it yourself.
             Default(None) will return the input series without scale transform.
-        .. _PowerTransformer:
-            https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.PowerTransformer.html#sklearn.preprocessing.PowerTransformer
+            
+            .. _PowerTransformer:
+                https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.PowerTransformer.html#sklearn.preprocessing.PowerTransformer
         """
         self._tolerance = tolerance
-        self._pt = PT(method=method, standardize=standardize)
+        self._pt = PTran(method=method, standardize=standardize)
         self._lmd = lmd
         self._shape = None
         self._on_err = on_err
+
+    @staticmethod
+    def _check_type(x):
+        if isinstance(x, list):
+            x = np.array(x, dtype=np.float)
+        elif isinstance(x, (DataFrame, Series)):
+            x = x.values
+        if not isinstance(x, np.ndarray):
+            raise TypeError('parameter `X` should be a `DataFrame`, `Series`, `ndarray` or list object '
+                            'but got {}'.format(type(x)))
+        if len(x.shape) == 1:
+            x = x.reshape(-1, 1)
+        return x
 
     def fit(self, x):
         """
@@ -63,7 +74,7 @@ class PowerTransformer(BaseEstimator, TransformerMixin):
         Returns
         -------
         """
-        x = self._pt._check_input(x)
+        x = self._pt._check_input(self._check_type(x))
 
         # forcing constant column vectors to have no transformation (lambda=1)
         idx = []
@@ -87,10 +98,10 @@ class PowerTransformer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, x):
-        return self._pt.transform(x)
+        return self._pt.transform(self._check_type(x))
 
     def inverse_transform(self, x):
-        return self._pt.inverse_transform(x)
+        return self._pt.inverse_transform(self._check_type(x))
 
 
 class Scaler(BaseEstimator, TransformerMixin):
@@ -99,22 +110,16 @@ class Scaler(BaseEstimator, TransformerMixin):
     """
 
     def __init__(self):
-        """
-        Parameters
-        ----------
-        value: DataFrame
-            Inner data.
-        """
         self._scalers = []
 
     def power_transformer(self, *args, **kwargs):
         return self._scale(PowerTransformer, *args, **kwargs)
 
     def box_cox(self, *args, **kwargs):
-        return self._scale(PowerTransformer, *args, method='box-cox', **kwargs)
+        return self._scale(PowerTransformer, method='box-cox', *args, **kwargs)
 
     def yeo_johnson(self, *args, **kwargs):
-        return self._scale(PowerTransformer, *args, method='yeo-johnson', **kwargs)
+        return self._scale(PowerTransformer, method='yeo-johnson', *args, **kwargs)
 
     def min_max(self, *args, **kwargs):
         return self._scale(MinMaxScaler, *args, **kwargs)
@@ -163,6 +168,7 @@ class Scaler(BaseEstimator, TransformerMixin):
             x = s.inverse_transform(x)
         return x
 
+    # todo: reset is needed?
     def _reset(self):
         """
         Reset internal data-dependent state of the scaler, if necessary.

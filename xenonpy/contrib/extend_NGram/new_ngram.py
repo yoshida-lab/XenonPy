@@ -12,36 +12,10 @@ from rdkit import Chem
 from tqdm import tqdm
 
 from xenonpy.inverse.base import BaseProposal, ProposalError
+from xenonpy.inverse.iqspr.modifier import GetProbError, MolConvertError, NGramTrainingError
 
-
-class GetProbError(ProposalError):
-
-    def __init__(self, tmp_str, i_b, i_r):
-        self.tmp_str = tmp_str
-        self.iB = i_b
-        self.iR = i_r
-        self.old_smi = None
-
-        super().__init__('get_prob: %s not found in NGram, iB=%i, iR=%i' % (tmp_str, i_b, i_r))
-
-
-class MolConvertError(ProposalError):
-    def __init__(self, new_smi):
-        self.new_smi = new_smi
-        self.old_smi = None
-
-        super().__init__('can not convert %s to Mol' % new_smi)
-
-
-class NGramTrainingError(ProposalError):
-    def __init__(self, error, smi):
-        self.old_smi = smi
-
-        super().__init__('training failed for %s, because of <%s>: %s' % (smi, error.__class__.__name__, error))
-
-
-class NGram(BaseProposal):
-    def __init__(self, *, ngram_tab=None, sample_order=(1, 10), del_range=(1, 10), min_len = 1, max_len=1000, reorder_prob=0, post_processing=None):
+class new_NGram(BaseProposal):
+    def __init__(self, *, ngram_tab=None, sample_order=(1, 10), del_range=(1, 10), min_len = 1, max_len=1000, reorder_prob=0, post_proc=None):
         """
         N-Garm
 
@@ -62,7 +36,7 @@ class NGram(BaseProposal):
             max length of the extended SMILES to be terminated from continuing modification
         reorder_prob: float
             probability of the SMILES being reordered during proposal
-        post_processing: function
+        post_proc: function
             function for SMILES post-processing.
             skip post-processing if None.
         """
@@ -72,7 +46,7 @@ class NGram(BaseProposal):
         self.min_len = min_len
         self.max_len = max_len
         self.del_range = del_range
-        self.post_processing = post_processing
+        self.post_proc = post_proc
 
         if ngram_tab is None:
             self._table = None
@@ -582,11 +556,17 @@ class NGram(BaseProposal):
             except Exception as e:
                 raise e
 
-        if self.post_processing is not None:
-            for i in range(len(new_smis)):
-                new_smis[i] = self.post_processing(new_smis[i])
+        post_smis = []
+        if self.post_proc is not None:
+            for i, smi in enumerate(new_smis):
+                try:
+                    post_smi = self.post_proc(smi)
+                    post_smis.append(post_smi)
+                    print("post-processed")
+                except:
+                    print("cannot post-process: "+smi)
 
-        return new_smis
+        return [new_smis,post_smis]
 
     def _merge_table(self, ngram_tab, weight=1):
         """

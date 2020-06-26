@@ -14,7 +14,13 @@ from tqdm import tqdm
 from xenonpy.inverse.base import BaseProposal, ProposalError
 from xenonpy.inverse.iqspr.modifier import GetProbError, MolConvertError, NGramTrainingError
 
-class new_NGram(BaseProposal):
+class PostProcessingError(ProposalError):
+    def __init__(self, smi):
+        self.old_smi = smi
+
+        super().__init__('post-processing failed for %s, use unprocessed one instead' % smi)
+
+class NewNGram(BaseProposal):
     def __init__(self, *, ngram_tab=None, sample_order=(1, 10), del_range=(1, 10), min_len = 1, max_len=1000, reorder_prob=0, post_proc=None):
         """
         N-Garm
@@ -36,7 +42,7 @@ class new_NGram(BaseProposal):
             max length of the extended SMILES to be terminated from continuing modification
         reorder_prob: float
             probability of the SMILES being reordered during proposal
-        post_proc: function
+        post_proc: post_proc(smi: str) -> str
             function for SMILES post-processing.
             skip post-processing if None.
         """
@@ -161,6 +167,8 @@ class new_NGram(BaseProposal):
         if isinstance(error, GetProbError):
             return error.old_smi
         if isinstance(error, MolConvertError):
+            return error.old_smi
+        if isinstance(error, PostProcessingError):
             return error.old_smi
         if isinstance(error, NGramTrainingError):
             pass
@@ -562,11 +570,16 @@ class new_NGram(BaseProposal):
                 try:
                     post_smi = self.post_proc(smi)
                     post_smis.append(post_smi)
-                    print("post-processed")
-                except:
-                    print("cannot post-process: "+smi)
 
-        return [new_smis,post_smis]
+                except ProposalError as e:
+                    e.old_smi = smi
+                    post_smi = self.on_errors(e)
+                    post_smis.append(post_smi)
+
+                except Exception as e:
+                    raise e
+            new_smis = post_smis
+        return new_smis
 
     def _merge_table(self, ngram_tab, weight=1):
         """

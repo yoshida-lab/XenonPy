@@ -209,7 +209,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         """
         Featurize a list of entries.
         If `featurize` takes multiple inputs, supply inputs as a list of tuples.
-        
+
         Args
         ----
         entries: list-like
@@ -382,7 +382,8 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
             The default is 'raise' which will raise up the exception.
         """
         self.__featurizers__ = set()
-        self.__featurizer_sets__: DefaultDict[str, List[BaseFeaturizer]] = defaultdict(list)
+        self.__featurizer_sets__: DefaultDict[str,
+                                              List[BaseFeaturizer]] = defaultdict(list)
         self.featurizers = featurizers
         self.on_errors = on_errors
 
@@ -413,7 +414,8 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         elif isinstance(val, (tuple, List)):
             self._featurizers = tuple(val)
         else:
-            raise ValueError('parameter `featurizers` must be `all`, name of featurizer, or list of name of featurizer')
+            raise ValueError(
+                'parameter `featurizers` must be `all`, name of featurizer, or list of name of featurizer')
 
     @property
     def elapsed(self):
@@ -423,11 +425,13 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
         if key == '__featurizer_sets__':
             if not isinstance(value, defaultdict):
-                raise RuntimeError('Can not set "self.__featurizer_sets__" by yourself')
+                raise RuntimeError(
+                    'Can not set "self.__featurizer_sets__" by yourself')
             super().__setattr__(key, value)
         if isinstance(value, BaseFeaturizer):
             if value.__class__.__name__ in self.__featurizers__:
-                raise RuntimeError('Duplicated featurizer <%s>' % value.__class__.__name__)
+                raise RuntimeError('Duplicated featurizer <%s>' %
+                                   value.__class__.__name__)
             self.__featurizer_sets__[key].append(value)
             self.__featurizers__.add(value.__class__.__name__)
         else:
@@ -435,8 +439,8 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
     def __repr__(self):
         return self.__class__.__name__ + ':\n' + \
-               '\n'.join(
-                   ['  |- %s:\n  |  |- %s' % (k, '\n  |  |- '.join(map(lambda s: s.__class__.__name__, v))) for k, v in
+            '\n'.join(
+                ['  |- %s:\n  |  |- %s' % (k, '\n  |  |- '.join(map(lambda s: s.__class__.__name__, v))) for k, v in
                     self.__featurizer_sets__.items()])
 
     def _check_input(self, X, y=None, **kwargs):
@@ -463,7 +467,8 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
             if isinstance(x, pd.DataFrame):
                 tmp = set(x.columns) | set(kwargs.keys())
                 if set(keys).isdisjoint(tmp):
-                    raise KeyError('name of columns do not match any feature set')
+                    raise KeyError(
+                        'name of columns do not match any feature set')
                 return x
 
             raise TypeError('you can not ues a array-like input'

@@ -41,6 +41,7 @@ def test_data():
     yield file_name, file_url, file_path
 
     tmp = file_path / file_name
+
     if tmp.exists():
         remove(str(tmp))
 

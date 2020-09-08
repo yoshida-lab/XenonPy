@@ -4,7 +4,7 @@ from rdkit import Chem
 from xenonpy.descriptor.base import BaseFeaturizer, BaseDescriptor
 from xenonpy.contrib.ismd import ReactantPool
 import numpy as np
-
+import pandas as pd
 
 class ReactionDescriptor(BaseFeaturizer):
 
@@ -29,21 +29,26 @@ class ReactionDescriptor(BaseFeaturizer):
         self.reactor = reactor
         self.pool = reactant_pool
         self.output = None
-
-    def featurize(self, x):
+    
+    def product_validation(self, product):
+        if Chem.MolFromSmiles(product) is not None:
+            return True
+        else:
+            return False
+        
+        
+    def featurize(self, samples):
         # reacte input reactants to product
-        reactant = self.pool.index2reactant(x)
-        _, product = self.reactor.react(reactant)
-        valid_product = [p for p in product if Chem.MolFromSmiles(p) is not None]
-        n_substitute = len(x) - len(valid_product)
-        substitute = np.random.choice(a=valid_product, size=n_substitute)
-        valid_product = np.concatenate((valid_product,substitute),axis=0)
+        samples["reactant_SMILES"] = self.pool.index2reactant(samples)
+        _, samples["product"] = self.reactor.react(samples["reactant_SMILES"])
+        samples["validate"] = list(map(self.product_validation, samples["product"]))
+        self.df = samples
+        valid_product = samples["product"].loc[samples["validate"]==True]        
         # transform input to descriptor dataframe
-        self.output = self.FP.transform(valid_product)
-
-        return self.output
+        product_FP = self.FP.transform(valid_product)
+        # print(x_df.loc[x_df["validate"]==False])
+        return product_FP
 
     @property
     def feature_labels(self):
-        # column names based on xenonpy frozen featurizer setting
-        return self.output.columns
+        return None

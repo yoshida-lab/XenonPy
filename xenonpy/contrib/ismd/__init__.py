@@ -2,7 +2,8 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-__all__ = ['Reactor', 'ReactionDescriptor','ReactantPool','ISMD']
+__all__ = ['GaussianLogLikelihood','Reactor', 'ReactionDescriptor','ReactantPool','ISMD']
+from .estimator import GaussianLogLikelihood
 from .reactant_pool import ReactantPool
 from .reactor import Reactor
 from .reaction_descriptor import ReactionDescriptor

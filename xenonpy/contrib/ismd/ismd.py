@@ -2,8 +2,6 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-# import necessary libraries
-
 import numpy as np
 import pandas as pd
 
@@ -27,7 +25,7 @@ class ISMD(BaseSMC):
         self._log_likelihood = estimator
 
     def resample(self, samples, size, p):
-        resample = samples.sample(n=size,replace=True,weights=p)["reactant_index"]
+        resample = samples.sample(n=size, replace=True, weights=p)["reactant_index"]
         return pd.DataFrame(resample).reset_index(drop=True)
 
     @property
@@ -45,7 +43,7 @@ class ISMD(BaseSMC):
     @estimator.setter
     def estimator(self, value):
         self._log_likelihood = value
-    
+
     def unique(self, samples):
         """
 
@@ -62,5 +60,5 @@ class ISMD(BaseSMC):
             The number of times each of the unique values comes up in the original array
         """
         unique_reactant, frequency = np.unique(samples["reactant_index"], return_counts=True)
-        unique_samples = pd.DataFrame({"reactant_index":unique_reactant})
+        unique_samples = pd.DataFrame({"reactant_index": unique_reactant})
         return unique_samples, frequency

@@ -17,6 +17,7 @@ from xenonpy.inverse.base import BaseLogLikelihood
 
 
 class GaussianLogLikelihood(BaseLogLikelihood):
+
     def __init__(self, descriptor: Union[BaseFeaturizer, BaseDescriptor], *, targets={}, **estimators: BaseEstimator):
         """
         Gaussian loglikelihood.
@@ -151,6 +152,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
 
     # log_likelihood returns a dataframe of log-likelihood values of each property & sample
     def log_likelihood(self, smis, *, log_0=-1000.0, **targets):
+
         def _avoid_overflow(ll_):
             # log(exp(log(UP) - log(C)) - exp(log(LOW) - log(C))) + log(C)
             # where C = max(log(UP), max(LOW))

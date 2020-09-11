@@ -1,14 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Dec  6 14:46:32 2019
-
-@author: qizhang
-"""
+#  Copyright (c) 2019. yoshida-lab. All rights reserved.
+#  Use of this source code is governed by a BSD-style
+#  license that can be found in the LICENSE file.
 from onmt.translate.translator import build_translator
 
 
-class transformer_parameters:
+class TransformerParameters:
+
     def __init__(self,
                  alpha=0.0,
                  attn_debug=False,
@@ -89,12 +86,17 @@ class transformer_parameters:
 
 
 class Reactor():
+
     def __init__(self, batch_size=128):
         self.batch_size = batch_size
 
-    def BuildReactor(self, model_list=[], max_length=100, n_best=1, gpu=-1):
-        opt = transformer_parameters(batch_size=self.batch_size, max_length=max_length,
-                                     n_best=n_best, gpu=gpu, models=model_list, src=None)
+    def build_reactor(self, model_list=[], max_length=100, n_best=1, gpu=-1):
+        opt = TransformerParameters(batch_size=self.batch_size,
+                                    max_length=max_length,
+                                    n_best=n_best,
+                                    gpu=gpu,
+                                    models=model_list,
+                                    src=None)
         self.model = build_translator(opt, report_score=False)
 
     def smi_tokenizer(self, smi):
@@ -105,7 +107,11 @@ class Reactor():
         pattern = "(\[[^\]]+]|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|\.|=|#|-|\+|\\\\|\/|:|~|@|\?|>|\*|\$|\%[0-9]{2}|[0-9])"
         regex = re.compile(pattern)
         tokens = [token for token in regex.findall(smi)]
-        assert smi == ''.join(tokens), smi
+        try:
+            smi == ''.join(tokens), smi
+        except:
+            print("invalid SMILES")
+
         return ' '.join(tokens)
 
     def react(self, reactants):
@@ -116,7 +122,10 @@ class Reactor():
             rs_list = " . ".join(rs_list)
             new_samples.append(rs_list)
 
-        [all_scores, all_predictions] = self.model.translate(
-            src_data_iter=new_samples, tgt_path=None, src_dir='', batch_size=self.batch_size, attn_debug=False)
+        (all_scores, all_predictions) = self.model.translate(src_data_iter=new_samples,
+                                                             tgt_path=None,
+                                                             src_dir='',
+                                                             batch_size=self.batch_size,
+                                                             attn_debug=False)
         all_predictions = [p[0].replace(" ", "") for p in all_predictions]
         return all_scores, all_predictions

@@ -35,27 +35,28 @@ See our documents for details: http://xenonpy.readthedocs.io
 
 ## XenonPy images
 
-XenonPy images packed a lot of useful packages for materials informatics using.
+[XenonPy base images](https://hub.docker.com/repository/docker/yoshidalab/base) packed a lot of useful packages for materials informatics using.
 The following table list some core packages in XenonPy images.
 
 | Package        | Version    |
 | -------------- | ---------- |
-| `PyTorch`      | 1.4.0      |
-| `tensorly`     | 0.4.4      |
-| `pymatgen`     | 2020.3.13  |
+| `PyTorch`      | 1.6.0      |
+| `tensorly`     | 0.5.0      |
+| `pymatgen`     | 2020.10.9  |
 | `matminer`     | 0.6.2      |
 | `mordred`      | 1.2.0      |
-| `scipy`        | 1.4.1      |
-| `scikit-learn` | 0.22.2     |
-| `xgboost`      | 1.0.0      |
+| `scipy`        | 1.5.2      |
+| `scikit-learn` | 0.23.0     |
+| `xgboost`      | 1.3.0      |
 | `ngboost`      | master     |
 | `fastcluster`  | 1.1.26     |
-| `pandas`       | 1.0.3      |
+| `pandas`       | 1.1.3      |
 | `rdkit`        | 2019.03.3  |
 | `jupyter`      | 1.0.0      |
-| `seaborn`      | 0.10.0     |
-| `matplotlib`   | 3.2.1      |
-| `plotly`       | 4.5.4      |
+| `seaborn`      | 0.11.0     |
+| `matplotlib`   | 3.3.2      |
+| `plotly`       | 4.11.0     |
+| `ipympl`       | 0.5.8      |
 
 ## Requirements
 
@@ -93,10 +94,10 @@ Docker image tags .
 
 | Image tag | CUDA | PyTorch |
 | --------- | ---- | ------- |
-| `latest`  | 10.1 | 1.4.0   |
-| `cpu`     | None | 1.4.0   |
-| `cuda10`  | 10.1 | 1.4.0   |
-| `cuda9`   | 9.2  | 1.4.0   |
+| `latest`  | 10.1 | 1.6.0   |
+| `cpu`     | None | 1.6.0   |
+| `cuda10`  | 10.1 | 1.6.0   |
+| `cuda9`   | 9.2  | 1.6.0   |
 
 ### Running XenonPy
 

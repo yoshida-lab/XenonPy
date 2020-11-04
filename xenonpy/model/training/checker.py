@@ -121,11 +121,19 @@ class Checker(object):
         if (self._path / 'model.pth.m').exists():
             model = torch.load(str(self._path / 'model.pth.m'), map_location=self._device)
             state = self.final_state
+   
             if state is not None:
-                model.load_state_dict(state)
+                try:
+                    model.load_state_dict(state)
+                except torch.nn.modules.module.ModuleAttributeError:
+                    # pytorch 1.6.0 compatability
+                    for k, m in model.named_modules():
+                        m._non_persistent_buffers_set = set()
+                    model.load_state_dict(state)
                 return model
             else:
                 return model
+        print("here: return None")
         return None
 
     @model.setter
@@ -257,6 +265,7 @@ class Checker(object):
             sub_set = self.__class__(self._path / name, increment=False, device=self._device)
             setattr(self, f'{name}', sub_set)
             return sub_set
+        
         raise AttributeError(f'no such attribute named {name}')
 
     def __getitem__(self, item):

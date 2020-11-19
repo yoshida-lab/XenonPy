@@ -28,6 +28,8 @@ class FrozenFeaturizerDescriptor(BaseFeaturizer):
         # fix n_jobs to be 0 to skip automatic wrapper in XenonPy BaseFeaturizer class
         super().__init__(n_jobs=0, on_errors=on_errors, return_type=return_type)
         self.FP = descriptor_calculator
+        self.FP.on_errors = on_errors
+        self.FP.return_type = return_type
         self.ff = frozen_featurizer
         self.output = None
         self.__authors__ = ['Stephen Wu', 'TsumiNa']

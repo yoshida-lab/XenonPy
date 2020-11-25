@@ -85,9 +85,17 @@ Code contributions are also very welcomed. See :doc:`contribution` for more deta
 .. _PyTorch: http://pytorch.org/
 .. _Xenon: https://en.wikipedia.org/wiki/Xenon
 
-.. |github-action| image:: https://travis-ci.org/yoshida-lab/XenonPy.svg?branch=master
-    :alt: Build Status
-    :target: https://travis-ci.org/yoshida-lab/XenonPy
+.. |MacOS| image:: https://github.com/yoshida-lab/XenonPy/workflows/MacOS/badge.svg
+    :alt: MacOS Building Status
+    :target: https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AMacOS
+
+.. |Windows| image:: https://github.com/yoshida-lab/XenonPy/workflows/Windows/badge.svg
+    :alt: Windows Building Status
+    :target: https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AWindows
+
+.. |Ubuntu| image:: https://github.com/yoshida-lab/XenonPy/workflows/Ubuntu/badge.svg
+    :alt: Ubuntu Building Status
+    :target: https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AUbuntu
 
 .. |travis-ci| image:: https://travis-ci.org/yoshida-lab/XenonPy.svg?branch=master
     :alt: PYPI Status

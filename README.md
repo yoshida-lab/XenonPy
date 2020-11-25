@@ -41,7 +41,7 @@ The following table list some core packages in XenonPy images.
 
 | Package        | Version    |
 | -------------- | ---------- |
-| `PyTorch`      | 1.6.0      |
+| `PyTorch`      | 1.7.0      |
 | `tensorly`     | 0.5.0      |
 | `pymatgen`     | 2020.10.9  |
 | `matminer`     | 0.6.2      |

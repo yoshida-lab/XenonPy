@@ -34,7 +34,7 @@ jobs:
       - name: Install XenonPy
         shell: bash -l {0}
         run: |
-          pip install -e .
+          pip install .
 
       - name: Test XenonPy
         shell: bash -l {0}

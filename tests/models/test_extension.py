@@ -338,7 +338,6 @@ def test_persist_1(data):
     p = Persist('test_model')
     p.before_proc(trainer=_Trainer())
     assert p.path == str(Path('.').resolve() / 'test_model')
-
     assert (Path('.').resolve() / 'test_model' / 'describe.pkl.z').exists()
     assert (Path('.').resolve() / 'test_model' / 'init_state.pth.s').exists()
     assert (Path('.').resolve() / 'test_model' / 'model.pth.m').exists()
@@ -347,6 +346,10 @@ def test_persist_1(data):
     p = Persist('test_model', increment=True)
     p.before_proc(trainer=_Trainer())
     assert p.path == str(Path('.').resolve() / 'test_model@1')
+    assert (Path('.').resolve() / 'test_model@1' / 'describe.pkl.z').exists()
+    assert (Path('.').resolve() / 'test_model@1' / 'init_state.pth.s').exists()
+    assert (Path('.').resolve() / 'test_model@1' / 'model.pth.m').exists()
+    assert (Path('.').resolve() / 'test_model@1' / 'model_structure.pkl.z').exists()
 
 
 if __name__ == "__main__":

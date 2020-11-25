@@ -178,6 +178,7 @@ def test_base_descriptor_1(data):
 
     # test n_jobs
     assert bd.elapsed == 0
+    assert bd.feature_labels is None
 
     # test featurizers list
     assert hasattr(bd, '__featurizers__')
@@ -192,6 +193,9 @@ def test_base_descriptor_2(data):
     assert len(bd.all_featurizers) == 3
     assert 'g1' in bd.__featurizer_sets__
     assert 'g2' in bd.__featurizer_sets__
+    assert bd.feature_labels == (('g1', ['label1', 'label2']), ('g2', [
+        'label3',
+    ]))
 
     assert bd.on_errors == 'raise'
     assert bd.__featurizer_sets__['g1'][0].on_errors == 'raise'
@@ -218,6 +222,15 @@ def test_base_descriptor_4(data):
 
     with pytest.raises(RuntimeError):
         FakeDescriptor()
+
+    class FakeDescriptor(BaseDescriptor):
+
+        def __init__(self):
+            super().__init__()
+            self.g1 = ff()
+
+    bd = FakeDescriptor()
+    assert bd.feature_labels == ['label1']
 
 
 def test_base_descriptor_5(data):

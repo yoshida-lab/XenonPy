@@ -1,0 +1,54 @@
+name: MacOS
+
+on: [push, pull_request]
+
+env:
+  MPLBACKEN: 'Agg'
+
+jobs:
+  test_macos:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        python-version: [3.6, 3.7]
+        os: ['macos-latest']
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Python ${{ matrix.python-version }} on ${{ matrix.os }}
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          auto-update-conda: true
+          auto-activate-base: false
+          activate-environment: test
+          environment-file: .github/config/macos_env.yml
+          python-version: ${{ matrix.python-version }}
+
+      - name: Check conda env
+        shell: bash -l {0}
+        run: .github/workflows/check_env.sh
+
+      - name: Install XenonPy
+        shell: bash -l {0}
+        run: |
+          pip install -e .
+
+      - name: Test XenonPy
+        shell: bash -l {0}
+        env:
+          api_key: ${{ secrets.api_key }}
+        run: |
+          pytest --cov=./ --cov-report=xml tests
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        env:
+          OS: ${{ matrix.os }}
+          PYTHON: ${{ matrix.python-version }}
+        with:
+          env_vars: OS,PYTHON
+          fail_ci_if_error: false
+

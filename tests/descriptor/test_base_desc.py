@@ -178,7 +178,9 @@ def test_base_descriptor_1(data):
 
     # test n_jobs
     assert bd.elapsed == 0
-    assert bd.feature_labels is None
+
+    with pytest.raises(NotImplementedError, match='no featurizers'):
+        bd.feature_labels
 
     # test featurizers list
     assert hasattr(bd, '__featurizers__')

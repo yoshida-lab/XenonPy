@@ -534,7 +534,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         """
 
         if len(self.__featurizers__) == 0:
-            return None
+            raise NotImplementedError("no featurizers")
 
         ret = ()
         for k, features in self.__featurizer_sets__.items():

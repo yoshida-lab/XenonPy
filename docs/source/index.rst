@@ -8,7 +8,7 @@
 What is XenonPy project
 ========================
 
-|travis-ci| |cirrus-ci| |appveyor| |codecov| |version| |python| |total-dl| |per-dl|
+|github-action| |travis-ci| |codecov| |version| |python| |total-dl| |per-dl|
 
 --------
 Overview
@@ -85,17 +85,21 @@ Code contributions are also very welcomed. See :doc:`contribution` for more deta
 .. _PyTorch: http://pytorch.org/
 .. _Xenon: https://en.wikipedia.org/wiki/Xenon
 
+.. |MacOS| image:: https://github.com/yoshida-lab/XenonPy/workflows/MacOS/badge.svg
+    :alt: MacOS Building Status
+    :target: https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AMacOS
+
+.. |Windows| image:: https://github.com/yoshida-lab/XenonPy/workflows/Windows/badge.svg
+    :alt: Windows Building Status
+    :target: https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AWindows
+
+.. |Ubuntu| image:: https://github.com/yoshida-lab/XenonPy/workflows/Ubuntu/badge.svg
+    :alt: Ubuntu Building Status
+    :target: https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AUbuntu
+
 .. |travis-ci| image:: https://travis-ci.org/yoshida-lab/XenonPy.svg?branch=master
-    :alt: Build Status
+    :alt: PYPI Status
     :target: https://travis-ci.org/yoshida-lab/XenonPy
-
-.. |cirrus-ci| image:: https://api.cirrus-ci.com/github/yoshida-lab/XenonPy.svg?branch=master
-    :alt: Build Status
-    :target: https://cirrus-ci.com/github/yoshida-lab/XenonPy?branch=master
-
-.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/vnh350xqffp6t9nk/branch/master?svg=true
-    :alt: Build Status
-    :target: https://ci.appveyor.com/project/TsumiNa/xenonpy
 
 .. |codecov| image:: https://codecov.io/gh/yoshida-lab/XenonPy/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/yoshida-lab/XenonPy

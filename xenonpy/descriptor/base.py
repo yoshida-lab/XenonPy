@@ -6,8 +6,9 @@ from abc import ABCMeta, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable
 from copy import copy
+import itertools
 from multiprocessing import cpu_count
-from typing import DefaultDict, List, Sequence, Union
+from typing import DefaultDict, List, Sequence, Union, Set
 from joblib import Parallel, delayed
 
 import numpy as np
@@ -381,7 +382,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
             When 'keep', return a column with exception objects.
             The default is 'raise' which will raise up the exception.
         """
-        self.__featurizers__ = set()
+        self.__featurizers__: Set[str] = set()  # featurizers' names
         self.__featurizer_sets__: DefaultDict[str, List[BaseFeaturizer]] = defaultdict(list)
         self.featurizers = featurizers
         self.on_errors = on_errors
@@ -523,6 +524,25 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
                     results.append(ret)
 
         return pd.concat(results, axis=1)
+
+    @property
+    def feature_labels(self):
+        """
+        Generate attribute names.
+        Returns:
+            ([str]) attribute labels.
+        """
+
+        if len(self.__featurizers__) == 0:
+            raise NotImplementedError("no featurizers")
+
+        ret = ()
+        for k, features in self.__featurizer_sets__.items():
+            ret += ((k, list(itertools.chain.from_iterable([f.feature_labels for f in features]))),)
+
+        if len(ret) == 1:
+            return ret[0][1]
+        return ret
 
 
 class BaseCompositionFeaturizer(BaseFeaturizer, metaclass=ABCMeta):

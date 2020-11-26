@@ -52,4 +52,4 @@ __author_email__ = package_info.author_email
 __maintainer__ = package_info.maintainer
 __maintainer_email__ = package_info.maintainer_email
 __github_username__ = package_info.github_username
-__cfg_root__ = str(Path.home() / ('.' + __pkg_name__))
+__cfg_root__ = str(Path.home().resolve() / ('.' + __pkg_name__))

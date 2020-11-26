@@ -46,15 +46,15 @@ class Checker(object):
             Default ``False``.
         """
         if path is None:
-            path = Path().resolve()
-            self._path = path / path.name
+            path = Path().cwd().name
+            self._path = Path.cwd() / path
         else:
-            self._path = Path(path).resolve()
+            self._path = Path.cwd() / path
         if increment:
             i = 1
             while Path(f'{path}@{i}').exists():
                 i += 1
-            self._path = Path(f'{path}@{i}').resolve()
+            self._path = Path.cwd() / f'{path}@{i}'
         self._path.mkdir(parents=True, exist_ok=True)
         # self._path = self._path.resolve()
         self._device = BaseRunner.check_device(device)
@@ -121,7 +121,7 @@ class Checker(object):
         if (self._path / 'model.pth.m').exists():
             model = torch.load(str(self._path / 'model.pth.m'), map_location=self._device)
             state = self.final_state
-   
+
             if state is not None:
                 try:
                     model.load_state_dict(state)
@@ -265,7 +265,7 @@ class Checker(object):
             sub_set = self.__class__(self._path / name, increment=False, device=self._device)
             setattr(self, f'{name}', sub_set)
             return sub_set
-        
+
         raise AttributeError(f'no such attribute named {name}')
 
     def __getitem__(self, item):

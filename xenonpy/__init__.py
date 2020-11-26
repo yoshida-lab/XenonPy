@@ -25,8 +25,8 @@ def __init(force=False):
     from sys import version_info
     from pathlib import Path
 
-    if version_info[0] != 3 or version_info[1] < 5:
-        raise SystemError("Python version must be greater than or equal to 3.5")
+    if version_info[0] != 3 or version_info[1] < 6:
+        raise SystemError("Python version must be greater than or equal to 3.6")
 
     yaml = YAML(typ='safe')
     yaml.indent(mapping=2, sequence=4, offset=2)

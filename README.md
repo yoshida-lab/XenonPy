@@ -4,9 +4,10 @@
 
 # XenonPy project
 
+[![MacOS](https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AMacOS)](https://github.com/yoshida-lab/XenonPy/workflows/MacOS/badge.svg)
+[![Windows](https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AWindows)](https://github.com/yoshida-lab/XenonPy/workflows/Windows/badge.svg)
+[![Ubuntu](https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AUbuntu)](https://github.com/yoshida-lab/XenonPy/workflows/Ubuntu/badge.svg)
 [![Build Status](https://travis-ci.org/yoshida-lab/XenonPy.svg?branch=master)](https://travis-ci.org/yoshida-lab/XenonPy)
-[![Build Status](https://api.cirrus-ci.com/github/yoshida-lab/XenonPy.svg?branch=master)](https://cirrus-ci.com/github/yoshida-lab/XenonPy)
-[![Build status](https://ci.appveyor.com/api/projects/status/vnh350xqffp6t9nk/branch/master?svg=true)](https://ci.appveyor.com/project/TsumiNa/xenonpy/branch/master)
 [![codecov](https://codecov.io/gh/yoshida-lab/XenonPy/branch/master/graph/badge.svg)](https://codecov.io/gh/yoshida-lab/XenonPy)
 [![Version](https://img.shields.io/github/tag/yoshida-lab/XenonPy.svg?maxAge=360)](https://github.com/yoshida-lab/XenonPy/releases/latest)
 [![Python Versions](https://img.shields.io/pypi/pyversions/xenonpy.svg)](https://pypi.org/project/xenonpy/)
@@ -40,7 +41,7 @@ The following table list some core packages in XenonPy images.
 
 | Package        | Version    |
 | -------------- | ---------- |
-| `PyTorch`      | 1.6.0      |
+| `PyTorch`      | 1.7.0      |
 | `tensorly`     | 0.5.0      |
 | `pymatgen`     | 2020.10.9  |
 | `matminer`     | 0.6.2      |
@@ -55,6 +56,7 @@ The following table list some core packages in XenonPy images.
 | `jupyter`      | 1.0.0      |
 | `seaborn`      | 0.11.0     |
 | `matplotlib`   | 3.3.2      |
+| `OpenNMT-py`   | 1.2.0      |
 | `plotly`       | 4.11.0     |
 | `ipympl`       | 0.5.8      |
 

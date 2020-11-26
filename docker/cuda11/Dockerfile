@@ -1,4 +1,4 @@
-FROM yoshidalab/base:aiida
+FROM yoshidalab/base:cuda11
 
 # install xenonpy locally
 WORKDIR /opt/xenonpy

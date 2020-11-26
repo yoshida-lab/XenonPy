@@ -8,7 +8,7 @@
 What is XenonPy project
 ========================
 
-|github-action| |travis-ci| |codecov| |version| |python| |total-dl| |per-dl|
+|MacOS| |Windows| |Ubuntu| |travis-ci| |codecov| |version| |python| |total-dl| |per-dl|
 
 --------
 Overview

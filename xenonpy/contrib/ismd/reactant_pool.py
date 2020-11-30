@@ -25,6 +25,10 @@ class InvaidIndexError(ProposalError):
 
         super().__init__('input: {} is not a valid index'.format(discarded_index))
 
+class ColNameError(ProposalError):
+    
+    def _init_(self, *, col_name="", df_name=""):
+        super()._init__("{} does not have column named: {}".format(col_name, df_name))
 
 class ReactantPool(BaseProposal):
 
@@ -55,6 +59,9 @@ class ReactantPool(BaseProposal):
             sample_product_smiles_col : the column name of product SMILES in sample dataframe
             splitter : string used for concatenating reactant in a reactant set.
         """
+        if pool_smiles_col not in pool_df:
+            raise ColNameError(col_name=pool_smiles_col, df_name="pool_df")
+            
         if sim_id_in_pool is not None:
             self._pool_df = pool_df.set_index(sim_id_in_pool)
         else:

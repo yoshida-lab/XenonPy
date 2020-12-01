@@ -30,6 +30,11 @@ class NotSquareError(ProposalError):
     def __init__(self, n_row=0, n_col=0):
         super().__init__("dataframe of shape {} * {} is not square".format(n_row, n_col))
 
+class SimPoolnotmatchError(ProposalError):
+    
+    def __init__(self, n_pool=0, n_sim=0):
+        super().__init__("reactant pool with length {} dose not match the size of similarity matrix of size {} * {}".format(n_pool, n_sim, n_sim))
+
 class ReactantPool(BaseProposal):
 
     def __init__(self,
@@ -61,6 +66,9 @@ class ReactantPool(BaseProposal):
         """
         if len(sim_df) != len(sim_df.columns):
             raise NotSquareError(len(sim_df), len(sim_df.columns))
+        
+        if len(pool_df) != len(sim_df):
+            raise SimPoolnotmatchError(len(pool_df), len(sim_df))
             
         if sim_id_in_pool is not None:
             self._pool_df = pool_df.set_index(sim_id_in_pool)

@@ -25,10 +25,10 @@ class InvaidIndexError(ProposalError):
 
         super().__init__('input: {} is not a valid index'.format(discarded_index))
 
-class ColNameError(ProposalError):
+class NotSquareError(ProposalError):
     
-    def _init_(self, *, col_name="", df_name=""):
-        super()._init__("{} does not have column named: {}".format(col_name, df_name))
+    def __init__(self, n_row=0, n_col=0):
+        super().__init__("dataframe of shape {} * {} is not square".format(n_row, n_col))
 
 class ReactantPool(BaseProposal):
 
@@ -40,7 +40,7 @@ class ReactantPool(BaseProposal):
                  pool_smiles_col='SMILES',
                  sim_id_in_pool=None,
                  sample_reactant_idx_col='reactant_idx',
-                 sample_reactant_idx_old_col='reactant_idx_old',
+                 #sample_reactant_idx_old_col='reactant_idx_old',
                  sample_reactant_smiles_col='reactant_smiles',
                  sample_product_smiles_col='product_smiles',
                  splitter='.'):
@@ -54,13 +54,13 @@ class ReactantPool(BaseProposal):
             pool_smiles_col : the column name of reactant SMILES in the pool_df,
             sim_id_in_pool : the column name of id in pool_df corresponding to sim_df, if None, use index.
             sample_reactant_idx_col : the column name of reactant id in sample dataframe.
-            sample_reactant_idx_old_col : the column name of old reactant id in sample dataframe, copied from sample_reactant_idx_col before proposal.
+            #sample_reactant_idx_old_col : the column name of old reactant id in sample dataframe, copied from sample_reactant_idx_col before proposal.
             sample_reactant_smiles_col : the column name of reactant SMILES in sample dataframe
             sample_product_smiles_col : the column name of product SMILES in sample dataframe
             splitter : string used for concatenating reactant in a reactant set.
         """
-        if pool_smiles_col not in pool_df:
-            raise ColNameError(col_name=pool_smiles_col, df_name="pool_df")
+        if len(sim_df) != len(sim_df.columns):
+            raise NotSquareError(len(sim_df), len(sim_df.columns))
             
         if sim_id_in_pool is not None:
             self._pool_df = pool_df.set_index(sim_id_in_pool)
@@ -71,7 +71,7 @@ class ReactantPool(BaseProposal):
         self._pool_smiles_col = pool_smiles_col
         #self._sim_id_in_pool = sim_id_in_pool
         self._sample_reactant_idx_col = sample_reactant_idx_col
-        self._sample_reactant_idx_old_col = sample_reactant_idx_old_col
+        #self._sample_reactant_idx_old_col = sample_reactant_idx_old_col
         self._sample_reactant_smiles_col = sample_reactant_smiles_col
         self._sample_product_smiles_col = sample_product_smiles_col
         self._splitter = splitter
@@ -162,7 +162,7 @@ class ReactantPool(BaseProposal):
         Returns:
             sample_df : sample dataframe 
         """
-        sample_df[self._sample_reactant_idx_old_col] = sample_df[self._sample_reactant_idx_col]
+        #sample_df[self._sample_reactant_idx_old_col] = sample_df[self._sample_reactant_idx_col]
         old_list = [list(r) for r in sample_df[self._sample_reactant_idx_col]]  #ugly
         sample_df[self._sample_reactant_idx_col] = [self.single_propopsal(reactant) for reactant in old_list]
         sample_df[self._sample_reactant_smiles_col] = [

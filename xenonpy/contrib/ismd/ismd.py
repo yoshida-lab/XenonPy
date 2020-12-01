@@ -54,10 +54,9 @@ class IQSPR4DF(BaseSMC):
         unique_counts: np.ndarray of int
             The number of times each of the unique values comes up in the original array
         """
-        X_unique = X.drop_duplicates(subset=[self._sample_col], keep='first')
+        X_unique = X.drop_duplicates(subset=self._sample_col, keep='first').reset_index(drop=True)
         count_dic = X[self._sample_col].value_counts().reindex(index=X_unique[self._sample_col])
-        count = list(count_dic)
-        return X_unique, count
+        return X_unique, list(count_dic)
 
     def __call__(self, samples, beta, *, size=None, sample_col=None, yield_lpf=False):
         """
@@ -95,9 +94,9 @@ class IQSPR4DF(BaseSMC):
             size = samples.shape[0]
 
         if sample_col is None:
-            self._sample_col = samples.columns.tolist()[0]
+            self._sample_col = samples.columns.tolist()
         else:
-            self._sample_col = sample_col
+            self._sample_col = [sample_col]
         samples = samples.reset_index(drop=True)
 
         #         if targets:

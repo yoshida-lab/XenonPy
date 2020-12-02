@@ -8,47 +8,47 @@ from xenonpy.inverse.base import BaseProposal, ProposalError
 import random
 
 
-class IndexOutError(ProposalError):
+class ReactantNotInPoolError(ProposalError):
 
-    def __init__(self, *, discarded_index="", pool_list=[]):
-        self.discarded_index = discarded_index
-        self.modified_index = str(random.choices(pool_list, k=1)[0])
+    def __init__(self, r_id):
+        super().__init__("reactant id {} is not in the reactant pool".format(r_id))
 
-        super().__init__('index: {} if out of reactant pool bound: {}'.format(discarded_index, len(self.pool_list)))
-
-
-class InvaidIndexError(ProposalError):
-
-    def __init__(self, *, discarded_index="", pool_list=[]):
-        self.discarded_index = discarded_index
-        self.modified_index = str(random.choices(pool_list, k=1)[0])
-
-        super().__init__('input: {} is not a valid index'.format(discarded_index))
 
 class NotSquareError(ProposalError):
-    
+
     def __init__(self, n_row=0, n_col=0):
         super().__init__("dataframe of shape {} * {} is not square".format(n_row, n_col))
 
+
 class SimPoolnotmatchError(ProposalError):
-    
+
     def __init__(self, n_pool=0, n_sim=0):
-        super().__init__("reactant pool with length {} dose not match the size of similarity matrix of size {} * {}".format(n_pool, n_sim, n_sim))
+        super().__init__(
+            "reactant pool with length {} dose not match the size of similarity matrix of size {} * {}".format(
+                n_pool, n_sim, n_sim))
+
+
+class NoSampleError(ProposalError):
+
+    def __init__(self):
+        super().__init__("sample is empty")
+
 
 class ReactantPool(BaseProposal):
 
-    def __init__(self,
-                 *,
-                 pool_df=None,
-                 sim_df=None,
-                 reactor=None,
-                 pool_smiles_col='SMILES',
-                 sim_id_in_pool=None,
-                 sample_reactant_idx_col='reactant_idx',
-                 #sample_reactant_idx_old_col='reactant_idx_old',
-                 sample_reactant_smiles_col='reactant_smiles',
-                 sample_product_smiles_col='product_smiles',
-                 splitter='.'):
+    def __init__(
+            self,
+            *,
+            pool_df=None,
+            sim_df=None,
+            reactor=None,
+            pool_smiles_col='SMILES',
+            sim_id_in_pool=None,
+            sample_reactant_idx_col='reactant_idx',
+            #sample_reactant_idx_old_col='reactant_idx_old',
+            sample_reactant_smiles_col='reactant_smiles',
+            sample_product_smiles_col='product_smiles',
+            splitter='.'):
         """
         A module consists the reactant pool for proposal
         ----------
@@ -66,10 +66,10 @@ class ReactantPool(BaseProposal):
         """
         if len(sim_df) != len(sim_df.columns):
             raise NotSquareError(len(sim_df), len(sim_df.columns))
-        
+
         if len(pool_df) != len(sim_df):
             raise SimPoolnotmatchError(len(pool_df), len(sim_df))
-            
+
         if sim_id_in_pool is not None:
             self._pool_df = pool_df.set_index(sim_id_in_pool)
         else:
@@ -84,22 +84,6 @@ class ReactantPool(BaseProposal):
         self._sample_product_smiles_col = sample_product_smiles_col
         self._splitter = splitter
 
-    def on_errors(self, error):
-        """
-
-        Parameters
-        ----------
-        error: ProposalError
-            Error object.
-        Returns
-        -------
-
-        """
-        if isinstance(error, IndexOutError):
-            return error.modified_index
-        if isinstance(error, InvaidIndexError):
-            return error.modified_index
-
     def single_index2reactant(self, reactant) -> str:
         """
         convert a list of index to string concatenated by the splitter.
@@ -110,8 +94,8 @@ class ReactantPool(BaseProposal):
             reactant_smiles : reactant SMILES concatenated by the splitter (e.g. CC(C)Br.COc1ccc(C=O)cc1O)
         """
         r_list = [self._pool_df.iloc[r][self._pool_smiles_col] for r in reactant]
-        reactant_smiles = self._splitter.join(r_list)
-        return reactant_smiles
+        #reactant_smiles = self._splitter.join(r_list)
+        return self._splitter.join(r_list)
 
     def index2sim(self, r_idx_old):
         """
@@ -122,6 +106,8 @@ class ReactantPool(BaseProposal):
         Returns:
             r_idx_new : an id of reactant similar to r_idx_old (e.g. 9980)
         """
+        if r_idx_old not in self._pool_df.index:
+            raise ReactantNotInPoolError(r_idx_old)
         sim_col = self._sim_df[[r_idx_old]].drop(r_idx_old)
         sim_col = sim_col.loc[sim_col[r_idx_old] != 0]
         if len(sim_col) > 0:
@@ -142,20 +128,6 @@ class ReactantPool(BaseProposal):
         modify_idx = random.choice(list(range(len(reactant))))
         r_idx_old = reactant[modify_idx]
         r_idx_new = self.index2sim(r_idx_old)
-        # =============================================================================
-        #         try:
-        #             if not discarded_index.isnumeric():
-        #                 raise InvaidIndexError(discarded_index, self.pool[self.index_column].tolist())
-        #             if int(discarded_index) >= len(self.pool):
-        #                 raise IndexOutError(discarded_index, self.pool[self.index_column].tolist())
-        #             reactant_idx_new = self.index2sim(reactant_idx_old)
-        #         except ProposalError as e:
-        #             modified_index = self.on_errors(e)
-        #
-        #         except Exception as e:
-        #             raise e
-        #
-        # =============================================================================
         reactant[modify_idx] = r_idx_new
         return reactant
 
@@ -170,8 +142,10 @@ class ReactantPool(BaseProposal):
         Returns:
             sample_df : sample dataframe 
         """
+        if len(sample_df) == 0:
+            raise NoSampleError()
         #sample_df[self._sample_reactant_idx_old_col] = sample_df[self._sample_reactant_idx_col]
-        old_list = [list(r) for r in sample_df[self._sample_reactant_idx_col]]  #ugly
+        old_list = [list(r) for r in sample_df[self._sample_reactant_idx_col]]
         sample_df[self._sample_reactant_idx_col] = [self.single_propopsal(reactant) for reactant in old_list]
         sample_df[self._sample_reactant_smiles_col] = [
             self.single_index2reactant(id_str) for id_str in sample_df[self._sample_reactant_idx_col]

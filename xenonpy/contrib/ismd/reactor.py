@@ -15,6 +15,30 @@ import onmt.model_builder
 import onmt.modules
 
 
+class SMILESInvalidError(Exception):
+
+    def __init__(self, smi):
+        super().__init__("SMILES {} is not tokenizable.".format(smi))
+
+
+def smi_tokenizer(smi) -> str:
+    """
+    Tokenize a SMILES molecule or reaction
+    ----------
+    Parameters:
+        smi : SMILES
+    Returns:
+        tokenized SMILES
+    """
+    import re
+    pattern = "(\[[^\]]+]|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|\.|=|#|-|\+|\\\\|\/|:|~|@|\?|>|\*|\$|\%[0-9]{2}|[0-9])"
+    regex = re.compile(pattern)
+    tokens = [token for token in regex.findall(smi)]
+    if smi != ''.join(tokens):
+        raise SMILESInvalidError(smi)
+    return ' '.join(tokens)
+
+
 class Reactor():
 
     def __init__(self, model: Translator):
@@ -26,22 +50,6 @@ class Reactor():
         """
         self._model = model
 
-    def smi_tokenizer(self, smi) -> str:
-        """
-        Tokenize a SMILES molecule or reaction
-        ----------
-        Parameters:
-            smi : SMILES
-        Returns:
-            tokenized SMILES
-        """
-        import re
-        pattern = "(\[[^\]]+]|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|\.|=|#|-|\+|\\\\|\/|:|~|@|\?|>|\*|\$|\%[0-9]{2}|[0-9])"
-        regex = re.compile(pattern)
-        tokens = [token for token in regex.findall(smi)]
-        assert smi == ''.join(tokens)
-        return ' '.join(tokens)
-
     def react(self, reactant_list, batch_size=64) -> list:
         """
         Tokenize a SMILES molecule or reaction
@@ -51,11 +59,11 @@ class Reactor():
         Returns:
             product_list: all_predictions is a list of `batch_size` lists of `n_best` predictions
         """
-        reactant_token_list = [self.smi_tokenizer(s) for s in reactant_list]
+        reactant_token_list = [smi_tokenizer(s) for s in reactant_list]
         _, product_list = self._model.translate(src=reactant_token_list,
-                                               src_dir='',
-                                               batch_size=batch_size,
-                                               attn_debug=False)
+                                                src_dir='',
+                                                batch_size=batch_size,
+                                                attn_debug=False)
         product_list = [s[0].replace(' ', '') for s in product_list]
 
         return product_list

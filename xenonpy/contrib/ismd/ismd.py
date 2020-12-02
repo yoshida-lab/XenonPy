@@ -3,9 +3,11 @@ import pandas as pd
 
 from xenonpy.inverse.base import BaseSMC, BaseProposal, BaseLogLikelihood
 
+
 class SMCError(Exception):
     """Base exception for SMC classes"""
     pass
+
 
 class IQSPR4DF(BaseSMC):
 

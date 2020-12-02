@@ -7,6 +7,12 @@ from typing import Union
 from xenonpy.descriptor.base import BaseFeaturizer, BaseDescriptor
 
 
+class NoSample2FeatureError(Exception):
+
+    def __init__(self):
+        super().__init__("sample for featurization is empty.")
+
+
 class ReactionDescriptor(BaseFeaturizer):
 
     def __init__(self,
@@ -33,6 +39,8 @@ class ReactionDescriptor(BaseFeaturizer):
         self.__authors__ = ['Stephen Wu', 'TsumiNa']
 
     def featurize(self, x):
+        if len(x) == 0:
+            raise NoSample2FeatureError()
         target_col = self.target_col
         if target_col is None:
             target_col = x.columns[0]

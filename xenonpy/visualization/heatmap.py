@@ -97,6 +97,10 @@ class DescriptorHeatmap(BaseEstimator):
         ax.cax.set_visible(False)
         ax.ax_heatmap.yaxis.set_ticks_position('left')
         ax.ax_heatmap.yaxis.set_label_position('left')
+        try:
+            index_ = ax.dendrogram_col.reordered_ind
+        except AttributeError:
+            index_ = np.arange(ax.data2d.shape[1])
 
         if y is None:
             ax.ax_col_dendrogram.set_position((0.1, 0.8, 0.9, 0.1))
@@ -114,3 +118,5 @@ class DescriptorHeatmap(BaseEstimator):
             ax.set_xlabel('{:s}'.format(y.name), fontsize='large')
         if self.save:
             plt.savefig(**self.save)
+            
+        return index_

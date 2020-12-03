@@ -58,7 +58,7 @@ class IQSPR4DF(BaseSMC):
         """
         X_unique = X.drop_duplicates(subset=self._sample_col, keep='first').reset_index(drop=True)
         count_dic = X[self._sample_col].value_counts().reindex(index=X_unique[self._sample_col])
-        return X_unique, list(count_dic)
+        return X_unique, count_dic.tolist()
 
     def __call__(self, samples, beta, *, size=None, sample_col=None, yield_lpf=False):
         """
@@ -98,7 +98,7 @@ class IQSPR4DF(BaseSMC):
         if sample_col is None:
             self._sample_col = samples.columns.tolist()
         else:
-            self._sample_col = [sample_col]
+            self._sample_col = sample_col
         samples = samples.reset_index(drop=True)
 
         #         if targets:

@@ -16,10 +16,10 @@ from xenonpy.contrib.ismd import ReactionDescriptor
 def test_reactantpool_sim_shape():
 
     mol_featurizer = Fingerprints(featurizers=['ECFP', 'MACCS'], input_type='smiles', on_errors='nan')
-    RD = ReactionDescriptor(descriptor_calculator=mol_featurizer,
+    rd = ReactionDescriptor(descriptor_calculator=mol_featurizer,
                             return_type='df',
                             target_col="product_smiles",
                             on_errors='nan')
     init_samples = pd.DataFrame({'reactant_idx': [], 'reactant_smiles': [], 'product_smiles': []})
     with pytest.raises(NoSample2FeatureError):
-        RD.featurize(init_samples)
+        rd.featurize(init_samples)

@@ -24,3 +24,4 @@ dependencies:
       - matminer
       - pymatgen>=2020.10.9
       - tqdm
+      - OpenNMT-py==1.2

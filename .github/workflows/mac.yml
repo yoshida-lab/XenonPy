@@ -1,6 +1,12 @@
 name: MacOS
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request_target:
+    branches:
+      - main
 
 env:
   MPLBACKEN: 'Agg'
@@ -51,4 +57,3 @@ jobs:
         with:
           env_vars: OS,PYTHON
           fail_ci_if_error: false
-

@@ -3,10 +3,10 @@ name: Ubuntu
 on:
   push:
     branches:
-      - main
+      - master
   pull_request_target:
     branches:
-      - main
+      - master
 
 env:
   MPLBACKEN: 'Agg'

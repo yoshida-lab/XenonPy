@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-pwd
-ls -al
+# pwd
+# ls -al
 
 python --version
 python -c "import numpy; print('numpy %s' % numpy.__version__)"

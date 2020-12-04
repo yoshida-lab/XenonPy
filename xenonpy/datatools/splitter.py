@@ -82,11 +82,10 @@ class Splitter(BaseEstimator):
             else:
                 self._train = self._sample_size
         else:
-            self._train, self._test = train_test_split(
-                self._sample_size,
-                test_size=self._test_size,
-                random_state=random_state,
-                shuffle=self._shuffle)
+            self._train, self._test = train_test_split(self._sample_size,
+                                                       test_size=self._test_size,
+                                                       random_state=random_state,
+                                                       shuffle=self._shuffle)
 
         if isinstance(self._k_fold, int):
             cv = KFold(n_splits=self._k_fold, shuffle=self._shuffle, random_state=random_state)
@@ -99,13 +98,18 @@ class Splitter(BaseEstimator):
                 train = tmp[tmp != g].index.values
                 self._cv_indices.append((train, val))
 
-    def _size_check(self, array):
+    def _check_input(self, array):
+        if isinstance(array, (list, tuple)):
+            array = np.asarray(array)
         if not isinstance(array, (np.ndarray, pd.DataFrame, pd.Series)):
             raise TypeError(
-                f'<arrays> must be numpy.ndarray, pandas.DataFrame, or pandas.Series but got {array.__class__}.')
+                f'<arrays> must be list, numpy.ndarray, pandas.DataFrame, or pandas.Series but got {array.__class__}.'
+            )
         if array.shape[0] != self.size:
             raise ValueError(
-                f'parameters <arrays> must have size {self.size} for dim 0 but got {array.shape[0]}')
+                f'parameters <arrays> must have size {self.size} for dim 0 but got {array.shape[0]}'
+            )
+        return array
 
     @staticmethod
     def _split(array, *idx):
@@ -158,7 +162,7 @@ class Splitter(BaseEstimator):
             else:
                 ret = []
                 for array in arrays:
-                    self._size_check(array)
+                    array = self._check_input(array)
                     if self._test is not None:
                         ret.extend(self._split(array, train, val, self._test))
                     else:
@@ -181,7 +185,7 @@ class Splitter(BaseEstimator):
         -------
         tuple
             List containing split of inputs. if inputs are None, only return
-            the indices of split. if ``test_size`` is 0, test data/index will
+            the indices of splits. if ``test_size`` is 0, test data/index will
             not return.
         """
         if self._test is None:
@@ -192,6 +196,6 @@ class Splitter(BaseEstimator):
 
         ret = []
         for array in arrays:
-            self._size_check(array)
+            array = self._check_input(array)
             ret.extend(self._split(array, self._train, self._test))
         return tuple(ret)

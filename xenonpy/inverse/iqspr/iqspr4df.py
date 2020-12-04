@@ -9,11 +9,11 @@ import numpy as np
 from xenonpy.inverse.base import BaseSMC, BaseProposal, BaseLogLikelihood
 
 
-class IQSPR(BaseSMC):
+class IQSPR4DF(BaseSMC):
 
-    def __init__(self, *, estimator, modifier, r_ESS=1):
+    def __init__(self, *, estimator, modifier, r_ESS=1, sample_col=None):
         """
-        SMC iqspr runner (assume data type of samples = list or np.array).
+        SMC iqspr runner (assume data type of samples = pd.DataFrame).
 
         Parameters
         ----------
@@ -27,16 +27,46 @@ class IQSPR(BaseSMC):
             As 1 <= ESS <= sample_size, picking any r_ESS < 1/sample_size will lead to never resample;
             picking any r_ESS >= 1 will lead to always resample.
             Default is 1, i.e., resample at each step of SMC.
+        sample_col : list or str
+            Name(s) of columns that will be used to extract unique samples in the unique function.
+            Default is None, which means all columns are used.
         """
         self._proposal = modifier
         self._log_likelihood = estimator
         self._r_ESS = r_ESS
+        if isinstance(sample_col, str):
+            self.sample_col = [sample_col]
+        else:
+            self.sample_col = sample_col
 
     def resample(self, sims, freq, size, p):
         if np.sum(np.power(p, 2)) <= (self._r_ESS*np.sum(freq)):
-            return np.random.choice(sims, size=size, p=p)
+            return sims.sample(n=size, replace=True, weights=p).reset_index(drop=True)
         else:
-            return [item for item, count in zip(sims, freq) for i in range(count)]
+            return sims.loc[sims.index.repeat(freq), :].reset_index(drop=True)
+
+    def unique(self, X):
+        """
+
+        Parameters
+        ----------
+        X: pd.DataFrame
+            Input samples.
+
+        Returns
+        -------
+        unique: pd.DataFrame
+            The sorted unique samples.
+        unique_counts: np.ndarray of int
+            The number of times each of the unique values comes up in the original array
+        """
+
+        if self.sample_col is None:
+            sample_col = X.columns.values
+        else:
+            sample_col = self.sample_col
+        uni_X = X.drop_duplicates(subset=sample_col, keep='first').reset_index(drop=True)
+        return uni_X, X[sample_col].value_counts().reindex(index=uni_X.set_index(sample_col).index).values
 
     @property
     def modifier(self):

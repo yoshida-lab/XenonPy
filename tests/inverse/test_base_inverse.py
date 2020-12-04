@@ -29,7 +29,7 @@ def data():
 
     class Resample(BaseResample):
 
-        def resample(self, X, size, p):
+        def resample(self, X, freq, size, p):
             return np.random.choice(X, size, p=p)
 
     class SMC(BaseSMC):
@@ -116,7 +116,7 @@ def test_not_implement():
 
     base = BaseResample()
     with pytest.raises(NotImplementedError):
-        base.resample([1, 2], size=10, p=[.5, .5])
+        base.resample([1, 2], freq=[5, 5], size=10, p=[.5, .5])
 
     base = BaseProposal()
     with pytest.raises(NotImplementedError):

@@ -548,6 +548,7 @@ class NGram(BaseProposal):
     def proposal(self, smiles):
         """
         Propose new SMILES based on the given SMILES.
+        Make sure you always check the train_order against sample_order before using the proposal!
 
         Parameters
         ----------

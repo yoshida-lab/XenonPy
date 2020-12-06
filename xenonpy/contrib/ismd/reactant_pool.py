@@ -3,9 +3,9 @@
 #  license that can be found in the LICENSE file.
 # -*- coding: utf-8 -*-
 
-import numpy as np
 from xenonpy.inverse.base import BaseProposal, ProposalError
 import random
+import pandas as pd
 
 
 class ReactantNotInPoolError(ProposalError):
@@ -116,7 +116,7 @@ class ReactantPool(BaseProposal):
             r_idx_new = random.choices(population=self._sim_df[[r_idx_old]].drop(r_idx_old).index, k=1)[0]
         return r_idx_new
 
-    def single_propopsal(self, reactant):
+    def single_proposal(self, reactant):
         """
         substitute a randomly selected reactant id in reactant by a similar one.
         ----------
@@ -128,8 +128,9 @@ class ReactantPool(BaseProposal):
         modify_idx = random.choice(list(range(len(reactant))))
         r_idx_old = reactant[modify_idx]
         r_idx_new = self.index2sim(r_idx_old)
-        reactant[modify_idx] = r_idx_new
-        return reactant
+        new_reactant = reactant[:]
+        new_reactant[modify_idx] = r_idx_new
+        return new_reactant
 
     def proposal(self, sample_df):
         """
@@ -144,11 +145,13 @@ class ReactantPool(BaseProposal):
         """
         if len(sample_df) == 0:
             raise NoSampleError()
+        new_sample_df = pd.DataFrame(columns=sample_df.columns)
         #sample_df[self._sample_reactant_idx_old_col] = sample_df[self._sample_reactant_idx_col]
         old_list = [list(r) for r in sample_df[self._sample_reactant_idx_col]]
-        sample_df[self._sample_reactant_idx_col] = [self.single_propopsal(reactant) for reactant in old_list]
-        sample_df[self._sample_reactant_smiles_col] = [
-            self.single_index2reactant(id_str) for id_str in sample_df[self._sample_reactant_idx_col]
+        new_sample_df[self._sample_reactant_idx_col] = [self.single_proposal(reactant) for reactant in old_list]
+        new_sample_df[self._sample_reactant_smiles_col] = [
+            self.single_index2reactant(id_str) for id_str in new_sample_df[self._sample_reactant_idx_col]
         ]
-        sample_df[self._sample_product_smiles_col] = self._reactor.react(sample_df[self._sample_reactant_smiles_col])
-        return sample_df
+        new_sample_df[self._sample_product_smiles_col] = self._reactor.react(
+            new_sample_df[self._sample_reactant_smiles_col])
+        return new_sample_df

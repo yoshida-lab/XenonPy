@@ -13,6 +13,12 @@ class NoSample2FeatureError(Exception):
         super().__init__("sample for featurization is empty.")
 
 
+class NoSampleColumnError(Exception):
+
+    def __init__(self, col):
+        super().__init__("input dataframe does not contain column {}".format(col))
+
+
 class ReactionDescriptor(BaseFeaturizer):
 
     def __init__(self,
@@ -41,6 +47,8 @@ class ReactionDescriptor(BaseFeaturizer):
     def featurize(self, x):
         if len(x) == 0:
             raise NoSample2FeatureError()
+        if self.target_col not in x:
+            raise NoSampleColumnError(self.target_col)
         target_col = self.target_col
         if target_col is None:
             target_col = x.columns[0]

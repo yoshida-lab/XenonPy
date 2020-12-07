@@ -100,6 +100,7 @@ class Splitter(BaseEstimator):
 
     def _check_input(self, array):
         if isinstance(array, (list, tuple)):
+            print(type(array))
             array = np.asarray(array)
         if not isinstance(array, (np.ndarray, pd.DataFrame, pd.Series)):
             raise TypeError(

@@ -22,7 +22,11 @@ jobs:
         os: ['ubuntu-18.04', 'ubuntu-latest']
 
     steps:
+    steps:
       - uses: actions/checkout@v2
+            with:
+              ref: ${{github.event.pull_request.head.ref}}
+              repository: ${{github.event.pull_request.head.repo.full_name}}
 
       - name: Install Python ${{ matrix.python-version }} on ${{ matrix.os }}
         uses: conda-incubator/setup-miniconda@v2

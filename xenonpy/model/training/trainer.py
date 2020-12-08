@@ -169,7 +169,9 @@ class Trainer(BaseRunner):
             if isinstance(model, torch.nn.Module):
                 self.reset(to=model)
             else:
-                raise TypeError('parameter `m` must be a instance of <torch.nn.modules> but got %s' % type(model))
+                raise TypeError(
+                    'parameter `m` must be a instance of <torch.nn.modules> but got %s' %
+                    type(model))
 
     @property
     def optimizer(self):
@@ -265,7 +267,8 @@ class Trainer(BaseRunner):
             self._model.load_state_dict(self._init_states)
             self._optimizer.load_state_dict(self._optimizer_state)
         else:
-            raise TypeError(f'parameter <to> must be torch.nnModule, int, or str but got {type(to)}')
+            raise TypeError(
+                f'parameter <to> must be torch.nnModule, int, or str but got {type(to)}')
 
         if remove_checkpoints:
             self._checkpoints = OrderedDict()
@@ -393,18 +396,22 @@ class Trainer(BaseRunner):
         """
         if self._model is None:
             raise RuntimeError(
-                'no model for training, use `trainer.model = <model>` or `trainer.reset(to=<model>)` to set one')
+                'no model for training, use `trainer.model = <model>` or `trainer.reset(to=<model>)` to set one'
+            )
         if self._loss_func is None:
-            raise RuntimeError('no loss function for training, use `trainer.loss_func = <loss_func>` to set one')
+            raise RuntimeError(
+                'no loss function for training, use `trainer.loss_func = <loss_func>` to set one')
         if self._optimizer is None:
-            raise RuntimeError('no optimizer for training, use `trainer.optimizer = <optimizer>` to set one')
+            raise RuntimeError(
+                'no optimizer for training, use `trainer.optimizer = <optimizer>` to set one')
 
         if epochs is None:
             epochs = self._epochs
 
         if training_dataset is not None:
             if y_train is not None or x_train is not None:
-                raise RuntimeError('parameter <training_dataset> is exclusive of <x_train> and <y_train>')
+                raise RuntimeError(
+                    'parameter <training_dataset> is exclusive of <x_train> and <y_train>')
         else:
             if y_train is None or x_train is None:
                 raise RuntimeError('missing parameter <x_train> or <y_train>')
@@ -442,9 +449,9 @@ class Trainer(BaseRunner):
 
             if self._lr_scheduler is not None:
                 if isinstance(self._lr_scheduler, ReduceLROnPlateau):
-                    self._lr_scheduler.step(train_loss, epoch=self._total_epochs)
+                    self._lr_scheduler.step(train_loss)
                 else:
-                    self._lr_scheduler.step(epoch=self._total_its)
+                    self._lr_scheduler.step()
 
             return step_info
 
@@ -462,12 +469,16 @@ class Trainer(BaseRunner):
 
         if validation_dataset is not None:
             if y_val is not None or x_val is not None:
-                raise RuntimeError('parameter <validation_dataset> is exclusive of <x_val> and <y_val>')
+                raise RuntimeError(
+                    'parameter <validation_dataset> is exclusive of <x_val> and <y_val>')
             else:
                 self._validate_dataset = validation_dataset
         else:
             if y_val is not None and x_val is not None:
-                self._x_val, self._y_val = self.input_proc(x_val, y_val, trainer=self, training=False)
+                self._x_val, self._y_val = self.input_proc(x_val,
+                                                           y_val,
+                                                           trainer=self,
+                                                           training=False)
 
         # before processing
         self._before_proc(trainer=self, training=True)
@@ -477,7 +488,10 @@ class Trainer(BaseRunner):
 
                 self._total_epochs += 1
                 for i_batch, (x_train, y_train) in enumerate(training_dataset):
-                    x_train, y_train = self.input_proc(x_train, y_train, trainer=self, training=True)
+                    x_train, y_train = self.input_proc(x_train,
+                                                       y_train,
+                                                       trainer=self,
+                                                       training=True)
                     if not isinstance(x_train, tuple):
                         x_train = (x_train,)
                     yield _step(x_train, y_train, i_batch)
@@ -511,16 +525,16 @@ class Trainer(BaseRunner):
     @classmethod
     @deprecated(reason="will be removed in v1.0.0, please use `Trainer.from_checker` instead")
     def load(
-            cls,
-            from_: Union[str, Path, Checker],
-            *,
-            loss_func: torch.nn.Module = None,
-            optimizer: BaseOptimizer = None,
-            lr_scheduler: BaseLRScheduler = None,
-            clip_grad: Union[ClipNorm, ClipValue] = None,
-            epochs: int = 200,
-            cuda: Union[bool, str, torch.device] = False,
-            non_blocking: bool = False,
+        cls,
+        from_: Union[str, Path, Checker],
+        *,
+        loss_func: torch.nn.Module = None,
+        optimizer: BaseOptimizer = None,
+        lr_scheduler: BaseLRScheduler = None,
+        clip_grad: Union[ClipNorm, ClipValue] = None,
+        epochs: int = 200,
+        cuda: Union[bool, str, torch.device] = False,
+        non_blocking: bool = False,
     ) -> 'Trainer':
         return cls.from_checker(from_,
                                 loss_func=loss_func,
@@ -533,16 +547,16 @@ class Trainer(BaseRunner):
 
     @classmethod
     def from_checker(
-            cls,
-            checker: Union[str, Path, Checker],
-            *,
-            loss_func: torch.nn.Module = None,
-            optimizer: BaseOptimizer = None,
-            lr_scheduler: BaseLRScheduler = None,
-            clip_grad: Union[ClipNorm, ClipValue] = None,
-            epochs: int = 200,
-            cuda: Union[bool, str, torch.device] = False,
-            non_blocking: bool = False,
+        cls,
+        checker: Union[str, Path, Checker],
+        *,
+        loss_func: torch.nn.Module = None,
+        optimizer: BaseOptimizer = None,
+        lr_scheduler: BaseLRScheduler = None,
+        clip_grad: Union[ClipNorm, ClipValue] = None,
+        epochs: int = 200,
+        cuda: Union[bool, str, torch.device] = False,
+        non_blocking: bool = False,
     ) -> 'Trainer':
         """
         Load model for local path or :class:`xenonpy.model.training.Checker`.
@@ -664,8 +678,9 @@ class Trainer(BaseRunner):
             raise RuntimeError('parameters <x_in> and <dataset> are mutually exclusive')
 
     def to_namedtuple(self):
-        return self.results_tuple(total_epochs=self.total_epochs,
-                                  device=self.device,
-                                  training_info=self.training_info,
-                                  checkpoints={k: deepcopy(v.model_state) for k, v in self._checkpoints.items()},
-                                  model=deepcopy(self._model.cpu()))
+        return self.results_tuple(
+            total_epochs=self.total_epochs,
+            device=self.device,
+            training_info=self.training_info,
+            checkpoints={k: deepcopy(v.model_state) for k, v in self._checkpoints.items()},
+            model=deepcopy(self._model.cpu()))

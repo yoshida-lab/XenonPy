@@ -94,9 +94,12 @@ def test_split_3(data):
     sp.split(data[3])
     sp.split(data[5])
 
-    with pytest.raises(TypeError,
-                       match='<arrays> must be numpy.ndarray, pandas.DataFrame, or pandas.Series'):
-        sp.split(['str'])
+    with pytest.raises(
+            TypeError,
+            match=
+            "<arrays> must be list, numpy.ndarray, pandas.DataFrame, or pandas.Series but got <class 'str'>"
+    ):
+        sp.split('illegal data')
 
 
 def test_split_4(data):

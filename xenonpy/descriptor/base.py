@@ -220,7 +220,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         """
         Featurize a list of entries.
         If `featurize` takes multiple inputs, supply inputs as a list of tuples,
-        or use pd.DataFrame with specified target_col as a list.
+        or use pd.DataFrame with parameter ``target_col`` to specify the column name(s).
         
         Args
         ----

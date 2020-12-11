@@ -29,8 +29,8 @@ def data():
 
     X = pg_data['smiles']
     y = pg_data.drop(['smiles', 'Unnamed: 0'], axis=1)
-    ecfp = ECFP(n_jobs=1, input_type='smiles')
-    rdkitfp = RDKitFP(n_jobs=1, input_type='smiles')
+    ecfp = ECFP(n_jobs=1, input_type='smiles', target_col=0)
+    rdkitfp = RDKitFP(n_jobs=1, input_type='smiles', target_col=0)
     bre = GaussianLogLikelihood(descriptor=ecfp)
     bre2 = GaussianLogLikelihood(descriptor=rdkitfp)
     bre.fit(X, y[['bandgap', 'glass_transition_temperature']])

@@ -31,7 +31,7 @@ def data():
 
 
 def test_init_1():
-    with pytest.raises(RuntimeError, match='<test_size> can be none only if <cv> is not none'):
+    with pytest.raises(RuntimeError, match='<test_size> can be zero only if <cv> is not none'):
         Splitter(10, test_size=0, k_fold=None)
 
 

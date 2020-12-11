@@ -21,7 +21,8 @@ class Counting(BaseCompositionFeaturizer):
                  one_hot_vec=False,
                  n_jobs=-1,
                  on_errors='raise',
-                 return_type='any'):
+                 return_type='any',
+                 target_col=None):
         """
 
         Parameters
@@ -44,11 +45,17 @@ class Counting(BaseCompositionFeaturizer):
             ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
             If ``any``, the return type dependent on the input type.
             Default is ``any``
+        target_col
+            Only relevant when input is pd.DataFrame, otherwise ignored.
+            Specify a single column to be used for transformation.
+            If ``None``, all columns of the pd.DataFrame is used.
+            Default is None.
         """
 
         super().__init__(n_jobs=n_jobs,
                          on_errors=on_errors,
-                         return_type=return_type)
+                         return_type=return_type,
+                         target_col=target_col)
         self.one_hot_vec = one_hot_vec
         self._elems = self._elements.index.tolist()
         self.__authors__ = ['TsumiNa']
@@ -69,7 +76,7 @@ class Counting(BaseCompositionFeaturizer):
 
 
 class WeightedAverage(BaseCompositionFeaturizer):
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
+    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
         """
 
         Parameters
@@ -90,11 +97,17 @@ class WeightedAverage(BaseCompositionFeaturizer):
             ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
             If ``any``, the return type dependent on the input type.
             Default is ``any``
+        target_col
+            Only relevant when input is pd.DataFrame, otherwise ignored.
+            Specify a single column to be used for transformation.
+            If ``None``, all columns of the pd.DataFrame is used.
+            Default is None.
         """
 
         super().__init__(n_jobs=n_jobs,
                          on_errors=on_errors,
-                         return_type=return_type)
+                         return_type=return_type,
+                         target_col=target_col)
 
     def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
@@ -107,7 +120,7 @@ class WeightedAverage(BaseCompositionFeaturizer):
 
 
 class WeightedSum(BaseCompositionFeaturizer):
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
+    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
         """
 
         Parameters
@@ -128,11 +141,17 @@ class WeightedSum(BaseCompositionFeaturizer):
             ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
             If ``any``, the return type dependent on the input type.
             Default is ``any``
+        target_col
+            Only relevant when input is pd.DataFrame, otherwise ignored.
+            Specify a single column to be used for transformation.
+            If ``None``, all columns of the pd.DataFrame is used.
+            Default is None.
         """
 
         super().__init__(n_jobs=n_jobs,
                          on_errors=on_errors,
-                         return_type=return_type)
+                         return_type=return_type,
+                         target_col=target_col)
 
     def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
@@ -145,7 +164,7 @@ class WeightedSum(BaseCompositionFeaturizer):
 
 
 class GeometricMean(BaseCompositionFeaturizer):
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
+    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
         """
 
         Parameters
@@ -166,11 +185,17 @@ class GeometricMean(BaseCompositionFeaturizer):
             ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
             If ``any``, the return type dependent on the input type.
             Default is ``any``
+        target_col
+            Only relevant when input is pd.DataFrame, otherwise ignored.
+            Specify a single column to be used for transformation.
+            If ``None``, all columns of the pd.DataFrame is used.
+            Default is None.
         """
 
         super().__init__(n_jobs=n_jobs,
                          on_errors=on_errors,
-                         return_type=return_type)
+                         return_type=return_type,
+                         target_col=target_col)
 
     def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
@@ -184,7 +209,7 @@ class GeometricMean(BaseCompositionFeaturizer):
 
 
 class HarmonicMean(BaseCompositionFeaturizer):
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
+    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
         """
 
         Parameters
@@ -205,11 +230,17 @@ class HarmonicMean(BaseCompositionFeaturizer):
             ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
             If ``any``, the return type dependent on the input type.
             Default is ``any``
+        target_col
+            Only relevant when input is pd.DataFrame, otherwise ignored.
+            Specify a single column to be used for transformation.
+            If ``None``, all columns of the pd.DataFrame is used.
+            Default is None.
         """
 
         super().__init__(n_jobs=n_jobs,
                          on_errors=on_errors,
-                         return_type=return_type)
+                         return_type=return_type,
+                         target_col=target_col)
 
     def mix_function(self, elems, nums):
         elems_ = 1 / self._elements.loc[elems, :].values
@@ -224,7 +255,7 @@ class HarmonicMean(BaseCompositionFeaturizer):
 
 
 class WeightedVariance(BaseCompositionFeaturizer):
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
+    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
         """
 
         Parameters
@@ -245,11 +276,17 @@ class WeightedVariance(BaseCompositionFeaturizer):
             ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
             If ``any``, the return type dependent on the input type.
             Default is ``any``
+        target_col
+            Only relevant when input is pd.DataFrame, otherwise ignored.
+            Specify a single column to be used for transformation.
+            If ``None``, all columns of the pd.DataFrame is used.
+            Default is None.
         """
 
         super().__init__(n_jobs=n_jobs,
                          on_errors=on_errors,
-                         return_type=return_type)
+                         return_type=return_type,
+                         target_col=target_col)
 
     def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
@@ -264,7 +301,7 @@ class WeightedVariance(BaseCompositionFeaturizer):
 
 
 class MaxPooling(BaseCompositionFeaturizer):
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
+    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
         """
 
         Parameters
@@ -285,11 +322,17 @@ class MaxPooling(BaseCompositionFeaturizer):
             ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
             If ``any``, the return type dependent on the input type.
             Default is ``any``
+        target_col
+            Only relevant when input is pd.DataFrame, otherwise ignored.
+            Specify a single column to be used for transformation.
+            If ``None``, all columns of the pd.DataFrame is used.
+            Default is None.
         """
 
         super().__init__(n_jobs=n_jobs,
                          on_errors=on_errors,
-                         return_type=return_type)
+                         return_type=return_type,
+                         target_col=target_col)
 
     def mix_function(self, elems, _):
         elems_ = self._elements.loc[elems, :]
@@ -301,7 +344,7 @@ class MaxPooling(BaseCompositionFeaturizer):
 
 
 class MinPooling(BaseCompositionFeaturizer):
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
+    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
         """
 
         Parameters
@@ -322,11 +365,17 @@ class MinPooling(BaseCompositionFeaturizer):
             ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
             If ``any``, the return type dependent on the input type.
             Default is ``any``
+        target_col
+            Only relevant when input is pd.DataFrame, otherwise ignored.
+            Specify a single column to be used for transformation.
+            If ``None``, all columns of the pd.DataFrame is used.
+            Default is None.
         """
 
         super().__init__(n_jobs=n_jobs,
                          on_errors=on_errors,
-                         return_type=return_type)
+                         return_type=return_type,
+                         target_col=target_col)
 
     def mix_function(self, elems, _):
         elems_ = self._elements.loc[elems, :]

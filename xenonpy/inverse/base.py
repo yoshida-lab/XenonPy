@@ -251,7 +251,7 @@ class BaseResample(BaseEstimator, metaclass=TimedMetaClass):
         return self
 
     def __call__(self, X, freq, size, p):
-        return self.resample(X, size, p)
+        return self.resample(X, freq, size, p)
 
     def resample(self, X, freq, size, p):
         """

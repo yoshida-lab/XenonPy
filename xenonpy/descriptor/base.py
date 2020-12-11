@@ -102,6 +102,8 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
             Inputs ``X`` will be split into some blocks then run on each cpu cores.
             When set to 0, input X will be treated as a block and pass to ``Featurizer.featurize`` directly.
+            This default parallel implementation does not support pd.DataFrame input,
+            so please make sure you set n_jobs=0 if the input will be pd.DataFrame.
         on_errors
             How to handle the exceptions in a feature calculations. Can be 'nan', 'keep', 'raise'.
             When 'nan', return a column with ``np.nan``.
@@ -117,7 +119,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         target_col
             Only relevant when input is pd.DataFrame, otherwise ignored.
             Specify a single column to be used for transformation.
-            If ``None``, the first column of the pd.DataFrame is used.
+            If ``None``, all columns of the pd.DataFrame is used.
             Default is None.
         parallel_verbose
             The verbosity level: if non zero, progress messages are printed. Above 50, the output is sent to stdout.
@@ -217,13 +219,15 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
     def transform(self, entries: Sequence, *, return_type=None, target_col=None, **kwargs):
         """
         Featurize a list of entries.
-        If `featurize` takes multiple inputs, supply inputs as a list of tuples.
+        If `featurize` takes multiple inputs, supply inputs as a list of tuples,
+        or use pd.DataFrame with specified target_col as a list.
         
         Args
         ----
         entries: list-like or pd.DataFrame
             A list of entries to be featurized or pd.DataFrame with one specified column.
             See detail of target_col if entries is pd.DataFrame.
+            Also, make sure n_jobs=0 for pd.DataFrame.
         return_type: str
             Specify the return type.
             Can be ``any``, ``custom``, ``array`` or ``df``.
@@ -259,7 +263,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             if target_col is None:
                 target_col = self.target_col
                 if target_col is None:
-                    target_col = entries.columns[0]
+                    target_col = entries.columns.values
             entries = entries[target_col]
 
         # Special case: Empty list
@@ -530,14 +534,16 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
         self._rename(**kwargs)
 
+        # assume y is in same format of X (do not cover other cases now)
         X, y = self._check_input(X, y)
         if isinstance(X, list):
             for k, features in self.__featurizer_sets__.items():
                 for f in features:
                     if self._featurizers != 'all' and f.__class__.__name__ not in self._featurizers:
                         continue
-                    if y is not None and k in y:
-                        f.fit(X[0], y[k], **kwargs)
+                    # assume y is in same format of X
+                    if y is not None:
+                        f.fit(X[0], y[0], **kwargs)
                     else:
                         f.fit(X[0], **kwargs)
         else:
@@ -610,12 +616,12 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
 class BaseCompositionFeaturizer(BaseFeaturizer, metaclass=ABCMeta):
 
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
+    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
         """
         Base class for composition feature.
         """
 
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type, target_col=target_col)
 
         self._elements = preset.elements_completed
         self.__authors__ = ['TsumiNa']

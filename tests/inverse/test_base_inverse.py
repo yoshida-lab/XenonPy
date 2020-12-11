@@ -63,7 +63,8 @@ def test_base_proposer_1(data):
 def test_base_resammple_1(data):
     res = data['resample']()
     X = np.array([1, 2, 3, 4, 5])
-    x = res(X, 4, p=[0, 0, 1, 0, 0])
+    x = res(X, np.repeat(1, len(X)), 4, p=[0, 0, 1, 0, 0])
+    print(x)
     assert np.all(x == [3, 3, 3, 3])
 
 

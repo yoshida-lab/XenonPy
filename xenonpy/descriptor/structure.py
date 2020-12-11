@@ -23,7 +23,7 @@ class RadialDistributionFunction(BaseFeaturizer):
     def feature_labels(self):
         return [str(d) for d in self._interval[1:]]
 
-    def __init__(self, n_bins=201, r_max=20.0, *, n_jobs=-1, on_errors='raise', return_type='any'):
+    def __init__(self, n_bins=201, r_max=20.0, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
         """
         
         Parameters
@@ -46,9 +46,14 @@ class RadialDistributionFunction(BaseFeaturizer):
             ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
             If ``any``, the return type dependent on the input type.
             Default is ``any``
+        target_col
+            Only relevant when input is pd.DataFrame, otherwise ignored.
+            Specify a single column to be used for transformation.
+            If ``None``, all columns of the pd.DataFrame is used.
+            Default is None.
         """
 
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type, target_col=target_col)
         assert n_bins >= 1, "n_bins should be greater than 1!"
         assert r_max > 0, "r_max should be greater than 0!"
 
@@ -97,7 +102,7 @@ class OrbitalFieldMatrix(BaseFeaturizer):
 
     """
 
-    def __init__(self, including_d=True, *, n_jobs=-1, on_errors='raise', return_type='any'):
+    def __init__(self, including_d=True, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
         """
 
         Parameters
@@ -118,8 +123,13 @@ class OrbitalFieldMatrix(BaseFeaturizer):
             ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
             If ``any``, the return type dependent on the input type.
             Default is ``any``
+        target_col
+            Only relevant when input is pd.DataFrame, otherwise ignored.
+            Specify a single column to be used for transformation.
+            If ``None``, all columns of the pd.DataFrame is used.
+            Default is None.
         """
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type, target_col=target_col)
         self._including_d = including_d
         self.__authors__ = ['TsumiNa']
         self.__citations__ = [
@@ -262,7 +272,8 @@ class Structures(BaseDescriptor):
     Calculate structure descriptors from compound's structure.
     """
 
-    def __init__(self, n_bins=201, r_max=20.0, including_d=True, *, n_jobs=-1, featurizers='all', on_errors='raise'):
+    def __init__(self, n_bins=201, r_max=20.0, including_d=True,
+                 *, n_jobs=-1, featurizers='all', on_errors='raise', target_col=None):
         """
 
         Parameters
@@ -284,9 +295,15 @@ class Structures(BaseDescriptor):
             The length of column corresponding to the number of feature labs.
             When 'keep', return a column with exception objects.
             The default is 'raise' which will raise up the exception.
+        target_col
+            Only relevant when input is pd.DataFrame, otherwise ignored.
+            Specify a single column to be used for transformation.
+            If ``None``, all columns of the pd.DataFrame is used.
+            Default is None.
         """
         super().__init__(featurizers=featurizers)
         self.n_jobs = n_jobs
 
-        self.structure = RadialDistributionFunction(n_bins, r_max, n_jobs=n_jobs, on_errors=on_errors)
-        self.structure = OrbitalFieldMatrix(including_d, n_jobs=n_jobs, on_errors=on_errors)
+        self.structure = RadialDistributionFunction(n_bins, r_max, n_jobs=n_jobs,
+                                                    on_errors=on_errors, target_col=target_col)
+        self.structure = OrbitalFieldMatrix(including_d, n_jobs=n_jobs, on_errors=on_errors, target_col=target_col)

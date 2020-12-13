@@ -18,6 +18,7 @@ dependencies:
   - pytest-cov
   - pip
   - pip:
+      - OpenNMT-py==1.2
       - ruamel.yaml
       - Python-Deprecated
       - mordred

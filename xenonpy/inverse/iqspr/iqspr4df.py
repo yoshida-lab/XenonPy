@@ -66,7 +66,7 @@ class IQSPR4DF(BaseSMC):
         else:
             sample_col = self.sample_col
         uni_X = X.drop_duplicates(subset=sample_col, keep='first').reset_index(drop=True)
-        return uni_X, X[sample_col].value_counts().reindex(index=uni_X.set_index(sample_col).index).values
+        return uni_X, X[sample_col].value_counts().reindex(index=uni_X[sample_col]).values
 
     @property
     def modifier(self):

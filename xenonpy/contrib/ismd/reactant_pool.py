@@ -73,11 +73,11 @@ class ReactantPool(BaseProposal):
             splitter: [str]
                 string used for concatenating reactant in a reactant set.
         """
-        if len(sim_df) != len(sim_df.columns):
-            raise NotSquareError(len(sim_df), len(sim_df.columns))
+        if sim_df.shape[0] != sim_df.shape[1]:
+            raise NotSquareError(sim_df.shape[0], sim_df.shape[1])
 
-        if len(pool_df) != len(sim_df):
-            raise SimPoolnotmatchError(len(pool_df), len(sim_df))
+        if pool_df.shape[0] != sim_df.shape[0]:
+            raise SimPoolnotmatchError(pool_df.shape[0], sim_df.shape[0])
 
         if sim_id_in_pool is not None:
             self._pool_df = pool_df.set_index(sim_id_in_pool)

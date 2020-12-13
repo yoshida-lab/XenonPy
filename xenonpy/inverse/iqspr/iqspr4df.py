@@ -45,7 +45,7 @@ class IQSPR4DF(BaseSMC):
         else:
             return sims.loc[sims.index.repeat(freq), :].reset_index(drop=True)
 
-    def unique(self, X):
+    def unique(self, x):
         """
 
         Parameters
@@ -62,11 +62,11 @@ class IQSPR4DF(BaseSMC):
         """
 
         if self.sample_col is None:
-            sample_col = X.columns.values
+            sample_col = x.columns.values
         else:
             sample_col = self.sample_col
-        uni_X = X.drop_duplicates(subset=sample_col, keep='first').reset_index(drop=True)
-        return uni_X, X[sample_col].value_counts().reindex(index=uni_X[sample_col]).values
+        uni_x = x.drop_duplicates(subset=sample_col, keep='first').reset_index(drop=True)
+        return uni_x, x[sample_col].value_counts().reindex(index=uni_x[sample_col]).values
 
     @property
     def modifier(self):

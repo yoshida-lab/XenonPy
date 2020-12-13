@@ -2,7 +2,6 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from __future__ import division, unicode_literals
 import argparse
 
 from onmt.translate.translator import build_translator
@@ -52,7 +51,7 @@ class Reactor():
         """
         self._model = model
 
-    def react(self, reactant_list, batch_size=64) -> list:
+    def react(self, reactant_list, *, batch_size=64) -> list:
         """
         Tokenize a SMILES molecule or reaction
         ----------

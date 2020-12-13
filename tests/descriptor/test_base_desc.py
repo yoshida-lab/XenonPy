@@ -173,6 +173,21 @@ def test_base_feature_3(data):
     assert np.alltrue([np.isnan(e[0]) for e in tmp])
 
 
+def test_base_feature_4(data):
+    featurizer = data['featurizer']()
+    tmp_in = pd.DataFrame([[11, 12], [21, 22], [31, 32], [41, 42]])
+    ret = featurizer.transform(tmp_in, target_col=0)
+    assert isinstance(ret, pd.DataFrame)
+    assert (ret.values.ravel() == np.array([11, 21, 31, 41])).all()
+    ret = featurizer.transform(tmp_in, return_type='array', target_col=0)
+    assert isinstance(ret, np.ndarray)
+    ret = featurizer.transform(tmp_in, return_type='df', target_col=0)
+    assert isinstance(ret, pd.DataFrame)
+    ret = featurizer.transform(tmp_in, target_col=1)
+    assert isinstance(ret, pd.DataFrame)
+    assert (ret.values.ravel() == np.array([12, 22, 32, 42])).all()
+
+
 def test_base_descriptor_1(data):
     bd = BaseDescriptor()
 
@@ -251,38 +266,41 @@ def test_base_descriptor_5(data):
 def test_base_descriptor_6(data):
     bd = data['descriptor']()
     x = pd.DataFrame({'g3': [1, 2, 3, 4], 'g4': [1, 2, 3, 4]})
-    with pytest.raises(KeyError):
+    with pytest.warns(UserWarning):
         bd.fit(x)
-    with pytest.raises(KeyError):
-        bd.transform(x)
+    with pytest.warns(UserWarning):
+        bd.transform(x, target_col='g3')
     bd.fit(x, g1='g3', g2='g4')
     bd.transform(x)
 
     x = pd.DataFrame({'g1': [1, 2, 3, 4], 'g2': [1, 2, 3, 4]})
-    with pytest.raises(KeyError):
-        bd.transform(x)
+    with pytest.warns(UserWarning):
+        bd.transform(x, target_col='g1')
     bd.transform(x, g3='g1', g4='g2')
-    with pytest.raises(KeyError):
-        bd.transform(x)
+    with pytest.warns(UserWarning):
+        bd.transform(x, target_col='g2')
     bd.fit_transform(x, g3='g1', g4='g2')
 
 
 def test_base_descriptor_7(data):
+    # after parallel function in BaseFeaturizer is updated to handle pd.DataFrame (loop rows),
+    # target_col parameters can be deleted in this test
     bd = data['descriptor']()
     x = pd.Series([1, 2, 3, 4], name='g3')
-    with pytest.raises(KeyError):
+    with pytest.warns(UserWarning):
         bd.fit(x)
-    with pytest.raises(KeyError):
-        bd.transform(x)
+    with pytest.warns(UserWarning):
+        bd.transform(x, target_col='g3')
     bd.fit(x, g1='g3')
-    bd.transform(x)
+    bd.transform(x, target_col='g3')
 
     x = pd.Series([1, 2, 3, 4], name='g1')
-    with pytest.raises(KeyError):
-        bd.transform(x)
+    print(type(x))
+    with pytest.warns(UserWarning):
+        bd.transform(x, target_col='g1')
     bd.transform(x, g3='g1')
-    with pytest.raises(KeyError):
-        bd.transform(x)
+    with pytest.warns(UserWarning):
+        bd.transform(x, target_col='g1')
     bd.fit_transform(x, g3='g1')
 
 

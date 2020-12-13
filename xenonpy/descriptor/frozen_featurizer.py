@@ -21,7 +21,7 @@ class FrozenFeaturizer(BaseFeaturizer):
 
     def __init__(self, model: torch.nn.Module = None, *,
                  cuda: bool = False, depth=None, n_layer=None, 
-                 on_errors='raise', return_type='any'):
+                 on_errors='raise', return_type='any', target_col=None):
         """
         Parameters
         ----------
@@ -45,8 +45,13 @@ class FrozenFeaturizer(BaseFeaturizer):
             ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
             If ``any``, the return type dependent on the input type.
             Default is ``any``
+        target_col
+            Only relevant when input is pd.DataFrame, otherwise ignored.
+            Specify a single column to be used for transformation.
+            If ``None``, all columns of the pd.DataFrame is used.
+            Default is None.
         """
-        super().__init__(n_jobs=0, on_errors=on_errors, return_type=return_type)
+        super().__init__(n_jobs=0, on_errors=on_errors, return_type=return_type, target_col=target_col)
         self.depth = depth
         self.n_layer = n_layer
         self.model = model

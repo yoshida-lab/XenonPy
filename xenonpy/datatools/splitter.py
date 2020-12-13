@@ -51,7 +51,7 @@ class Splitter(BaseEstimator):
             Whether or not to shuffle the data before splitting.
         """
         if k_fold is None and test_size == 0:
-            raise RuntimeError('<test_size> can be none only if <cv> is not none')
+            raise RuntimeError('<test_size> can be zero only if <cv> is not none')
         self._k_fold = k_fold
         self._shuffle = shuffle
         self._test_size = test_size

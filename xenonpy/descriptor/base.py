@@ -7,6 +7,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from copy import copy
 import itertools
+import warnings
 from multiprocessing import cpu_count
 from typing import DefaultDict, List, Sequence, Union, Set
 from joblib import Parallel, delayed
@@ -91,6 +92,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         *,
         on_errors: str = 'raise',
         return_type: str = 'any',
+        target_col: Union[List[str], str, None] = None,
         parallel_verbose: int = 0,
     ):
         """
@@ -100,6 +102,8 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             The number of jobs to run in parallel for both fit and predict. Set -1 to use all cpu cores (default).
             Inputs ``X`` will be split into some blocks then run on each cpu cores.
             When set to 0, input X will be treated as a block and pass to ``Featurizer.featurize`` directly.
+            This default parallel implementation does not support pd.DataFrame input,
+            so please make sure you set n_jobs=0 if the input will be pd.DataFrame.
         on_errors
             How to handle the exceptions in a feature calculations. Can be 'nan', 'keep', 'raise'.
             When 'nan', return a column with ``np.nan``.
@@ -107,17 +111,23 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             When 'keep', return a column with exception objects.
             The default is 'raise' which will raise up the exception.
         return_type
-            Specific the return type.
-            Can be ``any``, ``array`` and ``df``.
+            Specify the return type.
+            Can be ``any``, ``custom``, ``array`` and ``df``.
             ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
-            If ``any``, the return type dependent on the input type.
+            If ``any`` or ``custom``, the return type depends on multiple factors (see transform function).
             Default is ``any``
+        target_col
+            Only relevant when input is pd.DataFrame, otherwise ignored.
+            Specify a single column to be used for transformation.
+            If ``None``, all columns of the pd.DataFrame is used.
+            Default is None.
         parallel_verbose
             The verbosity level: if non zero, progress messages are printed. Above 50, the output is sent to stdout.
             The frequency of the messages increases with the verbosity level.
             If it more than 10, all iterations are reported. Default ``0``.
         """
         self.return_type = return_type
+        self.target_col = target_col
         self.n_jobs = n_jobs
         self.on_errors = on_errors
         self.parallel_verbose = parallel_verbose
@@ -129,8 +139,8 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
     @return_type.setter
     def return_type(self, val):
-        if val not in {'any', 'array', 'df'}:
-            raise ValueError('`return_type` must be `any`, `array` or `df`')
+        if val not in {'any', 'array', 'df', 'custom'}:
+            raise ValueError('`return_type` must be `any`, `custom`, `array` or `df`')
         self._return_type = val
 
     @property
@@ -206,22 +216,36 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             # fit method of arity 2 (supervised transformation)
             return self.fit(X, y, **fit_params).transform(X, **fit_params)
 
-    def transform(self, entries: Sequence, *, return_type=None, **kwargs):
+    def transform(self, entries: Sequence, *, return_type=None, target_col=None, **kwargs):
         """
         Featurize a list of entries.
-        If `featurize` takes multiple inputs, supply inputs as a list of tuples.
+        If `featurize` takes multiple inputs, supply inputs as a list of tuples,
+        or use pd.DataFrame with parameter ``target_col`` to specify the column name(s).
         
         Args
         ----
-        entries: list-like
-            A list of entries to be featurized.
+        entries: list-like or pd.DataFrame
+            A list of entries to be featurized or pd.DataFrame with one specified column.
+            See detail of target_col if entries is pd.DataFrame.
+            Also, make sure n_jobs=0 for pd.DataFrame.
         return_type: str
-            Specific the return type.
-            Can be ``any``, ``array`` and ``df``.
-            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
-            If ``any``, the return type depend on the input type.
-            This is a temporary change that only have effect in the current transform.
-            Default is ``None`` for no changes.
+            Specify the return type.
+            Can be ``any``, ``custom``, ``array`` or ``df``.
+            ``array`` or ``df`` forces return type to ``np.ndarray`` or ``pd.DataFrame``, respectively.
+            If ``any``, the return type follow prefixed rules:
+            (1) if input type is pd.Series or pd.DataFrame, returns pd.DataFrame;
+            (2) else if input type is np.array, returns np.array;
+            (3) else if other input type and n_jobs=0, follows the featurize function return;
+            (4) otherwise, return a list of objects (output of featurize function).
+            If ``custom``, the return type depends on the featurize function if n_jobs=0,
+            or the return type is a list of objects (output of featurize function) for other n_jobs values.
+            This is a one-time change that only have effect in the current transformation.
+            Default is ``None`` for using the setting at initialization step.
+        target_col
+            Only relevant when input is pd.DataFrame, otherwise ignored.
+            Specify a single column to be used for transformation.
+            Default is ``None`` for using the setting at initialization step.
+            (see __init__ for more information)
 
         Returns
         -------
@@ -234,9 +258,21 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         if not isinstance(entries, Iterable):
             raise TypeError('parameter "entries" must be a iterable object')
 
+        # Extract relevant columns for pd.DataFrame input
+        if isinstance(entries, pd.DataFrame):
+            if target_col is None:
+                target_col = self.target_col
+                if target_col is None:
+                    target_col = entries.columns.values
+            entries = entries[target_col]
+
         # Special case: Empty list
         if len(entries) is 0:
             return []
+
+        # Check outputs
+        if return_type not in {None, 'any', 'array', 'df', 'custom'}:
+            raise ValueError('`return_type` must be None, `any`, `custom`, `array` or `df`')
 
         for c in Switch(self._n_jobs):
             if c(0):
@@ -257,6 +293,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
         if return_type is None:
             return_type = self.return_type
+
         if return_type == 'any':
             if isinstance(entries, (pd.Series, pd.DataFrame)):
                 tmp = pd.DataFrame(ret, index=entries.index, columns=labels)
@@ -272,6 +309,9 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             if isinstance(entries, (pd.Series, pd.DataFrame)):
                 return pd.DataFrame(ret, index=entries.index, columns=labels)
             return pd.DataFrame(ret, columns=labels)
+
+        if return_type == 'custom':
+            return ret
 
     def _wrapper(self, x):
         """
@@ -349,7 +389,10 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
     """
     Abstract class to organize featurizers.
-
+    This class can take list-like[object] or pd.DataFrame as input for transformation or fitting.
+    For pd.DataFrame, if any column name matches any group name,
+    the matched group(s) will be calculated with corresponding column(s);
+    otherwise, the pd.DataFrame will be passed on as is.
 
     Examples
     --------
@@ -464,11 +507,15 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
             if isinstance(x, pd.DataFrame):
                 tmp = set(x.columns) | set(kwargs.keys())
                 if set(keys).isdisjoint(tmp):
-                    raise KeyError('name of columns do not match any feature set')
+                    # raise KeyError('name of columns do not match any feature set')
+                    warnings.warn('name of columns do not match any feature set, '
+                                  'the whole dataframe is applied to all feature sets', UserWarning)
+                    # allow type check later for this special case
+                    return [x]
                 return x
 
-            raise TypeError('you can not ues a array-like input'
-                            'because there are multiply feature sets or the dim of input is not 1')
+            raise TypeError('you can not ues a array-like input '
+                            'because there are multiple feature sets or the dim of input is not 1')
 
         return _reformat(X), _reformat(y)
 
@@ -487,16 +534,28 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
         self._rename(**kwargs)
 
+        # assume y is in same format of X (do not cover other cases now)
         X, y = self._check_input(X, y)
-        for k, features in self.__featurizer_sets__.items():
-            if k in X:
+        if isinstance(X, list):
+            for k, features in self.__featurizer_sets__.items():
                 for f in features:
                     if self._featurizers != 'all' and f.__class__.__name__ not in self._featurizers:
                         continue
-                    if y is not None and k in y:
-                        f.fit(X[k], y[k], **kwargs)
+                    # assume y is in same format of X
+                    if y is not None:
+                        f.fit(X[0], y[0], **kwargs)
                     else:
-                        f.fit(X[k], **kwargs)
+                        f.fit(X[0], **kwargs)
+        else:
+            for k, features in self.__featurizer_sets__.items():
+                if k in X:
+                    for f in features:
+                        if self._featurizers != 'all' and f.__class__.__name__ not in self._featurizers:
+                            continue
+                        if y is not None and k in y:
+                            f.fit(X[k], y[k], **kwargs)
+                        else:
+                            f.fit(X[k], **kwargs)
 
         return self
 
@@ -513,15 +572,25 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         results = []
 
         X, _ = self._check_input(X, **kwargs)
-        for k, features in self.__featurizer_sets__.items():
-            if k in kwargs:
-                k = kwargs[k]
-            if k in X:
+        if isinstance(X, list):
+            for k, features in self.__featurizer_sets__.items():
+                # if k in kwargs:
+                #     k = kwargs[k]
                 for f in features:
                     if self._featurizers != 'all' and f.__class__.__name__ not in self._featurizers:
                         continue
-                    ret = f.transform(X[k], return_type='df', **kwargs)
+                    ret = f.transform(X[0], return_type='df', **kwargs)
                     results.append(ret)
+        else:
+            for k, features in self.__featurizer_sets__.items():
+                if k in kwargs:
+                    k = kwargs[k]
+                if k in X:
+                    for f in features:
+                        if self._featurizers != 'all' and f.__class__.__name__ not in self._featurizers:
+                            continue
+                        ret = f.transform(X[k], return_type='df', **kwargs)
+                        results.append(ret)
 
         return pd.concat(results, axis=1)
 
@@ -547,12 +616,12 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
 class BaseCompositionFeaturizer(BaseFeaturizer, metaclass=ABCMeta):
 
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any'):
+    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
         """
         Base class for composition feature.
         """
 
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type, target_col=target_col)
 
         self._elements = preset.elements_completed
         self.__authors__ = ['TsumiNa']

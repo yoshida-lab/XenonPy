@@ -12,7 +12,7 @@ from copy import deepcopy
 from sklearn.linear_model import BayesianRidge
 
 from xenonpy.descriptor import ECFP, RDKitFP
-from xenonpy.inverse.iqspr import GaussianLogLikelihood, NGram, IQSPR, GetProbError, MolConvertError
+from xenonpy.inverse.iqspr import GaussianLogLikelihood, NGram, IQSPR, IQSPR4DF, GetProbError, MolConvertError
 from xenonpy.inverse.base import BaseLogLikelihoodSet
 
 
@@ -29,8 +29,8 @@ def data():
 
     X = pg_data['smiles']
     y = pg_data.drop(['smiles', 'Unnamed: 0'], axis=1)
-    ecfp = ECFP(n_jobs=1, input_type='smiles')
-    rdkitfp = RDKitFP(n_jobs=1, input_type='smiles')
+    ecfp = ECFP(n_jobs=1, input_type='smiles', target_col=0)
+    rdkitfp = RDKitFP(n_jobs=1, input_type='smiles', target_col=0)
     bre = GaussianLogLikelihood(descriptor=ecfp)
     bre2 = GaussianLogLikelihood(descriptor=rdkitfp)
     bre.fit(X, y[['bandgap', 'glass_transition_temperature']])
@@ -272,7 +272,7 @@ def test_iqspr_1(data):
     beta = np.linspace(0.05, 1, 10)
     for s, ll, p, f in iqspr(data['pg'][0][:5], beta, yield_lpf=True):
         assert np.abs(np.sum(p) - 1.0) < 1e-5
-        assert np.sum(f) == 5, print(f)
+        assert np.sum(f) == 5
 
 
 def test_iqspr_2(data):
@@ -287,7 +287,59 @@ def test_iqspr_2(data):
                         'density': beta1, 'refractive_index': beta2})
     for s, ll, p, f in iqspr(data['pg'][0][:5], beta, yield_lpf=True):
         assert np.abs(np.sum(p) - 1.0) < 1e-5
-        assert np.sum(f) == 5, print(f)
+        assert np.sum(f) == 5
+
+
+def test_iqspr_resample1(data):
+    # not sure if this test can be fully reliable by only fixing the random seed
+    like_mdl = data['like_mdl']
+    ngram = data['ngram']
+    beta = np.linspace(0.1, 1, 2)
+
+    np.random.seed(0)
+    iqspr = IQSPR(estimator=like_mdl, modifier=ngram, r_ESS=0)
+    soln1 = [['C([*])C([*])(C(=O)OCCSCCC#N)', 'C([*])C([*])(SCCC)',
+             'O([*])C(=O)OC(C=C1)=CC=C1C(C=C2)=CC=C2CC(C=C3)=CC=C3C(C=C4)=CC=C4([*])'],
+            ['C([*])C([*])(C(=O)OCC(F)(F)C(F)(F)OC(F)(F)OC(F)(F)C(F)(F)OC(F)(F)C(F)(F)F)',
+             'C([*])C([*])(CC)(C(=O)OCC(F)(F)F)',
+    'O([*])C(=O)OC(C=C1)=CC=C1C(C=C1)=CC=C1CC(C=C1)=CC=C1C(C=C1)=CC=C1C(C=C1)=CC=C1C(C=C1)=CC=C1C(C=C1)=CC=C1C(=S)']
+            ]
+    c0 = 0
+    for s, ll, p, f in iqspr(data['pg'][0][:3], beta, yield_lpf=True):
+        assert np.abs(np.sum(p) - 1.0) < 1e-5
+        assert np.sum(f) == 3
+        assert np.all(np.sort(s) == np.array(soln1[c0]))
+        c0 += 1
+
+    np.random.seed(0)
+    iqspr = IQSPR(estimator=like_mdl, modifier=ngram, r_ESS=1)
+    soln2 = [['C([*])C([*])(C(=O)OCCSCCC#N)', 'C([*])C([*])(SCCC)',
+             'O([*])C(=O)OC(C=C1)=CC=C1C(C=C2)=CC=C2CC(C=C3)=CC=C3C(C=C4)=CC=C4([*])'],
+            ['O([*])C(=O)OC(C=C1)=CC=C1C(C=C1)=CC=C1CC(C=C1)=CC=C1C(C=C1)=CC=C1([*])',
+             'O([*])C(=O)OC(C=C1)=CC=C1C(C=C1)=CC=C1CC(C=C1)=CC=C1C(C=C1)=CC=C1C(=S)']
+            ]
+    c0 = 0
+    for s, ll, p, f in iqspr(data['pg'][0][:3], beta, yield_lpf=True):
+        assert np.abs(np.sum(p) - 1.0) < 1e-5
+        assert np.sum(f) == 3
+        assert np.all(np.sort(s) == np.array(soln2[c0]))
+        c0 += 1
+
+
+def test_iqspr4df_unique1(data):
+    # not sure if this test can be fully reliable by only fixing the random seed
+    like_mdl = data['like_mdl']
+    ngram = data['ngram']
+    beta = np.linspace(0.1, 1, 1)
+    samples = pd.DataFrame([data['pg'][0][:2].values.repeat(2), [0, 1, 2, 3]]).T
+
+    np.random.seed(0)
+    iqspr = IQSPR4DF(estimator=like_mdl, modifier=ngram, r_ESS=0, sample_col=0)
+    soln = pd.DataFrame([['C([*])C([*])(SCCC)', 'C([*])C([*])(C(=O)OCCSCCC#N)'], [0, 2]]).T
+    for s, ll, p, f in iqspr(samples, beta, yield_lpf=True):
+        assert np.abs(np.sum(p) - 1.0) < 1e-5
+        assert np.sum(f) == 4
+        assert (s == soln).all().all()
 
 
 if __name__ == "__main__":

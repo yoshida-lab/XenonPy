@@ -26,7 +26,8 @@ def smi_tokenizer(smi) -> str:
     Tokenize a SMILES molecule or reaction
     ----------
     Parameters:
-        smi : SMILES
+        smi: [str]
+            SMILES
     Returns:
         tokenized SMILES
     """
@@ -46,7 +47,8 @@ class Reactor():
         A chemical reaction prediction model
         ----------
         Parameters:
-            model : A molecular transformer model for reaction prediction
+            model: [onmt.translate.translator.Translator]
+                A molecular transformer model for reaction prediction
         """
         self._model = model
 
@@ -55,9 +57,11 @@ class Reactor():
         Tokenize a SMILES molecule or reaction
         ----------
         Parameters:
-            reactant_list : list of reactant 
+            reactant_list: [list]
+                list of reactant 
         Returns:
-            product_list: all_predictions is a list of `batch_size` lists of `n_best` predictions
+            product_list: [list]
+                all_predictions is a list of `batch_size` lists of `n_best` predictions
         """
         reactant_token_list = [smi_tokenizer(s) for s in reactant_list]
         _, product_list = self._model.translate(src=reactant_token_list,
@@ -74,14 +78,16 @@ def load_reactor(max_length=200, *, device_id=-1, model_path='') -> Reactor:
     Loader of reaction prediction model
     ----------
     Parameters:
-        model : A molecular transformer model for reaction prediction
-        device_id : cpu: -1; gpu: 0,1,2,3...
-        model_path : path of transformer file.
+        max_length: [int]
+            maxmal length of product SMILES
+        device_id: [int]
+            cpu: -1; gpu: 0,1,2,3...
+        model_path: [str]
+            path of transformer file.
     Returns:
         Reactor : A chemical reaction prediction model
     """
     parser = argparse.ArgumentParser(description='translate.py', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    #onmt.opts.add_md_help_argument(parser)
     onmt.opts.translate_opts(parser)
     opt = parser.parse_args([
         '-src', 'dummy_src', '-model', model_path, '-replace_unk', '-max_length',

@@ -45,7 +45,6 @@ class ReactantPool(BaseProposal):
             pool_smiles_col='SMILES',
             sim_id_in_pool=None,
             sample_reactant_idx_col='reactant_idx',
-            #sample_reactant_idx_old_col='reactant_idx_old',
             sample_reactant_smiles_col='reactant_smiles',
             sample_product_smiles_col='product_smiles',
             splitter='.'):
@@ -53,16 +52,26 @@ class ReactantPool(BaseProposal):
         A module consists the reactant pool for proposal
         ----------
         Parameters:
-            pool_df : a dataframe contains the all usable reactants,
-            sim_df : a matrix of similarity between each pair of reactant in pool_df, size len(pool_df)*len(pool_df).
-            reactor : reaction prediction model.
-            pool_smiles_col : the column name of reactant SMILES in the pool_df,
-            sim_id_in_pool : the column name of id in pool_df corresponding to sim_df, if None, use index.
-            sample_reactant_idx_col : the column name of reactant id in sample dataframe.
-            #sample_reactant_idx_old_col : the column name of old reactant id in sample dataframe, copied from sample_reactant_idx_col before proposal.
-            sample_reactant_smiles_col : the column name of reactant SMILES in sample dataframe
-            sample_product_smiles_col : the column name of product SMILES in sample dataframe
-            splitter : string used for concatenating reactant in a reactant set.
+            pool_df: [pandas.DataFrame]
+                a dataframe contains the all usable reactants,
+            sim_df: [pandas.DataFrame]
+                a matrix of similarity between each pair of reactant in pool_df, size len(pool_df)*len(pool_df).
+            reactor: [xenonpy.contrib.ismd.Reactor]
+                reaction prediction model.
+            pool_smiles_col: [str]
+                the column name of reactant SMILES in the pool_df,
+            sim_id_in_pool: [str]
+                the column name of id in pool_df corresponding to sim_df, if None, use index.
+            sample_reactant_idx_col: [str]
+                the column name of reactant id in sample dataframe.
+            #sample_reactant_idx_old_col: [str]
+                the column name of old reactant id in sample dataframe, copied from sample_reactant_idx_col before proposal.
+            sample_reactant_smiles_col: [str]
+                the column name of reactant SMILES in sample dataframe
+            sample_product_smiles_col: [str]
+                the column name of product SMILES in sample dataframe
+            splitter: [str]
+                string used for concatenating reactant in a reactant set.
         """
         if len(sim_df) != len(sim_df.columns):
             raise NotSquareError(len(sim_df), len(sim_df.columns))
@@ -77,9 +86,7 @@ class ReactantPool(BaseProposal):
         self._sim_df = sim_df
         self._reactor = reactor
         self._pool_smiles_col = pool_smiles_col
-        #self._sim_id_in_pool = sim_id_in_pool
         self._sample_reactant_idx_col = sample_reactant_idx_col
-        #self._sample_reactant_idx_old_col = sample_reactant_idx_old_col
         self._sample_reactant_smiles_col = sample_reactant_smiles_col
         self._sample_product_smiles_col = sample_product_smiles_col
         self._splitter = splitter
@@ -89,12 +96,13 @@ class ReactantPool(BaseProposal):
         convert a list of index to string concatenated by the splitter.
         ----------
         Parameters:
-            reactant : list of reactant id (e.g. [45011, 29392])
-        Returns:
-            reactant_smiles : reactant SMILES concatenated by the splitter (e.g. CC(C)Br.COc1ccc(C=O)cc1O)
+            reactant: [list]
+                list of reactant id (e.g. [45011, 29392])
+        Returns: 
+            reactant_smiles: [str]
+                reactant SMILES concatenated by the splitter (e.g. CC(C)Br.COc1ccc(C=O)cc1O)
         """
         r_list = [self._pool_df.iloc[r][self._pool_smiles_col] for r in reactant]
-        #reactant_smiles = self._splitter.join(r_list)
         return self._splitter.join(r_list)
 
     def index2sim(self, r_idx_old):
@@ -102,9 +110,11 @@ class ReactantPool(BaseProposal):
         substitute the reactant id by a similar one.
         ----------
         Parameters:
-            r_idx_old : reactant id to be substituted (e.g. 29392)
+            r_idx_old: [int]
+                reactant id to be substituted (e.g. 29392)
         Returns:
-            r_idx_new : an id of reactant similar to r_idx_old (e.g. 9980)
+            r_idx_new: [int]
+                an id of reactant similar to r_idx_old (e.g. 9980)
         """
         if r_idx_old not in self._pool_df.index:
             raise ReactantNotInPoolError(r_idx_old)
@@ -121,9 +131,11 @@ class ReactantPool(BaseProposal):
         substitute a randomly selected reactant id in reactant by a similar one.
         ----------
         Parameters:
-            reactant : list of id (e.g. [45011, 29392])
+            reactant: [list]
+                list of id (e.g. [45011, 29392])
         Returns:
-            r_idx_new : list of id (e.g. [45011, 9980])
+            r_idx_new: [list]
+                list of id (e.g. [45011, 9980])
         """
         modify_idx = random.choice(list(range(len(reactant))))
         r_idx_old = reactant[modify_idx]
@@ -139,14 +151,15 @@ class ReactantPool(BaseProposal):
         3, perform reactant prediction
         ----------
         Parameters:
-            sample_df : sample dataframe
+            sample_df: [pandas.DataFrame]
+                sample dataframe
         Returns:
-            sample_df : sample dataframe 
+            sample_df: [pandas.DataFrame]
+                modified sample dataframe 
         """
         if len(sample_df) == 0:
             raise NoSampleError()
         new_sample_df = pd.DataFrame(columns=sample_df.columns)
-        #sample_df[self._sample_reactant_idx_old_col] = sample_df[self._sample_reactant_idx_col]
         old_list = [list(r) for r in sample_df[self._sample_reactant_idx_col]]
         new_sample_df[self._sample_reactant_idx_col] = [self.single_proposal(reactant) for reactant in old_list]
         new_sample_df[self._sample_reactant_smiles_col] = [

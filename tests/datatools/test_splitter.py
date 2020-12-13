@@ -19,13 +19,14 @@ def data():
     warnings.filterwarnings("ignore", message="numpy.ndarray size changed")
 
     # prepare test data
+    l = list(range(10))
     array = np.arange(10)
     matrix = np.arange(100).reshape(10, 10)
     df = DataFrame(matrix)
     se = Series(array)
     flag = list('abcba') * 2
 
-    yield array, matrix, df, se, flag
+    yield array, matrix, df, se, flag, l
 
     print('test over')
 
@@ -91,9 +92,14 @@ def test_split_3(data):
     sp.split(data[1])
     sp.split(data[2])
     sp.split(data[3])
+    sp.split(data[5])
 
-    with pytest.raises(TypeError, match='<arrays> must be numpy.ndarray, pandas.DataFrame, or pandas.Series'):
-        sp.split([1])
+    with pytest.raises(
+            TypeError,
+            match=
+            "<arrays> must be list, numpy.ndarray, pandas.DataFrame, or pandas.Series but got <class 'str'>"
+    ):
+        sp.split('illegal data')
 
 
 def test_split_4(data):

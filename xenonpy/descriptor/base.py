@@ -92,7 +92,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
         *,
         on_errors: str = 'raise',
         return_type: str = 'any',
-        target_col: str = None,
+        target_col: Union[List[str], str, None] = None,
         parallel_verbose: int = 0,
     ):
         """

@@ -1,4 +1,4 @@
-FROM yoshidalab/base:develop
+FROM yoshidalab/base:cuda11
 
 ARG key
 ENV api_key=$key

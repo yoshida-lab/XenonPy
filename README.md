@@ -30,8 +30,8 @@ XenonPy is a open source project https://github.com/yoshida-lab/XenonPy.
 
 See our documents for details: http://xenonpy.readthedocs.io
 
-
 ## Publications
+
 1. Yamada, H. et al. Predicting Materials Properties with Little Data Using Shotgun Transfer Learning. ACS Cent. Sci. acscentsci.9b00804 (2019). doi:10.1021/acscentsci.9b00804
 
 ## XenonPy images
@@ -39,26 +39,27 @@ See our documents for details: http://xenonpy.readthedocs.io
 [XenonPy base images](https://hub.docker.com/repository/docker/yoshidalab/base) packed a lot of useful packages for materials informatics using.
 The following table list some core packages in XenonPy images.
 
-| Package        | Version    |
-| -------------- | ---------- |
-| `PyTorch`      | 1.7.0      |
-| `tensorly`     | 0.5.0      |
-| `pymatgen`     | 2020.10.9  |
-| `matminer`     | 0.6.2      |
-| `mordred`      | 1.2.0      |
-| `scipy`        | 1.5.2      |
-| `scikit-learn` | 0.23.0     |
-| `xgboost`      | 1.3.0      |
-| `ngboost`      | master     |
-| `fastcluster`  | 1.1.26     |
-| `pandas`       | 1.1.3      |
-| `rdkit`        | 2019.03.3  |
-| `jupyter`      | 1.0.0      |
-| `seaborn`      | 0.11.0     |
-| `matplotlib`   | 3.3.2      |
-| `OpenNMT-py`   | 1.2.0      |
-| `plotly`       | 4.11.0     |
-| `ipympl`       | 0.5.8      |
+| Package        | Version   |
+| -------------- | --------- |
+| `PyTorch`      | 1.7.0     |
+| `tensorly`     | 0.5.0     |
+| `pymatgen`     | 2020.10.9 |
+| `matminer`     | 0.6.2     |
+| `mordred`      | 1.2.0     |
+| `scipy`        | 1.5.2     |
+| `scikit-learn` | 0.23.0    |
+| `xgboost`      | 1.3.0     |
+| `ngboost`      | master    |
+| `fastcluster`  | 1.1.26    |
+| `pandas`       | 1.1.3     |
+| `rdkit`        | 2019.03.3 |
+| `jupyter`      | 1.0.0     |
+| `seaborn`      | 0.11.0    |
+| `matplotlib`   | 3.3.2     |
+| `OpenNMT-py`   | 1.2.0     |
+| `Optuna`       | 2.3.0     |
+| `plotly`       | 4.11.0    |
+| `ipympl`       | 0.5.8     |
 
 ## Requirements
 
@@ -85,7 +86,7 @@ within Docker containers. This can be found at
 
 Pre-built xenonpy images are available on Docker Hub under the name
 [yoshidalab/xenonpy](https://hub.docker.com/r/yoshidalab/xenonpy/). For example,
-you can pull the CUDA 10.0 version with:
+you can pull the CUDA 10.1 version with:
 
 ```bash
 docker pull yoshidalab/xenonpy:cuda10
@@ -96,10 +97,11 @@ Docker image tags .
 
 | Image tag | CUDA | PyTorch |
 | --------- | ---- | ------- |
-| `latest`  | 10.1 | 1.6.0   |
-| `cpu`     | None | 1.6.0   |
-| `cuda10`  | 10.1 | 1.6.0   |
-| `cuda9`   | 9.2  | 1.6.0   |
+| `latest`  | 11.0 | 1.7.0   |
+| `cpu`     | None | 1.7.0   |
+| `cuda11`  | 11.0 | 1.7.0   |
+| `cuda10`  | 10.1 | 1.7.0   |
+| `cuda9`   | 9.2  | 1.7.0   |
 
 ### Running XenonPy
 

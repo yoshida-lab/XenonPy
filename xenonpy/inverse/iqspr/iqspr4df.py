@@ -5,7 +5,7 @@
 # import necessary libraries
 
 import numpy as np
-
+import pandas as pd
 from xenonpy.inverse.base import BaseSMC, BaseProposal, BaseLogLikelihood
 
 
@@ -65,8 +65,10 @@ class IQSPR4DF(BaseSMC):
             sample_col = x.columns.values
         else:
             sample_col = self.sample_col
-        uni_x = x.drop_duplicates(subset=sample_col, keep='first').reset_index(drop=True)
-        return uni_x, x[sample_col].value_counts().reindex(index=uni_x[sample_col]).values
+        uni = x.drop_duplicates(subset=sample_col)
+        freq = x.groupby(sample_col, as_index=False).size().agg(lambda a: list(a))
+        result = pd.merge(uni, freq, on=sample_col)
+        return result.drop(columns=['size']), result['size'].values
 
     @property
     def modifier(self):

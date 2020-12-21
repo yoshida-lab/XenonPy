@@ -36,14 +36,21 @@ class IQSPR4DF(BaseSMC):
         self._r_ESS = r_ESS
         if isinstance(sample_col, str):
             self.sample_col = [sample_col]
-        else:
+        elif hasattr(sample_col, '__len__'):
             self.sample_col = sample_col
+        else:
+            self.sample_col = [sample_col]
 
     def resample(self, sims, freq, size, p):
         if np.sum(np.power(p, 2)) <= (self._r_ESS*np.sum(freq)):
             return sims.sample(n=size, replace=True, weights=p).reset_index(drop=True)
         else:
             return sims.loc[sims.index.repeat(freq), :].reset_index(drop=True)
+        
+    def slicing_multicol(self, x, sample_col, target):
+        for i in range(len(sample_col)):
+            x = x.loc[x[sample_col[i]] == target[i]]
+        return len(x)
 
     def unique(self, x):
         """
@@ -65,10 +72,15 @@ class IQSPR4DF(BaseSMC):
             sample_col = x.columns.values
         else:
             sample_col = self.sample_col
-        uni = x.drop_duplicates(subset=sample_col)
-        freq = x.groupby(sample_col, as_index=False).size().agg(lambda a: list(a))
-        result = pd.merge(uni, freq, on=sample_col)
-        return result.drop(columns=['size']), result['size'].values
+        uni = x.drop_duplicates(subset=sample_col).reset_index(drop = True)
+        freq = []
+        for index,row in uni.iterrows():
+            tar = row[sample_col]
+            x_ = x
+            for c,t in zip(sample_col,tar):
+                x_ = x_.loc[x_[c] == t]
+            freq.append(len(x_))
+        return uni, freq
 
     @property
     def modifier(self):

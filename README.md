@@ -52,7 +52,7 @@ The following table list some core packages in XenonPy images.
 | `ngboost`      | master     |
 | `fastcluster`  | 1.1.26     |
 | `pandas`       | 1.1.3      |
-| `rdkit`        | 2019.03.3  |
+| `rdkit`        | 2020.03.1.0  |
 | `jupyter`      | 1.0.0      |
 | `seaborn`      | 0.11.0     |
 | `matplotlib`   | 3.3.2      |

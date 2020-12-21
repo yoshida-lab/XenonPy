@@ -5,7 +5,7 @@
 # import necessary libraries
 
 import numpy as np
-
+import pandas as pd
 from xenonpy.inverse.base import BaseSMC, BaseProposal, BaseLogLikelihood
 
 
@@ -36,8 +36,10 @@ class IQSPR4DF(BaseSMC):
         self._r_ESS = r_ESS
         if isinstance(sample_col, str):
             self.sample_col = [sample_col]
-        else:
+        elif hasattr(sample_col, '__len__'):
             self.sample_col = sample_col
+        else:
+            self.sample_col = [sample_col]
 
     def resample(self, sims, freq, size, p):
         if np.sum(np.power(p, 2)) <= (self._r_ESS*np.sum(freq)):
@@ -45,7 +47,7 @@ class IQSPR4DF(BaseSMC):
         else:
             return sims.loc[sims.index.repeat(freq), :].reset_index(drop=True)
 
-    def unique(self, X):
+    def unique(self, x):
         """
 
         Parameters
@@ -62,11 +64,18 @@ class IQSPR4DF(BaseSMC):
         """
 
         if self.sample_col is None:
-            sample_col = X.columns.values
+            sample_col = x.columns.values
         else:
             sample_col = self.sample_col
-        uni_X = X.drop_duplicates(subset=sample_col, keep='first').reset_index(drop=True)
-        return uni_X, X[sample_col].value_counts().reindex(index=uni_X.set_index(sample_col).index).values
+        uni = x.drop_duplicates(subset=sample_col).reset_index(drop = True)
+        freq = []
+        for index,row in uni.iterrows():
+            tar = row[sample_col]
+            x_ = x
+            for c,t in zip(sample_col,tar):
+                x_ = x_.loc[x_[c] == t]
+            freq.append(len(x_))
+        return uni, freq
 
     @property
     def modifier(self):

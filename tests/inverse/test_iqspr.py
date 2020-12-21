@@ -335,12 +335,55 @@ def test_iqspr4df_unique1(data):
 
     np.random.seed(0)
     iqspr = IQSPR4DF(estimator=like_mdl, modifier=ngram, r_ESS=0, sample_col=0)
-    soln = pd.DataFrame([['C([*])C([*])(SCCC)', 'C([*])C([*])(C(=O)OCCSCCC#N)'], [0, 2]]).T
+    soln = pd.DataFrame([['C([*])C([*])(SCCC)', 'C([*])C([*])(C(=O)OCCSCCC#N)'], [0, 2]]).T  
     for s, ll, p, f in iqspr(samples, beta, yield_lpf=True):
         assert np.abs(np.sum(p) - 1.0) < 1e-5
         assert np.sum(f) == 4
         assert (s == soln).all().all()
 
+@pytest.fixture
+def test_df():
+    input = pd.DataFrame([[0,1],[3,3],[1,3],[1,2],[1,3]], columns=['a', 'b'])
+    return input
 
+def test_iqspr4df_two_col(data, test_df):
+    like_mdl = data['like_mdl']
+    ngram = data['ngram']
+    sample_col1 = ['a', 'b']
+    iqspr = IQSPR4DF(estimator=like_mdl, modifier=ngram, r_ESS=0, sample_col=sample_col1)
+    
+    soln1 = pd.DataFrame([[0,1],[3,3],[1,3],[1,2]], columns=['a', 'b'])
+    freq1 = np.array([1,1,2,1])
+    
+    uni, f = iqspr.unique(test_df)
+    assert (uni == soln1).all().all()
+    assert np.all(f == freq1)
+
+def test_iqspr4df_first_col(data, test_df):
+    like_mdl = data['like_mdl']
+    ngram = data['ngram']
+    sample_col2 = ['a']
+    iqspr = IQSPR4DF(estimator=like_mdl, modifier=ngram, r_ESS=0, sample_col=sample_col2)
+    
+    soln2 = pd.DataFrame([[0,1],[3,3],[1,3]], columns=['a', 'b'])
+    freq2 = np.array([1,1,3])
+        
+    uni, f = iqspr.unique(test_df)
+    assert (uni == soln2).all().all()
+    assert np.all(f == freq2)
+
+def test_iqspr4df_second_col(data, test_df):
+    like_mdl = data['like_mdl']
+    ngram = data['ngram']
+    sample_col3 = ['b']
+    iqspr = IQSPR4DF(estimator=like_mdl, modifier=ngram, r_ESS=0, sample_col=sample_col3)
+    
+    soln3 = pd.DataFrame([[0,1],[3,3],[1,2]], columns=['a', 'b'])
+    freq3 = np.array([1,3,1])
+    
+    uni, f = iqspr.unique(test_df)
+    assert (uni == soln3).all().all()
+    assert np.all(f == freq3)
+    
 if __name__ == "__main__":
     pytest.main()

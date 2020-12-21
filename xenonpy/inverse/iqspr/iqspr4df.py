@@ -46,11 +46,6 @@ class IQSPR4DF(BaseSMC):
             return sims.sample(n=size, replace=True, weights=p).reset_index(drop=True)
         else:
             return sims.loc[sims.index.repeat(freq), :].reset_index(drop=True)
-        
-    def slicing_multicol(self, x, sample_col, target):
-        for i in range(len(sample_col)):
-            x = x.loc[x[sample_col[i]] == target[i]]
-        return len(x)
 
     def unique(self, x):
         """

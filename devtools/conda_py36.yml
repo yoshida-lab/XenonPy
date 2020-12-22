@@ -27,6 +27,7 @@ dependencies:
       - nbsphinx
       - matminer
       - Python-Deprecated
+      - OpenNMT-py==1.2
       - sphinx-autodoc-typehints
       - ruamel.yaml
       - jupyterlab

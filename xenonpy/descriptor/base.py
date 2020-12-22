@@ -279,12 +279,18 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
                 # Run the actual featurization
                 ret = self.featurize(entries, **kwargs)
                 break
+            print('here is the featurization')
+            if isinstance(entries, pd.DataFrame):
+                raise RuntimeError(
+                    "Auto-parallel can not be used when`entries` is `pandas.DataFrame`. "
+                    "Please set `n_jobs` to 0 and implements your algorithm in the `featurize` method"
+                )
             if c(1):
                 ret = [self._wrapper(x) for x in entries]
                 break
             if c():
-                ret = Parallel(n_jobs=self._n_jobs,
-                               verbose=self._parallel_verbose)(delayed(self._wrapper)(x) for x in entries)
+                ret = Parallel(n_jobs=self._n_jobs, verbose=self._parallel_verbose)(
+                    delayed(self._wrapper)(x) for x in entries)
 
         try:
             labels = self.feature_labels
@@ -457,7 +463,9 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         elif isinstance(val, (tuple, List)):
             self._featurizers = tuple(val)
         else:
-            raise ValueError('parameter `featurizers` must be `all`, name of featurizer, or list of name of featurizer')
+            raise ValueError(
+                'parameter `featurizers` must be `all`, name of featurizer, or list of name of featurizer'
+            )
 
     @property
     def elapsed(self):
@@ -508,8 +516,9 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
                 tmp = set(x.columns) | set(kwargs.keys())
                 if set(keys).isdisjoint(tmp):
                     # raise KeyError('name of columns do not match any feature set')
-                    warnings.warn('name of columns do not match any feature set, '
-                                  'the whole dataframe is applied to all feature sets', UserWarning)
+                    warnings.warn(
+                        'name of columns do not match any feature set, '
+                        'the whole dataframe is applied to all feature sets', UserWarning)
                     # allow type check later for this special case
                     return [x]
                 return x
@@ -621,7 +630,10 @@ class BaseCompositionFeaturizer(BaseFeaturizer, metaclass=ABCMeta):
         Base class for composition feature.
         """
 
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type, target_col=target_col)
+        super().__init__(n_jobs=n_jobs,
+                         on_errors=on_errors,
+                         return_type=return_type,
+                         target_col=target_col)
 
         self._elements = preset.elements_completed
         self.__authors__ = ['TsumiNa']

@@ -110,6 +110,8 @@ def test_base_feature_1(data):
     assert featurizer.feature_labels == ['label1']
     with pytest.raises(TypeError):
         featurizer.fit_transform(56)
+    with pytest.raises(RuntimeError):
+        featurizer.fit_transform(pd.DataFrame([[0, 1], [1, 2]]))
 
 
 def test_base_feature_2(data):

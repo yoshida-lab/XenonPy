@@ -279,7 +279,6 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
                 # Run the actual featurization
                 ret = self.featurize(entries, **kwargs)
                 break
-            print('here is the featurization')
             if isinstance(entries, pd.DataFrame):
                 raise RuntimeError(
                     "Auto-parallel can not be used when`entries` is `pandas.DataFrame`. "

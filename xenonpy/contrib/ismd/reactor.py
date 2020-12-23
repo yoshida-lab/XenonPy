@@ -3,16 +3,18 @@
 #  license that can be found in the LICENSE file.
 
 import argparse
+import warnings
 
-from onmt.translate.translator import build_translator
-from onmt.translate.translator import Translator
-
-import onmt.inputters
-import onmt.translate
-import onmt
-import onmt.model_builder
-import onmt.modules
-
+try:
+    from onmt.translate.translator import build_translator
+    from onmt.translate.translator import Translator
+    import onmt.inputters
+    import onmt.translate
+    import onmt
+    import onmt.model_builder
+    import onmt.modules
+except:
+    warnings.warn("package onmt is not installed")
 
 class SMILESInvalidError(Exception):
 

@@ -13,8 +13,8 @@ try:
     import onmt
     import onmt.model_builder
     import onmt.modules
-except:
-    warnings.warn("package onmt is not installed")
+except(ImportError):
+    warnings.warn("cannot import and use onmt before installed, for more information: https://github.com/OpenNMT/OpenNMT-py")
 
 class SMILESInvalidError(Exception):
 

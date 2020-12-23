@@ -625,7 +625,13 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
 
 class BaseCompositionFeaturizer(BaseFeaturizer, metaclass=ABCMeta):
 
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
+    def __init__(self,
+                 *,
+                 elemental_info: Union[pd.DataFrame, None] = None,
+                 n_jobs: int = -1,
+                 on_errors: str = 'raise',
+                 return_type: str = 'any',
+                 target_col: Union[List[str], str, None] = None):
         """
         Base class for composition feature.
         """
@@ -635,7 +641,10 @@ class BaseCompositionFeaturizer(BaseFeaturizer, metaclass=ABCMeta):
                          return_type=return_type,
                          target_col=target_col)
 
-        self._elements = preset.elements_completed
+        if elemental_info is None:
+            self._elements = preset.elements_completed
+        else:
+            self._elements = elemental_info
         self.__authors__ = ['TsumiNa']
 
     def featurize(self, comp):

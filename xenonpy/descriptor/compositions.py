@@ -5,17 +5,18 @@
 from typing import Union, List
 
 import numpy as np
+import pandas as pd
 
 from xenonpy.descriptor.base import BaseDescriptor, BaseCompositionFeaturizer
 
 __all__ = [
-    'Compositions', 'Counting', 'WeightedAverage', 'WeightedSum',
-    'WeightedVariance', 'HarmonicMean', 'GeometricMean', 'MaxPooling',
-    'MinPooling'
+    'Compositions', 'Counting', 'WeightedAverage', 'WeightedSum', 'WeightedVariance',
+    'HarmonicMean', 'GeometricMean', 'MaxPooling', 'MinPooling'
 ]
 
 
 class Counting(BaseCompositionFeaturizer):
+
     def __init__(self,
                  *,
                  one_hot_vec=False,
@@ -76,38 +77,35 @@ class Counting(BaseCompositionFeaturizer):
 
 
 class WeightedAverage(BaseCompositionFeaturizer):
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
-        """
+    """
 
-        Parameters
-        ----------
-        n_jobs: int
-            The number of jobs to run in parallel for both fit and predict.
-            Set -1 to use all cpu cores (default).
-            Inputs ``X`` will be split into some blocks then run on each cpu cores.
-        on_errors: string
-            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
-            When 'nan', return a column with ``np.nan``.
-            The length of column corresponding to the number of feature labs.
-            When 'keep', return a column with exception objects.
-            The default is 'raise' which will raise up the exception.
-        return_type: str
-            Specific the return type.
-            Can be ``any``, ``array`` and ``df``.
-            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
-            If ``any``, the return type dependent on the input type.
-            Default is ``any``
-        target_col
-            Only relevant when input is pd.DataFrame, otherwise ignored.
-            Specify a single column to be used for transformation.
-            If ``None``, all columns of the pd.DataFrame is used.
-            Default is None.
-        """
-
-        super().__init__(n_jobs=n_jobs,
-                         on_errors=on_errors,
-                         return_type=return_type,
-                         target_col=target_col)
+    Parameters
+    ----------
+    elemental_info
+        Elemental level information for each element. For example, the ``atomic number``,
+        ``atomic radius``, and etc. By default (``None``), will use the XenonPy embedded information.
+    n_jobs: int
+        The number of jobs to run in parallel for both fit and predict.
+        Set -1 to use all cpu cores (default).
+        Inputs ``X`` will be split into some blocks then run on each cpu cores.
+    on_errors: string
+        How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+        When 'nan', return a column with ``np.nan``.
+        The length of column corresponding to the number of feature labs.
+        When 'keep', return a column with exception objects.
+        The default is 'raise' which will raise up the exception.
+    return_type: str
+        Specific the return type.
+        Can be ``any``, ``array`` and ``df``.
+        ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+        If ``any``, the return type dependent on the input type.
+        Default is ``any``
+    target_col
+        Only relevant when input is pd.DataFrame, otherwise ignored.
+        Specify a single column to be used for transformation.
+        If ``None``, all columns of the pd.DataFrame is used.
+        Default is None.
+    """
 
     def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
@@ -120,38 +118,35 @@ class WeightedAverage(BaseCompositionFeaturizer):
 
 
 class WeightedSum(BaseCompositionFeaturizer):
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
-        """
+    """
 
-        Parameters
-        ----------
-        n_jobs: int
-            The number of jobs to run in parallel for both fit and predict.
-            Set -1 to use all cpu cores (default).
-            Inputs ``X`` will be split into some blocks then run on each cpu cores.
-        on_errors: string
-            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
-            When 'nan', return a column with ``np.nan``.
-            The length of column corresponding to the number of feature labs.
-            When 'keep', return a column with exception objects.
-            The default is 'raise' which will raise up the exception.
-        return_type: str
-            Specific the return type.
-            Can be ``any``, ``array`` and ``df``.
-            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
-            If ``any``, the return type dependent on the input type.
-            Default is ``any``
-        target_col
-            Only relevant when input is pd.DataFrame, otherwise ignored.
-            Specify a single column to be used for transformation.
-            If ``None``, all columns of the pd.DataFrame is used.
-            Default is None.
-        """
-
-        super().__init__(n_jobs=n_jobs,
-                         on_errors=on_errors,
-                         return_type=return_type,
-                         target_col=target_col)
+    Parameters
+    ----------
+    elemental_info
+        Elemental level information for each element. For example, the ``atomic number``,
+        ``atomic radius``, and etc. By default (``None``), will use the XenonPy embedded information.
+    n_jobs: int
+        The number of jobs to run in parallel for both fit and predict.
+        Set -1 to use all cpu cores (default).
+        Inputs ``X`` will be split into some blocks then run on each cpu cores.
+    on_errors: string
+        How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+        When 'nan', return a column with ``np.nan``.
+        The length of column corresponding to the number of feature labs.
+        When 'keep', return a column with exception objects.
+        The default is 'raise' which will raise up the exception.
+    return_type: str
+        Specific the return type.
+        Can be ``any``, ``array`` and ``df``.
+        ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+        If ``any``, the return type dependent on the input type.
+        Default is ``any``
+    target_col
+        Only relevant when input is pd.DataFrame, otherwise ignored.
+        Specify a single column to be used for transformation.
+        If ``None``, all columns of the pd.DataFrame is used.
+        Default is None.
+    """
 
     def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
@@ -164,38 +159,35 @@ class WeightedSum(BaseCompositionFeaturizer):
 
 
 class GeometricMean(BaseCompositionFeaturizer):
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
-        """
+    """
 
-        Parameters
-        ----------
-        n_jobs: int
-            The number of jobs to run in parallel for both fit and predict.
-            Set -1 to use all cpu cores (default).
-            Inputs ``X`` will be split into some blocks then run on each cpu cores.
-        on_errors: string
-            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
-            When 'nan', return a column with ``np.nan``.
-            The length of column corresponding to the number of feature labs.
-            When 'keep', return a column with exception objects.
-            The default is 'raise' which will raise up the exception.
-        return_type: str
-            Specific the return type.
-            Can be ``any``, ``array`` and ``df``.
-            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
-            If ``any``, the return type dependent on the input type.
-            Default is ``any``
-        target_col
-            Only relevant when input is pd.DataFrame, otherwise ignored.
-            Specify a single column to be used for transformation.
-            If ``None``, all columns of the pd.DataFrame is used.
-            Default is None.
-        """
-
-        super().__init__(n_jobs=n_jobs,
-                         on_errors=on_errors,
-                         return_type=return_type,
-                         target_col=target_col)
+    Parameters
+    ----------
+    elemental_info
+        Elemental level information for each element. For example, the ``atomic number``,
+        ``atomic radius``, and etc. By default (``None``), will use the XenonPy embedded information.
+    n_jobs: int
+        The number of jobs to run in parallel for both fit and predict.
+        Set -1 to use all cpu cores (default).
+        Inputs ``X`` will be split into some blocks then run on each cpu cores.
+    on_errors: string
+        How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+        When 'nan', return a column with ``np.nan``.
+        The length of column corresponding to the number of feature labs.
+        When 'keep', return a column with exception objects.
+        The default is 'raise' which will raise up the exception.
+    return_type: str
+        Specific the return type.
+        Can be ``any``, ``array`` and ``df``.
+        ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+        If ``any``, the return type dependent on the input type.
+        Default is ``any``
+    target_col
+        Only relevant when input is pd.DataFrame, otherwise ignored.
+        Specify a single column to be used for transformation.
+        If ``None``, all columns of the pd.DataFrame is used.
+        Default is None.
+    """
 
     def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
@@ -209,38 +201,35 @@ class GeometricMean(BaseCompositionFeaturizer):
 
 
 class HarmonicMean(BaseCompositionFeaturizer):
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
-        """
+    """
 
-        Parameters
-        ----------
-        n_jobs: int
-            The number of jobs to run in parallel for both fit and predict.
-            Set -1 to use all cpu cores (default).
-            Inputs ``X`` will be split into some blocks then run on each cpu cores.
-        on_errors: string
-            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
-            When 'nan', return a column with ``np.nan``.
-            The length of column corresponding to the number of feature labs.
-            When 'keep', return a column with exception objects.
-            The default is 'raise' which will raise up the exception.
-        return_type: str
-            Specific the return type.
-            Can be ``any``, ``array`` and ``df``.
-            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
-            If ``any``, the return type dependent on the input type.
-            Default is ``any``
-        target_col
-            Only relevant when input is pd.DataFrame, otherwise ignored.
-            Specify a single column to be used for transformation.
-            If ``None``, all columns of the pd.DataFrame is used.
-            Default is None.
-        """
-
-        super().__init__(n_jobs=n_jobs,
-                         on_errors=on_errors,
-                         return_type=return_type,
-                         target_col=target_col)
+    Parameters
+    ----------
+    elemental_info
+        Elemental level information for each element. For example, the ``atomic number``,
+        ``atomic radius``, and etc. By default (``None``), will use the XenonPy embedded information.
+    n_jobs: int
+        The number of jobs to run in parallel for both fit and predict.
+        Set -1 to use all cpu cores (default).
+        Inputs ``X`` will be split into some blocks then run on each cpu cores.
+    on_errors: string
+        How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+        When 'nan', return a column with ``np.nan``.
+        The length of column corresponding to the number of feature labs.
+        When 'keep', return a column with exception objects.
+        The default is 'raise' which will raise up the exception.
+    return_type: str
+        Specific the return type.
+        Can be ``any``, ``array`` and ``df``.
+        ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+        If ``any``, the return type dependent on the input type.
+        Default is ``any``
+    target_col
+        Only relevant when input is pd.DataFrame, otherwise ignored.
+        Specify a single column to be used for transformation.
+        If ``None``, all columns of the pd.DataFrame is used.
+        Default is None.
+    """
 
     def mix_function(self, elems, nums):
         elems_ = 1 / self._elements.loc[elems, :].values
@@ -255,38 +244,35 @@ class HarmonicMean(BaseCompositionFeaturizer):
 
 
 class WeightedVariance(BaseCompositionFeaturizer):
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
-        """
+    """
 
-        Parameters
-        ----------
-        n_jobs: int
-            The number of jobs to run in parallel for both fit and predict.
-            Set -1 to use all cpu cores (default).
-            Inputs ``X`` will be split into some blocks then run on each cpu cores.
-        on_errors: string
-            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
-            When 'nan', return a column with ``np.nan``.
-            The length of column corresponding to the number of feature labs.
-            When 'keep', return a column with exception objects.
-            The default is 'raise' which will raise up the exception.
-        return_type: str
-            Specific the return type.
-            Can be ``any``, ``array`` and ``df``.
-            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
-            If ``any``, the return type dependent on the input type.
-            Default is ``any``
-        target_col
-            Only relevant when input is pd.DataFrame, otherwise ignored.
-            Specify a single column to be used for transformation.
-            If ``None``, all columns of the pd.DataFrame is used.
-            Default is None.
-        """
-
-        super().__init__(n_jobs=n_jobs,
-                         on_errors=on_errors,
-                         return_type=return_type,
-                         target_col=target_col)
+    Parameters
+    ----------
+    elemental_info
+        Elemental level information for each element. For example, the ``atomic number``,
+        ``atomic radius``, and etc. By default (``None``), will use the XenonPy embedded information.
+    n_jobs: int
+        The number of jobs to run in parallel for both fit and predict.
+        Set -1 to use all cpu cores (default).
+        Inputs ``X`` will be split into some blocks then run on each cpu cores.
+    on_errors: string
+        How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+        When 'nan', return a column with ``np.nan``.
+        The length of column corresponding to the number of feature labs.
+        When 'keep', return a column with exception objects.
+        The default is 'raise' which will raise up the exception.
+    return_type: str
+        Specific the return type.
+        Can be ``any``, ``array`` and ``df``.
+        ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+        If ``any``, the return type dependent on the input type.
+        Default is ``any``
+    target_col
+        Only relevant when input is pd.DataFrame, otherwise ignored.
+        Specify a single column to be used for transformation.
+        If ``None``, all columns of the pd.DataFrame is used.
+        Default is None.
+    """
 
     def mix_function(self, elems, nums):
         elems_ = self._elements.loc[elems, :].values
@@ -301,38 +287,35 @@ class WeightedVariance(BaseCompositionFeaturizer):
 
 
 class MaxPooling(BaseCompositionFeaturizer):
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
-        """
+    """
 
-        Parameters
-        ----------
-        n_jobs: int
-            The number of jobs to run in parallel for both fit and predict.
-            Set -1 to use all cpu cores (default).
-            Inputs ``X`` will be split into some blocks then run on each cpu cores.
-        on_errors: string
-            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
-            When 'nan', return a column with ``np.nan``.
-            The length of column corresponding to the number of feature labs.
-            When 'keep', return a column with exception objects.
-            The default is 'raise' which will raise up the exception.
-        return_type: str
-            Specific the return type.
-            Can be ``any``, ``array`` and ``df``.
-            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
-            If ``any``, the return type dependent on the input type.
-            Default is ``any``
-        target_col
-            Only relevant when input is pd.DataFrame, otherwise ignored.
-            Specify a single column to be used for transformation.
-            If ``None``, all columns of the pd.DataFrame is used.
-            Default is None.
-        """
-
-        super().__init__(n_jobs=n_jobs,
-                         on_errors=on_errors,
-                         return_type=return_type,
-                         target_col=target_col)
+    Parameters
+    ----------
+    elemental_info
+        Elemental level information for each element. For example, the ``atomic number``,
+        ``atomic radius``, and etc. By default (``None``), will use the XenonPy embedded information.
+    n_jobs: int
+        The number of jobs to run in parallel for both fit and predict.
+        Set -1 to use all cpu cores (default).
+        Inputs ``X`` will be split into some blocks then run on each cpu cores.
+    on_errors: string
+        How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+        When 'nan', return a column with ``np.nan``.
+        The length of column corresponding to the number of feature labs.
+        When 'keep', return a column with exception objects.
+        The default is 'raise' which will raise up the exception.
+    return_type: str
+        Specific the return type.
+        Can be ``any``, ``array`` and ``df``.
+        ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+        If ``any``, the return type dependent on the input type.
+        Default is ``any``
+    target_col
+        Only relevant when input is pd.DataFrame, otherwise ignored.
+        Specify a single column to be used for transformation.
+        If ``None``, all columns of the pd.DataFrame is used.
+        Default is None.
+    """
 
     def mix_function(self, elems, _):
         elems_ = self._elements.loc[elems, :]
@@ -344,38 +327,35 @@ class MaxPooling(BaseCompositionFeaturizer):
 
 
 class MinPooling(BaseCompositionFeaturizer):
-    def __init__(self, *, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
-        """
+    """
 
-        Parameters
-        ----------
-        n_jobs: int
-            The number of jobs to run in parallel for both fit and predict.
-            Set -1 to use all cpu cores (default).
-            Inputs ``X`` will be split into some blocks then run on each cpu cores.
-        on_errors: string
-            How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
-            When 'nan', return a column with ``np.nan``.
-            The length of column corresponding to the number of feature labs.
-            When 'keep', return a column with exception objects.
-            The default is 'raise' which will raise up the exception.
-        return_type: str
-            Specific the return type.
-            Can be ``any``, ``array`` and ``df``.
-            ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
-            If ``any``, the return type dependent on the input type.
-            Default is ``any``
-        target_col
-            Only relevant when input is pd.DataFrame, otherwise ignored.
-            Specify a single column to be used for transformation.
-            If ``None``, all columns of the pd.DataFrame is used.
-            Default is None.
-        """
-
-        super().__init__(n_jobs=n_jobs,
-                         on_errors=on_errors,
-                         return_type=return_type,
-                         target_col=target_col)
+    Parameters
+    ----------
+    elemental_info
+        Elemental level information for each element. For example, the ``atomic number``,
+        ``atomic radius``, and etc. By default (``None``), will use the XenonPy embedded information.
+    n_jobs: int
+        The number of jobs to run in parallel for both fit and predict.
+        Set -1 to use all cpu cores (default).
+        Inputs ``X`` will be split into some blocks then run on each cpu cores.
+    on_errors: string
+        How to handle exceptions in feature calculations. Can be 'nan', 'keep', 'raise'.
+        When 'nan', return a column with ``np.nan``.
+        The length of column corresponding to the number of feature labs.
+        When 'keep', return a column with exception objects.
+        The default is 'raise' which will raise up the exception.
+    return_type: str
+        Specific the return type.
+        Can be ``any``, ``array`` and ``df``.
+        ``array`` and ``df`` force return type to ``np.ndarray`` and ``pd.DataFrame`` respectively.
+        If ``any``, the return type dependent on the input type.
+        Default is ``any``
+    target_col
+        Only relevant when input is pd.DataFrame, otherwise ignored.
+        Specify a single column to be used for transformation.
+        If ``None``, all columns of the pd.DataFrame is used.
+        Default is None.
+    """
 
     def mix_function(self, elems, _):
         elems_ = self._elements.loc[elems, :]
@@ -391,13 +371,11 @@ class Compositions(BaseDescriptor):
     Calculate elemental descriptors from compound's composition.
     """
 
-    classic = [
-        'WeightedAverage', 'WeightedSum', 'WeightedVariance', 'MaxPooling',
-        'MinPooling'
-    ]
+    classic = ['WeightedAverage', 'WeightedSum', 'WeightedVariance', 'MaxPooling', 'MinPooling']
 
     def __init__(self,
                  *,
+                 elemental_info: Union[pd.DataFrame, None] = None,
                  n_jobs: int = -1,
                  featurizers: Union[str, List[str]] = 'classic',
                  on_errors: str = 'nan'):
@@ -405,6 +383,9 @@ class Compositions(BaseDescriptor):
 
         Parameters
         ----------
+        elemental_info
+            Elemental level information for each element. For example, the ``atomic number``,
+            ``atomic radius``, and etc. By default (``None``), will use the XenonPy embedded information.
         n_jobs: int
             The number of jobs to run in parallel for both fit and predict.
             Set -1 to use all cpu cores (default).
@@ -429,10 +410,24 @@ class Compositions(BaseDescriptor):
             super().__init__(featurizers=featurizers)
 
         self.composition = Counting(n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = WeightedAverage(n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = WeightedSum(n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = WeightedVariance(n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = GeometricMean(n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = HarmonicMean(n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = MaxPooling(n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = MinPooling(n_jobs=n_jobs, on_errors=on_errors)
+        self.composition = WeightedAverage(n_jobs=n_jobs,
+                                           on_errors=on_errors,
+                                           elemental_info=elemental_info)
+        self.composition = WeightedSum(n_jobs=n_jobs,
+                                       on_errors=on_errors,
+                                       elemental_info=elemental_info)
+        self.composition = WeightedVariance(n_jobs=n_jobs,
+                                            on_errors=on_errors,
+                                            elemental_info=elemental_info)
+        self.composition = GeometricMean(n_jobs=n_jobs,
+                                         on_errors=on_errors,
+                                         elemental_info=elemental_info)
+        self.composition = HarmonicMean(n_jobs=n_jobs,
+                                        on_errors=on_errors,
+                                        elemental_info=elemental_info)
+        self.composition = MaxPooling(n_jobs=n_jobs,
+                                      on_errors=on_errors,
+                                      elemental_info=elemental_info)
+        self.composition = MinPooling(n_jobs=n_jobs,
+                                      on_errors=on_errors,
+                                      elemental_info=elemental_info)

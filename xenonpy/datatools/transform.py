@@ -4,68 +4,63 @@
 
 import numpy as np
 from pandas import DataFrame, Series
-from scipy.special import inv_boxcox, boxcox
-from scipy.stats import boxcox as bc
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import PowerTransformer as PT
 
 from xenonpy.utils import Switch
 
-__all__ = ['BoxCox', 'Scaler']
+__all__ = ['PowerTransformer', 'Scaler']
 
 
-class BoxCox(BaseEstimator, TransformerMixin):
+class PowerTransformer(BaseEstimator, TransformerMixin):
     """
     Box-cox transform.
-
     References
     ----------
     G.E.P. Box and D.R. Cox, “An Analysis of Transformations”,
     Journal of the Royal Statistical Society B, 26, 211-252 (1964).
     """
 
-    def __init__(self, *, lmd=None, shift=1e-9, tolerance=(-2, 2), on_err=None):
+    def __init__(self,
+                 *,
+                 method='yeo-johnson',
+                 standardize=False,
+                 lmd=None,
+                 tolerance=(-np.inf, np.inf),
+                 on_err=None):
         """
         Parameters
         ----------
+        method: 'yeo-johnson' or 'box-cox'
+            ‘yeo-johnson’ works with positive and negative values
+            ‘box-cox’ only works with strictly positive values
+        standardize: boolean
+            Normalize to standard normal or not.
+            Recommend using a sepearate `standard`_ function instead of using this option.
         lmd: list or 1-dim ndarray
             You might assign each input xs with a specific lmd yourself.
             Leave None(default) to use a inferred value.
-            See `boxcox`_ for detials.
-        shift: float
-            Guarantee Xs are positive.
-            BoxCox transform need all data positive.
-            Therefore, a shift xs with their min and a specific shift data series(xs)``x = x - x.min + shift``.
-
+            See `PowerTransformer`_ for detials.
         tolerance: tuple
             Tolerance of lmd. Set None to accept any.
-            Default is **(-2, 2)**
+            Default is **(-np.inf, np.inf)** but recommend **(-2, 2)** for Box-cox transform
         on_err: None or str
             Error handle when try to inference lambda. Can be None or **log**, **nan** or **raise** by string.
             **log** will return the logarithmic transform of xs that have a min shift to 1.
             **nan** return ``ndarray`` with shape xs.shape filled with``np.nan``.
             **raise** raise a FloatingPointError. You can catch it yourself.
             Default(None) will return the input series without scale transform.
-
-
-        .. _boxcox:
-            https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.boxcox.html
+        .. _PowerTransformer:
+            https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.PowerTransformer.html#sklearn.preprocessing.PowerTransformer
         """
         self._tolerance = tolerance
-        self._shift = [shift]
+        self._pt = PT(method=method, standardize=standardize)
         self._lmd = lmd
         self._shape = None
         self._on_err = on_err
 
-    @property
-    def shift_(self):
-        return self._shift
-
-    @property
-    def lambda_(self):
-        return self._lmd
-
-    def _check_type(self, x, check_shape=True):
+    def _check_type(self, x):
         if isinstance(x, list):
             x = np.array(x, dtype=np.float)
         elif isinstance(x, (DataFrame, Series)):
@@ -74,137 +69,47 @@ class BoxCox(BaseEstimator, TransformerMixin):
             raise TypeError(
                 'parameter `X` should be a `DataFrame`, `Series`, `ndarray` or list object '
                 'but got {}'.format(type(x)))
-        if not self._shape:
-            self._shape = x.shape
-        if check_shape and len(x.shape) > 1:
-            if x.shape[1] != self._shape[1]:
-                raise ValueError('parameter `X` should have shape {} but got {}'.format(self._shape, x.shape))
         if len(x.shape) == 1:
             x = x.reshape(-1, 1)
         return x
 
-    def _handle_err(self, e):
-        for c in Switch(self._on_err):
-            if c(None):
-                self._lmd.append(np.inf)
-                break
-            if c('log'):
-                self._lmd.append(0.)
-                break
-            if c('nan'):
-                self._lmd.append(np.nan)
-                break
-            if c('raise'):
-                raise e
-            if c():
-                raise RuntimeError('parameter on_err must be None "log", "nan" or "raise"')
-
     def fit(self, x):
         """
-
         Parameters
         ----------
         x
-
         Returns
         -------
-
         """
-        x = self._check_type(x, check_shape=False)
+        x = self._pt._check_input(self._check_type(x))
+
+        # forcing constant column vectors to have no transformation (lambda=1)
+        idx = []
+        for i, col in enumerate(x.T):
+            if np.all(col == col[0]):
+                idx.append(i)
+
         if self._lmd is not None:
             if isinstance(self._lmd, float):
-                self._lmd = [self._lmd] * x.shape[1]
-            if x.shape[1] != len(self._lmd):
+                self._pt.lambdas_ = np.array([self._lmd] * x.shape[1])
+            elif x.shape[1] != len(self._lmd):
                 raise ValueError('shape[1] of parameter `X` should be {} but got {}'.format(
                     x.shape[1], len(self._lmd)))
-            return self
+            else:
+                self._pt.lambdas_ = np.array(self._lmd)
+        else:
+            self._pt.fit(x)
 
-        self._lmd = []
-        self._shift = self._shift * x.shape[1]
-        with np.errstate(all='raise'):
-            for i, col in enumerate(x.T):
-                tmp = col[~np.isnan(col)]
-                if not np.all(tmp > 0):
-                    tmp = tmp - tmp.min() + self._shift[i]
-                try:
-                    _, lmd = bc(tmp)
-                    if self._tolerance:
-                        if not self._tolerance[0] < lmd < self._tolerance[1]:
-                            raise FloatingPointError()
-                    self._lmd.append(lmd)
-                except ValueError as e:
-                    self._handle_err(e)
-                except FloatingPointError as e:
-                    self._handle_err(e)
+        if len(idx) > 0:
+            self._pt.lambdas_[idx] = 1.
 
         return self
 
     def transform(self, x):
-        """
-
-        Parameters
-        ----------
-        x
-
-        Returns
-        -------
-        DataFrame
-            Box-Cox transformed data.
-        """
-        x = self._check_type(x)
-        xs = []
-        for i, col in enumerate(x.T):
-            if np.all(col > 0):
-                self._shift[i] = 0.
-            else:
-                self._shift[i] -= col[~np.isnan(col)].min()
-
-            _lmd = self._lmd[i]
-            _shift = self._shift[i]
-            for case in Switch(_lmd):
-                if case(np.inf):
-                    x = col
-                    break
-                if case(np.nan):
-                    x = np.full(col.shape, np.nan)
-                    break
-                if case():
-                    x = boxcox(col + _shift, _lmd)
-            xs.append(x.reshape(-1, 1))
-        xs = np.concatenate(xs, axis=1)
-
-        if len(self._shape) == 1:
-            return xs.ravel()
-        return xs.reshape(-1, self._shape[1])
+        return self._pt.transform(self._check_type(x))
 
     def inverse_transform(self, x):
-        """
-        Scale back the data to the original representation.
-
-        Parameters
-        ----------
-        x: DataFrame, Series, ndarray, list
-            The data used to scale along the features axis.
-
-        Returns
-        -------
-        DataFrame
-            Inverse transformed data.
-        """
-        x = self._check_type(x)
-        xs = []
-        for col, shift, lmd in zip(x.T, self._shift, self._lmd):
-            for case in Switch(lmd):
-                if case(np.nan, np.inf):
-                    _x = col
-                    break
-                if case():
-                    _x = inv_boxcox(col, lmd) - shift
-            xs.append(_x.reshape(-1, 1))
-        xs = np.concatenate(xs, axis=1)
-        if len(self._shape) == 1:
-            return xs.ravel()
-        return xs
+        return self._pt.inverse_transform(self._check_type(x))
 
 
 class Scaler(BaseEstimator, TransformerMixin):
@@ -221,8 +126,14 @@ class Scaler(BaseEstimator, TransformerMixin):
         """
         self._scalers = []
 
+    def power_transformer(self, *args, **kwargs):
+        return self._scale(PowerTransformer, *args, **kwargs)
+
     def box_cox(self, *args, **kwargs):
-        return self._scale(BoxCox, *args, **kwargs)
+        return self._scale(PowerTransformer, method='box-cox', *args, **kwargs)
+
+    def yeo_johnson(self, *args, **kwargs):
+        return self._scale(PowerTransformer, method='yeo-johnson', *args, **kwargs)
 
     def min_max(self, *args, **kwargs):
         return self._scale(MinMaxScaler, *args, **kwargs)
@@ -231,7 +142,7 @@ class Scaler(BaseEstimator, TransformerMixin):
         return self._scale(StandardScaler, *args, **kwargs)
 
     def log(self):
-        return self._scale(BoxCox, lmd=0.)
+        return self._scale(PowerTransformer, method='box-cox', lmd=0.)
 
     def _scale(self, scaler, *args, **kwargs):
         self._scalers.append(scaler(*args, **kwargs))
@@ -240,7 +151,6 @@ class Scaler(BaseEstimator, TransformerMixin):
     def fit(self, x):
         """
         Compute the minimum and maximum to be used for later scaling.
-
         Parameters
         ----------
         x: array-like, shape [n_samples, n_features]

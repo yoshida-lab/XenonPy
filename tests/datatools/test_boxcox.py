@@ -2,12 +2,11 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-
 import numpy as np
 import pytest
-from scipy.stats import boxcox
+from sklearn.preprocessing import PowerTransformer as PT
 
-from xenonpy.datatools.transform import BoxCox
+from xenonpy.datatools.transform import PowerTransformer
 
 
 @pytest.fixture(scope='module')
@@ -25,7 +24,7 @@ def data():
     raw_4x4 = np.concatenate((a, a, a, a), axis=1)
 
     # raw_shift = raw - raw.min() + 1e-9
-    a_, _ = boxcox(raw)
+    a_, _ = PT().fit_transform(raw)
     a_ = a_.reshape(-1, 1)
     trans_4x1 = a_
     trans_4x4 = np.concatenate((a_, a_, a_, a_), axis=1)
@@ -45,7 +44,7 @@ def data():
 
 
 def test_transform_4x1_1(data):
-    bc = BoxCox()
+    bc = PowerTransformer()
     trans = bc.fit_transform(data[0])
     assert np.all(trans == data[2])
     assert trans.shape == data[2].shape
@@ -54,20 +53,8 @@ def test_transform_4x1_1(data):
     assert inverse.shape == data[0].shape
 
 
-def test_transform_4x1_2(data):
-    from scipy.special import boxcox as bc_
-    shift = 1e-5
-    bc = BoxCox(shift=shift)
-    _data = data[0] - 2.
-    trans = bc.fit_transform(_data)
-    tmp = bc_(_data + (shift - _data.min()), bc.lambda_[0])
-    assert np.all(trans == tmp)
-    inverse = bc.inverse_transform(trans)
-    assert np.allclose(inverse, _data)
-
-
 def test_transform_4x1_3(data):
-    bc = BoxCox()
+    bc = PowerTransformer()
     bc.fit_transform(data[0])
     trans = bc.transform(data[0][:2])
     assert trans.shape == data[2][:2].shape
@@ -78,7 +65,7 @@ def test_transform_4x1_3(data):
 
 
 def test_transform_4x1_ravel_1(data):
-    bc = BoxCox()
+    bc = PowerTransformer()
     trans = bc.fit_transform(data[0].ravel())
     assert np.all(trans == data[2].ravel())
     inverse = bc.inverse_transform(trans)
@@ -86,7 +73,7 @@ def test_transform_4x1_ravel_1(data):
 
 
 def test_transform_4x1_ravel_2(data):
-    bc = BoxCox()
+    bc = PowerTransformer()
     bc.fit(data[0].ravel())
     trans = bc.transform((data[0].ravel())[:2])
     assert trans.shape == (data[2].ravel())[:2].shape
@@ -97,7 +84,7 @@ def test_transform_4x1_ravel_2(data):
 
 
 def test_transform_4x4_1(data):
-    bc = BoxCox()
+    bc = PowerTransformer()
     bc.fit_transform(data[1])
     trans = bc.transform(data[1][:2])
     assert trans.shape == data[3][:2].shape
@@ -108,7 +95,7 @@ def test_transform_4x4_1(data):
 
 
 def test_transform_4x4_2(data):
-    bc = BoxCox()
+    bc = PowerTransformer()
     trans = bc.fit_transform(data[1])
     assert np.all(trans == data[3])
     inverse = bc.inverse_transform(trans)
@@ -116,7 +103,7 @@ def test_transform_4x4_2(data):
 
 
 def test_transform_err_4x1(data):
-    bc = BoxCox()
+    bc = PowerTransformer()
     trans = bc.fit_transform(data[4])
     assert np.all(trans == data[4])
     inverse = bc.inverse_transform(trans)
@@ -124,7 +111,7 @@ def test_transform_err_4x1(data):
 
 
 def test_transform_err_4x4(data):
-    bc = BoxCox()
+    bc = PowerTransformer()
     trans = bc.fit_transform(data[5])
     assert np.all(trans == data[5])
     inverse = bc.inverse_transform(trans)
@@ -132,19 +119,19 @@ def test_transform_err_4x4(data):
 
 
 def test_transform_err_4x1_2(data):
-    bc = BoxCox(on_err='nan')
+    bc = PowerTransformer(on_err='nan')
     trans = bc.fit_transform(data[4])
     assert np.all(np.isnan(trans))
 
 
 def test_transform_err_4x4_2(data):
-    bc = BoxCox(on_err='nan')
+    bc = PowerTransformer(on_err='nan')
     trans = bc.fit_transform(data[5])
     assert np.all(np.isnan(trans))
 
 
 def test_transform_err_4x1_3(data):
-    bc = BoxCox(on_err='log')
+    bc = PowerTransformer(on_err='log')
     trans = bc.fit_transform(data[4])
     assert np.all(trans == data[6])
     inverse = bc.inverse_transform(trans)
@@ -152,7 +139,7 @@ def test_transform_err_4x1_3(data):
 
 
 def test_transform_err_4x4_3(data):
-    bc = BoxCox(on_err='log')
+    bc = PowerTransformer(on_err='log')
     trans = bc.fit_transform(data[5])
     assert np.all(trans == data[7])
     inverse = bc.inverse_transform(trans)
@@ -161,10 +148,10 @@ def test_transform_err_4x4_3(data):
 
 def test_transform_err():
     with pytest.raises(ValueError):
-        bc = BoxCox(on_err='raise')
+        bc = PowerTransformer(on_err='raise')
         bc.fit_transform([1, 1, 1])
     with pytest.raises(FloatingPointError):
-        bc = BoxCox(on_err='raise')
+        bc = PowerTransformer(on_err='raise')
         bc.fit_transform([1e20, 1, 1e20])
 
 

@@ -24,7 +24,7 @@ def data():
     raw_4x4 = np.concatenate((a, a, a, a), axis=1)
 
     # raw_shift = raw - raw.min() + 1e-9
-    a_, _ = PT().fit_transform(raw)
+    a_ = PT(standardize=False).fit_transform(raw.reshape(-1, 1))
     a_ = a_.reshape(-1, 1)
     trans_4x1 = a_
     trans_4x4 = np.concatenate((a_, a_, a_, a_), axis=1)
@@ -67,6 +67,8 @@ def test_transform_4x1_3(data):
 def test_transform_4x1_ravel_1(data):
     bc = PowerTransformer()
     trans = bc.fit_transform(data[0].ravel())
+    print(trans)
+    print(data[2].ravel())
     assert np.all(trans == data[2].ravel())
     inverse = bc.inverse_transform(trans)
     assert np.allclose(inverse, data[0].ravel())

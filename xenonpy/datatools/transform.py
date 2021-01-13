@@ -81,7 +81,7 @@ class PowerTransformer(BaseEstimator, TransformerMixin):
         Returns
         -------
         """
-        x = self._pt._check_input(self._check_type(x))
+        x = self._pt._check_input(self._check_type(x), in_fit=True)
 
         # forcing constant column vectors to have no transformation (lambda=1)
         idx = []

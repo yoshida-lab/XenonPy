@@ -167,7 +167,10 @@ class GaussianLogLikelihood(BaseLogLikelihood):
         if not self._targets:
             raise RuntimeError('<targets> is empty')
 
-        ll = pd.DataFrame(np.full((len(smis), len(self._mdl)), log_0), columns=self._mdl.keys())
+        if isinstance(smis, (pd.Series, pd.DataFrame)):
+            ll = pd.DataFrame(np.full((len(smis), len(self._mdl)), log_0), index=smis.index, columns=self._mdl.keys())
+        else:
+            ll = pd.DataFrame(np.full((len(smis), len(self._mdl)), log_0), columns=self._mdl.keys())
 
         # 1. apply prediction on given sims
         # 2. reset returns' index to [0, 1, ..., len(smis) - 1], this should be consistent with ll's index

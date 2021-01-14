@@ -49,7 +49,7 @@ def test_scaler_1(data):
     scaler = Scaler()
     assert scaler.transform([1, 2, 3, 4]) == [1, 2, 3, 4]
 
-    raw_4x4 = pd.DataFrame(data[1], index='abcd', columns='jklm')
+    raw_4x4 = pd.DataFrame(data[1], index=list('abcd'), columns=list('jklm'))
     ret = scaler.min_max().fit_transform(raw_4x4)
     assert isinstance(ret, pd.DataFrame)
     assert ret.index.tolist() == list('abcd')

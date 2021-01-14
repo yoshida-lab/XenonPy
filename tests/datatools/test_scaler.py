@@ -2,8 +2,8 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-
 import numpy as np
+import pandas as pd
 import pytest
 from scipy.stats import boxcox
 from sklearn.preprocessing import StandardScaler
@@ -46,6 +46,17 @@ def data():
 
 
 def test_scaler_1(data):
+    scaler = Scaler()
+    assert scaler.transform([1, 2, 3, 4]) == [1, 2, 3, 4]
+
+    raw_4x4 = pd.DataFrame(data[1], index='abcd', columns='jklm')
+    ret = scaler.min_max().fit_transform(raw_4x4)
+    assert isinstance(ret, pd.DataFrame)
+    assert ret.index.tolist() == list('abcd')
+    assert ret.columns.tolist() == list('jklm')
+
+
+def test_scaler_2(data):
     bc = Scaler().box_cox()
     std = Scaler().standard()
     bc_std = Scaler().box_cox().standard()

@@ -3,6 +3,7 @@
 #  license that can be found in the LICENSE file.
 
 import numpy as np
+import pandas as pd
 from pandas import DataFrame, Series
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
@@ -81,6 +82,7 @@ class PowerTransformer(BaseEstimator, TransformerMixin):
         Returns
         -------
         """
+
         x = self._pt._check_input(self._check_type(x), in_fit=True)
 
         # forcing constant column vectors to have no transformation (lambda=1)
@@ -106,10 +108,16 @@ class PowerTransformer(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, x):
-        return self._pt.transform(self._check_type(x))
+        ret = self._pt.transform(self._check_type(x))
+        if isinstance(x, pd.DataFrame):
+            return pd.DataFrame(ret, index=x.index, columns=x.columns)
+        return ret
 
     def inverse_transform(self, x):
-        return self._pt.inverse_transform(self._check_type(x))
+        ret = self._pt.inverse_transform(self._check_type(x))
+        if isinstance(x, pd.DataFrame):
+            return pd.DataFrame(ret, index=x.index, columns=x.columns)
+        return ret
 
 
 class Scaler(BaseEstimator, TransformerMixin):
@@ -157,14 +165,24 @@ class Scaler(BaseEstimator, TransformerMixin):
             The data used to compute the per-feature minimum and maximum
             used for later scaling along the features axis.
         """
+        if len(self._scalers) == 0:
+            return x
+
         for s in self._scalers:
             x = s.fit_transform(x)
         return self
 
     def fit_transform(self, x, y=None, **fit_params):
+        if len(self._scalers) == 0:
+            return x
+
+        x_ = x
         for s in self._scalers:
-            x = s.fit_transform(x)
-        return x
+            x_ = s.fit_transform(x_)
+
+        if isinstance(x, pd.DataFrame):
+            return pd.DataFrame(x_, index=x.index, columns=x.columns)
+        return x_
 
     def transform(self, x):
         """Scaling features of X according to feature_range.
@@ -173,17 +191,28 @@ class Scaler(BaseEstimator, TransformerMixin):
         x : array-like, shape [n_samples, n_features]
             Input data that will be transformed.
         """
+        if len(self._scalers) == 0:
+            return x
+
+        x_ = x
         for s in self._scalers:
-            x = s.transform(x)
-        return x
+            x_ = s.fit_transform(x_)
+
+        if isinstance(x, pd.DataFrame):
+            return pd.DataFrame(x_, index=x.index, columns=x.columns)
+        return x_
 
     def inverse_transform(self, x):
+        x_ = x
         for s in self._scalers[::-1]:
-            x = s.inverse_transform(x)
-        return x
+            x_ = s.inverse_transform(x_)
+        if isinstance(x, pd.DataFrame):
+            return pd.DataFrame(x_, index=x.index, columns=x.columns)
+        return x_
 
-    def _reset(self):
+    def reset(self):
         """
         Reset internal data-dependent state of the scaler, if necessary.
         __init__ parameters are not touched.
         """
+        self._scalers = []

@@ -79,6 +79,7 @@ def test_preset_3():
     assert 58 == e.shape[1], 'should have 58 completed features'
 
 
+@pytest.mark.skip(reason="fetching test is no need")
 def test_preset_4():
     ids = Path(__file__).parent / 'ids.txt'
     samples = Path(__cfg_root__) / 'userdata' / 'mp_samples.pd.xz'
@@ -101,7 +102,8 @@ def test_preset_4():
     assert samples.exists()
 
     remove(str(samples))
-    preset.build('mp_samples', api_key=key,
+    preset.build('mp_samples',
+                 api_key=key,
                  mp_ids=['mp-862776', 'mp-30759', 'mp-768076', 'mp-9996', 'mvc-2470'])
     assert samples.exists()
     remove(str(samples))
@@ -110,7 +112,9 @@ def test_preset_4():
     assert save_to.exists()
 
     remove(str(save_to))
-    preset.build('mp_samples', api_key=key, save_to=str(save_to),
+    preset.build('mp_samples',
+                 api_key=key,
+                 save_to=str(save_to),
                  mp_ids=['mp-862776', 'mp-30759', 'mp-768076', 'mp-9996', 'mvc-2470'])
     assert save_to.exists()
     remove(str(save_to))

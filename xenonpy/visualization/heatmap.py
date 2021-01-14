@@ -73,7 +73,7 @@ class DescriptorHeatmap(BaseEstimator):
         self.desc = None
 
     def fit(self, desc):
-        scaler = Scaler().min_max(axis=0)
+        scaler = Scaler().min_max()
         if self.bc:
             scaler = scaler.yeo_johnson()
 

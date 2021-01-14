@@ -8,6 +8,8 @@ import pandas as pd
 import seaborn as sb
 from typing import Sequence, Union
 
+from xenonpy.datatools import Scaler
+
 from sklearn.preprocessing import power_transform
 from sklearn.base import BaseEstimator
 from sklearn.preprocessing import minmax_scale
@@ -71,13 +73,18 @@ class DescriptorHeatmap(BaseEstimator):
         self.desc = None
 
     def fit(self, desc):
-        desc = minmax_scale(desc, axis=0)
+        scaler = Scaler().min_max(axis=0)
         if self.bc:
-            desc = power_transform(desc, method='yeo-johnson')
-        self.desc = desc
+            scaler = scaler.yeo_johnson()
+
+        self.desc = scaler.fit_transform(desc)
         return self
 
-    def draw(self, y: Union[Sequence, pd.Series, None] = None, name: str = None, *, return_sorted_idx: bool = False):
+    def draw(self,
+             y: Union[Sequence, pd.Series, None] = None,
+             name: str = None,
+             *,
+             return_sorted_idx: bool = False):
         """
         Draw figure.
 
@@ -89,7 +96,7 @@ class DescriptorHeatmap(BaseEstimator):
             Property name. If ``name`` is ``None`` and ``y`` is not a ``pandas.Series``.
             No name will be draw in the figure.
         return_sorted_idx
-            If ``Ture``, return sorted column index of descriptor.
+            If ``True``, return sorted column index of descriptor.
             Default ``False``
 
         Returns

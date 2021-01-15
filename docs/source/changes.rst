@@ -5,6 +5,47 @@
 Changes
 =======
 
+v0.5.0
+======
+
+**Breaking change**
+
+* Remove the ``BoxCox`` transform. ( `#222`_ )
+
+**New features**
+
+* Add new contribution ``iSMD`` by `qi`_. ( `#208`_ )
+* Add classification support for ``Trainer``. ( `#184`_ )
+
+**Enhance**
+
+* ``BaseFeaturizer.transform`` now supports ``pandas.DataFrame`` as input. (??)
+* Allow using custom elemental information matrix in ``Compositions`` descriptor. ( `#221`_ )
+* Use ``joblib.parallel`` as default parallel backend. ( `#191`_, `#220`_ )
+* ``Splliter.split`` method now support python list as input. ( `#194`_ )
+* Allow user specific index for ``DescriptorHeatmap``. ( `#44`_ )
+* Allow control of number of layers to be extracted in ``FrozenFeaturizer``. ( `#147`_ )
+
+
+**Infrastructure improve**
+
+* Move CI to github action. ( `#195`_ )
+* Move to readthedocs version 2. ( `#206`_ )
+
+.. _qi: https://github.com/qi-zh
+.. _#222: https://github.com/yoshida-lab/XenonPy/pull/222
+.. _#208: https://github.com/yoshida-lab/XenonPy/pull/208
+.. _#221: https://github.com/yoshida-lab/XenonPy/pull/221
+.. _#184: https://github.com/yoshida-lab/XenonPy/pull/184
+.. _#195: https://github.com/yoshida-lab/XenonPy/pull/195
+.. _#206: https://github.com/yoshida-lab/XenonPy/pull/206
+.. _#191: https://github.com/yoshida-lab/XenonPy/pull/191
+.. _#220: https://github.com/yoshida-lab/XenonPy/pull/220
+.. _#194: https://github.com/yoshida-lab/XenonPy/pull/194
+.. _#44: https://github.com/yoshida-lab/XenonPy/pull/44
+.. _#174: https://github.com/yoshida-lab/XenonPy/pull/174
+
+
 v0.4.2
 ======
 

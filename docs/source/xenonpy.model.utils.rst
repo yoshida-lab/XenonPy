@@ -12,7 +12,6 @@ xenonpy.model.utils.metrics module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    xenonpy.model.nn
    xenonpy.model.training
@@ -36,7 +37,6 @@ xenonpy.model.sequential module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

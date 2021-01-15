@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    xenonpy.inverse.iqspr
 
@@ -18,7 +19,6 @@ xenonpy.inverse.base module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

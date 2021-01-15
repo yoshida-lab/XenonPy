@@ -60,7 +60,6 @@ xenonpy.mdl.property module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

@@ -20,7 +20,6 @@ xenonpy.model.nn.wrap module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

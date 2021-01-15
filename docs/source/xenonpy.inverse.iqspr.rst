@@ -20,6 +20,14 @@ xenonpy.inverse.iqspr.iqspr module
    :undoc-members:
    :show-inheritance:
 
+xenonpy.inverse.iqspr.iqspr4df module
+-------------------------------------
+
+.. automodule:: xenonpy.inverse.iqspr.iqspr4df
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 xenonpy.inverse.iqspr.modifier module
 -------------------------------------
 
@@ -27,7 +35,6 @@ xenonpy.inverse.iqspr.modifier module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

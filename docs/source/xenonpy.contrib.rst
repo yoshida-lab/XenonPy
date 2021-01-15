@@ -5,9 +5,10 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    xenonpy.contrib.extend_descriptors
-   xenonpy.contrib.foo
+   xenonpy.contrib.ismd
 
 Module contents
 ---------------

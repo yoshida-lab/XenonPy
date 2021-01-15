@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    xenonpy.utils.math
 
@@ -34,7 +35,6 @@ xenonpy.utils.useful\_func module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

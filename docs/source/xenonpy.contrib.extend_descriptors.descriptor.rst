@@ -28,7 +28,6 @@ xenonpy.contrib.extend\_descriptors.descriptor.organic\_comp\_descriptor module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

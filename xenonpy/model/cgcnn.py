@@ -28,8 +28,7 @@ class ConvLayer(nn.Module):
         super(ConvLayer, self).__init__()
         self.atom_fea_len = atom_fea_len
         self.nbr_fea_len = nbr_fea_len
-        self.fc_full = nn.Linear(2 * self.atom_fea_len + self.nbr_fea_len,
-                                 2 * self.atom_fea_len)
+        self.fc_full = nn.Linear(2 * self.atom_fea_len + self.nbr_fea_len, 2 * self.atom_fea_len)
         self.sigmoid = nn.Sigmoid()
         self.softplus1 = nn.Softplus()
         self.bn1 = nn.BatchNorm1d(2 * self.atom_fea_len)
@@ -65,11 +64,11 @@ class ConvLayer(nn.Module):
         # convolution
         atom_nbr_fea = atom_in_fea[nbr_fea_idx, :]
         total_nbr_fea = torch.cat(
-            [atom_in_fea.unsqueeze(1).expand(N, M, self.atom_fea_len),
-             atom_nbr_fea, nbr_fea], dim=2)
+            [atom_in_fea.unsqueeze(1).expand(N, M, self.atom_fea_len), atom_nbr_fea, nbr_fea],
+            dim=2)
         total_gated_fea = self.fc_full(total_nbr_fea)
-        total_gated_fea = self.bn1(total_gated_fea.view(
-            -1, self.atom_fea_len * 2)).view(N, M, self.atom_fea_len * 2)
+        total_gated_fea = self.bn1(total_gated_fea.view(-1, self.atom_fea_len * 2)).view(
+            N, M, self.atom_fea_len * 2)
         nbr_filter, nbr_core = total_gated_fea.chunk(2, dim=2)
         nbr_filter = self.sigmoid(nbr_filter)
         nbr_core = self.softplus1(nbr_core)
@@ -90,8 +89,13 @@ class CrystalGraphConvNet(nn.Module):
     __ https://doi.org/10.1103/PhysRevLett.120.145301
     """
 
-    def __init__(self, orig_atom_fea_len, nbr_fea_len,
-                 atom_fea_len=64, n_conv=3, h_fea_len=128, n_h=1,
+    def __init__(self,
+                 orig_atom_fea_len,
+                 nbr_fea_len,
+                 atom_fea_len=64,
+                 n_conv=3,
+                 h_fea_len=128,
+                 n_h=1,
                  classification=False):
         """
         Initialize CrystalGraphConvNet.
@@ -115,16 +119,13 @@ class CrystalGraphConvNet(nn.Module):
         super(CrystalGraphConvNet, self).__init__()
         self.classification = classification
         self.embedding = nn.Linear(orig_atom_fea_len, atom_fea_len)
-        self.convs = nn.ModuleList([ConvLayer(atom_fea_len=atom_fea_len,
-                                              nbr_fea_len=nbr_fea_len)
-                                    for _ in range(n_conv)])
+        self.convs = nn.ModuleList(
+            [ConvLayer(atom_fea_len=atom_fea_len, nbr_fea_len=nbr_fea_len) for _ in range(n_conv)])
         self.conv_to_fc = nn.Linear(atom_fea_len, h_fea_len)
         self.conv_to_fc_softplus = nn.Softplus()
         if n_h > 1:
-            self.fcs = nn.ModuleList([nn.Linear(h_fea_len, h_fea_len)
-                                      for _ in range(n_h - 1)])
-            self.softpluses = nn.ModuleList([nn.Softplus()
-                                             for _ in range(n_h - 1)])
+            self.fcs = nn.ModuleList([nn.Linear(h_fea_len, h_fea_len) for _ in range(n_h - 1)])
+            self.softpluses = nn.ModuleList([nn.Softplus() for _ in range(n_h - 1)])
         if self.classification:
             self.fc_out = nn.Linear(h_fea_len, 2)
         else:
@@ -194,6 +195,7 @@ class CrystalGraphConvNet(nn.Module):
         """
         assert sum([len(idx_map) for idx_map in crystal_atom_idx]) == \
                atom_fea.data.shape[0]
-        summed_fea = [torch.mean(atom_fea[idx_map], dim=0, keepdim=True)
-                      for idx_map in crystal_atom_idx]
+        summed_fea = [
+            torch.mean(atom_fea[idx_map], dim=0, keepdim=True) for idx_map in crystal_atom_idx
+        ]
         return torch.cat(summed_fea, dim=0)

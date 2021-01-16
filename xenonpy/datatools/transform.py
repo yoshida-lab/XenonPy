@@ -31,6 +31,7 @@ class PowerTransformer(BaseEstimator, TransformerMixin):
                  tolerance=(-np.inf, np.inf),
                  on_err=None):
         """
+
         Parameters
         ----------
         method: 'yeo-johnson' or 'box-cox'
@@ -38,11 +39,11 @@ class PowerTransformer(BaseEstimator, TransformerMixin):
             ‘box-cox’ only works with strictly positive values
         standardize: boolean
             Normalize to standard normal or not.
-            Recommend using a sepearate `standard`_ function instead of using this option.
+            Recommend using a sepearate `standard` function instead of using this option.
         lmd: list or 1-dim ndarray
             You might assign each input xs with a specific lmd yourself.
             Leave None(default) to use a inferred value.
-            See `PowerTransformer`_ for detials.
+            See `PowerTransformer` for detials.
         tolerance: tuple
             Tolerance of lmd. Set None to accept any.
             Default is **(-np.inf, np.inf)** but recommend **(-2, 2)** for Box-cox transform
@@ -78,9 +79,13 @@ class PowerTransformer(BaseEstimator, TransformerMixin):
         """
         Parameters
         ----------
-        x
+        X : array-like of shape (n_samples, n_features)
+            The data used to compute the per-feature transformation
+
         Returns
         -------
+        self : object
+            Fitted scaler.
         """
 
         x = self._pt._check_input(self._check_type(x), in_fit=True)
@@ -123,10 +128,12 @@ class PowerTransformer(BaseEstimator, TransformerMixin):
 class Scaler(BaseEstimator, TransformerMixin):
     """
     A value-matrix container for data transform.
+
     """
 
     def __init__(self):
         """
+
         Parameters
         ----------
         value: DataFrame

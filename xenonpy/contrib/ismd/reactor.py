@@ -14,7 +14,10 @@ try:
     import onmt.model_builder
     import onmt.modules
 except ImportError:
-    warnings.warn("Can not import onmt package, the ismd is unavailable. To install onmt, see: https://github.com/OpenNMT/OpenNMT-py")
+    warnings.warn(
+        "Can not import onmt package, the ismd is unavailable. To install onmt, see: https://github.com/OpenNMT/OpenNMT-py"
+    )
+
 
 class SMILESInvalidError(Exception):
 
@@ -25,12 +28,15 @@ class SMILESInvalidError(Exception):
 def smi_tokenizer(smi) -> str:
     """
     Tokenize a SMILES molecule or reaction
+
+    Parameters
     ----------
-    Parameters:
-        smi: [str]
-            SMILES
-    Returns:
-        tokenized SMILES
+    smi: [str]
+        SMILES
+
+    Returns
+    -------
+    tokenized SMILES
     """
     import re
     pattern = "(\[[^\]]+]|Br?|Cl?|N|O|S|P|F|I|b|c|n|o|s|p|\(|\)|\.|=|#|-|\+|\\\\|\/|:|~|@|\?|>|\*|\$|\%[0-9]{2}|[0-9])"
@@ -46,21 +52,25 @@ class Reactor():
     def __init__(self, model: Translator):
         """
         A chemical reaction prediction model
+
+        Parameters
         ----------
-        Parameters:
-            model: [onmt.translate.translator.Translator]
-                A molecular transformer model for reaction prediction
+        model: [onmt.translate.translator.Translator]
+            A molecular transformer model for reaction prediction
         """
         self._model = model
 
     def react(self, reactant_list, *, batch_size=64) -> list:
         """
         Tokenize a SMILES molecule or reaction
+
+        Parameters
         ----------
-        Parameters:
-            reactant_list: [list]
-                list of reactant 
-        Returns:
+        reactant_list: [list]
+            list of reactant 
+
+        Returns
+        -------
             product_list: [list]
                 all_predictions is a list of `batch_size` lists of `n_best` predictions
         """
@@ -77,18 +87,22 @@ class Reactor():
 def load_reactor(max_length=200, *, device_id=-1, model_path='') -> Reactor:
     """
     Loader of reaction prediction model
+
+    Parameters
     ----------
-    Parameters:
-        max_length: [int]
-            maxmal length of product SMILES
-        device_id: [int]
-            cpu: -1; gpu: 0,1,2,3...
-        model_path: [str]
-            path of transformer file.
-    Returns:
+    max_length: [int]
+        maxmal length of product SMILES
+    device_id: [int]
+        cpu: -1; gpu: 0,1,2,3...
+    model_path: [str]
+        path of transformer file.
+
+    Returns
+    -------
         Reactor : A chemical reaction prediction model
     """
-    parser = argparse.ArgumentParser(description='translate.py', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser = argparse.ArgumentParser(description='translate.py',
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     onmt.opts.translate_opts(parser)
     opt = parser.parse_args([
         '-src', 'dummy_src', '-model', model_path, '-replace_unk', '-max_length',

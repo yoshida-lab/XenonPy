@@ -28,7 +28,7 @@ v0.5.0
 * Use ``joblib.parallel`` as default parallel backend. ( `#191`_, `#220`_ )
 * ``Splliter.split`` method now support python list as input. ( `#194`_ )
 * Allow user specific index for ``DescriptorHeatmap``. ( `#44`_ )
-* Allow control of number of layers to be extracted in ``FrozenFeaturizer``. ( `#147`_ )
+* Allow control of number of layers to be extracted in ``FrozenFeaturizer``. ( `#174`_ )
 * ``bit_per_entry`` option is added to ``RDKitFP`` and ``AtomPairFP`` to allow control of number of bits to represent one fingerprint entry.
 * ``counting`` option is added to ``RDKitFP``, ``AtomPairFP``, ``TopologicalTorsionFP``, ``FCFP`` and ``ECFP`` to support returning counts of each fingerprint entry.
 * Column names of ``DescriptorFeature`` is updated to be consistent with the rdkit naming.

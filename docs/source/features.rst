@@ -109,7 +109,7 @@ the ``elements_completed`` data set provides only 58 properties of 94 elements (
     ``num_s_valence``                   Valance electron in s shell
     =================================   ===================================================================================
 
-For more details on this system, see :doc:`tutorial/1-dataset`.
+For more details on this system, see :doc:`tutorials/1-dataset`.
 
 Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/dataset_and_preset.ipynb to get a runnable script.
 
@@ -156,7 +156,7 @@ XenonPy also supports molecular descriptors available in the `RDKit`_ python pac
 .. _RDKit: https://www.rdkit.org/
 
 
-The tutorials at :doc:`tutorial/2-descriptor` demonstrate how to calculate descriptors using ``XenonPy.descriptor`` classes.
+The tutorials at :doc:`tutorials/2-descriptor` demonstrate how to calculate descriptors using ``XenonPy.descriptor`` classes.
 
 Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/calculate_descriptors.ipynb to get a runnable script.
 
@@ -185,7 +185,7 @@ or nonlinearly dependent to formation energies, might exhibit certain patterns f
 a monotonically decrease or increase pattern would appear in a linearly dependent descriptor. On the other hand,
 irrelevant descriptors might exhibit no specific patterns.
 
-See the tutorials for visualization of descriptor-property relationships at :doc:`tutorial/3-visualization`.
+See the tutorials for visualization of descriptor-property relationships at :doc:`tutorials/3-visualization`.
 
 Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/visualization.ipynb to get a runnable script.
 
@@ -280,7 +280,7 @@ The following lists contain the information of current available pre-trained mod
 
 XenonPy.MDL provides a rich set of APIs to give users the abilities to interact with the pre-trained model database.
 Through the APIs, users can search for a specific subset of models by keywords and download them via HTTP.
-The tutorials at :doc:`tutorial/5-mdl` will show you how to interact with the database in XenonPy (via the API querying).
+The tutorials at :doc:`tutorials/5-pre-trained_model_library` will show you how to interact with the database in XenonPy (via the API querying).
 
 Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/pre-trained_model_library.ipynb to get a runnable script.
 
@@ -297,7 +297,7 @@ promising applications in materials science as described in [3]_.
 XenonPy offers a simple-to-use toolchain to seamlessly perform transfer learning with the given pre-trained models.
 Given a target property, by using the transfer learning module of XenonPy, a source model can be treated as a generator of machine learning acquired descriptors, so-called the neural descriptors, as demonstrated in [3]_.
 
-See tutorials at :doc:`tutorial/6-transfer-learning` for learning how to do the frozen feature transfer learning in XenonPy.
+See tutorials at :doc:`tutorials/6-transfer_learning` for learning how to do the frozen feature transfer learning in XenonPy.
 
 Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/transfer_learning.ipynb to get a runnable script.
 

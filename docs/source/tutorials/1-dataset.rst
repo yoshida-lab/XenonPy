@@ -84,7 +84,7 @@ If you will get a ``file not exist`` error, please run the following code to syn
     >>> preset.sync('elements')
     >>> preset.sync('elements_completed')
 
-These are still some advanced uses of ``Dataset`` and ``preset``. For more details, see :ref:`tutorial/1-dataset:Advance`.
+These are still some advanced uses of ``Dataset`` and ``preset``. For more details, see :ref:`tutorials/1-dataset:Advance`.
 
 Also see the jupyter files at:
 

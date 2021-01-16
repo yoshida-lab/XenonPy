@@ -22,8 +22,8 @@ v0.5.0
 
 **Enhance**
 
-* ``BaseFeaturizer.transform`` now supports ``pandas.DataFrame`` as input where relevant columns for descriptor calculation can be specified through ``target_col``. (??)
-* ``BaseDescriptor.transform`` and ``BaseLogLikelihoodSet.log_likelihood`` now automatically check if any group names occur in the input ``pandas.DataFrame`` column names. If not, the entire ``pandas.DataFrame`` will be passed to the corresponding ``BaseFeaturizer`` and ``BaseLogLikelihood``, respectively. (??)
+* ``BaseFeaturizer.transform`` now supports ``pandas.DataFrame`` as input where relevant columns for descriptor calculation can be specified through ``target_col``.
+* ``BaseDescriptor.transform`` and ``BaseLogLikelihoodSet.log_likelihood`` now automatically check if any group names occur in the input ``pandas.DataFrame`` column names. If not, the entire ``pandas.DataFrame`` will be passed to the corresponding ``BaseFeaturizer`` and ``BaseLogLikelihood``, respectively.
 * Allow using custom elemental information matrix in ``xenonpy.descriptor.Compositions`` descriptor. ( `#221`_ )
 * Use ``joblib.parallel`` as default parallel backend. ( `#191`_, `#220`_ )
 * ``Splliter.split`` method now support python list as input. ( `#194`_ )

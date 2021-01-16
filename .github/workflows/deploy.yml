@@ -2,10 +2,8 @@ name: Deploy PiPy
 
 on:
   push:
-    branches:
-      - master
     tags:
-      - v0.*
+      - v*
 
 env:
   MPLBACKEN: 'Agg'

@@ -1,4 +1,4 @@
-# A proposal
+# New BaseProposal class
 
 ## reactant_pool
 

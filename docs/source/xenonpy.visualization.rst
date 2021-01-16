@@ -12,7 +12,6 @@ xenonpy.visualization.heatmap module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

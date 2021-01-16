@@ -28,7 +28,6 @@ xenonpy.model.training.extension.validator module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

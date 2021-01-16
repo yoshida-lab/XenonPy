@@ -5,6 +5,7 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
    xenonpy.model.training.dataset
    xenonpy.model.training.extension
@@ -67,7 +68,6 @@ xenonpy.model.training.trainer module
    :members:
    :undoc-members:
    :show-inheritance:
-
 
 Module contents
 ---------------

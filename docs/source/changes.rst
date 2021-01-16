@@ -5,6 +5,54 @@
 Changes
 =======
 
+v0.5.0
+======
+
+**Breaking change**
+
+* Replace ``xenonpy.datatools.BoxCox`` with ``xenonpy.datatools.PowerTransformer``. ( `#222`_ )
+
+**New features**
+
+* Add ``xenonpy.datatools.PowerTransformer`` to provide *yeo-johnson* and *box-cox* transformation through the ``sklearn.preprocessing.PowerTransformer``. ( `#222`_ )
+* Add new contribution ``ISMD`` by `Qi`_, a new class of ``BaseProposal`` that allows generation of molecules based on virtual reaction of reactants in a predefined reactant pool. ( `#208`_ )
+* Add classifier training support for the ``xenonpy.model.Trainer``. ( `#184`_ )
+* Add ``IQSPR4DF`` to support ``pandas.DataFrame`` input to iQSPR.
+* Add ``LayeredFP``, ``PatternFP``, and ``MHFP`` (new rdkit fingerprints).
+
+**Enhance**
+
+* ``BaseFeaturizer.transform`` now supports ``pandas.DataFrame`` as input where relevant columns for descriptor calculation can be specified through ``target_col``.
+* ``BaseDescriptor.transform`` and ``BaseLogLikelihoodSet.log_likelihood`` now automatically check if any group names occur in the input ``pandas.DataFrame`` column names. If not, the entire ``pandas.DataFrame`` will be passed to the corresponding ``BaseFeaturizer`` and ``BaseLogLikelihood``, respectively.
+* Allow using custom elemental information matrix in ``xenonpy.descriptor.Compositions`` descriptor. ( `#221`_ )
+* Use ``joblib.parallel`` as default parallel backend. ( `#191`_, `#220`_ )
+* ``Splliter.split`` method now support python list as input. ( `#194`_ )
+* Allow user specific index for ``DescriptorHeatmap``. ( `#44`_ )
+* Allow control of number of layers to be extracted in ``FrozenFeaturizer``. ( `#147`_ )
+* ``bit_per_entry`` option is added to ``RDKitFP`` and ``AtomPairFP`` to allow control of number of bits to represent one fingerprint entry.
+* ``counting`` option is added to ``RDKitFP``, ``AtomPairFP``, ``TopologicalTorsionFP``, ``FCFP`` and ``ECFP`` to support returning counts of each fingerprint entry.
+* Column names of ``DescriptorFeature`` is updated to be consistent with the rdkit naming.
+
+
+**Infrastructure improve**
+
+* Move CI to github action. ( `#195`_ )
+* Move to readthedocs version 2. ( `#206`_ )
+
+.. _Qi: https://github.com/qi-zh
+.. _#222: https://github.com/yoshida-lab/XenonPy/pull/222
+.. _#208: https://github.com/yoshida-lab/XenonPy/pull/208
+.. _#221: https://github.com/yoshida-lab/XenonPy/pull/221
+.. _#184: https://github.com/yoshida-lab/XenonPy/pull/184
+.. _#195: https://github.com/yoshida-lab/XenonPy/pull/195
+.. _#206: https://github.com/yoshida-lab/XenonPy/pull/206
+.. _#191: https://github.com/yoshida-lab/XenonPy/pull/191
+.. _#220: https://github.com/yoshida-lab/XenonPy/pull/220
+.. _#194: https://github.com/yoshida-lab/XenonPy/pull/194
+.. _#44: https://github.com/yoshida-lab/XenonPy/pull/44
+.. _#174: https://github.com/yoshida-lab/XenonPy/pull/174
+
+
 v0.4.2
 ======
 

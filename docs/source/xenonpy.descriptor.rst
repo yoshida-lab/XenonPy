@@ -52,7 +52,6 @@ xenonpy.descriptor.structure module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

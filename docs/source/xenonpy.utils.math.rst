@@ -12,7 +12,6 @@ xenonpy.utils.math.product module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

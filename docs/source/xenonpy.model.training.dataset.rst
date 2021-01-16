@@ -20,7 +20,6 @@ xenonpy.model.training.dataset.cgcnn module
    :undoc-members:
    :show-inheritance:
 
-
 Module contents
 ---------------
 

@@ -66,7 +66,7 @@ the ``elements_completed`` data set provides only 58 properties of 94 elements (
     ``electron_negativity``             Tendency of an atom to attract a shared pair of electrons
     ``en_allen``                        Allen's scale of electronegativity
     ``en_ghosh``                        Ghosh's scale of electronegativity
-    ``en_pauling``                      Mulliken's scale of electronegativity
+    ``en_pauling``                      Pauling's scale of electronegativity
     ``gs_bandgap``                      DFT bandgap energy of T=0K ground state
     ``gs_energy``                       DFT energy per atom (raw VASP value) of T=0K ground state
     ``gs_est_bcc_latcnt``               Estimated BCC lattice parameter based on the DFT volume

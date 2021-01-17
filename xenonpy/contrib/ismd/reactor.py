@@ -13,9 +13,9 @@ try:
     import onmt
     import onmt.model_builder
     import onmt.modules
-except ImportError:
+except ImportError as e:
     warnings.warn(
-        "Can not import onmt package, the ismd is unavailable. To install onmt, see: https://github.com/OpenNMT/OpenNMT-py"
+        f"Can not import package {e}, the ismd is unavailable. To install onmt, see: https://github.com/OpenNMT/OpenNMT-py"
     )
 
 

@@ -3,7 +3,6 @@ channels:
   - pytorch
   - rdkit
 dependencies:
-  - python=3.7
   - pandas
   - seaborn
   - requests
@@ -12,14 +11,16 @@ dependencies:
   - scipy
   - pytorch
   - cpuonly
-  - nbconvert!=5.4
-  - ipykernel
+  - sphinx
+  - sphinx_rtd_theme
   - pip
   - pip:
       - pymatgen
+      - matminer
       - nbsphinx
       - Python-Deprecated
       - OpenNMT-py==1.2
       - sphinx-autodoc-typehints
       - ruamel.yaml
+      - mordred
       - tqdm

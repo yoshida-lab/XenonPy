@@ -175,18 +175,14 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'XenonPy.tex', 'XenonPy Documentation',
-     'TsumiNa', 'manual'),
+    (master_doc, 'XenonPy.tex', 'XenonPy Documentation', 'TsumiNa', 'manual'),
 ]
 
 # -- Options for manual page output ---------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'XenonPy', 'XenonPy Documentation',
-     [author], 1)
-]
+man_pages = [(master_doc, 'XenonPy', 'XenonPy Documentation', [author], 1)]
 
 # -- Options for Texinfo output -------------------------------------------
 
@@ -194,18 +190,19 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'XenonPy', 'XenonPy Documentation',
-     author, 'XenonPy', 'One line description of project.',
-     'Miscellaneous'),
+    (master_doc, 'XenonPy', 'XenonPy Documentation', author, 'XenonPy',
+     'One line description of project.', 'Miscellaneous'),
 ]
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None,
-                       'pandas': ('http://pandas.pydata.org/pandas-docs/version/0.25', None),
-                       'numpy': ('http://docs.scipy.org/doc/numpy', None),
-                       'scipy': ('http://docs.scipy.org/doc/scipy/reference', None),
-                       'matplotlib': ('http://matplotlib.org', None),
-                       'torch': ('https://pytorch.org/docs/stable/', None)}
+intersphinx_mapping = {
+    'https://docs.python.org/3': None,
+    'pandas': ('https://pandas.pydata.org/pandas-docs/stable', None),
+    'numpy': ('https://numpy.org/doc/stable', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/reference', None),
+    'matplotlib': ('https://matplotlib.org', None),
+    'torch': ('https://pytorch.org/docs/stable/', None)
+}
 
 nbsphinx_execute = 'never'
 

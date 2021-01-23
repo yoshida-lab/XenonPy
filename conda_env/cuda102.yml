@@ -8,6 +8,7 @@ dependencies:
   - scipy>=1.5.2
   - pymatgen>=2020.10.9
   - rdkit>=2020.09.1.0
+  - 'libblas=*=*mkl'
   - jupyter>=1.0.0
   - pytorch >=1.6.0,<2.0.0
   - cudatoolkit=10.2

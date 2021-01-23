@@ -45,25 +45,25 @@ You can use these files to create a runnable environment on your local machine.
     We highly recommend you to install the `Visual C++ Build Tools <https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=BuildTools&rel=16>`_ before creating your environment.
     Also, confirm that you have checked the **Windows 10 SDK** (assuming the computer is Windows 10) on when installing the build tools.
 
-The following example shows how to create an environment named ``xenonpy`` in ``python3.7`` and ``cuda10`` supports step-by-step.
+The following example shows how to create an environment named ``xenonpy`` in ``python3.7`` and ``cuda10.1`` supports step-by-step.
 
 1. **Chose an environment preset and download it**.
 
- Because we want to have cuda10 supports, The **cuda10.yml** preset will surely satisfy this work.
+ Because we want to have cuda10.1 supports, The **cuda101.yml** preset will surely satisfy this work.
  If `curl <https://curl.haxx.se/>`_ has been installed, the following command will download the environment file to your local machine.
 
  .. code-block:: bash
 
-  $ curl -O https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/conda_env/cuda10.yml
+  $ curl -O https://raw.githubusercontent.com/yoshida-lab/XenonPy/master/conda_env/cuda101.yml
 
 2. **Create the environment and install packages using environment file**.
 
- The following commands will rebuild a python3.7 environment, and install the packages which are listed in **cuda10.yml**.
+ The following commands will rebuild a python3.7 environment, and install the packages which are listed in **cuda101.yml**.
 
  .. code-block:: bash
 
     $ conda create -n xenonpy python=3.7
-    $ conda env update -n xenonpy -f cuda10.yml
+    $ conda env update -n xenonpy -f cuda101.yml
 
 
 3. **Enter the environment by name**.

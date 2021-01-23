@@ -1,0 +1,12 @@
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - pytest
+  - pytest-cov
+  - pylint
+  - sphinx
+  - sphinx_rtd_theme
+  - nbconvert!=5.4
+  - nbsphinx
+  - sphinx-autodoc-typehints

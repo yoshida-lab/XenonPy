@@ -2,25 +2,25 @@ name: test
 channels:
   - defaults
   - pytorch
-  - rdkit
+  - conda-forge
 dependencies:
-  - pandas
+  - pandas>=1.2.0
   - seaborn
   - numpy
   - scipy
   - requests
-  - rdkit=2020.03.1.0
+  - rdkit>=2020.09.4
   - scikit-learn
   - scipy
-  - pytorch=1.6.0
+  - pytorch >=1.6.0,<2.0.0
   - pytest
   - pytest-cov
+  - pymatgen>=2020.10.9
+  - ruamel.yaml
+  - matminer
+  - tqdm
+  - mordred
   - pip
   - pip:
       - OpenNMT-py==1.2
-      - ruamel.yaml
       - Python-Deprecated
-      - mordred
-      - matminer
-      - pymatgen>=2020.10.9
-      - tqdm

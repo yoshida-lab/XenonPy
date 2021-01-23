@@ -10,10 +10,11 @@ dependencies:
   - rdkit>=2020.09.1.0
   - jupyter>=1.0.0
   - pytorch >=1.6.0,<2.0.0
-  - cpuonly
-  - fastcluster
+  - cudatoolkit=9.2
+  - magma-cuda92=2.5.2
   - torchvision
   - torchtext
+  - fastcluster
   - seaborn
   - requests
   - plotly

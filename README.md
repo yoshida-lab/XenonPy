@@ -2,6 +2,8 @@
   <img height="200" src="https://github.com/yoshida-lab/XenonPy/blob/master/logo.png" alt="xenonpy">
 </p>
 
+**Our XenonPy.MDL is under technical maintenance and is not available during this period, sorry for all the inconvenience. We will make an announcement as soon as the expected date of recovery is determined.**
+
 # XenonPy project
 
 [![MacOS](https://github.com/yoshida-lab/XenonPy/workflows/MacOS/badge.svg)](https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AMacOS)
@@ -43,11 +45,11 @@ The following table list some core packages in XenonPy images.
 | -------------- | --------- |
 | `PyTorch`      | 1.7.0     |
 | `tensorly`     | 0.5.0     |
-| `pymatgen`     | 2020.10.9 |
+| `pymatgen`     | 2020.03.3 |
 | `matminer`     | 0.6.2     |
 | `mordred`      | 1.2.0     |
 | `scipy`        | 1.5.2     |
-| `scikit-learn` | 0.23.0    |
+| `scikit-learn` | 0.23.2    |
 | `xgboost`      | 1.3.0     |
 | `ngboost`      | master    |
 | `fastcluster`  | 1.1.26    |
@@ -97,11 +99,11 @@ Docker image tags .
 
 | Image tag | CUDA | PyTorch |
 | --------- | ---- | ------- |
-| `latest`  | 11.0 | 1.7.0   |
-| `cpu`     | None | 1.7.0   |
-| `cuda11`  | 11.0 | 1.7.0   |
-| `cuda10`  | 10.1 | 1.7.0   |
-| `cuda9`   | 9.2  | 1.7.0   |
+| `latest`  | 11.0 | 1.7.1   |
+| `cpu`     | None | 1.7.1   |
+| `cuda11`  | 11.0 | 1.7.1   |
+| `cuda10`  | 10.2 | 1.7.1   |
+| `cuda9`   | 9.2  | 1.7.1   |
 
 ### Running XenonPy
 

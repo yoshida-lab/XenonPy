@@ -9,11 +9,10 @@ dependencies:
   - numpy
   - scipy
   - requests
-  - rdkit>=2020.03.1.0
-  - 'libblas=*=*mkl'
+  - rdkit=2020.03.3.0
   - scikit-learn
   - scipy
-  - pytorch >=1.6.0,<2.0.0
+  - pytorch >=1.7.0,<2.0.0
   - cpuonly
   - pytest
   - pytest-cov

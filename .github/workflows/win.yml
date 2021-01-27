@@ -4,9 +4,25 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - 'docs/**'
+      - '.**'
+      - '**.md'
+      - '**.yml'
+      - '**.txt'
+      - '**.in'
+      - '**.cfg'
   pull_request:
     branches:
       - master
+    paths-ignore:
+      - 'docs/**'
+      - '.**'
+      - '**.md'
+      - '**.yml'
+      - '**.txt'
+      - '**.in'
+      - '**.cfg'
 
 env:
   MPLBACKEN: 'Agg'

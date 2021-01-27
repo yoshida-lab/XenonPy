@@ -9,7 +9,6 @@
 [![MacOS](https://github.com/yoshida-lab/XenonPy/workflows/MacOS/badge.svg)](https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AMacOS)
 [![Windows](https://github.com/yoshida-lab/XenonPy/workflows/Windows/badge.svg)](https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AWindows)
 [![Ubuntu](https://github.com/yoshida-lab/XenonPy/workflows/Ubuntu/badge.svg)](https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AUbuntu)
-[![Build Status](https://travis-ci.org/yoshida-lab/XenonPy.svg?branch=master)](https://travis-ci.org/yoshida-lab/XenonPy)
 [![codecov](https://codecov.io/gh/yoshida-lab/XenonPy/branch/master/graph/badge.svg)](https://codecov.io/gh/yoshida-lab/XenonPy)
 [![Version](https://img.shields.io/github/tag/yoshida-lab/XenonPy.svg?maxAge=360)](https://github.com/yoshida-lab/XenonPy/releases/latest)
 [![Python Versions](https://img.shields.io/pypi/pyversions/xenonpy.svg)](https://pypi.org/project/xenonpy/)
@@ -41,27 +40,27 @@ See our documents for details: http://xenonpy.readthedocs.io
 [XenonPy base images](https://hub.docker.com/repository/docker/yoshidalab/base) packed a lot of useful packages for materials informatics using.
 The following table list some core packages in XenonPy images.
 
-| Package        | Version   |
-| -------------- | --------- |
-| `PyTorch`      | 1.7.0     |
-| `tensorly`     | 0.5.0     |
-| `pymatgen`     | 2020.03.3 |
-| `matminer`     | 0.6.2     |
-| `mordred`      | 1.2.0     |
-| `scipy`        | 1.5.2     |
-| `scikit-learn` | 0.23.2    |
-| `xgboost`      | 1.3.0     |
-| `ngboost`      | master    |
-| `fastcluster`  | 1.1.26    |
-| `pandas`       | 1.1.3     |
-| `rdkit`        | 2020.03.1 |
-| `jupyter`      | 1.0.0     |
-| `seaborn`      | 0.11.0    |
-| `matplotlib`   | 3.3.2     |
-| `OpenNMT-py`   | 1.2.0     |
-| `Optuna`       | 2.3.0     |
-| `plotly`       | 4.11.0    |
-| `ipympl`       | 0.5.8     |
+| Package        | Version    |
+| -------------- | ---------- |
+| `PyTorch`      | 1.7.1      |
+| `tensorly`     | 0.5.0      |
+| `pymatgen`     | 2020.10.20 |
+| `matminer`     | 0.6.2      |
+| `mordred`      | 1.2.0      |
+| `scipy`        | 1.5.2      |
+| `scikit-learn` | 0.23.2     |
+| `xgboost`      | 1.3.0      |
+| `ngboost`      | master     |
+| `fastcluster`  | 1.1.26     |
+| `pandas`       | 1.1.3      |
+| `rdkit`        | 2020.03.1  |
+| `jupyter`      | 1.0.0      |
+| `seaborn`      | 0.11.0     |
+| `matplotlib`   | 3.3.2      |
+| `OpenNMT-py`   | 1.2.0      |
+| `Optuna`       | 2.3.0      |
+| `plotly`       | 4.11.0     |
+| `ipympl`       | 0.5.8      |
 
 ## Requirements
 
@@ -144,5 +143,5 @@ option.
 
 ## Copyright and license
 
-©Copyright 2020 The XenonPy project, all rights reserved.
+©Copyright 2021 The XenonPy project, all rights reserved.
 Released under the `BSD-3 license`.

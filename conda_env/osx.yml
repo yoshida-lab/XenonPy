@@ -18,7 +18,6 @@ dependencies:
   - seaborn
   - requests
   - plotly
-  - matminer
   - ruamel.yaml
   - jupyterlab
   - pybtex
@@ -27,4 +26,5 @@ dependencies:
   - pip
   - pip:
       - Python-Deprecated
+      - matminer
       - xenonpy

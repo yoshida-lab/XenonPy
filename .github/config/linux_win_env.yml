@@ -18,7 +18,6 @@ dependencies:
   - pytest-cov
   - pymatgen>=2020.10.9
   - ruamel.yaml
-  - matminer
   - tqdm
   - mordred
   - pip

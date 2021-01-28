@@ -141,8 +141,8 @@ This will change file permission to ``r+w`` for all users.
 Installing in development mode
 ------------------------------
 
-To use the latest development version distributed at `Github repository`_,
-just clone the repository to create a local copy:
+The user who plans to contribute to XenonPy has to extend the python environment to support pytest and other development tools.
+The simplest way to extend your environment is using `extra_env.yml`_.
 
 .. code-block:: bash
 
@@ -153,13 +153,8 @@ under the cloned folder, run the following to install XenonPy in development mod
 .. code-block:: bash
 
     $ cd XenonPy
+    $ conda env update -n <your_env_name> -f devtools/extra_env.yml
     $ pip install -e .
-
-To update XenonPy, use ``git fetch && git pull``
-
-.. code-block:: bash
-
-    $ git fetch && git pull
 
 
 
@@ -178,7 +173,7 @@ Please provide detailed information (system specification, Python version, and i
 .. _yoshida-lab channel: https://anaconda.org/yoshida
 .. _pip: https://pip.pypa.io
 .. _docker image: https://docs.docker.com
-.. _Github repository: https://github.com/yoshida-lab/XenonPy
+.. _extra_env.yml: https://github.com/yoshida-lab/XenonPy/blob/master/devtools/extra_env.yml
 .. _issues: https://github.com/yoshida-lab/XenonPy/issues
 .. _Gitter: https://gitter.im/yoshida-lab/XenonPy
 .. _PyTorch: http://pytorch.org/

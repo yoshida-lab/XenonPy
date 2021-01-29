@@ -13,9 +13,13 @@ When contribute your codes, please do the following
 
 * Discuss with others
 * Use `Numpy style`_ for Docstring.
-* Check codes with Pylint_
+* Check codes with Pylint_ based on `.pylintrc`_.
+* Format codes with YAPF_ based on `.style.yapf`_.
 * Write tests if possible
 
 
 .. _Numpy style: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 .. _Pylint: https://pylint.readthedocs.io/
+.. _YAPF: https://github.com/google/yapf
+.. _.pylintrc: https://github.com/yoshida-lab/XenonPy/blob/master/.pylintrc
+.. _.style.yapf: https://github.com/yoshida-lab/XenonPy/blob/master/.style.yapf

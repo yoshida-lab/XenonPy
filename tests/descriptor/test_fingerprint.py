@@ -228,7 +228,7 @@ def test_fps_4(data):
     fps = Fingerprints(n_jobs=1, input_type='any', on_errors='nan')
     ret = fps.transform(data['err_smis'])
     assert isinstance(ret, pd.DataFrame)
-    assert ret.shape == (4, 16751)
+    assert ret.shape == (4, 16759)
     assert np.isnan(ret.values[1][10])
     assert np.isnan(ret.values[2][20])
 
@@ -246,7 +246,7 @@ def test_fps_6(data):
     fps = Fingerprints(n_jobs=1, input_type='any', on_errors='nan', counting=True)
     ret = fps.transform(data['smis'])
     assert isinstance(ret, pd.DataFrame)
-    assert ret.shape == (4, 16751)
+    assert ret.shape == (4, 16759)
 
 
 if __name__ == "__main__":

@@ -19,11 +19,11 @@
 for materials informatics. Its functionalities partially depend on PyTorch and R.
 The current release provides some limited modules:
 
-- Interface to public materials database
-- Library of materials descriptors (compositional/structural descriptors)
-- Pre-trained model library **XenonPy.MDL** (v0.1.0.beta, 2019/8/7: more than 140,000 models (include private models) in 35 properties of small molecules, polymers, and inorganic compounds)
-- Machine learning tools.
-- Transfer learning using the pre-trained models in XenonPy.MDL
+-   Interface to public materials database
+-   Library of materials descriptors (compositional/structural descriptors)
+-   Pre-trained model library **XenonPy.MDL** (v0.1.0.beta, 2019/8/7: more than 140,000 models (include private models) in 35 properties of small molecules, polymers, and inorganic compounds)
+-   Machine learning tools.
+-   Transfer learning using the pre-trained models in XenonPy.MDL
 
 XenonPy inspired by matminer: https://hackingmaterials.github.io/matminer/.
 
@@ -53,7 +53,7 @@ The following table list some core packages in XenonPy images.
 | `ngboost`      | master     |
 | `fastcluster`  | 1.1.26     |
 | `pandas`       | 1.1.3      |
-| `rdkit`        | 2020.03.1  |
+| `rdkit`        | 2020.09    |
 | `jupyter`      | 1.0.0      |
 | `seaborn`      | 0.11.0     |
 | `matplotlib`   | 3.3.2      |
@@ -123,18 +123,18 @@ docker run --rm -it \
 
 Here's a description of the Docker command-line options shown above:
 
-- `--runtime=nvidia`: Required if using CUDA, optional otherwise. Passes the
-  graphics card from the host to the container. **Optional, based on your usage**.
-- `--ipc=host`: Required if using multiprocessing, as explained at
-  <https://github.com/pytorch/pytorch#docker-image.> **Optional**
-- `--publish="8888:8888"`: Publish container's port 8888 to the host. **Needed**
-- `--volume=$Home/.xenonpy:/home/user/.xenonpy`: Mounts
-  the XenonPy root directory into the container. **Optional, but highly recommended**.
-- `--volume=<path/to/your/workspace>:/workspace`: Mounts
-  the your working directory into the container. **Optional, but highly recommended**.
-- `-e NVIDIA_VISIBLE_DEVICES=0`: Sets an environment variable to restrict which
-  graphics cards are seen by programs running inside the container. Set to `all`
-  to enable all cards. Optional, defaults to all.
+-   `--runtime=nvidia`: Required if using CUDA, optional otherwise. Passes the
+    graphics card from the host to the container. **Optional, based on your usage**.
+-   `--ipc=host`: Required if using multiprocessing, as explained at
+    <https://github.com/pytorch/pytorch#docker-image.> **Optional**
+-   `--publish="8888:8888"`: Publish container's port 8888 to the host. **Needed**
+-   `--volume=$Home/.xenonpy:/home/user/.xenonpy`: Mounts
+    the XenonPy root directory into the container. **Optional, but highly recommended**.
+-   `--volume=<path/to/your/workspace>:/workspace`: Mounts
+    the your working directory into the container. **Optional, but highly recommended**.
+-   `-e NVIDIA_VISIBLE_DEVICES=0`: Sets an environment variable to restrict which
+    graphics cards are seen by programs running inside the container. Set to `all`
+    to enable all cards. Optional, defaults to all.
 
 You may wish to consider using [Docker Compose](https://docs.docker.com/compose/)
 to make running containers with many options easier. At the time of writing,

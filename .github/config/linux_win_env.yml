@@ -9,7 +9,7 @@ dependencies:
   - numpy
   - scipy
   - requests
-  - rdkit=2020.03.3.0
+  - rdkit=2020.09
   - scikit-learn
   - scipy
   - pytorch >=1.7.0,<2.0.0

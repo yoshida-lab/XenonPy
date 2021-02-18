@@ -4,7 +4,7 @@
 
 import numpy as np
 from rdkit import Chem
-from rdkit.Chem import Descriptors
+from rdkit.Chem import Descriptors as ChemDesc
 from rdkit.Chem import MACCSkeys as MAC
 from rdkit.Chem import rdMolDescriptors as rdMol
 from rdkit.Chem import rdmolops as rdm
@@ -712,7 +712,7 @@ class DescriptorFeature(BaseFeaturizer):
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type, target_col=target_col)
         self.input_type = input_type
         if desc_list == 'all':
-            self.nms = [x[0] for x in Descriptors._descList]
+            self.nms = [x[0] for x in ChemDesc._descList]
         elif desc_list == 'classic':
             self.nms = self.classic
         else:
@@ -737,7 +737,6 @@ class DescriptorFeature(BaseFeaturizer):
     @property
     def feature_labels(self):
         return self.nms
-        # return ['desc200:' + str(i) for i in range(200)]
 
 
 class Fingerprints(BaseDescriptor):

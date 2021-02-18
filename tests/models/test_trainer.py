@@ -301,7 +301,12 @@ def test_trainer_prediction_1(data):
     trainer.extend(TensorConverter())
     trainer.fit(*data[1], *data[1])
 
-    trainer = Trainer(model=model).extend(TensorConverter())
+    trainer = Trainer(model=model).extend(TensorConverter(probability=True))
+    y_p = trainer.predict(data[1][0])
+    assert np.any(np.not_equal(y_p, data[1][1].numpy()))
+    assert np.equal(y_p, np.array([1.] * y_p.shape[0]).reshape(-1, 1)).all()
+
+    trainer = Trainer(model=model).extend(TensorConverter(probability=False))
     y_p = trainer.predict(data[1][0])
     assert np.any(np.not_equal(y_p, data[1][1].numpy()))
     assert np.allclose(y_p, data[1][1].numpy(), rtol=0, atol=0.2)

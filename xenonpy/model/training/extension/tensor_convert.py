@@ -25,7 +25,7 @@ class TensorConverter(BaseExtension):
                  empty_cache: bool = False,
                  auto_reshape: bool = True,
                  argmax: bool = False,
-                 probability: bool = True):
+                 probability: bool = False):
         """
         Covert tensor like data into :class:`torch.Tensor` automatically.
         
@@ -48,7 +48,7 @@ class TensorConverter(BaseExtension):
             Default ``False``. If ``True``, will ignore ``probability`` parameter.
         probability
             Apply ``scipy.special.softmax`` on the output. This should only be used with classification model.
-            Default ``True``.
+            Default ``False``.
         """
 
         self.argmax = argmax
@@ -183,7 +183,7 @@ class TensorConverter(BaseExtension):
 
         """
 
-        def _convert(y_, argmax_=False, proba_=True):
+        def _convert(y_, argmax_=False, proba_=False):
             if y_ is None:
                 return y_
             else:
@@ -196,17 +196,8 @@ class TensorConverter(BaseExtension):
 
         if not training:
             if isinstance(y_pred, tuple):
-                if self._argmax:
-                    return tuple([_convert(t, True) for t in y_pred]), _convert(y_true)
-                elif self._probability:
-                    return tuple([_convert(t, False, True) for t in y_pred]), _convert(y_true)
-                else:
-                    return tuple([_convert(t) for t in y_pred]), _convert(y_true)
+                return tuple([_convert(t, self._argmax, self._probability) for t in y_pred]), _convert(y_true)
             else:
-                if self._argmax:
-                    return _convert(y_pred, True), _convert(y_true)
-                elif self._probability:
-                    return _convert(y_pred, False, True), _convert(y_true)
-                return _convert(y_pred), _convert(y_true)
+                return _convert(y_pred, self._argmax, self._probability), _convert(y_true)
         else:
             return y_pred, y_true

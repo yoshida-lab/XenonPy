@@ -4,6 +4,7 @@
 
 from collections import OrderedDict
 from pathlib import Path
+from scipy.special import softmax
 
 import numpy as np
 import pandas as pd
@@ -202,10 +203,10 @@ def test_tensor_converter_2():
 
 
 def test_tensor_converter_3():
-    converter = TensorConverter()
     np_ = np.asarray([[1, 2, 3], [4, 5, 6]])
     tensor_ = torch.from_numpy(np_)
 
+    converter = TensorConverter()
     y, y_ = converter.output_proc(tensor_, None, training=True)
     assert y_ is None
     assert isinstance(y, torch.Tensor)
@@ -250,6 +251,21 @@ def test_tensor_converter_3():
     assert y[0].shape == (2,)
     assert y[0].shape == y[1].shape
     assert np.all(y[0] == np.argmax(np_, 1))
+
+    converter = TensorConverter(probability=True)
+    y, y_ = converter.output_proc(tensor_, tensor_, training=False)
+    assert isinstance(y, np.ndarray)
+    assert isinstance(y_, np.ndarray)
+    assert y.shape == (2, 3)
+    assert y_.shape == (2, 3)
+    assert np.all(y == softmax(np_, 1))
+
+    y, y_ = converter.output_proc((tensor_, tensor_), None, training=False)
+    assert isinstance(y, tuple)
+    assert y_ is None
+    assert y[0].shape == (2, 3)
+    assert y[0].shape == y[1].shape
+    assert np.all(y[0] == softmax(np_, 1))
 
 
 def test_validator_1():

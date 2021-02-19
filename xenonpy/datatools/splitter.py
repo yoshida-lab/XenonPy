@@ -60,6 +60,7 @@ class Splitter(BaseEstimator):
         self._test: Union[np.ndarray, None] = None
         self._train: Union[np.ndarray, None] = None
         self._cv_indices: List[Tuple[np.ndarray, np.ndarray]] = []
+        self._random_state = random_state
         self.roll(random_state)
 
     @property
@@ -73,6 +74,14 @@ class Splitter(BaseEstimator):
     @property
     def test_size(self):
         return self._test_size
+
+    @property
+    def k_fold(self):
+        return self._k_fold
+
+    @property
+    def random_state(self):
+        return self._random_state
 
     def roll(self, random_state: int = None):
 

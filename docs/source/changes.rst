@@ -5,6 +5,22 @@
 Changes
 =======
 
+v0.5.1
+======
+
+**Bug fix**
+
+* update the pip install dependencies in ``requirements.txt``. ( `#226`_ )
+
+**Enhance**
+
+* Add ``rdkit v2020.09`` support for fingerprint descriptors. ( `#228`_ )
+* Add return probability support for ``model.extension.TensorConverter``. ( `#229`_ )
+
+.. _#226: https://github.com/yoshida-lab/XenonPy/pull/226
+.. _#228: https://github.com/yoshida-lab/XenonPy/pull/228
+.. _#229: https://github.com/yoshida-lab/XenonPy/pull/229
+
 v0.5.0
 ======
 

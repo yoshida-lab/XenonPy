@@ -40,27 +40,27 @@ See our documents for details: http://xenonpy.readthedocs.io
 [XenonPy base images](https://hub.docker.com/repository/docker/yoshidalab/base) packed a lot of useful packages for materials informatics using.
 The following table list some core packages in XenonPy images.
 
-| Package        | Version    |
-| -------------- | ---------- |
-| `PyTorch`      | 1.7.1      |
-| `tensorly`     | 0.5.0      |
-| `pymatgen`     | 2020.10.20 |
-| `matminer`     | 0.6.2      |
-| `mordred`      | 1.2.0      |
-| `scipy`        | 1.5.2      |
-| `scikit-learn` | 0.23.2     |
-| `xgboost`      | 1.3.0      |
-| `ngboost`      | master     |
-| `fastcluster`  | 1.1.26     |
-| `pandas`       | 1.1.3      |
-| `rdkit`        | 2020.09    |
-| `jupyter`      | 1.0.0      |
-| `seaborn`      | 0.11.0     |
-| `matplotlib`   | 3.3.2      |
-| `OpenNMT-py`   | 1.2.0      |
-| `Optuna`       | 2.3.0      |
-| `plotly`       | 4.11.0     |
-| `ipympl`       | 0.5.8      |
+| Package        | Version   |
+| -------------- | --------- |
+| `PyTorch`      | 1.7.1     |
+| `tensorly`     | 0.5.0     |
+| `pymatgen`     | 2021.2.16 |
+| `matminer`     | 0.6.2     |
+| `mordred`      | 1.2.0     |
+| `scipy`        | 1.6.0     |
+| `scikit-learn` | 0.24.1    |
+| `xgboost`      | 1.3.0     |
+| `ngboost`      | 0.3.7     |
+| `fastcluster`  | 1.1.26    |
+| `pandas`       | 1.2.2     |
+| `rdkit`        | 2020.09.4 |
+| `jupyter`      | 1.0.0     |
+| `seaborn`      | 0.11.1    |
+| `matplotlib`   | 3.3.4     |
+| `OpenNMT-py`   | 1.2.0     |
+| `Optuna`       | 2.3.0     |
+| `plotly`       | 4.11.0    |
+| `ipympl`       | 0.5.8     |
 
 ## Requirements
 

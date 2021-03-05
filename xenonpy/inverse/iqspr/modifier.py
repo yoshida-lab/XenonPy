@@ -47,7 +47,7 @@ class NGram(BaseProposal):
 
     def __init__(self,
                  *,
-                 ngram_tab=None,
+                 ngram_table=None,
                  sample_order=(1, 10),
                  del_range=(1, 10),
                  min_len=1,
@@ -58,7 +58,7 @@ class NGram(BaseProposal):
 
         Parameters
         ----------
-        ngram_tab: NGram table
+        ngram_table: NGram table
             NGram table for modify SMILES.
         sample_order: tuple[int, int] or int
             range of order of ngram table used during proposal,
@@ -81,12 +81,12 @@ class NGram(BaseProposal):
         self.max_len = max_len
         self.del_range = del_range
 
-        if ngram_tab is None:
+        if ngram_table is None:
             self._table = None
             self._train_order = None
         else:
-            self._table = deepcopy(ngram_tab)
-            self._train_order = (1, len(ngram_tab))
+            self._table = deepcopy(ngram_table)
+            self._train_order = (1, len(ngram_table))
 
         self._fit_sample_order()
         self._fit_min_len()

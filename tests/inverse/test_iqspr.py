@@ -131,10 +131,10 @@ def test_gaussian_ll_4(data):
     bre.fit(train_data['x'], train_data[['a', 'b']])
 
 
-@pytest.mark.skip(
-    reason=
-    "Sklean.BassClass requires all params passed to __ini__ can be accessed by attribute/property on Python 3.8"
-)
+# @pytest.mark.skip(
+#     reason=
+#     "Sklean.BassClass requires all params passed to __ini__ can be accessed by attribute/property on Python 3.8"
+# )
 def test_ngram_1(data):
     ngram = NGram()
     assert ngram.ngram_table is None

@@ -30,8 +30,9 @@ class Persist(BaseExtension):
                  *,
                  model_class: Callable = None,
                  model_params: Union[tuple, dict, any] = None,
-                 increment=False,
-                 sync_training_step=False,
+                 increment: bool = False,
+                 sync_training_step: bool = False,
+                 only_best_states: bool = False,
                  **describe: Any):
         """
 
@@ -51,6 +52,8 @@ class Persist(BaseExtension):
         sync_training_step
             If ``True``, will save ``trainer.training_info`` at each iteration.
             Default is ``False``, only save ``trainer.training_info`` at each epoch.
+        only_best_states
+            If ``True``, will only save the best states of each criterion.
         describe:
             Any other information to describe this model.
             These information will be saved under model dir by name ``describe.pkl.z``.
@@ -58,6 +61,7 @@ class Persist(BaseExtension):
         self._model_class: Callable = model_class
         self._model_params: Union[list, dict] = model_params
         self.sync_training_step = sync_training_step
+        self.only_best_states = only_best_states
         self._increment = increment
         self._describe = describe
         self._describe_ = None
@@ -103,7 +107,7 @@ class Persist(BaseExtension):
         return self._checker[item]
 
     def on_checkpoint(self, checkpoint: Trainer.checkpoint_tuple, trainer: Trainer) -> None:
-        key = checkpoint.id
+        key = checkpoint.id.split('_')[0] if self.only_best_states else checkpoint.id
         value = deepcopy(checkpoint._asdict())
         self._checker.set_checkpoint(**{key: value})
 

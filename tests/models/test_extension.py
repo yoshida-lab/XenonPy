@@ -50,6 +50,10 @@ def data():
     except:
         pass
     try:
+        rmtree(str(Path('.').resolve() / 'test_model_3'))
+    except:
+        pass
+    try:
         rmtree(str(Path('.').resolve() / Path(os.getcwd()).name))
     except:
         pass
@@ -408,16 +412,15 @@ def test_persist_save_checkpoints(data):
         model_state=SequentialLinear(50, 2).state_dict(),
     )
 
-    # test save checkpoint
+    # save checkpoint
     p = Persist('test_model_1', increment=False, only_best_states=False)
     p.before_proc(trainer=_Trainer())
     p.on_checkpoint(cp_1, trainer=_Trainer())
     p.on_checkpoint(cp_2, trainer=_Trainer())
-    assert not (Path('.').resolve() / 'test_model_1' / 'checkpoints' / 'cp.pth.s').exists()
     assert (Path('.').resolve() / 'test_model_1' / 'checkpoints' / 'cp_1.pth.s').exists()
     assert (Path('.').resolve() / 'test_model_1' / 'checkpoints' / 'cp_2.pth.s').exists()
 
-    # test reduced save checkpoint
+    # reduced save checkpoint
     p = Persist('test_model_2', increment=False, only_best_states=True)
     p.before_proc(trainer=_Trainer())
     p.on_checkpoint(cp_1, trainer=_Trainer())
@@ -425,6 +428,13 @@ def test_persist_save_checkpoints(data):
     assert (Path('.').resolve() / 'test_model_2' / 'checkpoints' / 'cp.pth.s').exists()
     assert not (Path('.').resolve() / 'test_model_2' / 'checkpoints' / 'cp_1.pth.s').exists()
     assert not (Path('.').resolve() / 'test_model_2' / 'checkpoints' / 'cp_2.pth.s').exists()
+
+    # no checkpoint will be saved
+    p = Persist('test_model_3', increment=False, only_best_states=True)
+    p.before_proc(trainer=_Trainer())
+    p.on_checkpoint(cp_2, trainer=_Trainer())
+    assert not (Path('.').resolve() / 'test_model_3' / 'checkpoints' / 'cp.pth.s').exists()
+    assert not (Path('.').resolve() / 'test_model_3' / 'checkpoints' / 'cp_2.pth.s').exists()
 
 
 if __name__ == "__main__":

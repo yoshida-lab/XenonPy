@@ -107,9 +107,16 @@ class Persist(BaseExtension):
         return self._checker[item]
 
     def on_checkpoint(self, checkpoint: Trainer.checkpoint_tuple, trainer: Trainer) -> None:
-        key = checkpoint.id.split('_')[0] if self.only_best_states else checkpoint.id
-        value = deepcopy(checkpoint._asdict())
-        self._checker.set_checkpoint(**{key: value})
+        if self.only_best_states:
+            tmp = checkpoint.id.split('_')
+            if tmp[-1] == '1':
+                key = tmp[0]
+                value = deepcopy(checkpoint._asdict())
+                self._checker.set_checkpoint(**{key: value})
+        else:
+            key = checkpoint.id
+            value = deepcopy(checkpoint._asdict())
+            self._checker.set_checkpoint(**{key: value})
 
     def step_forward(self, step_info: OrderedDict, trainer: Trainer) -> None:
         if self.sync_training_step:

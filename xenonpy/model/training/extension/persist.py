@@ -53,7 +53,7 @@ class Persist(BaseExtension):
             If ``True``, will save ``trainer.training_info`` at each iteration.
             Default is ``False``, only save ``trainer.training_info`` at each epoch.
         only_best_states
-            If ``True``, will only save the best states of each criterion.
+            If True, will only save the models with the best states in terms of each of the criteria.
         describe:
             Any other information to describe this model.
             These information will be saved under model dir by name ``describe.pkl.z``.

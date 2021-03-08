@@ -42,11 +42,11 @@ def data():
     except:
         pass
     try:
-        rmtree(str(Path('.').resolve() / 'test_model@2'))
+        rmtree(str(Path('.').resolve() / 'test_model_1'))
     except:
         pass
     try:
-        rmtree(str(Path('.').resolve() / 'test_model@3'))
+        rmtree(str(Path('.').resolve() / 'test_model_2'))
     except:
         pass
     try:
@@ -409,22 +409,22 @@ def test_persist_save_checkpoints(data):
     )
 
     # test save checkpoint
-    p = Persist('test_model', increment=True, only_best_states=False)
+    p = Persist('test_model_1', increment=False, only_best_states=False)
     p.before_proc(trainer=_Trainer())
     p.on_checkpoint(cp_1, trainer=_Trainer())
     p.on_checkpoint(cp_2, trainer=_Trainer())
-    assert not (Path('.').resolve() / 'test_model@1' / 'checkpoints' / 'cp.pth.s').exists()
-    assert (Path('.').resolve() / 'test_model@1' / 'checkpoints' / 'cp_1.pth.s').exists()
-    assert (Path('.').resolve() / 'test_model@1' / 'checkpoints' / 'cp_2.pth.s').exists()
+    assert not (Path('.').resolve() / 'test_model_1' / 'checkpoints' / 'cp.pth.s').exists()
+    assert (Path('.').resolve() / 'test_model_1' / 'checkpoints' / 'cp_1.pth.s').exists()
+    assert (Path('.').resolve() / 'test_model_1' / 'checkpoints' / 'cp_2.pth.s').exists()
 
     # test reduced save checkpoint
-    p = Persist('test_model', increment=True, only_best_states=True)
+    p = Persist('test_model_2', increment=False, only_best_states=True)
     p.before_proc(trainer=_Trainer())
     p.on_checkpoint(cp_1, trainer=_Trainer())
     p.on_checkpoint(cp_2, trainer=_Trainer())
-    assert (Path('.').resolve() / 'test_model@2' / 'checkpoints' / 'cp.pth.s').exists()
-    assert not (Path('.').resolve() / 'test_model@2' / 'checkpoints' / 'cp_1.pth.s').exists()
-    assert not (Path('.').resolve() / 'test_model@2' / 'checkpoints' / 'cp_2.pth.s').exists()
+    assert (Path('.').resolve() / 'test_model_2' / 'checkpoints' / 'cp.pth.s').exists()
+    assert not (Path('.').resolve() / 'test_model_2' / 'checkpoints' / 'cp_1.pth.s').exists()
+    assert not (Path('.').resolve() / 'test_model_2' / 'checkpoints' / 'cp_2.pth.s').exists()
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ import torch
 import os
 
 from xenonpy.model import SequentialLinear
+from xenonpy.model.training import Trainer
 from xenonpy.model.training.base import BaseExtension, BaseRunner
 from xenonpy.model.training.extension import TensorConverter, Validator, Persist
 from xenonpy.model.utils import regression_metrics, classification_metrics
@@ -32,9 +33,30 @@ def data():
 
     yield
 
-    rmtree(str(Path('.').resolve() / 'test_model'))
-    rmtree(str(Path('.').resolve() / 'test_model@1'))
-    rmtree(str(Path('.').resolve() / Path(os.getcwd()).name))
+    try:
+        rmtree(str(Path('.').resolve() / 'test_model'))
+    except:
+        pass
+    try:
+        rmtree(str(Path('.').resolve() / 'test_model@1'))
+    except:
+        pass
+    try:
+        rmtree(str(Path('.').resolve() / 'test_model_1'))
+    except:
+        pass
+    try:
+        rmtree(str(Path('.').resolve() / 'test_model_2'))
+    except:
+        pass
+    try:
+        rmtree(str(Path('.').resolve() / 'test_model_3'))
+    except:
+        pass
+    try:
+        rmtree(str(Path('.').resolve() / Path(os.getcwd()).name))
+    except:
+        pass
 
     print('test over')
 
@@ -293,8 +315,8 @@ def test_validator_1():
     val.step_forward(trainer=_Trainer(), step_info=step_info)  # noqa
     assert step_info['val_mae'] == regression_metrics(y, x)['mae']
     assert set(step_info.keys()) == {
-        'i_epoch', 'val_mae', 'val_mse', 'val_rmse', 'val_r2', 'val_pearsonr', 'val_spearmanr', 'val_p_value',
-        'val_max_ae', 'train_loss'
+        'i_epoch', 'val_mae', 'val_mse', 'val_rmse', 'val_r2', 'val_pearsonr', 'val_spearmanr',
+        'val_p_value', 'val_max_ae', 'train_loss'
     }
 
 
@@ -325,8 +347,8 @@ def test_validator_2():
     val.step_forward(trainer=_Trainer(), step_info=step_info)  # noqa
     assert step_info['val_f1'] == classification_metrics(y, x)['f1']
     assert set(step_info.keys()) == {
-        'i_epoch', 'val_accuracy', 'val_f1', 'val_precision', 'val_recall', 'val_macro_f1', 'val_macro_precision',
-        'val_macro_recall', 'train_loss'
+        'i_epoch', 'val_accuracy', 'val_f1', 'val_precision', 'val_recall', 'val_macro_f1',
+        'val_macro_precision', 'val_macro_recall', 'train_loss'
     }
 
 
@@ -366,6 +388,53 @@ def test_persist_1(data):
     assert (Path('.').resolve() / 'test_model@1' / 'init_state.pth.s').exists()
     assert (Path('.').resolve() / 'test_model@1' / 'model.pth.m').exists()
     assert (Path('.').resolve() / 'test_model@1' / 'model_structure.pkl.z').exists()
+
+
+def test_persist_save_checkpoints(data):
+
+    class _Trainer(BaseRunner):
+
+        def __init__(self):
+            super().__init__()
+            self.model = SequentialLinear(50, 2)
+
+        def predict(self, x_, y_):  # noqa
+            return x_, y_
+
+    cp_1 = Trainer.checkpoint_tuple(
+        id='cp_1',
+        iterations=111,
+        model_state=SequentialLinear(50, 2).state_dict(),
+    )
+    cp_2 = Trainer.checkpoint_tuple(
+        id='cp_2',
+        iterations=111,
+        model_state=SequentialLinear(50, 2).state_dict(),
+    )
+
+    # save checkpoint
+    p = Persist('test_model_1', increment=False, only_best_states=False)
+    p.before_proc(trainer=_Trainer())
+    p.on_checkpoint(cp_1, trainer=_Trainer())
+    p.on_checkpoint(cp_2, trainer=_Trainer())
+    assert (Path('.').resolve() / 'test_model_1' / 'checkpoints' / 'cp_1.pth.s').exists()
+    assert (Path('.').resolve() / 'test_model_1' / 'checkpoints' / 'cp_2.pth.s').exists()
+
+    # reduced save checkpoint
+    p = Persist('test_model_2', increment=False, only_best_states=True)
+    p.before_proc(trainer=_Trainer())
+    p.on_checkpoint(cp_1, trainer=_Trainer())
+    p.on_checkpoint(cp_2, trainer=_Trainer())
+    assert (Path('.').resolve() / 'test_model_2' / 'checkpoints' / 'cp.pth.s').exists()
+    assert not (Path('.').resolve() / 'test_model_2' / 'checkpoints' / 'cp_1.pth.s').exists()
+    assert not (Path('.').resolve() / 'test_model_2' / 'checkpoints' / 'cp_2.pth.s').exists()
+
+    # no checkpoint will be saved
+    p = Persist('test_model_3', increment=False, only_best_states=True)
+    p.before_proc(trainer=_Trainer())
+    p.on_checkpoint(cp_2, trainer=_Trainer())
+    assert not (Path('.').resolve() / 'test_model_3' / 'checkpoints' / 'cp.pth.s').exists()
+    assert not (Path('.').resolve() / 'test_model_3' / 'checkpoints' / 'cp_2.pth.s').exists()
 
 
 if __name__ == "__main__":

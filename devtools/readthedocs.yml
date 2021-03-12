@@ -7,23 +7,19 @@ dependencies:
   - scipy>=1.5.2
   - pymatgen>=2020.10.9,<2022.0
   - rdkit=2020.03.3.0
-  - "libblas=*=*mkl"
-  - jupyter>=1.0.0
   - pytorch >=1.7.0,<2.0.0
-  - jedi>=0.16
   - cpuonly
-  - fastcluster
-  - torchtext
   - seaborn
   - requests
-  - plotly
+  - matminer
   - ruamel.yaml
-  - jupyterlab
-  - pybtex
   - mordred
+  - nbsphinx
+  - sphinx
+  - sphinx_rtd_theme
   - tqdm
+  - sphinx-autodoc-typehints
   - pip
   - pip:
       - Python-Deprecated
-      - matminer
-      - xenonpy
+      - OpenNMT-py==1.2

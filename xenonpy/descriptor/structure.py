@@ -272,8 +272,15 @@ class Structures(BaseDescriptor):
     Calculate structure descriptors from compound's structure.
     """
 
-    def __init__(self, n_bins=201, r_max=20.0, including_d=True,
-                 *, n_jobs=-1, featurizers='all', on_errors='raise', target_col=None):
+    def __init__(self,
+                 n_bins=201,
+                 r_max=20.0,
+                 including_d=True,
+                 *,
+                 n_jobs=-1,
+                 featurizers='all',
+                 on_errors='raise',
+                 target_col=None):
         """
 
         Parameters
@@ -304,6 +311,9 @@ class Structures(BaseDescriptor):
         super().__init__(featurizers=featurizers)
         self.n_jobs = n_jobs
 
-        self.structure = RadialDistributionFunction(n_bins, r_max, n_jobs=n_jobs,
-                                                    on_errors=on_errors, target_col=target_col)
+        self.structure = RadialDistributionFunction(n_bins,
+                                                    r_max,
+                                                    n_jobs=n_jobs,
+                                                    on_errors=on_errors,
+                                                    target_col=target_col)
         self.structure = OrbitalFieldMatrix(including_d, n_jobs=n_jobs, on_errors=on_errors, target_col=target_col)

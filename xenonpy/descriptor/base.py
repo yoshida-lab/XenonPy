@@ -5,7 +5,6 @@
 from abc import ABCMeta, abstractmethod
 from collections import defaultdict
 from collections.abc import Iterable
-from copy import copy
 import itertools
 import warnings
 from multiprocessing import cpu_count
@@ -78,7 +77,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
 
         None of these operations should change the state of the featurizer. I.e.,
         running each method twice should no produce different results, no class
-        attributes should be changed, unning one operation should not affect the
+        attributes should be changed, running one operation should not affect the
         output of another.
 
     """
@@ -280,16 +279,14 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
                 ret = self.featurize(entries, **kwargs)
                 break
             if isinstance(entries, pd.DataFrame):
-                raise RuntimeError(
-                    "Auto-parallel can not be used when`entries` is `pandas.DataFrame`. "
-                    "Please set `n_jobs` to 0 and implements your algorithm in the `featurize` method"
-                )
+                raise RuntimeError("Auto-parallel can not be used when`entries` is `pandas.DataFrame`. "
+                                   "Please set `n_jobs` to 0 and implements your algorithm in the `featurize` method")
             if c(1):
                 ret = [self._wrapper(x) for x in entries]
                 break
             if c():
-                ret = Parallel(n_jobs=self._n_jobs, verbose=self._parallel_verbose)(
-                    delayed(self._wrapper)(x) for x in entries)
+                ret = Parallel(n_jobs=self._n_jobs,
+                               verbose=self._parallel_verbose)(delayed(self._wrapper)(x) for x in entries)
 
         try:
             labels = self.feature_labels
@@ -462,9 +459,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         elif isinstance(val, (tuple, List)):
             self._featurizers = tuple(val)
         else:
-            raise ValueError(
-                'parameter `featurizers` must be `all`, name of featurizer, or list of name of featurizer'
-            )
+            raise ValueError('parameter `featurizers` must be `all`, name of featurizer, or list of name of featurizer')
 
     @property
     def elapsed(self):
@@ -635,10 +630,7 @@ class BaseCompositionFeaturizer(BaseFeaturizer, metaclass=ABCMeta):
         Base class for composition feature.
         """
 
-        super().__init__(n_jobs=n_jobs,
-                         on_errors=on_errors,
-                         return_type=return_type,
-                         target_col=target_col)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type, target_col=target_col)
 
         if elemental_info is None:
             self._elements = preset.elements_completed

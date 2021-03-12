@@ -16,7 +16,7 @@ class OrganicCompDescriptor(BaseFeaturizer):
         """
         A featurizer for extracting XenonPy compositional descriptors from SMILES or MOL
         """
-            
+
         # fix n_jobs to be 0 to skip automatic wrapper in XenonPy BaseFeaturizer class
         super().__init__(n_jobs=0, on_errors=on_errors, return_type=return_type)
         self._cal = Compositions(n_jobs=n_jobs, featurizers=featurizers, on_errors=on_errors)
@@ -36,15 +36,15 @@ class OrganicCompDescriptor(BaseFeaturizer):
                     raise ValueError('can not convert Mol from SMILES %s' % z)
         else:
             x_mol = x
-        
+
         # convert to counting dictionary
         mol = [Chem.AddHs(z) for z in x_mol]
         d_list = [dict(Counter([atom.GetSymbol() for atom in z.GetAtoms()])) for z in mol]
 
         self.output = self._cal.transform(d_list)
-        
+
         return self.output
-    
+
     @property
     def feature_labels(self):
         return self.output.columns

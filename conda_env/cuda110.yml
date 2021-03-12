@@ -6,14 +6,14 @@ dependencies:
   - pandas>=1.1.3
   - scikit-learn>=0.23.0
   - scipy>=1.5.2
-  - pymatgen>=2020.10.9
+  - pymatgen>=2020.10.9,<2022.0
   - rdkit=2020.09
-  - 'libblas=*=*mkl'
+  - "libblas=*=*mkl"
   - jupyter>=1.0.0
   - pytorch >=1.7.0,<2.0.0
   - cudatoolkit=11.0
   - magma-cuda110=2.5.2
-  - jedi=0.17.2
+  - jedi>=0.16
   - torchvision
   - torchtext
   - fastcluster

@@ -15,7 +15,7 @@ dependencies:
   - pytorch >=1.7.0,<2.0.0
   - pytest
   - pytest-cov
-  - pymatgen>=2020.10.9,<2022.0
+  - pymatgen>=2020.10.9
   - ruamel.yaml
   - tqdm
   - mordred

@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
-from pymatgen import Structure as pmg_S
+from pymatgen.core import Structure as pmg_S
 
 from xenonpy.descriptor import RadialDistributionFunction, Structures, OrbitalFieldMatrix
 

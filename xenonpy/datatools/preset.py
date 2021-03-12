@@ -8,7 +8,7 @@ from warnings import warn
 
 import numpy as np
 import pandas as pd
-from pymatgen import MPRester
+from pymatgen.ext.matproj import MPRester
 from ruamel.yaml import YAML
 from tqdm import tqdm
 

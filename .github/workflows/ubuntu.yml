@@ -5,27 +5,37 @@ on:
     branches:
       - master
     paths-ignore:
-      - 'docs/**'
-      - '.**'
-      - '**.md'
-      - '**.yml'
-      - '**.txt'
-      - '**.in'
-      - '**.cfg'
+      - "conda_env/**"
+      - "devtools/**"
+      - "docs/**"
+      - "samples/**"
+      - "licenses/**"
+      - "hooks/**"
+      - ".**"
+      - "**.md"
+      - "**.yml"
+      - "**.txt"
+      - "**.in"
+      - "**.cfg"
   pull_request:
     branches:
       - master
     paths-ignore:
-      - 'docs/**'
-      - '.**'
-      - '**.md'
-      - '**.yml'
-      - '**.txt'
-      - '**.in'
-      - '**.cfg'
+      - "conda_env/**"
+      - "devtools/**"
+      - "docs/**"
+      - "samples/**"
+      - "licenses/**"
+      - "hooks/**"
+      - ".**"
+      - "**.md"
+      - "**.yml"
+      - "**.txt"
+      - "**.in"
+      - "**.cfg"
 
 env:
-  MPLBACKEN: 'Agg'
+  MPLBACKEN: "Agg"
 
 jobs:
   test_ubuntu:
@@ -35,7 +45,7 @@ jobs:
       max-parallel: 4
       matrix:
         python-version: [3.6, 3.7]
-        os: ['ubuntu-18.04', 'ubuntu-latest']
+        os: ["ubuntu-18.04", "ubuntu-latest"]
 
     steps:
       - uses: actions/checkout@v2

@@ -18,8 +18,7 @@ from xenonpy.utils import TimedMetaClass
 class BaseQuery(BaseEstimator, metaclass=TimedMetaClass):
     queryable = None
 
-    def __init__(self, variables, *, api_key: str = 'anonymous.user.key',
-                 endpoint: str = 'http://xenon.ism.ac.jp/api'):
+    def __init__(self, variables, *, api_key: str = 'anonymous.user.key', endpoint: str = 'http://xenon.ism.ac.jp/api'):
         if self.queryable is None:
             raise RuntimeError('Query class must give a queryable field in list of string')
 
@@ -75,8 +74,10 @@ class BaseQuery(BaseEstimator, metaclass=TimedMetaClass):
         if file is None:
             ret = requests.post(url=self._endpoint,
                                 data=payload,
-                                headers={"content-type": "application/json",
-                                         'api_key': self._api_key})
+                                headers={
+                                    "content-type": "application/json",
+                                    'api_key': self._api_key
+                                })
         else:
             file = Path(file).resolve()
             file = make_archive(str(file), 'gztar', str(file))
@@ -99,8 +100,7 @@ class BaseQuery(BaseEstimator, metaclass=TimedMetaClass):
             except json.JSONDecodeError:
                 message = "Server did not responce."
 
-            raise HTTPError('status_code: %s, %s' %
-                            (ret.status_code, message))
+            raise HTTPError('status_code: %s, %s' % (ret.status_code, message))
         ret = ret.json()
         if 'errors' in ret:
             raise ValueError(ret['errors'][0]['message'])

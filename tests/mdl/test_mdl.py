@@ -2,7 +2,6 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-
 from json import JSONDecodeError
 from pathlib import Path
 from shutil import rmtree
@@ -56,7 +55,9 @@ def test_pull_1(mdl):
 
 
 def test_return_nothing(mdl, monkeypatch):
+
     class Request_Dummy(object):
+
         def __init__(self, **_):
             self.status_code = 999
 

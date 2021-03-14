@@ -6,7 +6,7 @@ on:
       - v*
 
 env:
-  MPLBACKEN: 'Agg'
+  MPLBACKEN: "Agg"
 
 jobs:
   test_ubuntu:
@@ -16,7 +16,7 @@ jobs:
       max-parallel: 4
       matrix:
         python-version: [3.7]
-        os: ['ubuntu-18.04']
+        os: ["ubuntu-18.04"]
 
     steps:
       - uses: actions/checkout@v2

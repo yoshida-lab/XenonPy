@@ -3,17 +3,17 @@
 #  license that can be found in the LICENSE file.
 
 import types
+from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
-from copy import deepcopy
 from sklearn.linear_model import BayesianRidge
 
 from xenonpy.descriptor import ECFP, RDKitFP
-from xenonpy.inverse.iqspr import GaussianLogLikelihood, NGram, IQSPR, IQSPR4DF, GetProbError, MolConvertError
 from xenonpy.inverse.base import BaseLogLikelihoodSet
+from xenonpy.inverse.iqspr import (IQSPR, IQSPR4DF, GaussianLogLikelihood, GetProbError, MolConvertError, NGram)
 
 
 @pytest.fixture(scope='module')
@@ -51,14 +51,7 @@ def data():
     ngram.fit(X[0:20], train_order=5)
     iqspr = IQSPR(estimator=bre, modifier=ngram)
     # prepare test data
-    yield dict(ecfp=ecfp,
-               rdkitfp=rdkitfp,
-               bre=bre,
-               bre2=bre2,
-               like_mdl=like_mdl,
-               ngram=ngram,
-               iqspr=iqspr,
-               pg=(X, y))
+    yield dict(ecfp=ecfp, rdkitfp=rdkitfp, bre=bre, bre2=bre2, like_mdl=like_mdl, ngram=ngram, iqspr=iqspr, pg=(X, y))
 
     print('test over')
 

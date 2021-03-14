@@ -5,7 +5,7 @@
 import re
 
 import numpy as np
-import pymatgen as pm
+from pymatgen.core import Element
 from pymatgen.analysis.local_env import VoronoiNN
 
 from xenonpy.descriptor.base import BaseDescriptor, BaseFeaturizer
@@ -165,7 +165,7 @@ class OrbitalFieldMatrix(BaseFeaturizer):
         name: string
             element symbol
         """
-        element = pm.Element(name)
+        element = Element(name)
         general_element_electronic = {
             's1': 0.0,
             's2': 0.0,

@@ -1,5 +1,4 @@
 channels:
-  - defaults
   - pytorch
   - conda-forge
 dependencies:
@@ -24,8 +23,8 @@ dependencies:
   - pybtex
   - mordred
   - tqdm
+  - matminer
   - pip
   - pip:
       - Python-Deprecated
-      - matminer
       - xenonpy

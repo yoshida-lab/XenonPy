@@ -4,35 +4,35 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - "conda_env/**"
-      - "devtools/**"
-      - "docs/**"
-      - "samples/**"
-      - "licenses/**"
-      - "hooks/**"
-      - ".**"
-      - "**.md"
-      - "**.yml"
-      - "**.txt"
-      - "**.in"
-      - "**.cfg"
+    # paths-ignore:
+    #   - "conda_env/**"
+    #   - "devtools/**"
+    #   - "docs/**"
+    #   - "samples/**"
+    #   - "licenses/**"
+    #   - "hooks/**"
+    #   - ".**"
+    #   - "**.md"
+    #   - "**.yml"
+    #   - "**.txt"
+    #   - "**.in"
+    #   - "**.cfg"
   pull_request:
     branches:
       - master
-    paths-ignore:
-      - "conda_env/**"
-      - "devtools/**"
-      - "docs/**"
-      - "samples/**"
-      - "licenses/**"
-      - "hooks/**"
-      - ".**"
-      - "**.md"
-      - "**.yml"
-      - "**.txt"
-      - "**.in"
-      - "**.cfg"
+    # paths-ignore:
+    #   - "conda_env/**"
+    #   - "devtools/**"
+    #   - "docs/**"
+    #   - "samples/**"
+    #   - "licenses/**"
+    #   - "hooks/**"
+    #   - ".**"
+    #   - "**.md"
+    #   - "**.yml"
+    #   - "**.txt"
+    #   - "**.in"
+    #   - "**.cfg"
 
 env:
   MPLBACKEN: "Agg"

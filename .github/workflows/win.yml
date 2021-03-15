@@ -12,6 +12,7 @@ on:
       - "licenses/**"
       - "hooks/**"
       - ".**"
+      - "!.github/**"
       - "**.md"
       - "**.yml"
       - "**.txt"
@@ -28,6 +29,7 @@ on:
       - "licenses/**"
       - "hooks/**"
       - ".**"
+      - "!.github/**"
       - "**.md"
       - "**.yml"
       - "**.txt"
@@ -42,9 +44,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 3
       matrix:
-        python-version: [3.6, 3.7]
+        python-version: [3.6, 3.7, 3.8]
         os: ["windows-latest"]
 
     steps:

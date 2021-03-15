@@ -46,11 +46,8 @@ jobs:
       fail-fast: false
       max-parallel: 6
       matrix:
-        python-version: [3.8]
-        os: ["ubuntu-latest"]
-
-        # python-version: [3.6, 3.7, 3.8]
-        # os: ["ubuntu-18.04", "ubuntu-latest"]
+        python-version: [3.6, 3.7, 3.8]
+        os: ["ubuntu-18.04", "ubuntu-latest"]
 
     steps:
       - uses: actions/checkout@v2

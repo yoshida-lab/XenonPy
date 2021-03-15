@@ -32,7 +32,7 @@ jobs:
 
       - name: Check conda env
         shell: bash -l {0}
-        run: .github/workflows/check_env.sh
+        run: .github/config/check_env.sh
 
       - name: Build a binary wheel and a source tarball
         shell: bash -l {0}

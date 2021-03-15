@@ -13,6 +13,7 @@ on:
       - "hooks/**"
       - ".**"
       - "**.md"
+      - "**.yml"
       - "**.txt"
       - "**.in"
       - "**.cfg"
@@ -28,6 +29,7 @@ on:
       - "hooks/**"
       - ".**"
       - "**.md"
+      - "**.yml"
       - "**.txt"
       - "**.in"
       - "**.cfg"
@@ -42,7 +44,7 @@ jobs:
       fail-fast: false
       max-parallel: 6
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7]
         os: ["ubuntu-18.04", "ubuntu-latest"]
 
     steps:

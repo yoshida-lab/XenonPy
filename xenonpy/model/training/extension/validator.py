@@ -84,8 +84,8 @@ class Validator(BaseExtension):
 
     @warming_up.setter
     def warming_up(self, val: int):
-        if val <= 0:
-            raise ValueError("`warming` up must greater than 0")
+        if val < 0:
+            raise ValueError("`warming` up must equal or greater than 0")
         self._warming_up = val
 
     def _set_trace(self, trace_metrics: dict, trace_order: int):

@@ -27,6 +27,7 @@ class Validator(BaseExtension):
                  each_iteration: bool = True,
                  early_stopping: int = None,
                  trace_order: int = 1,
+                 warming_up: int = 50,
                  **trace_criteria: Dict[str, float]):
         """
 
@@ -48,6 +49,8 @@ class Validator(BaseExtension):
         trace_order
             How many ranks of ``trace_criteria`` will be saved as checkpoint.
             Checkpoint name follow the format ``criterion_rank``, e.g. ``mae_1``
+        warming_up
+            Validator do not set/update checkpoint before ``warming_up`` epochs.
         trace_criteria
             Validation criteria.
             Should follow this formation: ``criterion=target``, e.g ``mae=0, corr=1``.
@@ -60,6 +63,7 @@ class Validator(BaseExtension):
         else:
             self.metrics_func = metrics_func
 
+        self.warming_up = warming_up
         self.each_iteration = each_iteration
         self.patience = early_stopping + 1 if early_stopping is not None else None
         self._count = early_stopping
@@ -73,6 +77,16 @@ class Validator(BaseExtension):
 
         self.from_dataset = False
         self.train_loss = np.inf
+
+    @property
+    def warming_up(self):
+        return self._warming_up
+
+    @warming_up.setter
+    def warming_up(self, val: int):
+        if val < 0:
+            raise ValueError("`warming` up must equal or greater than 0")
+        self._warming_up = val
 
     def _set_trace(self, trace_metrics: dict, trace_order: int):
         for name, target in trace_metrics.items():
@@ -91,13 +105,12 @@ class Validator(BaseExtension):
             raise RuntimeError('no data for validation')
 
     def step_forward(self, trainer: Trainer, step_info: OrderedDict) -> None:
+
         def _validate():
             if self.from_dataset:
-                y_preds, y_trues = trainer.predict(
-                    dataset=trainer.validate_dataset)
+                y_preds, y_trues = trainer.predict(dataset=trainer.validate_dataset)
             else:
-                y_preds, y_trues = trainer.predict(trainer.x_val,
-                                                   trainer.y_val)
+                y_preds, y_trues = trainer.predict(trainer.x_val, trainer.y_val)
 
             train_loss = step_info[trainer.loss_type]
             if train_loss < self.train_loss:
@@ -108,7 +121,7 @@ class Validator(BaseExtension):
             for name, (target, current) in self.trace.items():
                 if name in metrics:
                     score = np.abs(metrics[name] - target)
-                    if score < current[-1]:
+                    if score < current[-1] and step_info['i_epoch'] > self._warming_up:
                         current.append(score)
                         current.sort()
                         current.pop()
@@ -119,9 +132,7 @@ class Validator(BaseExtension):
                             index = current.index(score) + 1
                             for i in range(self.order, index, -1):
                                 if f'{name}_{i - 1}' in trainer.checkpoints:
-                                    trainer.checkpoints[
-                                        f'{name}_{i}'] = trainer.checkpoints[
-                                            f'{name}_{i - 1}']
+                                    trainer.checkpoints[f'{name}_{i}'] = trainer.checkpoints[f'{name}_{i - 1}']
                             trainer.set_checkpoint(f'{name}_{index}')
 
             if self.patience is not None:
@@ -129,8 +140,7 @@ class Validator(BaseExtension):
                 if self._count == 0:
                     trainer.early_stop(
                         f'no improvement for {[k for k in self.trace]} since the last {self.patience} iterations, '
-                        f'finish training at iteration {trainer.total_iterations}'
-                    )
+                        f'finish training at iteration {trainer.total_iterations}')
 
             step_info.update({f'val_{k}': v for k, v in metrics.items()})
 

@@ -14,7 +14,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, TensorDataset
 
 from xenonpy.model.training import Trainer, MSELoss, CrossEntropyLoss, Adam, ExponentialLR, SGD, ClipValue, ReduceLROnPlateau, ClipNorm
-from xenonpy.model.training.extension import TensorConverter, Persist
+from xenonpy.model.training.extension import TensorConverter, Persist, Validator
 from xenonpy.model.training.dataset import ArrayDataset
 
 
@@ -253,6 +253,20 @@ def test_trainer_fit_4(data):
         count += 1
     assert trainer.total_iterations == 3
     assert trainer._early_stopping == (True, 'stop!!!')
+
+
+def test_validator_1(data):
+    model = deepcopy(data[0])
+    trainer = Trainer(model=model, optimizer=Adam(lr=0.1), loss_func=MSELoss(), epochs=20)
+    trainer.extend(TensorConverter(), Validator('regress', early_stop=30, trace_order=1, warming_up=0, mae=0))
+    trainer.fit(*data[1], *data[1])
+    assert trainer.get_checkpoint() == ['mae']
+
+    model = deepcopy(data[0])
+    trainer = Trainer(model=model, optimizer=Adam(lr=0.1), loss_func=MSELoss(), epochs=20)
+    trainer.extend(TensorConverter(), Validator('regress', early_stop=30, trace_order=5, warming_up=50, mae=0))
+    trainer.fit(*data[1], *data[1])
+    assert trainer.get_checkpoint() == []
 
 
 def test_persist_1(data):

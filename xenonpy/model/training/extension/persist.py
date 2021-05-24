@@ -110,7 +110,7 @@ class Persist(BaseExtension):
         if self.only_best_states:
             tmp = checkpoint.id.split('_')
             if tmp[-1] == '1':
-                key = '_'.join(tmp)
+                key = '_'.join(tmp[:-1])
                 value = deepcopy(checkpoint._asdict())
                 self._checker.set_checkpoint(**{key: value})
         else:

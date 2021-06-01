@@ -41,7 +41,7 @@ class LinearLayer(nn.Module):
         super().__init__()
         self.linear = nn.Linear(in_features, out_features, bias)
         self.dropout = nn.Dropout(dropout)
-        self.normalizer = None if not normalizer else nn.BatchNorm1d(out_features, normalizer)
+        self.normalizer = None if not normalizer else nn.BatchNorm1d(out_features, momentum=normalizer)
         self.activation = None if not activation_func else activation_func
 
     def forward(self, x):
@@ -70,7 +70,7 @@ class SequentialLinear(nn.Module):
             *,
             h_neurons: Union[Sequence[float], Sequence[int]] = (),
             h_bias: Union[bool, Sequence[bool]] = True,
-            h_dropouts: Union[float, Sequence[float]] = 0.1,
+            h_dropouts: Union[float, Sequence[float]] = 0.0,
             h_normalizers: Union[float, None, Sequence[Optional[float]]] = 0.1,
             h_activation_funcs: Union[Callable, None, Sequence[Optional[Callable]]] = nn.ReLU(),
     ):

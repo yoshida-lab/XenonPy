@@ -27,7 +27,7 @@ class Validator(BaseExtension):
                  each_iteration: bool = True,
                  early_stopping: int = None,
                  trace_order: int = 1,
-                 warming_up: int = 50,
+                 warming_up: int = 0,
                  **trace_criteria: Dict[str, float]):
         """
 
@@ -121,7 +121,7 @@ class Validator(BaseExtension):
             for name, (target, current) in self.trace.items():
                 if name in metrics:
                     score = np.abs(metrics[name] - target)
-                    if score < current[-1] and step_info['i_epoch'] > self._warming_up:
+                    if score < current[-1] and step_info['i_epoch'] >= self._warming_up:
                         current.append(score)
                         current.sort()
                         current.pop()

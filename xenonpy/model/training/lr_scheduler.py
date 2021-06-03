@@ -147,9 +147,17 @@ class CosineAnnealingLR(BaseLRScheduler):
 
 class ReduceLROnPlateau(BaseLRScheduler):
 
-    def __init__(self, *, mode='min', factor=0.1, patience=10,
-                 verbose=False, threshold=1e-4, threshold_mode='rel',
-                 cooldown=0, min_lr=0, eps=1e-8):
+    def __init__(self,
+                 *,
+                 mode='min',
+                 factor=0.1,
+                 patience=10,
+                 verbose=False,
+                 threshold=1e-4,
+                 threshold_mode='rel',
+                 cooldown=0,
+                 min_lr=0,
+                 eps=1e-8):
         """Reduce learning rate when a metric has stopped improving.
         Models often benefit from reducing the learning rate by a factor
         of 2-10 once learning stagnates. This scheduler reads a metrics
@@ -188,14 +196,23 @@ class ReduceLROnPlateau(BaseLRScheduler):
                 ignored. Default: 1e-8.
 
         """
-        super().__init__(lr_scheduler.ReduceLROnPlateau, mode=mode, factor=factor, patience=patience,
-                         verbose=verbose, threshold=threshold, threshold_mode=threshold_mode,
-                         cooldown=cooldown, min_lr=min_lr, eps=eps)
+        super().__init__(lr_scheduler.ReduceLROnPlateau,
+                         mode=mode,
+                         factor=factor,
+                         patience=patience,
+                         verbose=verbose,
+                         threshold=threshold,
+                         threshold_mode=threshold_mode,
+                         cooldown=cooldown,
+                         min_lr=min_lr,
+                         eps=eps)
 
 
 class CyclicLR(BaseLRScheduler):
 
-    def __init__(self, *, base_lr,
+    def __init__(self,
+                 *,
+                 base_lr,
                  max_lr,
                  step_size_up=2000,
                  step_size_down=None,
@@ -285,7 +302,8 @@ class CyclicLR(BaseLRScheduler):
         .. _Cyclical Learning Rates for Training Neural Networks: https://arxiv.org/abs/1506.01186
         .. _bckenstler/CLR: https://github.com/bckenstler/CLR
         """
-        super().__init__(lr_scheduler.CyclicLR, base_lr=base_lr,
+        super().__init__(lr_scheduler.CyclicLR,
+                         base_lr=base_lr,
                          max_lr=max_lr,
                          step_size_up=step_size_up,
                          step_size_down=step_size_down,

@@ -46,17 +46,20 @@ class Adagrad(BaseOptimizer):
         .. _Adaptive Subgradient Methods for Online Learning and Stochastic
             Optimization: http://jmlr.org/papers/v12/duchi11a.html
         """
-        super().__init__(optim.Adagrad, lr=lr, lr_decay=lr_decay, weight_decay=weight_decay,
+        super().__init__(optim.Adagrad,
+                         lr=lr,
+                         lr_decay=lr_decay,
+                         weight_decay=weight_decay,
                          initial_accumulator_value=initial_accumulator_value)
 
 
 class Adam(BaseOptimizer):
 
-    def __init__(self, *, lr=1e-3, betas=(0.9, 0.999), eps=1e-8,
-                 weight_decay=0, amsgrad=False):
+    def __init__(self, *, lr=1e-3, betas=(0.9, 0.999), eps=1e-8, weight_decay=0, amsgrad=False):
         r"""Implements Adam algorithm.
 
         It has been proposed in `Adam: A Method for Stochastic Optimization`_.
+        The implementation of the L2 penalty follows changes proposed in `Decoupled Weight Decay Regularization`_.
 
         Arguments:
             lr (float, optional): learning rate (default: 1e-3)
@@ -71,11 +74,43 @@ class Adam(BaseOptimizer):
 
         .. _Adam\: A Method for Stochastic Optimization:
             https://arxiv.org/abs/1412.6980
+        .. _Decoupled Weight Decay Regularization:
+            https://arxiv.org/abs/1711.05101
         .. _On the Convergence of Adam and Beyond:
             https://openreview.net/forum?id=ryQu7f-RZ
         """
 
         super().__init__(optim.Adam, lr=lr, betas=betas, eps=eps, weight_decay=weight_decay, amsgrad=amsgrad)
+
+
+class AdamW(BaseOptimizer):
+
+    def __init__(self, *, lr=1e-3, betas=(0.9, 0.999), eps=1e-8, weight_decay=0, amsgrad=False):
+        r"""Implements AdamW algorithm.
+
+        The original Adam algorithm was proposed in `Adam: A Method for Stochastic Optimization`_.
+        The AdamW variant was proposed in `Decoupled Weight Decay Regularization`_.
+
+        Arguments:
+            lr (float, optional): learning rate (default: 1e-3)
+            betas (Tuple[float, float], optional): coefficients used for computing
+                running averages of gradient and its square (default: (0.9, 0.999))
+            eps (float, optional): term added to the denominator to improve
+                numerical stability (default: 1e-8)
+            weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
+            amsgrad (boolean, optional): whether to use the AMSGrad variant of this
+                algorithm from the paper `On the Convergence of Adam and Beyond`_
+                (default: False)
+
+        .. _Adam\: A Method for Stochastic Optimization:
+            https://arxiv.org/abs/1412.6980
+        .. _Decoupled Weight Decay Regularization:
+            https://arxiv.org/abs/1711.05101
+        .. _On the Convergence of Adam and Beyond:
+            https://openreview.net/forum?id=ryQu7f-RZ
+        """
+
+        super().__init__(optim.AdamW, lr=lr, betas=betas, eps=eps, weight_decay=weight_decay, amsgrad=amsgrad)
 
 
 class SparseAdam(BaseOptimizer):
@@ -145,8 +180,14 @@ class ASGD(BaseOptimizer):
 
 class LBFGS(BaseOptimizer):
 
-    def __init__(self, *, lr=1, max_iter=20, max_eval=None,
-                 tolerance_grad=1e-5, tolerance_change=1e-9, history_size=100,
+    def __init__(self,
+                 *,
+                 lr=1,
+                 max_iter=20,
+                 max_eval=None,
+                 tolerance_grad=1e-5,
+                 tolerance_change=1e-9,
+                 history_size=100,
                  line_search_fn=None):
         """Implements L-BFGS algorithm.
 
@@ -176,8 +217,13 @@ class LBFGS(BaseOptimizer):
             history_size (int): update history size (default: 100).
         """
 
-        super().__init__(optim.LBFGS, lr=lr, max_iter=max_iter, max_eval=max_eval,
-                         tolerance_grad=tolerance_grad, tolerance_change=tolerance_change, history_size=history_size,
+        super().__init__(optim.LBFGS,
+                         lr=lr,
+                         max_iter=max_iter,
+                         max_eval=max_eval,
+                         tolerance_grad=tolerance_grad,
+                         tolerance_change=tolerance_change,
+                         history_size=history_size,
                          line_search_fn=line_search_fn)
 
 
@@ -204,7 +250,12 @@ class RMSprop(BaseOptimizer):
 
         """
 
-        super().__init__(optim.RMSprop, lr=lr, alpha=alpha, eps=eps, weight_decay=weight_decay, momentum=momentum,
+        super().__init__(optim.RMSprop,
+                         lr=lr,
+                         alpha=alpha,
+                         eps=eps,
+                         weight_decay=weight_decay,
+                         momentum=momentum,
                          centered=centered)
 
 
@@ -272,5 +323,9 @@ class SGD(BaseOptimizer):
             The Nesterov version is analogously modified.
         """
 
-        super().__init__(optim.SGD, lr=lr, momentum=momentum, dampening=dampening, weight_decay=weight_decay,
+        super().__init__(optim.SGD,
+                         lr=lr,
+                         momentum=momentum,
+                         dampening=dampening,
+                         weight_decay=weight_decay,
                          nesterov=nesterov)

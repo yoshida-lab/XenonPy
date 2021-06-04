@@ -25,5 +25,5 @@ dependencies:
   - matminer
   - pip
   - pip:
-      - Python-Deprecated
+      - Deprecated
       - xenonpy

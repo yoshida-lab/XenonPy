@@ -11,5 +11,5 @@ dependencies:
     - nbsphinx
     - sphinx-autodoc-typehints
     - pip:
-          - Python-Deprecated
+          - Deprecated
           - OpenNMT-py==1.2

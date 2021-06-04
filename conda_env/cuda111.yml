@@ -1,5 +1,6 @@
 channels:
   - pytorch
+  - nvidia
   - conda-forge
 dependencies:
   - pandas>=1.1.3
@@ -11,7 +12,7 @@ dependencies:
   - jupyter>=1.0.0
   - pytorch >=1.7.0,<2.0.0
   - cudatoolkit=11.0
-  - magma-cuda110=2.5.2
+  - magma-cuda111=2.5.2
   - jedi>=0.16
   - torchvision
   - torchtext
@@ -27,5 +28,5 @@ dependencies:
   - matminer
   - pip
   - pip:
-      - Python-Deprecated
+      - Deprecated
       - xenonpy

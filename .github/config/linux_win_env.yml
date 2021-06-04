@@ -22,4 +22,4 @@ dependencies:
   - pip
   - pip:
       - OpenNMT-py==1.2
-      - Python-Deprecated
+      - Deprecated

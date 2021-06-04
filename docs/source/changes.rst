@@ -5,6 +5,13 @@
 Changes
 =======
 
+v0.5.2
+======
+
+**Bug fix**
+
+* some minor fixes.
+
 v0.5.1
 ======
 

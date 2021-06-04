@@ -18,6 +18,12 @@ __package__ = 'xenonpy'
 
 
 class PackageInfo(object):
+    """
+    Appendix
+    --------
+    classifiers: https://pypi.python.org/pypi?%3Aaction=list_classifiers
+    """
+
     def __init__(self, conf_file):
         yaml = YAML(typ='safe')
         yaml.indent(mapping=2, sequence=4, offset=2)
@@ -101,8 +107,7 @@ if __name__ == "__main__":
     # It's a directory style package
     if os.path.exists(__file__[:-8] + PKG_NAME):
         # Include all sub packages in package directory
-        PACKAGES = find_packages(
-            exclude=["*.tests", "*.tests.*", "tests.*", "tests"])
+        PACKAGES = find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"])
 
         # Include everything in package directory
         INCLUDE_PACKAGE_DATA = True
@@ -121,8 +126,7 @@ if __name__ == "__main__":
     # Use todays date as GitHub release tag
     RELEASE_TAG = 'v' + VERSION
     # Source code download url
-    DOWNLOAD_URL = "https://github.com/{0}/{1}/archive/{2}.tar.gz".format(
-        GITHUB_USERNAME, PKG_NAME, RELEASE_TAG)
+    DOWNLOAD_URL = "https://github.com/{0}/{1}/archive/{2}.tar.gz".format(GITHUB_USERNAME, PKG_NAME, RELEASE_TAG)
 
     LICENSE = package.license or "'__license__' not found in '%s.__init__.py'!" % PKG_NAME
 
@@ -148,30 +152,24 @@ if __name__ == "__main__":
     INSTALL_REQUIRES = PackageInfo.requirements()
     SETUP_REQUIRES = ['pytest-runner', 'ruamel.yaml']
     TESTS_REQUIRE = ['pytest']
-    setup(
-        python_requires='~=3.6',
-        name=PKG_NAME,
-        description=SHORT_DESCRIPTION,
-        long_description=LONG_DESCRIPTION,
-        version=VERSION,
-        author=AUTHOR,
-        author_email=AUTHOR_EMAIL,
-        maintainer=MAINTAINER,
-        maintainer_email=MAINTAINER_EMAIL,
-        packages=PACKAGES,
-        include_package_data=INCLUDE_PACKAGE_DATA,
-        package_data=PACKAGE_DATA,
-        py_modules=PY_MODULES,
-        url=GITHUB_URL,
-        download_url=DOWNLOAD_URL,
-        classifiers=CLASSIFIERS,
-        platforms=PLATFORMS,
-        license=LICENSE,
-        setup_requires=SETUP_REQUIRES,
-        install_requires=INSTALL_REQUIRES,
-        tests_require=TESTS_REQUIRE)
-"""
-Appendix
---------
-classifiers: https://pypi.python.org/pypi?%3Aaction=list_classifiers
-"""
+    setup(python_requires='~=3.6',
+          name=PKG_NAME,
+          description=SHORT_DESCRIPTION,
+          long_description=LONG_DESCRIPTION,
+          version=VERSION,
+          author=AUTHOR,
+          author_email=AUTHOR_EMAIL,
+          maintainer=MAINTAINER,
+          maintainer_email=MAINTAINER_EMAIL,
+          packages=PACKAGES,
+          include_package_data=INCLUDE_PACKAGE_DATA,
+          package_data=PACKAGE_DATA,
+          py_modules=PY_MODULES,
+          url=GITHUB_URL,
+          download_url=DOWNLOAD_URL,
+          classifiers=CLASSIFIERS,
+          platforms=PLATFORMS,
+          license=LICENSE,
+          setup_requires=SETUP_REQUIRES,
+          install_requires=INSTALL_REQUIRES,
+          tests_require=TESTS_REQUIRE)

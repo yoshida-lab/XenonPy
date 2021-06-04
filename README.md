@@ -114,8 +114,8 @@ the following command:
 docker run --rm -it \
   --runtime=nvidia \
   --ipc=host \
-  --publish="8888:8888"
-  --volume=$Home/.xenonpy:/home/user/.xenonpy \
+  --publish="8888:8888" \
+  --volume=$HOME/.xenonpy:/home/user/.xenonpy \
   --volume=<path/to/your/workspace>:/workspace \
   -e NVIDIA_VISIBLE_DEVICES=0 \
   yoshidalab/xenonpy

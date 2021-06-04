@@ -9,9 +9,11 @@ short_description: "material descriptor library"
 license: "BSD (3-clause)"
 author:
   - "TsumiNa"
+  - "stewu5"
 author_email: "liu.chang.1865@gmail.com"
 maintainer:
   - "TsumiNa"
+  - "stewu5"
 maintainer_email: "liu.chang.1865@gmail.com"
 github_username: "yoshida-lab"
 

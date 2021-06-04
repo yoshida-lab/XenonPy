@@ -19,8 +19,8 @@ class LinearLayer(nn.Module):
     def __init__(self,
                  in_features: int,
                  out_features: int,
-                 bias: bool = True,
                  *,
+                 bias: bool = True,
                  dropout: float = 0.,
                  activation_func: Callable = nn.ReLU(),
                  normalizer: Union[float, None] = .1):
@@ -31,6 +31,9 @@ class LinearLayer(nn.Module):
             Size of each input sample.
         out_features:
             Size of each output sample
+        bias:
+            If set to ``False``, the layer will not learn an additive bias.
+            Default: ``True``
         dropout: float
             Probability of an element to be zeroed. Default: 0.5
         activation_func: func

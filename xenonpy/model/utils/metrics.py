@@ -3,7 +3,7 @@
 #  license that can be found in the LICENSE file.
 
 from collections import OrderedDict
-from typing import Union
+from typing import Union, List
 
 import numpy as np
 import pandas as pd
@@ -14,8 +14,7 @@ from sklearn.metrics import f1_score, recall_score, precision_score, accuracy_sc
 __all__ = ['regression_metrics', 'classification_metrics']
 
 
-def regression_metrics(y_true: Union[np.ndarray, pd.Series],
-                       y_pred: Union[np.ndarray, pd.Series]) -> OrderedDict:
+def regression_metrics(y_true: Union[np.ndarray, pd.Series], y_pred: Union[np.ndarray, pd.Series]) -> OrderedDict:
     """
     Calculate most common regression scores.
     See Also: https://scikit-learn.org/stable/modules/model_evaluation.html
@@ -63,8 +62,12 @@ def regression_metrics(y_true: Union[np.ndarray, pd.Series],
 
 
 def classification_metrics(
-        y_true: Union[np.ndarray, pd.DataFrame, pd.Series],
-        y_pred: Union[np.ndarray, pd.Series]) -> OrderedDict:
+    y_true: Union[np.ndarray, pd.DataFrame, pd.Series],
+    y_pred: Union[np.ndarray, pd.Series],
+    *,
+    average: Union[None, List[str]] = ['weighted', 'micro', 'macro'],
+    labels=None,
+) -> dict:
     """
     Calculate most common classification scores.
     See Also: https://scikit-learn.org/stable/modules/model_evaluation.html
@@ -83,6 +86,9 @@ def classification_metrics(
         These scores will be calculated: ``accuracy``, ``f1``, ``precision``, ``recall``,
         ``macro_f1``, ``macro_precision``, and ``macro_recall``
     """
+    if average is not None and len(average) == 0:
+        raise ValueError('need average')
+
     if len(y_true.shape) != 1:
         y_true = np.argmax(y_true, 1)
     if len(y_pred.shape) != 1:
@@ -92,19 +98,36 @@ def classification_metrics(
     y_true = y_true[mask]
     y_pred = y_pred[mask]
 
-    accuracy = accuracy_score(y_true, y_pred)
-    f1 = f1_score(y_true, y_pred, average='weighted')
-    precision = precision_score(y_true, y_pred, average='weighted')
-    recall = recall_score(y_true, y_pred, average='weighted')
-    macro_f1 = f1_score(y_true, y_pred, average='macro')
-    macro_precision = precision_score(y_true, y_pred, average='macro')
-    macro_recall = recall_score(y_true, y_pred, average='macro')
-    return OrderedDict(
-        accuracy=accuracy,
-        f1=f1,
-        precision=precision,
-        recall=recall,
-        macro_f1=macro_f1,
-        macro_precision=macro_precision,
-        macro_recall=macro_recall,
-    )
+    ret = dict(accuracy=accuracy_score(y_true, y_pred))
+
+    if average is None:
+        ret.update(
+            f1=f1_score(y_true, y_pred, average=None, labels=labels),
+            precision=precision_score(y_true, y_pred, average=None, labels=labels),
+            recall=recall_score(y_true, y_pred, average=None, labels=labels),
+        )
+
+        return ret
+
+    if 'weighted' in average:
+        ret.update(
+            f1=f1_score(y_true, y_pred, average='weighted', labels=labels),
+            precision=precision_score(y_true, y_pred, average='weighted', labels=labels),
+            recall=recall_score(y_true, y_pred, average='weighted', labels=labels),
+        )
+
+    if 'micro' in average:
+        ret.update(
+            micro_f1=f1_score(y_true, y_pred, average='micro', labels=labels),
+            micro_precision=precision_score(y_true, y_pred, average='micro', labels=labels),
+            micro_recall=recall_score(y_true, y_pred, average='micro', labels=labels),
+        )
+
+    if 'macro' in average:
+        ret.update(
+            macro_f1=f1_score(y_true, y_pred, average='macro', labels=labels),
+            macro_precision=precision_score(y_true, y_pred, average='macro', labels=labels),
+            macro_recall=recall_score(y_true, y_pred, average='macro', labels=labels),
+        )
+
+    return ret

@@ -345,7 +345,6 @@ def test_validator_2():
 
     step_info = OrderedDict(train_loss=0, i_epoch=1)
     val.step_forward(trainer=_Trainer(), step_info=step_info)  # noqa
-    print(step_info)
     assert step_info['val_accuracy'] == classification_metrics(y, x)['accuracy']
     assert set(step_info.keys()) == {
         'i_epoch', 'val_accuracy', 'val_f1', 'val_precision', 'val_recall', 'val_macro_f1', 'val_macro_precision',

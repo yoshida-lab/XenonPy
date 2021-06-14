@@ -33,6 +33,7 @@ class Persist(BaseExtension):
                  increment: bool = False,
                  sync_training_step: bool = False,
                  only_best_states: bool = False,
+                 no_model_saving: bool = False,
                  **describe: Any):
         """
 
@@ -54,6 +55,8 @@ class Persist(BaseExtension):
             Default is ``False``, only save ``trainer.training_info`` at each epoch.
         only_best_states
             If ``True``, will only save the models with the best states in terms of each of the criteria.
+        no_model_saving
+            Indicate whether to save the connected model and checkpoints.
         describe:
             Any other information to describe this model.
             These information will be saved under model dir by name ``describe.pkl.z``.
@@ -69,6 +72,7 @@ class Persist(BaseExtension):
         self._tmp_args: list = []
         self._tmp_kwargs: dict = {}
         self._epoch_count = 0
+        self._no_model_saving = no_model_saving
         self.path = path
 
     @property
@@ -76,6 +80,10 @@ class Persist(BaseExtension):
         if self._checker is None:
             raise ValueError('can not access property `describe` before training')
         return self._checker.describe
+
+    @property
+    def no_model_saving(self):
+        return self._no_model_saving
 
     @property
     def path(self):
@@ -106,7 +114,9 @@ class Persist(BaseExtension):
     def __getitem__(self, item):
         return self._checker[item]
 
-    def on_checkpoint(self, checkpoint: Trainer.checkpoint_tuple, trainer: Trainer) -> None:
+    def on_checkpoint(self, checkpoint: Trainer.checkpoint_tuple) -> None:
+        if self._no_model_saving:
+            return None
         if self.only_best_states:
             tmp = checkpoint.id.split('_')
             if tmp[-1] == '1':
@@ -137,7 +147,8 @@ class Persist(BaseExtension):
             self._checker(model_class=self._model_class)
         if self._model_params is not None:
             self._checker(model_params=self._model_params)
-        self._checker.model = trainer.model
+        if not self._no_model_saving:
+            self._checker.model = trainer.model
         self._describe_ = dict(
             python=py_ver,
             system=sys_ver(),

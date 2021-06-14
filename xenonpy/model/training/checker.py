@@ -64,8 +64,7 @@ class Checker(object):
         self._make_file_index()
 
     @classmethod
-    @deprecated(
-        'This method is rotten and will be removed in v1.0.0, use `Checker(<model path>)` instead')
+    @deprecated('This method is rotten and will be removed in v1.0.0, use `Checker(<model path>)` instead')
     def load(cls, model_path):
         return cls(model_path)
 
@@ -91,7 +90,6 @@ class Checker(object):
     @property
     def model_structure(self):
         structure = self['model_structure']
-        print(structure)
         return structure
 
     @property
@@ -154,8 +152,7 @@ class Checker(object):
             raise TypeError(f'except `torch.nn.Module` object but got {type(model)}')
 
     @property
-    @deprecated('This property is rotten and will be removed in v1.0.0, use `checker.model` instead'
-               )
+    @deprecated('This property is rotten and will be removed in v1.0.0, use `checker.model` instead')
     def trained_model(self):
         if (self._path / 'trained_model.@1.pkl.z').exists():
             return torch.load(str(self._path / 'trained_model.@1.pkl.z'), map_location=self._device)
@@ -211,10 +208,7 @@ class Checker(object):
 
     def _make_file_index(self):
 
-        for f in [
-                f for f in self._path.iterdir()
-                if f.match('*.pkl.*') or f.match('*.pd.*') or f.match('*.pth.*')
-        ]:
+        for f in [f for f in self._path.iterdir() if f.match('*.pkl.*') or f.match('*.pd.*') or f.match('*.pth.*')]:
             # select data
             fn = '.'.join(f.name.split('.')[:-2])
             self._files[fn] = str(f)

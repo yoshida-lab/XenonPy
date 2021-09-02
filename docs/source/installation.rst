@@ -120,6 +120,11 @@ If you have a GPU server/PC running Linux and want to bring the GPU acceleration
     $ docker run --runtime=nvidia --rm -it -v $HOME/.xenonpy:/home/user/.xenonpy -v <path/to/your/work_space>:/workspace -p 8888:8888 yoshidalab/xenonpy
 
 For more information about **using GPU acceleration in docker**, see `nvidia docker <https://github.com/NVIDIA/nvidia-docker>`_.
+.. note::
+    
+    If you get **docker: Error response from daemon: Unknown runtime specified nvidia.** when runing docker with ``--runtime=nvidia``.
+    Please update your ``nvidia-docker`` to ``nvidia-docker2`` and repleace ``--runtime=nvidia`` with ``--gpus all``.
+    see `this issue <https://github.com/NVIDIA/nvidia-docker/issues/838>`_ for details.
 
 
 Permission failed

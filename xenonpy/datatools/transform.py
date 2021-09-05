@@ -203,7 +203,7 @@ class Scaler(BaseEstimator, TransformerMixin):
 
         x_ = x
         for s in self._scalers:
-            x_ = s.fit_transform(x_)
+            x_ = s.transform(x_)
 
         if isinstance(x, pd.DataFrame):
             return pd.DataFrame(x_, index=x.index, columns=x.columns)

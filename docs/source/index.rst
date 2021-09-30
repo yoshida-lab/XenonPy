@@ -19,7 +19,7 @@ This package still under hard working. The current release provides some limited
 
 * Interface to the public materials database
 * Library of materials descriptors (compositional/structural descriptors)
-* pre-trained model library **XenonPy.MDL** (v0.1.0.beta, 2019/8/9: more than 140,000 models (include private models) in 35 properties of small molecules, polymers, and inorganic compounds)
+* pre-trained model library **XenonPy.MDL** (v0.1.0.beta, 2019/8/9: more than 140,000 models (include private models) in 35 properties of small molecules, polymers, and inorganic compounds) [Currently under maintenance, expected to be recovered in v0.7]
 * Machine learning tools.
 * Transfer learning using the pre-trained models in XenonPy.MDL
 

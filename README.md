@@ -2,7 +2,7 @@
   <img height="200" src="https://github.com/yoshida-lab/XenonPy/blob/master/logo.png" alt="xenonpy">
 </p>
 
-**Our XenonPy.MDL is under technical maintenance and is not available during this period, sorry for all the inconvenience. We will make an announcement as soon as the expected date of recovery is determined.**
+**Our XenonPy.MDL is under technical maintenance due to some security issues found during a server upgrade. Our current plan is to recover the access at the release of v0.7 (a conservative estimate of release date would be mid 2022). In the mean time, if you would like to get access to the pretrained models, please contact us directly with your purpose of using the models and your affiliation. We will try to provide necessary aid to access part of the model library based on specific needs. Sorry for all the inconvenience. We will make further announcement here when a more concrete recovery schedule is available.**
 
 # XenonPy project
 

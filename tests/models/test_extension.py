@@ -315,8 +315,8 @@ def test_validator_1():
     val.step_forward(trainer=_Trainer(), step_info=step_info)  # noqa
     assert step_info['val_mae'] == regression_metrics(y, x)['mae']
     assert set(step_info.keys()) == {
-        'i_epoch', 'val_mae', 'val_mse', 'val_rmse', 'val_r2', 'val_pearsonr', 'val_spearmanr',
-        'val_p_value', 'val_max_ae', 'train_loss'
+        'i_epoch', 'val_mae', 'val_mse', 'val_rmse', 'val_r2', 'val_pearsonr', 'val_spearmanr', 'val_p_value',
+        'val_max_ae', 'train_loss'
     }
 
 
@@ -345,10 +345,12 @@ def test_validator_2():
 
     step_info = OrderedDict(train_loss=0, i_epoch=1)
     val.step_forward(trainer=_Trainer(), step_info=step_info)  # noqa
-    assert step_info['val_f1'] == classification_metrics(y, x)['f1']
+    print(step_info)
+    assert step_info['val_accuracy'] == classification_metrics(y, x)['accuracy']
     assert set(step_info.keys()) == {
-        'i_epoch', 'val_accuracy', 'val_f1', 'val_precision', 'val_recall', 'val_macro_f1',
-        'val_macro_precision', 'val_macro_recall', 'train_loss'
+        'i_epoch', 'val_accuracy', 'val_f1', 'val_precision', 'val_recall', 'val_macro_f1', 'val_macro_precision',
+        'val_macro_recall', 'val_weighted_f1', 'val_weighted_precision', 'val_weighted_recall', 'val_micro_f1',
+        'val_micro_precision', 'val_micro_recall', 'train_loss'
     }
 
 

@@ -15,6 +15,7 @@ from xenonpy.utils import TimedMetaClass, camel_to_snake
 __all__ = ['BaseRunner', 'BaseLRScheduler', 'BaseOptimizer', 'BaseExtension']
 
 
+
 class BaseExtension(object):
 
     def before_proc(self, trainer: 'BaseRunner' = None, is_training: bool = True, *_dependence: 'BaseExtension') -> None:

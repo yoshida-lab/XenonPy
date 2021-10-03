@@ -17,27 +17,27 @@ __all__ = ['BaseRunner', 'BaseLRScheduler', 'BaseOptimizer', 'BaseExtension']
 
 class BaseExtension(object):
 
-    def before_proc(self, trainer: 'BaseRunner', is_training: bool, *_dependence: 'BaseExtension') -> None:
+    def before_proc(self, trainer: 'BaseRunner' = None, is_training: bool = True, *_dependence: 'BaseExtension') -> None:
         pass
 
     def input_proc(self, x_in, y_in, *_dependence: 'BaseExtension') -> Tuple[Any, Any]:
         return x_in, y_in
 
-    def step_forward(self, step_info: OrderedDict[Any, int], trainer: 'BaseRunner', is_training: bool,
+    def step_forward(self, step_info: OrderedDict[Any, int], trainer: 'BaseRunner' = None, is_training: bool = True,
                      *_dependence: 'BaseExtension') -> None:
         pass
 
-    def output_proc(self, y_pred, y_true, trainer: 'BaseRunner', is_training: bool,
+    def output_proc(self, y_pred, y_true, trainer: 'BaseRunner' = None, is_training: bool = True,
                     *_dependence: 'BaseExtension') -> Tuple[Any, Any]:
         return y_pred, y_true
 
-    def after_proc(self, trainer: 'BaseRunner', is_training: bool, *_dependence: 'BaseExtension') -> None:
+    def after_proc(self, trainer: 'BaseRunner' = None, is_training: bool = True, *_dependence: 'BaseExtension') -> None:
         pass
 
-    def on_reset(self, trainer: 'BaseRunner', is_training: bool, *_dependence: 'BaseExtension') -> None:
+    def on_reset(self, trainer: 'BaseRunner' = None, is_training: bool = True, *_dependence: 'BaseExtension') -> None:
         pass
 
-    def on_checkpoint(self, checkpoint: NamedTuple, trainer: 'BaseRunner', is_training: bool,
+    def on_checkpoint(self, checkpoint: NamedTuple, trainer: 'BaseRunner' = None, is_training: bool = True,
                       *_dependence: 'BaseExtension') -> None:
         pass
 

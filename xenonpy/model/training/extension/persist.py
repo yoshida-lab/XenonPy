@@ -2,20 +2,19 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from collections import OrderedDict
 from copy import deepcopy
 from datetime import datetime, timedelta
 from pathlib import Path
 from platform import version as sys_ver
 from sys import version as py_ver
-from typing import Union, Callable, Any
+from typing import Union, Callable, Any, OrderedDict
 
 import numpy as np
 import torch
 
 from xenonpy import __version__
 from xenonpy.model.training import Trainer, Checker
-from xenonpy.model.training.base import BaseExtension
+from xenonpy.model.training.base import BaseExtension, BaseRunner
 
 __all__ = ['Persist']
 
@@ -114,7 +113,11 @@ class Persist(BaseExtension):
     def __getitem__(self, item):
         return self._checker[item]
 
-    def on_checkpoint(self, checkpoint: Trainer.checkpoint_tuple) -> None:
+    def on_checkpoint(self,
+                      checkpoint: Trainer.checkpoint_tuple,
+                      _trainer: BaseRunner = None,
+                      _is_training: bool = True,
+                      *_dependence: 'BaseExtension') -> None:
         if self._no_model_saving:
             return None
         if self.only_best_states:
@@ -128,7 +131,11 @@ class Persist(BaseExtension):
             value = deepcopy(checkpoint._asdict())
             self._checker.set_checkpoint(**{key: value})
 
-    def step_forward(self, step_info: OrderedDict, trainer: Trainer) -> None:
+    def step_forward(self,
+                     step_info: OrderedDict[Any, int],
+                     trainer: Trainer = None,
+                     _is_training: bool = True,
+                     *_dependence: BaseExtension) -> None:
         if self.sync_training_step:
             training_info = trainer.training_info
             if training_info is not None:
@@ -141,7 +148,7 @@ class Persist(BaseExtension):
                     self._epoch_count = epoch
                     self._checker(training_info=training_info)
 
-    def before_proc(self, trainer: Trainer) -> None:
+    def before_proc(self, trainer: Trainer = None, _is_training: bool = True, *_dependence: BaseExtension) -> None:
         self._checker = Checker(self._path, increment=self._increment)
         if self._model_class is not None:
             self._checker(model_class=self._model_class)
@@ -163,7 +170,7 @@ class Persist(BaseExtension):
         )
         self._checker(describe=self._describe_)
 
-    def after_proc(self, trainer: Trainer) -> None:
+    def after_proc(self, trainer: Trainer = None, _is_training: bool = True, *_dependence: 'BaseExtension') -> None:
         self._describe_.update(finish=datetime.now().strftime('%Y/%m/%d %H:%M:%S'),
                                time_elapsed=str(timedelta(seconds=trainer.timer.elapsed)))
         self._checker.final_state = trainer.model.state_dict()

@@ -35,7 +35,10 @@ See our documents for details: http://xenonpy.readthedocs.io
 
 1. Yamada, H. et al. Predicting Materials Properties with Little Data Using Shotgun Transfer Learning. ACS Cent. Sci. acscentsci.9b00804 (2019). doi:10.1021/acscentsci.9b00804
 
-## XenonPy images
+## XenonPy images (deprecated)
+
+> Docker has introduced a new [Subscription Service Agreement](https://www.docker.com/legal/docker-subscription-service-agreement) which requires organizations with more than 250 employees or more than $10 million in revenue to buy a paid subscription.
+> Since the fact that Docker company has been changed their policy to business first mode, we decided to drop the prebuilt Docker images service.
 
 [XenonPy base images](https://hub.docker.com/repository/docker/yoshidalab/base) packed a lot of useful packages for materials informatics using.
 The following table list some core packages in XenonPy images.

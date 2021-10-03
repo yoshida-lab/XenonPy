@@ -229,45 +229,45 @@ def test_tensor_converter_3():
     tensor_ = torch.from_numpy(np_)
 
     converter = TensorConverter()
-    y, y_ = converter.output_proc(tensor_, None, training=True)
+    y, y_ = converter.output_proc(tensor_, None, is_training=True)
     assert y_ is None
     assert isinstance(y, torch.Tensor)
     assert y.shape == (2, 3)
     assert torch.equal(y, tensor_)
 
-    y, y_ = converter.output_proc(tensor_, tensor_, training=True)
+    y, y_ = converter.output_proc(tensor_, tensor_, is_training=True)
     assert isinstance(y, torch.Tensor)
     assert isinstance(y_, torch.Tensor)
     assert y.equal(y_)
     assert y.shape == (2, 3)
     assert torch.equal(y, tensor_)
 
-    y, _ = converter.output_proc((tensor_,), None, training=True)
+    y, _ = converter.output_proc((tensor_,), None, is_training=True)
     assert isinstance(y, tuple)
     assert isinstance(y[0], torch.Tensor)
     assert torch.equal(y[0], tensor_)
 
-    y, y_ = converter.output_proc(tensor_, tensor_, training=False)
+    y, y_ = converter.output_proc(tensor_, tensor_, is_training=False)
     assert isinstance(y, np.ndarray)
     assert isinstance(y_, np.ndarray)
     assert np.all(y == y_)
     assert y.shape == (2, 3)
     assert np.all(y == tensor_.numpy())
 
-    y, _ = converter.output_proc((tensor_,), None, training=False)
+    y, _ = converter.output_proc((tensor_,), None, is_training=False)
     assert isinstance(y, tuple)
     assert isinstance(y[0], np.ndarray)
     assert np.all(y[0] == tensor_.numpy())
 
     converter = TensorConverter(argmax=True)
-    y, y_ = converter.output_proc(tensor_, tensor_, training=False)
+    y, y_ = converter.output_proc(tensor_, tensor_, is_training=False)
     assert isinstance(y, np.ndarray)
     assert isinstance(y_, np.ndarray)
     assert y.shape == (2,)
     assert y_.shape == (2, 3)
     assert np.all(y == np.argmax(np_, 1))
 
-    y, y_ = converter.output_proc((tensor_, tensor_), None, training=False)
+    y, y_ = converter.output_proc((tensor_, tensor_), None, is_training=False)
     assert isinstance(y, tuple)
     assert y_ is None
     assert y[0].shape == (2,)
@@ -275,14 +275,14 @@ def test_tensor_converter_3():
     assert np.all(y[0] == np.argmax(np_, 1))
 
     converter = TensorConverter(probability=True)
-    y, y_ = converter.output_proc(tensor_, tensor_, training=False)
+    y, y_ = converter.output_proc(tensor_, tensor_, is_training=False)
     assert isinstance(y, np.ndarray)
     assert isinstance(y_, np.ndarray)
     assert y.shape == (2, 3)
     assert y_.shape == (2, 3)
     assert np.all(y == softmax(np_, 1))
 
-    y, y_ = converter.output_proc((tensor_, tensor_), None, training=False)
+    y, y_ = converter.output_proc((tensor_, tensor_), None, is_training=False)
     assert isinstance(y, tuple)
     assert y_ is None
     assert y[0].shape == (2, 3)
@@ -345,7 +345,6 @@ def test_validator_2():
 
     step_info = OrderedDict(train_loss=0, i_epoch=1)
     val.step_forward(trainer=_Trainer(), step_info=step_info)  # noqa
-    print(step_info)
     assert step_info['val_accuracy'] == classification_metrics(y, x)['accuracy']
     assert set(step_info.keys()) == {
         'i_epoch', 'val_accuracy', 'val_f1', 'val_precision', 'val_recall', 'val_macro_f1', 'val_macro_precision',
@@ -417,16 +416,16 @@ def test_persist_save_checkpoints(data):
     # save checkpoint
     p = Persist('test_model_1', increment=False, only_best_states=False)
     p.before_proc(trainer=_Trainer())
-    p.on_checkpoint(cp_1, trainer=_Trainer())
-    p.on_checkpoint(cp_2, trainer=_Trainer())
+    p.on_checkpoint(cp_1)
+    p.on_checkpoint(cp_2)
     assert (Path('.').resolve() / 'test_model_1' / 'checkpoints' / 'cp_1.pth.s').exists()
     assert (Path('.').resolve() / 'test_model_1' / 'checkpoints' / 'cp_2.pth.s').exists()
 
     # reduced save checkpoint
     p = Persist('test_model_2', increment=False, only_best_states=True)
     p.before_proc(trainer=_Trainer())
-    p.on_checkpoint(cp_1, trainer=_Trainer())
-    p.on_checkpoint(cp_2, trainer=_Trainer())
+    p.on_checkpoint(cp_1)
+    p.on_checkpoint(cp_2)
     assert (Path('.').resolve() / 'test_model_2' / 'checkpoints' / 'cp.pth.s').exists()
     assert not (Path('.').resolve() / 'test_model_2' / 'checkpoints' / 'cp_1.pth.s').exists()
     assert not (Path('.').resolve() / 'test_model_2' / 'checkpoints' / 'cp_2.pth.s').exists()
@@ -434,7 +433,7 @@ def test_persist_save_checkpoints(data):
     # no checkpoint will be saved
     p = Persist('test_model_3', increment=False, only_best_states=True)
     p.before_proc(trainer=_Trainer())
-    p.on_checkpoint(cp_2, trainer=_Trainer())
+    p.on_checkpoint(cp_2)
     assert not (Path('.').resolve() / 'test_model_3' / 'checkpoints' / 'cp.pth.s').exists()
     assert not (Path('.').resolve() / 'test_model_3' / 'checkpoints' / 'cp_2.pth.s').exists()
 

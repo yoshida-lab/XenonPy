@@ -3,9 +3,7 @@
 #  license that can be found in the LICENSE file.
 
 from inspect import signature
-from typing import Iterable
-from typing import Tuple, Any
-from typing import Union, Dict
+from typing import NamedTuple, Tuple, Any, OrderedDict, Union, Dict, Iterable
 
 import torch
 from sklearn.base import BaseEstimator
@@ -18,29 +16,34 @@ __all__ = ['BaseRunner', 'BaseLRScheduler', 'BaseOptimizer', 'BaseExtension']
 
 
 class BaseExtension(object):
-    def before_proc(self, *dependence) -> None:
+
+    def before_proc(self, trainer: 'BaseRunner' = None, is_training: bool = True, *_dependence: 'BaseExtension') -> None:
         pass
 
-    def input_proc(self, x_in, y_in, *dependence) -> Tuple[Any, Any]:
+    def input_proc(self, x_in, y_in, *_dependence: 'BaseExtension') -> Tuple[Any, Any]:
         return x_in, y_in
 
-    def step_forward(self, *dependence) -> None:
+    def step_forward(self, step_info: OrderedDict[Any, int], trainer: 'BaseRunner' = None, is_training: bool = True,
+                     *_dependence: 'BaseExtension') -> None:
         pass
 
-    def output_proc(self, y_pred, y_true, *dependence) -> Tuple[Any, Any]:
+    def output_proc(self, y_pred, y_true, trainer: 'BaseRunner' = None, is_training: bool = True,
+                    *_dependence: 'BaseExtension') -> Tuple[Any, Any]:
         return y_pred, y_true
 
-    def after_proc(self, *dependence) -> None:
+    def after_proc(self, trainer: 'BaseRunner' = None, is_training: bool = True, *_dependence: 'BaseExtension') -> None:
         pass
 
-    def on_reset(self, *dependence) -> None:
+    def on_reset(self, trainer: 'BaseRunner' = None, is_training: bool = True, *_dependence: 'BaseExtension') -> None:
         pass
 
-    def on_checkpoint(self, *dependence) -> None:
+    def on_checkpoint(self, checkpoint: NamedTuple, trainer: 'BaseRunner' = None, is_training: bool = True,
+                      *_dependence: 'BaseExtension') -> None:
         pass
 
 
 class BaseOptimizer(object):
+
     def __init__(self, optimizer, **kwargs):
         self._kwargs = kwargs
         self._optimizer = optimizer
@@ -62,6 +65,7 @@ class BaseOptimizer(object):
 
 
 class BaseLRScheduler(object):
+
     def __init__(self, lr_scheduler, **kwargs):
         self._kwargs = kwargs
         self._lr_scheduler = lr_scheduler
@@ -114,8 +118,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             else:
                 raise RuntimeError(
                     'wrong device identifier'
-                    'see also: https://pytorch.org/docs/stable/tensor_attributes.html#torch.torch.device'
-                )
+                    'see also: https://pytorch.org/docs/stable/tensor_attributes.html#torch.torch.device')
 
         if isinstance(cuda, torch.device):
             return cuda
@@ -129,10 +132,7 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
         self._device = self.check_device(v)
 
     def _make_inject(self, injects, kwargs):
-        _kwargs = {
-            k: self._extensions[k][0]
-            for k in injects if k in self._extensions
-        }
+        _kwargs = {k: self._extensions[k][0] for k in injects if k in self._extensions}
         _kwargs.update({k: kwargs[k] for k in injects if k in kwargs})
         return _kwargs
 
@@ -183,23 +183,18 @@ class BaseRunner(BaseEstimator, metaclass=TimedMetaClass):
             Extension.
 
         """
+
         def _get_keyword_params(func) -> list:
             sig = signature(func)
-            return [
-                p.name for p in sig.parameters.values()
-                if p.kind == p.POSITIONAL_OR_KEYWORD
-            ]
+            return [p.name for p in sig.parameters.values() if p.kind == p.POSITIONAL_OR_KEYWORD]
 
         # merge exts to named_exts
         for ext in extension:
             name = camel_to_snake(ext.__class__.__name__)
             methods = [
-                'before_proc', 'input_proc', 'step_forward', 'output_proc',
-                'after_proc', 'on_reset', 'on_checkpoint'
+                'before_proc', 'input_proc', 'step_forward', 'output_proc', 'after_proc', 'on_reset', 'on_checkpoint'
             ]
-            dependencies = [
-                _get_keyword_params(getattr(ext, m)) for m in methods
-            ]
+            dependencies = [_get_keyword_params(getattr(ext, m)) for m in methods]
             dependency_inject = {k: v for k, v in zip(methods, dependencies)}
 
             self._extensions[name] = (ext, dependency_inject)

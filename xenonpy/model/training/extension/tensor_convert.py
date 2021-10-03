@@ -107,13 +107,11 @@ class TensorConverter(BaseExtension):
             return self._y_dtype[i]
         return self._y_dtype
 
-    def input_proc(self, x_in: Union[Sequence[Union[torch.Tensor, pd.DataFrame, pd.Series,
-                                                    np.ndarray, Any]], torch.Tensor, pd.DataFrame,
-                                     pd.Series, np.ndarray, Any],
+    def input_proc(self, x_in: Union[Sequence[Union[torch.Tensor, pd.DataFrame, pd.Series, np.ndarray, Any]],
+                                     torch.Tensor, pd.DataFrame, pd.Series, np.ndarray, Any],
                    y_in: Union[Sequence[Union[torch.Tensor, pd.DataFrame, pd.Series, np.ndarray,
-                                              Any]], torch.Tensor, pd.DataFrame, pd.Series,
-                               np.ndarray, Any],
-                   trainer: Trainer) -> Tuple[torch.Tensor, torch.Tensor]:
+                                              Any]], torch.Tensor, pd.DataFrame, pd.Series, np.ndarray,
+                               Any], trainer: Trainer) -> Tuple[torch.Tensor, torch.Tensor]:
         """
         Convert data to :class:`torch.Tensor`.
 
@@ -169,7 +167,7 @@ class TensorConverter(BaseExtension):
         self,
         y_pred: Union[Sequence[Union[torch.Tensor, np.ndarray, Any]], torch.Tensor, Any],
         y_true: Union[Sequence[Union[torch.Tensor, np.ndarray, Any]], torch.Tensor, Any, None],
-        training: bool,
+        is_training: bool,
     ):
         """
         Convert :class:`torch.Tensor` to :class:`numpy.ndarray`.
@@ -178,7 +176,7 @@ class TensorConverter(BaseExtension):
         ----------
         y_pred: Union[torch.Tensor, Tuple[torch.Tensor]]
         y_true : Union[torch.Tensor, Tuple[torch.Tensor]]
-        training: bool
+        is_training: bool
             Specify whether the model in the training mode.
 
         """
@@ -194,7 +192,7 @@ class TensorConverter(BaseExtension):
                 return softmax(y_, axis=1)
             return y_
 
-        if not training:
+        if not is_training:
             if isinstance(y_pred, tuple):
                 return tuple([_convert(t, self._argmax, self._probability) for t in y_pred]), _convert(y_true)
             else:

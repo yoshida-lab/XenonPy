@@ -144,15 +144,16 @@ if __name__ == "__main__":
         "Operating System :: Microsoft :: Windows",
         "Operating System :: MacOS",
         "Operating System :: Unix",
-        "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ]
 
     # Read requirements.txt, ignore comments
     INSTALL_REQUIRES = PackageInfo.requirements()
     SETUP_REQUIRES = ['pytest-runner', 'ruamel.yaml']
     TESTS_REQUIRE = ['pytest']
-    setup(python_requires='~=3.6',
+    setup(python_requires='~=3.7',
           name=PKG_NAME,
           description=SHORT_DESCRIPTION,
           long_description=LONG_DESCRIPTION,

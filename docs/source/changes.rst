@@ -5,6 +5,24 @@
 Changes
 =======
 
+v0.6.0
+======
+
+**Bug fix**
+
+* Fix a bug in the ``Scaler`` class. ( `#243`_ )
+
+**New features**
+
+* Add ``average`` option to the ``classification_metrics`` function. Now users can decide how to calculate scores for multilabel tasks. ( `#240`_ )
+* Add ``only_best_states`` option to the ``Persist`` class. If ``True``, ``Persist`` will only save the best state to reduce the storage space. ( `#233`_ )
+* Add ``warming_up`` option to the ``Validator`` class. ( `#238`_ )
+
+.. _#243: https://github.com/yoshida-lab/XenonPy/pull/243
+.. _#240: https://github.com/yoshida-lab/XenonPy/pull/240
+.. _#233: https://github.com/yoshida-lab/XenonPy/pull/233
+.. _#238: https://github.com/yoshida-lab/XenonPy/pull/238
+
 v0.5.2
 ======
 

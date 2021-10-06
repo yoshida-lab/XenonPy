@@ -8,7 +8,7 @@
 What is XenonPy project
 ========================
 
-|MacOS| |Windows| |Ubuntu| |codecov| |version| |python| |total-dl| |per-dl|
+|MacOS| |Windows| |Ubuntu| |readthedocs| |codecov| |version| |python| |total-dl| |per-dl|
 
 --------
 Overview
@@ -96,6 +96,10 @@ Code contributions are also very welcomed. See :doc:`contribution` for more deta
 .. |Ubuntu| image:: https://github.com/yoshida-lab/XenonPy/workflows/Ubuntu/badge.svg
     :alt: Ubuntu Building Status
     :target: https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AUbuntu
+
+.. |readthedocs| image:: https://readthedocs.org/projects/xenonpy/badge/?version=latest
+    :alt: Documentation Status
+    :target: https://xenonpy.readthedocs.io/en/latest/?badge=latest
 
 .. |codecov| image:: https://codecov.io/gh/yoshida-lab/XenonPy/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/yoshida-lab/XenonPy

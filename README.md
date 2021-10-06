@@ -9,6 +9,7 @@
 [![MacOS](https://github.com/yoshida-lab/XenonPy/workflows/MacOS/badge.svg)](https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AMacOS)
 [![Windows](https://github.com/yoshida-lab/XenonPy/workflows/Windows/badge.svg)](https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AWindows)
 [![Ubuntu](https://github.com/yoshida-lab/XenonPy/workflows/Ubuntu/badge.svg)](https://github.com/yoshida-lab/XenonPy/actions?query=workflow%3AUbuntu)
+[![Documentation Status](https://readthedocs.org/projects/xenonpy/badge/?version=latest)](https://xenonpy.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/yoshida-lab/XenonPy/branch/master/graph/badge.svg)](https://codecov.io/gh/yoshida-lab/XenonPy)
 [![Version](https://img.shields.io/github/tag/yoshida-lab/XenonPy.svg?maxAge=360)](https://github.com/yoshida-lab/XenonPy/releases/latest)
 [![Python Versions](https://img.shields.io/pypi/pyversions/xenonpy.svg)](https://pypi.org/project/xenonpy/)

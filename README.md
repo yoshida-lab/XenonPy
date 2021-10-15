@@ -34,7 +34,12 @@ See our documents for details: http://xenonpy.readthedocs.io
 
 ## Publications
 
-1. Yamada, H. et al. Predicting Materials Properties with Little Data Using Shotgun Transfer Learning. ACS Cent. Sci. acscentsci.9b00804 (2019). doi:10.1021/acscentsci.9b00804
+1. H. Ikebata, K. Hongo, T. Isomura, R. Maezono, and R. Yoshida, “Bayesian molecular design with a chemical language model,” J Comput Aided Mol Des, vol. 31, no. 4, pp. 379–391, Apr. 2017, doi: 10/ggpx8b.
+2. S. Wu et al., “Machine-learning-assisted discovery of polymers with high thermal conductivity using a molecular design algorithm,” npj Computational Materials, vol. 5, no. 1, pp. 66–66, Dec. 2019, doi: 10.1038/s41524-019-0203-2.
+3. S. Wu, G. Lambard, C. Liu, H. Yamada, and R. Yoshida, “iQSPR in XenonPy: A Bayesian Molecular Design Algorithm,” Mol. Inform., vol. 39, no. 1–2, p. 1900107, Jan. 2020, doi: 10.1002/minf.201900107.
+4. H. Yamada et al., “Predicting Materials Properties with Little Data Using Shotgun Transfer Learning,” ACS Cent. Sci., vol. 5, no. 10, pp. 1717–1730, Oct. 2019, doi: 10.1021/acscentsci.9b00804.
+5. S. Ju et al., “Exploring diamondlike lattice thermal conductivity crystals via feature-based transfer learning,” Phys. Rev. Mater., vol. 5, no. 5, p. 053801, May 2021, doi: 10.1103/physrevmaterials.5.053801.
+6. C. Liu et al., “Machine Learning to Predict Quasicrystals from Chemical Compositions,” Adv. Mater., vol. 33, no. 36, p. 2102507, Sep. 2021, doi: 10.1002/adma.202102507.
 
 ## XenonPy images (deprecated)
 

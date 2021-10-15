@@ -295,8 +295,8 @@ Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/transfer_learn
 Inverse design
 --------------
 
-Inverse molecular design is an important research subject in materials science that aims to computationally create new chemical structures with desired properties.
-XenonPy offers a Bayesian molecular design algorithm based on [8]_ that includes a SMILES generator based on N-gram model, likelihood calculator, and a sequential Monte Carlo algorithm for sampling the posterior distribution of molecules with properties specified by the likelihood function. Details of this algorithm, which is called iQSPR, can be found in [10]_. An example of using iQSPR to search for high thermal conductivity polymer can be found in [9]_. 
+Inverse molecular design is an important research subject in materials science that aims to create new chemical structures with desired properties computationally.
+XenonPy offers a Bayesian molecular design algorithm based on [8]_ that includes a SMILES generator based on N-gram model, likelihood calculator, and a sequential Monte Carlo algorithm for sampling the posterior distribution of molecules with properties specified by the likelihood function. Details of this algorithm, which is called iQSPR, can be found in [9]_. An example of using iQSPR to search for high thermal conductivity polymer can be found in [10]_. 
 
 See tutorial at :doc:`tutorials/7-inverse-design` to learn how to perform inverse molecular design using iQSPR in XenonPy.
 
@@ -312,6 +312,6 @@ Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/iQSPR.ipynb to
 .. [6] H. Yamada et al., “Predicting Materials Properties with Little Data Using Shotgun Transfer Learning,” ACS Cent. Sci., vol. 5, no. 10, pp. 1717–1730, Oct. 2019, doi: 10.1021/acscentsci.9b00804.
 .. [7] S. Ju et al., “Exploring diamondlike lattice thermal conductivity crystals via feature-based transfer learning,” Phys. Rev. Mater., vol. 5, no. 5, p. 053801, May 2021, doi: 10.1103/physrevmaterials.5.053801.
 .. [8] H. Ikebata, K. Hongo, T. Isomura, R. Maezono, and R. Yoshida, “Bayesian molecular design with a chemical language model,” J Comput Aided Mol Des, vol. 31, no. 4, pp. 379–391, Apr. 2017, doi: 10/ggpx8b.
-.. [9] S. Wu et al., “Machine-learning-assisted discovery of polymers with high thermal conductivity using a molecular design algorithm,” npj Computational Materials, vol. 5, no. 1, pp. 66–66, Dec. 2019, doi: 10.1038/s41524-019-0203-2.
-.. [10] S. Wu, G. Lambard, C. Liu, H. Yamada, and R. Yoshida, “iQSPR in XenonPy: A Bayesian Molecular Design Algorithm,” Mol. Inform., vol. 39, no. 1–2, p. 1900107, Jan. 2020, doi: 10.1002/minf.201900107.
+.. [9] S. Wu, G. Lambard, C. Liu, H. Yamada, and R. Yoshida, “iQSPR in XenonPy: A Bayesian Molecular Design Algorithm,” Mol. Inform., vol. 39, no. 1–2, p. 1900107, Jan. 2020, doi: 10.1002/minf.201900107.
+.. [10] S. Wu et al., “Machine-learning-assisted discovery of polymers with high thermal conductivity using a molecular design algorithm,” npj Computational Materials, vol. 5, no. 1, pp. 66–66, Dec. 2019, doi: 10.1038/s41524-019-0203-2.
 

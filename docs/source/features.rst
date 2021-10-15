@@ -114,11 +114,6 @@ For more details on this system, see :doc:`tutorials/1-dataset`.
 Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/dataset_and_preset.ipynb to get a runnable script.
 
 
-**Reference**
-
-.. [1] Rubin DB. Multiple imputation for nonresponse in surveys. New York: Wiley; 1987.
-
-
 ----------------------
 Descriptor calculation
 ----------------------
@@ -140,10 +135,11 @@ For example, let us consider a binary compound, :math:`A_{w_A}B_{w_B}`, whose el
 
 where :math:`w_{A}^*` and :math:`w_{B}^*` denote the normalized composition summing up to one.
 
+By using compositional descriptors, we have succeeded in predicting the composition of quasicrystals [2]_.
 
 Structural descriptors
 ----------------------
-Currently, XenonPy implements RDF (radial distribution function) and OFM (orbital field matrix [2]_) descriptors of crystalline structures.
+Currently, XenonPy implements RDF (radial distribution function) and OFM (orbital field matrix [3]_) descriptors of crystalline structures.
 We also provide a compatible API to use the structural descriptors of `matminer <https://hackingmaterials.github.io/matminer/>`_.
 You may check the summary table of featurizers in matminer `here <https://hackingmaterials.github.io/matminer/featurizer_summary.html>`_.
 
@@ -151,20 +147,14 @@ You may check the summary table of featurizers in matminer `here <https://hackin
 
 RDKit descriptors
 -----------------
-XenonPy also supports molecular descriptors available in the `RDKit`_ python package, including 6 sets of fingerprints, each contains corresponding options.
+XenonPy also supports molecular descriptors available in the `RDKit`_ python package, including 10 sets of fingerprints, each contains corresponding options.
 
 .. _RDKit: https://www.rdkit.org/
 
 
-The tutorials at :doc:`tutorials/2-descriptor` demonstrate how to calculate descriptors using ``XenonPy.descriptor`` classes.
+The tutorial at :doc:`tutorials/2-descriptor` demonstrates how to calculate descriptors using ``XenonPy.descriptor`` classes.
 
 Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/calculate_descriptors.ipynb to get a runnable script.
-
-
-**Reference**
-
-.. [2] Pham et al. Machine learning reveals orbital interaction in materials, Sci Technol Adv Mater. 18(1): 756-765, 2017.
-
 
 
 --------------------------------------------------
@@ -185,7 +175,7 @@ or nonlinearly dependent to formation energies, might exhibit certain patterns f
 a monotonically decrease or increase pattern would appear in a linearly dependent descriptor. On the other hand,
 irrelevant descriptors might exhibit no specific patterns.
 
-See the tutorials for visualization of descriptor-property relationships at :doc:`tutorials/3-visualization`.
+See the tutorial for visualization of descriptor-property relationships at :doc:`tutorials/3-visualization`.
 
 Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/visualization.ipynb to get a runnable script.
 
@@ -280,7 +270,7 @@ The following lists contain the information of current available pre-trained mod
 
 XenonPy.MDL provides a rich set of APIs to give users the abilities to interact with the pre-trained model database.
 Through the APIs, users can search for a specific subset of models by keywords and download them via HTTP.
-The tutorials at :doc:`tutorials/5-pre-trained_model_library` will show you how to interact with the database in XenonPy (via the API querying).
+The tutorial at :doc:`tutorials/5-pre-trained_model_library` illustrates how to interact with the database in XenonPy (via the API querying).
 
 Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/pre-trained_model_library.ipynb to get a runnable script.
 
@@ -289,21 +279,39 @@ Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/pre-trained_mo
 Transfer learning
 -----------------
 
-Transfer learning is an increasingly popular framework in machine learning that covers a broad range of methodologies for
+Transfer learning has become one of the basic techniques in machine learning that covers a broad range of algorithms for
 which a model trained for one task is re-purposed to another related task [4]_ [5]_.
-In general, the need for transfer learning occurs when there is a limited supply of training data, but there are many other
-promising applications in materials science as described in [3]_.
+In general, the need of transfer learning occurs when there is a limited supply of training data for a specific task, 
+yet data supply for related task is sufficient. This situation occurs in many materials science applications as described in [6]_ [7]_.
 
 XenonPy offers a simple-to-use toolchain to seamlessly perform transfer learning with the given pre-trained models.
 Given a target property, by using the transfer learning module of XenonPy, a source model can be treated as a generator of machine learning acquired descriptors, so-called the neural descriptors, as demonstrated in [3]_.
 
-See tutorials at :doc:`tutorials/6-transfer_learning` for learning how to do the frozen feature transfer learning in XenonPy.
+See tutorial at :doc:`tutorials/6-transfer_learning` to learn how to perform frozen feature transfer learning in XenonPy.
 
 Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/transfer_learning.ipynb to get a runnable script.
 
+--------------
+Inverse design
+--------------
+
+Inverse molecular design is an important research subject in materials science that aims to create new chemical structures with desired properties computationally.
+XenonPy offers a Bayesian molecular design algorithm based on [8]_ that includes a SMILES generator based on N-gram model, likelihood calculator, and a sequential Monte Carlo algorithm for sampling the posterior distribution of molecules with properties specified by the likelihood function. Details of this algorithm, which is called iQSPR, can be found in [9]_. An example of using iQSPR to search for high thermal conductivity polymer can be found in [10]_. 
+
+See tutorial at :doc:`tutorials/7-inverse-design` to learn how to perform inverse molecular design using iQSPR in XenonPy.
+
+Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/iQSPR.ipynb to get a runnable script.
 
 **Reference**
 
-.. [3] Yamada, H., Liu, C., Wu, S., Koyama, Y., Ju, S., Shiomi, J., Morikawa, J., Yoshida, R. Transfer learning: a key driver of accelerating materials discovery with machine learning, in preparation.
-.. [4] Karl, W.; Khoshgoftaar, T. M.; Wang, D. J. of Big Data 2016, 3, 1–40.
-.. [5] Chuanqi, T.; Fuchun, S.; Tao, K.; Wenchang, Z.; Chao, Y.; Chunfang, L. arXiv 2018, abs/1808.01974.
+.. [1] D. B. Rubin, Ed., Multiple Imputation for Nonresponse in Surveys. Hoboken, NJ, USA: John Wiley & Sons, Inc., 1987. doi: 10.1002/9780470316696.
+.. [2] C. Liu et al., “Machine Learning to Predict Quasicrystals from Chemical Compositions,” Adv. Mater., vol. 33, no. 36, p. 2102507, Sep. 2021, doi: 10.1002/adma.202102507.
+.. [3] T. Lam Pham et al., “Machine learning reveals orbital interaction in materials,” Science and Technology of Advanced Materials, vol. 18, no. 1, pp. 756–765, Dec. 2017, doi: 10/gm4znv.
+.. [4] K. Weiss, T. M. Khoshgoftaar, and D. Wang, “A survey of transfer learning,” J Big Data, vol. 3, no. 1, p. 9, Dec. 2016, doi: 10/gfkr2w.
+.. [5] C. Tan, F. Sun, T. Kong, W. Zhang, C. Yang, and C. Liu, “A survey on deep transfer learning,” in Artificial neural networks and machine learning – ICANN 2018, Cham, 2018, pp. 270–279.
+.. [6] H. Yamada et al., “Predicting Materials Properties with Little Data Using Shotgun Transfer Learning,” ACS Cent. Sci., vol. 5, no. 10, pp. 1717–1730, Oct. 2019, doi: 10.1021/acscentsci.9b00804.
+.. [7] S. Ju et al., “Exploring diamondlike lattice thermal conductivity crystals via feature-based transfer learning,” Phys. Rev. Mater., vol. 5, no. 5, p. 053801, May 2021, doi: 10.1103/physrevmaterials.5.053801.
+.. [8] H. Ikebata, K. Hongo, T. Isomura, R. Maezono, and R. Yoshida, “Bayesian molecular design with a chemical language model,” J Comput Aided Mol Des, vol. 31, no. 4, pp. 379–391, Apr. 2017, doi: 10/ggpx8b.
+.. [9] S. Wu, G. Lambard, C. Liu, H. Yamada, and R. Yoshida, “iQSPR in XenonPy: A Bayesian Molecular Design Algorithm,” Mol. Inform., vol. 39, no. 1–2, p. 1900107, Jan. 2020, doi: 10.1002/minf.201900107.
+.. [10] S. Wu et al., “Machine-learning-assisted discovery of polymers with high thermal conductivity using a molecular design algorithm,” npj Computational Materials, vol. 5, no. 1, pp. 66–66, Dec. 2019, doi: 10.1038/s41524-019-0203-2.
+

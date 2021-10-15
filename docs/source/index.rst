@@ -15,16 +15,25 @@ Overview
 --------
 **XenonPy** is a Python library that implements a comprehensive set of machine learning tools
 for materials informatics. Its functionalities partially depend on Python (PyTorch) and R (MXNet).
-This package still under hard working. The current release provides some limited features:
+This package is still under development. The current released version provides some limited features:
 
 * Interface to the public materials database
 * Library of materials descriptors (compositional/structural descriptors)
-* pre-trained model library **XenonPy.MDL** (v0.1.0.beta, 2019/8/9: more than 140,000 models (include private models) in 35 properties of small molecules, polymers, and inorganic compounds) [Currently under maintenance, expected to be recovered in v0.7]
+* pre-trained model library **XenonPy.MDL** (v0.1.0.beta, 2019/8/9: more than 140,000 models (include private models) in 35 properties of small molecules, polymers, and inorganic compounds) [Currently under major maintenance, expected to be recovered in v0.7]
 * Machine learning tools.
 * Transfer learning using the pre-trained models in XenonPy.MDL
 
 
 .. image:: _static/xenonpy.png
+
+
+------
+Citation
+------
+XenonPy is an on-going research project that covers multiple important topics in materials informatics.
+We recommend users to cite the papers that are relevant to their specific use of XenonPy.
+Please refer to :doc:`features` for details of each feature in XenonPy with its corresponding citation.
+User can also check the publication list below to pick the relevant citations.
 
 
 --------
@@ -33,6 +42,7 @@ Features
 XenonPy has a rich set of tools for various materials informatics applications.
 The descriptor generator class can calculate several types of numeric descriptors from ``compositional``, ``structure``.
 By using XenonPy's built-in visualization functions, the relationships between descriptors and target properties can be easily shown in a heatmap.
+XenonPy also supports an interface to use the ``rdkit`` descriptors and provides the ``iQSPR`` algorithm for molecular design.
 
 Transfer learning is an important tool for the efficient application of machine learning methods to materials informatics.
 To facilitate the widespread use of transfer learning,
@@ -40,13 +50,13 @@ we have developed a comprehensive library of pre-trained models, called **XenonP
 This library provides a simple API that allows users to fetch the models via an HTTP request.
 For the ease of using the pre-trained models, some useful functions are also provided.
 
-See :doc:`features` for details
+See :doc:`features` for details.
 
 
 ------
 Sample
 ------
-Some samples are available here: https://github.com/yoshida-lab/XenonPy/tree/master/samples
+Sample codes of different features in XenonPy are available here: https://github.com/yoshida-lab/XenonPy/tree/master/samples
 
 
 .. _user-doc:
@@ -82,7 +92,7 @@ Contributing
 
 XenonPy is an `open source project <https://github.com/yoshida-lab/XenonPy>`_ inspired by `matminer <https://hackingmaterials.github.io/matminer>`_.
 :raw-html:`<br/>`
-This project is under on-going development. We would appreciate any feedback from the users.
+This project is under continuous development. We would appreciate any feedback from the users.
 :raw-html:`<br/>`
 Code contributions are also very welcomed. See :doc:`contribution` for more details.
 

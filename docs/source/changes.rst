@@ -12,7 +12,7 @@ v0.6.1
 
 * ``GaussianNLLLoss`` has been removed from ``xenonpy.model.training.loss``. ( `#249`_ )
 
-.. _#239: https://github.com/yoshida-lab/XenonPy/pull/239
+.. _#249: https://github.com/yoshida-lab/XenonPy/pull/249
 
 v0.6.0
 ======

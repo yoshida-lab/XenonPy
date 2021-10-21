@@ -129,11 +129,11 @@ def classification_metrics(
         recall=recall_score(y_true, y_pred, average=None, labels=labels),
     )
 
-    if 'weighted' in average:
+    if 'binary' in average:
         ret.update(
-            weighted_f1=f1_score(y_true, y_pred, average='weighted', labels=labels),
-            weighted_precision=precision_score(y_true, y_pred, average='weighted', labels=labels),
-            weighted_recall=recall_score(y_true, y_pred, average='weighted', labels=labels),
+            binary_f1=f1_score(y_true, y_pred, average='binary', labels=labels),
+            binary_precision=precision_score(y_true, y_pred, average='binary', labels=labels),
+            binary_recall=recall_score(y_true, y_pred, average='binary', labels=labels),
         )
 
     if 'micro' in average:
@@ -148,6 +148,20 @@ def classification_metrics(
             macro_f1=f1_score(y_true, y_pred, average='macro', labels=labels),
             macro_precision=precision_score(y_true, y_pred, average='macro', labels=labels),
             macro_recall=recall_score(y_true, y_pred, average='macro', labels=labels),
+        )
+        
+    if 'weighted' in average:
+        ret.update(
+            weighted_f1=f1_score(y_true, y_pred, average='weighted', labels=labels),
+            weighted_precision=precision_score(y_true, y_pred, average='weighted', labels=labels),
+            weighted_recall=recall_score(y_true, y_pred, average='weighted', labels=labels),
+        )
+
+    if 'samples' in average:
+        ret.update(
+            samples_f1=f1_score(y_true, y_pred, average='samples', labels=labels),
+            samples_precision=precision_score(y_true, y_pred, average='samples', labels=labels),
+            samples_recall=recall_score(y_true, y_pred, average='samples', labels=labels),
         )
 
     return ret

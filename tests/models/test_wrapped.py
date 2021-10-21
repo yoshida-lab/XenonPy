@@ -7,16 +7,23 @@ import pytest
 
 
 def test_import_loss():
-    with pytest.raises(ImportError):
+    try:
         import xenonpy.model.training.loss
+    except ImportError:
+        assert "should not raise ImportError"
+        
 
 def test_import_lr_scheduler():
-    with pytest.raises(ImportError):
+    try:
         import xenonpy.model.training.lr_scheduler
+    except ImportError:
+        assert "should not raise ImportError"
 
 def test_import_optimizer():
-    with pytest.raises(ImportError):
+    try:
         import xenonpy.model.training.optimizer
+    except ImportError:
+        assert "should not raise ImportError"
 
 
 if __name__ == "__main__":

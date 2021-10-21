@@ -6,7 +6,7 @@ __all__ = [
     'NLLLoss', 'NLLLoss2d', 'L1Loss', 'MSELoss', 'CrossEntropyLoss', 'CTCLoss', 'PoissonNLLLoss', 'KLDivLoss',
     'BCELoss', 'BCEWithLogitsLoss', 'MarginRankingLoss', 'HingeEmbeddingLoss', 'MultiLabelMarginLoss', 'SmoothL1Loss',
     'SoftMarginLoss', 'MultiLabelSoftMarginLoss', 'CosineEmbeddingLoss', 'MultiMarginLoss', 'TripletMarginLoss',
-    'GaussianNLLLoss', 'TripletMarginWithDistanceLoss', 'PairwiseDistance'
+    'TripletMarginWithDistanceLoss', 'PairwiseDistance'
 ]
 
 from torch.nn.modules.loss import *

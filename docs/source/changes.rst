@@ -5,6 +5,15 @@
 Changes
 =======
 
+v0.6.1
+======
+
+**Breaking change**
+
+* ``GaussianNLLLoss`` has been removed from ``xenonpy.model.training.loss``. ( `#249`_ )
+
+.. _#239: https://github.com/yoshida-lab/XenonPy/pull/239
+
 v0.6.0
 ======
 

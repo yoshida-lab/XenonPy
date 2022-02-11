@@ -675,7 +675,7 @@ class DescriptorFeature(BaseFeaturizer):
                'fr_thiazole', 'fr_thiocyan', 'fr_thiophene', 'fr_unbrch_alkane', 'fr_urea']
 
     def __init__(self, n_jobs=-1,
-                 *, input_type='mol', on_errors='raise', return_type='any', target_col=None, desc_list='all'):
+                 *, input_type='mol', on_errors='raise', return_type='any', target_col=None, desc_list='all', add_Hs=False):
         """
         All descriptors in RDKit (length = 200) [may include NaN]
             see https://www.rdkit.org/docs/GettingStartedInPython.html#list-of-available-descriptors for the full list
@@ -707,10 +707,14 @@ class DescriptorFeature(BaseFeaturizer):
             List of descriptor names to be called in rdkit to calculate molecule descriptors.
             If ``classic``, the full list of rdkit v.2020.03.xx is used. (length = 200)
             Default is to use the latest list available in the rdkit. (length = 208 in rdkit v.2020.09.xx)
+        add_Hs: boolean
+            Add hydrogen atoms to the mol format in RDKit or not.
+            This may affect a few physical descriptors (e.g., charge related ones).
         """
         # self.arg = arg # arg[0] = radius, arg[1] = bit length
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type, target_col=target_col)
         self.input_type = input_type
+        self.add_Hs = add_Hs
         if desc_list == 'all':
             self.nms = [x[0] for x in ChemDesc._descList]
         elif desc_list == 'classic':
@@ -726,12 +730,20 @@ class DescriptorFeature(BaseFeaturizer):
             x = Chem.MolFromSmiles(x)
             if x is None:
                 raise ValueError('cannot convert Mol from SMILES %s' % x_)
+            if self.add_Hs:
+                x = Chem.AddHs(x)
+                if x is None:
+                    raise ValueError('cannot add Hs to Mol for %s' % x_)
         if self.input_type == 'any':
             if not isinstance(x, Chem.rdchem.Mol):
                 x_ = x
                 x = Chem.MolFromSmiles(x)
                 if x is None:
                     raise ValueError('cannot convert Mol from SMILES %s' % x_)
+            if self.add_Hs:
+                x = Chem.AddHs(x)
+                if x is None:
+                    raise ValueError('cannot add Hs to Mol')
         return self.calc.CalcDescriptors(x)
 
     @property
@@ -755,7 +767,9 @@ class Fingerprints(BaseDescriptor):
                  input_type='mol',
                  featurizers='all',
                  on_errors='raise',
-                 target_col=None):
+                 target_col=None,
+                 desc_list='all',
+                 add_Hs=False):
         """
 
         Parameters
@@ -796,6 +810,13 @@ class Fingerprints(BaseDescriptor):
             Specify a single column to be used for transformation.
             If ``None``, all columns of the pd.DataFrame is used.
             Default is None.
+        desc_list: string or list
+            List of descriptor names to be called in rdkit to calculate molecule descriptors.
+            If ``classic``, the full list of rdkit v.2020.03.xx is used. (length = 200)
+            Default is to use the latest list available in the rdkit. (length = 208 in rdkit v.2020.09.xx)
+        add_Hs: boolean
+            Add hydrogen atoms to the mol format in RDKit or not.
+            This may affect a few physical descriptors (e.g., charge related ones) and currently no effect to fingerprints.
         """
 
         super().__init__(featurizers=featurizers)
@@ -817,4 +838,4 @@ class Fingerprints(BaseDescriptor):
         self.mol = MHFP(1, radius=radius, n_bits=n_bits,
                         input_type=input_type, on_errors=on_errors, target_col=target_col)
         self.mol = DescriptorFeature(n_jobs, input_type=input_type,
-                                     on_errors=on_errors, target_col=target_col)
+                                     on_errors=on_errors, target_col=target_col, desc_list=desc_list, add_Hs=add_Hs)

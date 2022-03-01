@@ -169,11 +169,18 @@ class NGram(BaseProposal):
                 (self.sample_order[1], self._train_order[1]), RuntimeWarning)
             self.sample_order = (self.sample_order[0], self._train_order[1])
         if self._train_order and self._train_order[0] > self.sample_order[0]:
-            warnings.warn(
-                'min <sample_order>: %s is smaller than min <train_order>: %s,'
-                'min <sample_order> will be increased to min <train_order>' %
-                (self.sample_order[0], self._train_order[0]), RuntimeWarning)
-            self.sample_order = (self._train_order[0], self.sample_order[1])
+            if self._train_order[0] > self.sample_order[1]:
+                warnings.warn(
+                    'max <sample_order>: %s is smaller than min <train_order>: %s,'
+                    '<sample_order> will be replaced by the values of <train_order>' %
+                    (self.sample_order[1], self._train_order[0]), RuntimeWarning)
+                self.sample_order = (self._train_order[0], self._train_order[1])
+            else:
+                warnings.warn(
+                    'min <sample_order>: %s is smaller than min <train_order>: %s,'
+                    'min <sample_order> will be increased to min <train_order>' %
+                    (self.sample_order[0], self._train_order[0]), RuntimeWarning)
+                self.sample_order = (self._train_order[0], self.sample_order[1])
 
     def _fit_min_len(self):
         if self.sample_order[0] > self.min_len:

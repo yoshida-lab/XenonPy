@@ -1,4 +1,4 @@
-#  Copyright (c) 2021. yoshida-lab. All rights reserved.
+#  Copyright (c) 2022. yoshida-lab. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
@@ -42,10 +42,10 @@ class GaussianLogLikelihood(BaseLogLikelihood):
 
         if not isinstance(descriptor, (BaseFeaturizer, BaseDescriptor)):
             raise TypeError('<descriptor> must be a subclass of <BaseFeaturizer> or <BaseDescriptor>')
-        self._descriptor = descriptor
-        self._descriptor.on_errors = 'nan'
+        self.descriptor = descriptor
+        self.descriptor.on_errors = 'nan'
 
-        self._targets = deepcopy(targets)
+        self.targets = deepcopy(targets)
 
     def __getitem__(self, item):
         return self._mdl[item]
@@ -69,11 +69,11 @@ class GaussianLogLikelihood(BaseLogLikelihood):
             e.g: ``target1=(10, 20)`` equal to ``target1 should in range [10, 20]``.
         """
         if reset:
-            self._targets = {}
+            self.targets = {}
         for k, v in targets.items():
             if not isinstance(v, tuple) or len(v) != 2 or v[1] <= v[0]:
                 raise ValueError('must be a tuple with (low, up) boundary')
-            self._targets[k] = v
+            self.targets[k] = v
 
     def remove_estimator(self, *properties: str):
         """
@@ -86,14 +86,14 @@ class GaussianLogLikelihood(BaseLogLikelihood):
         """
         if not properties:
             self._mdl = {}
-            self._targets = {}
+            self.targets = {}
         else:
             for p in properties:
                 del self._mdl[p]
-                del self._targets[p]
+                del self.targets[p]
 
     def predict(self, smiles, **kwargs):
-        fps = self._descriptor.transform(smiles, return_type='df')
+        fps = self.descriptor.transform(smiles, return_type='df')
         fps_ = fps.dropna()
         tmp = {}
         for k, v in self._mdl.items():
@@ -133,7 +133,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
             raise TypeError('please package all properties into a pd.DataFrame or pd.Series')
 
         # remove NaN from X
-        desc = self._descriptor.transform(smiles, return_type='df').reset_index(drop=True)
+        desc = self.descriptor.transform(smiles, return_type='df').reset_index(drop=True)
         y = y.reset_index(drop=True)
         desc.dropna(inplace=True)
         y = pd.DataFrame(y.loc[desc.index])
@@ -162,9 +162,9 @@ class GaussianLogLikelihood(BaseLogLikelihood):
         for k, v in targets.items():
             if not isinstance(v, tuple) or len(v) != 2 or v[1] <= v[0]:
                 raise ValueError('must be a tuple with (low, up) boundary')
-            self._targets[k] = v
+            self.targets[k] = v
 
-        if not self._targets:
+        if not self.targets:
             raise RuntimeError('<targets> is empty')
 
         if isinstance(smis, (pd.Series, pd.DataFrame)):
@@ -182,7 +182,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
         idx = pred.index.values
 
         # calculate likelihood
-        for k, (low, up) in self._targets.items():  # k: target; v: (low, up)
+        for k, (low, up) in self.targets.items():  # k: target; v: (low, up)
 
             # predict mean, std for all smiles
             mean, std = pred[k + ': mean'], pred[k + ': std']

@@ -55,7 +55,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
             raise TypeError('estimator must be a regressor in scikit-learn style')
         self._mdl[key] = deepcopy(value)
 
-    def updatetargets(self, *, reset=False, **targets):
+    def update_targets(self, *, reset=False, **targets):
         """
         Update/set the target area.
 
@@ -158,7 +158,7 @@ class GaussianLogLikelihood(BaseLogLikelihood):
             ll_ = np.log(np.exp(ll_[1] - ll_c) - np.exp(ll_[0] - ll_c)) + ll_c
             return ll_
 
-        # self.updatetargets(reset=False, **targets):
+        # self.update_targets(reset=False, **targets):
         for k, v in targets.items():
             if not isinstance(v, tuple) or len(v) != 2 or v[1] <= v[0]:
                 raise ValueError('must be a tuple with (low, up) boundary')

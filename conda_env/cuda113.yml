@@ -1,6 +1,5 @@
 channels:
   - pytorch
-  - nvidia
   - conda-forge
 dependencies:
   - pandas>=1.1.3
@@ -11,8 +10,8 @@ dependencies:
   - "libblas=*=*mkl"
   - jupyter>=1.0.0
   - pytorch >=1.7.0,<2.0.0
-  - cudatoolkit=11.0
-  - magma-cuda111=2.5.2
+  - cudatoolkit=11.3
+  - magma-cuda113=2.5.2
   - jedi>=0.16
   - torchvision
   - torchtext

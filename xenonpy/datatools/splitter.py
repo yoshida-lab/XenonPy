@@ -1,4 +1,4 @@
-#  Copyright (c) 2022. yoshida-lab. All rights reserved.
+#  Copyright (c) 2021. yoshida-lab. All rights reserved.
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
@@ -84,45 +84,68 @@ class Splitter(BaseEstimator):
         return self._random_state
 
     def roll(self, random_state: int = None):
-
-        if self._test_size == 0:
-            if self._shuffle:
-                self._train = utils.shuffle(self._sample_size)
+        if self._shuffle:
+            np.random.seed(self._random_state)
+            np.random.shuffle(self._sample_size)
+            
+        # no cv
+        if self._k_fold is None:
+            if self._test_size == 0:
+                    self._train = self._sample_size
             else:
-                self._train = self._sample_size
-        else:
-            self._train, self._test = train_test_split(self._sample_size,
-                                                       test_size=self._test_size,
-                                                       random_state=random_state,
-                                                       shuffle=self._shuffle)
+                self._train, self._test = train_test_split(
+                    self._sample_size,
+                    test_size=self._test_size,
+                    random_state=self._random_state,
+                    shuffle=self._shuffle,
+                )
+            return
 
         # tranditional k-fold
         if isinstance(self._k_fold, int):
-            cv = KFold(n_splits=self._k_fold, shuffle=self._shuffle, random_state=random_state)
+            if self._test_size == 0:
+                    self._train = self._sample_size
+            else:
+                self._train, self._test = train_test_split(
+                    self._sample_size,
+                    test_size=self._test_size,
+                    random_state=self._random_state,
+                    shuffle=self._shuffle,
+                )
+
+            cv = KFold(n_splits=self._k_fold, shuffle=self._shuffle, random_state=self._random_state)
             for train, val in cv.split(self._train):
                 self._cv_indices.append((self._train[train], self._train[val]))
-            pass
+            return
         
         # grouped k-fold
         if isinstance(self._k_fold, tuple):
             k_fold, labels = self._k_fold
-            tmp = pd.Series(labels).reset_index(drop=True).iloc[self._train]
-            
+            tmp = pd.Series(labels).reset_index(drop=True).iloc[self._sample_size]
             indices = tmp.unique()
-            if self._shuffle:
-                np.random.shuffle(indices)
+            
+            if self._test_size == 0:
+                    self._train = self._sample_size
+                    self._test = np.array([])
+            else:
+                tr_labels, te_labels = train_test_split(
+                    indices,
+                    test_size=self._test_size,
+                    random_state=self._random_state,
+                    shuffle=self._shuffle,
+                )
+                indices = tr_labels
+                self._train, self._test = tmp[tmp.isin(tr_labels)].index.values, tmp[tmp.isin(te_labels)].index.values
 
-            fold_sizes = np.full(k_fold, indices.size // k_fold, dtype=int)
-            fold_sizes[: indices.size % k_fold] += 1
-            current = 0
-            for fold_size in fold_sizes:
-                start, stop = current, current + fold_size
-                print(indices[start:stop])
-                val = tmp[tmp.isin(indices[start:stop])].index.values
-                train = tmp[~tmp.isin(indices[start:stop])].index.values
+            cv = KFold(n_splits=k_fold, shuffle=self._shuffle, random_state=self._random_state)
+            for tr_labels, val_labels in cv.split(indices):
+                train = tmp[tmp.isin(indices[tr_labels])].index.values
+                val = tmp[tmp.isin(indices[val_labels])].index.values
                 self._cv_indices.append((train, val))
-                current = stop
-
+            return
+        
+        raise ValueError('illegal parameter of `k_fold`')
+        
     def _check_input(self, array):
         if isinstance(array, (list, tuple)):
             array = np.asarray(array)

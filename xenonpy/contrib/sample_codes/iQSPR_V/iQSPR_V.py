@@ -76,7 +76,7 @@ class IQSPR_V(BaseSMC):
             Only yield when ``yield_lpf=Ture``.
         """
 
-        # initial samples will be randomly picked from resevoir if samples are provided
+        # initial samples will be randomly picked from resevoir if samples are not provided
         if samples is None:
             samples = np.random.choice(reservoir,size=size).tolist()
         # refill samples if len(samples) not equals given size

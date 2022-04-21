@@ -166,7 +166,7 @@ class IQSPR_VF(BaseSMC):
             samples = np.random.choice(reservoir,size=size).tolist()
         # refill samples if len(samples) not equals given size
         elif len(samples) < size:
-#             samples = samples + np.random.choice(reservoir,size=size-len(samples)).tolist()
+            # samples = samples + np.random.choice(reservoir,size=size-len(samples)).tolist()
             samples = np.concatenate([np.array(samples), np.random.choice(reservoir,size=size-len(samples))])
             
         res_size = int(size*ratio)

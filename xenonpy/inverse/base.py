@@ -195,7 +195,7 @@ class BaseLogLikelihoodSet(BaseEstimator, metaclass=TimedMetaClass):
         if not isinstance(X, Iterable):
             raise TypeError('parameter "entries" must be a iterable object')
 
-        if len(X) is 0:
+        if len(X) == 0:
             return None
 
         if 'loglikelihoods' in kwargs:
@@ -418,12 +418,12 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
         return np.unique(X, return_counts=True)
 
     def __setattr__(self, key, value):
-        if key is '_log_likelihood' and not isinstance(value, (BaseLogLikelihood, BaseLogLikelihoodSet)):
+        if key == '_log_likelihood' and not isinstance(value, (BaseLogLikelihood, BaseLogLikelihoodSet)):
             raise TypeError(
                 '<self._log_likelihood> must be a subClass of <BaseLogLikelihood> or <BaseLogLikelihoodSet>')
-        if key is '_proposal' and not isinstance(value, BaseProposal):
+        if key == '_proposal' and not isinstance(value, BaseProposal):
             raise TypeError('<self._proposal> must be a subClass of <BaseProposal>')
-        if key is '_resample' and not isinstance(value, BaseResample):
+        if key == '_resample' and not isinstance(value, BaseResample):
             raise TypeError('<self._resample> must be a subClass of <BaseResample>')
         object.__setattr__(self, key, value)
 

@@ -157,7 +157,7 @@ class Preset(Dataset, metaclass=Singleton):
             return df
 
         for key in keys:
-            if key is 'mp_samples':
+            if key == 'mp_samples':
                 if 'api_key' not in kwargs:
                     raise RuntimeError('api key of materials projects database is needed')
                 if 'mp_ids' in kwargs:

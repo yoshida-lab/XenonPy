@@ -266,7 +266,7 @@ class BaseFeaturizer(BaseEstimator, TransformerMixin, metaclass=ABCMeta):
             entries = entries[target_col]
 
         # Special case: Empty list
-        if len(entries) is 0:
+        if len(entries) == 0:
             return []
 
         # Check outputs
@@ -566,7 +566,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
         if not isinstance(X, Iterable):
             raise TypeError('parameter "entries" must be a iterable object')
 
-        if len(X) is 0:
+        if len(X) == 0:
             return None
 
         if 'return_type' in kwargs:

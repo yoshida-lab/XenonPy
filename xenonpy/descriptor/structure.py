@@ -146,7 +146,7 @@ class OrbitalFieldMatrix(BaseFeaturizer):
                 number = {1},
                 pages = {756--765},
                 pmid = {29152012},
-                publisher = {Taylor {\&} Francis},
+                publisher = {Taylor {\\&} Francis},
                 title = {{Machine learning reveals orbital interaction in materials}},
                 url = {https://doi.org/10.1080/14686996.2017.1378060},
                 volume = {18},

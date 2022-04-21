@@ -125,7 +125,7 @@ class Checker(object):
                 try:
                     model.load_state_dict(state)
                 except torch.nn.modules.module.ModuleAttributeError:
-                    # pytorch 1.6.0 compatability
+                    # pytorch 1.6.0 compatibility
                     for _, m in model.named_modules():
                         m._non_persistent_buffers_set = set()
                     model.load_state_dict(state)

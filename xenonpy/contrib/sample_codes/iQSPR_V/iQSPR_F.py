@@ -148,13 +148,13 @@ class IQSPR_F(BaseSMC):
             New samples in each SMC iteration.
         llh: np.ndarray float
             Estimated values of log-likelihood of each samples.
-            Only yield when ``yield_lpf=Ture``.
+            Only yield when ``yield_lpf=True``.
         p: np.ndarray of float
             Estimated probabilities of each samples.
-            Only yield when ``yield_lpf=Ture``.
+            Only yield when ``yield_lpf=True``.
         freq: np.ndarray of float
             The number of unique samples in original samples.
-            Only yield when ``yield_lpf=Ture``.
+            Only yield when ``yield_lpf=True``.
         """
 
         # sample size will be set to the length of init_samples if None

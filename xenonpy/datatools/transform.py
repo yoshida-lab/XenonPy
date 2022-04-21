@@ -39,11 +39,11 @@ class PowerTransformer(BaseEstimator, TransformerMixin):
             ‘box-cox’ only works with strictly positive values
         standardize: boolean
             Normalize to standard normal or not.
-            Recommend using a sepearate `standard` function instead of using this option.
+            Recommend using a separate `standard` function instead of using this option.
         lmd: list or 1-dim ndarray
             You might assign each input xs with a specific lmd yourself.
             Leave None(default) to use a inferred value.
-            See `PowerTransformer` for detials.
+            See `PowerTransformer` for details.
         tolerance: tuple
             Tolerance of lmd. Set None to accept any.
             Default is **(-np.inf, np.inf)** but recommend **(-2, 2)** for Box-cox transform

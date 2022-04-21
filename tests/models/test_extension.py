@@ -35,27 +35,27 @@ def data():
 
     try:
         rmtree(str(Path('.').resolve() / 'test_model'))
-    except:
+    except Exception:
         pass
     try:
         rmtree(str(Path('.').resolve() / 'test_model@1'))
-    except:
+    except Exception:
         pass
     try:
         rmtree(str(Path('.').resolve() / 'test_model_1'))
-    except:
+    except Exception:
         pass
     try:
         rmtree(str(Path('.').resolve() / 'test_model_2'))
-    except:
+    except Exception:
         pass
     try:
         rmtree(str(Path('.').resolve() / 'test_model_3'))
-    except:
+    except Exception:
         pass
     try:
         rmtree(str(Path('.').resolve() / Path(os.getcwd()).name))
-    except:
+    except Exception:
         pass
 
     print('test over')

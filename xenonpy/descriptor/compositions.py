@@ -58,7 +58,7 @@ class Counting(BaseCompositionFeaturizer):
                          return_type=return_type,
                          target_col=target_col)
         self.one_hot_vec = one_hot_vec
-        self._elems = self._elements.index.tolist()
+        self._elems = self.elements.index.tolist()
         self.__authors__ = ['TsumiNa']
 
     def mix_function(self, elems, nums):
@@ -108,13 +108,13 @@ class WeightedAverage(BaseCompositionFeaturizer):
     """
 
     def mix_function(self, elems, nums):
-        elems_ = self._elements.loc[elems, :].values
+        elems_ = self.elements.loc[elems, :].values
         w_ = nums / np.sum(nums)
         return w_.dot(elems_)
 
     @property
     def feature_labels(self):
-        return ['ave:' + s for s in self._elements]
+        return ['ave:' + s for s in self.elements]
 
 
 class WeightedSum(BaseCompositionFeaturizer):
@@ -149,13 +149,13 @@ class WeightedSum(BaseCompositionFeaturizer):
     """
 
     def mix_function(self, elems, nums):
-        elems_ = self._elements.loc[elems, :].values
+        elems_ = self.elements.loc[elems, :].values
         w_ = np.array(nums)
         return w_.dot(elems_)
 
     @property
     def feature_labels(self):
-        return ['sum:' + s for s in self._elements]
+        return ['sum:' + s for s in self.elements]
 
 
 class GeometricMean(BaseCompositionFeaturizer):
@@ -190,14 +190,14 @@ class GeometricMean(BaseCompositionFeaturizer):
     """
 
     def mix_function(self, elems, nums):
-        elems_ = self._elements.loc[elems, :].values
+        elems_ = self.elements.loc[elems, :].values
         w_ = np.array(nums).reshape(-1, 1)
         tmp = elems_**w_
         return np.power(tmp.prod(axis=0), 1 / sum(w_))
 
     @property
     def feature_labels(self):
-        return ['gmean:' + s for s in self._elements]
+        return ['gmean:' + s for s in self.elements]
 
 
 class HarmonicMean(BaseCompositionFeaturizer):
@@ -232,7 +232,7 @@ class HarmonicMean(BaseCompositionFeaturizer):
     """
 
     def mix_function(self, elems, nums):
-        elems_ = 1 / self._elements.loc[elems, :].values
+        elems_ = 1 / self.elements.loc[elems, :].values
         w_ = np.array(nums)
         tmp = w_.dot(elems_)
 
@@ -240,7 +240,7 @@ class HarmonicMean(BaseCompositionFeaturizer):
 
     @property
     def feature_labels(self):
-        return ['hmean:' + s for s in self._elements]
+        return ['hmean:' + s for s in self.elements]
 
 
 class WeightedVariance(BaseCompositionFeaturizer):
@@ -275,7 +275,7 @@ class WeightedVariance(BaseCompositionFeaturizer):
     """
 
     def mix_function(self, elems, nums):
-        elems_ = self._elements.loc[elems, :].values
+        elems_ = self.elements.loc[elems, :].values
         w_ = nums / np.sum(nums)
         mean_ = w_.dot(elems_)
         var_ = elems_ - mean_
@@ -283,7 +283,7 @@ class WeightedVariance(BaseCompositionFeaturizer):
 
     @property
     def feature_labels(self):
-        return ['var:' + s for s in self._elements]
+        return ['var:' + s for s in self.elements]
 
 
 class MaxPooling(BaseCompositionFeaturizer):
@@ -318,12 +318,12 @@ class MaxPooling(BaseCompositionFeaturizer):
     """
 
     def mix_function(self, elems, _):
-        elems_ = self._elements.loc[elems, :]
+        elems_ = self.elements.loc[elems, :]
         return elems_.max().values
 
     @property
     def feature_labels(self):
-        return ['max:' + s for s in self._elements]
+        return ['max:' + s for s in self.elements]
 
 
 class MinPooling(BaseCompositionFeaturizer):
@@ -358,12 +358,12 @@ class MinPooling(BaseCompositionFeaturizer):
     """
 
     def mix_function(self, elems, _):
-        elems_ = self._elements.loc[elems, :]
+        elems_ = self.elements.loc[elems, :]
         return elems_.min().values
 
     @property
     def feature_labels(self):
-        return ['min:' + s for s in self._elements]
+        return ['min:' + s for s in self.elements]
 
 
 class Compositions(BaseDescriptor):

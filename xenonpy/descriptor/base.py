@@ -633,19 +633,11 @@ class BaseCompositionFeaturizer(BaseFeaturizer, metaclass=ABCMeta):
         super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type, target_col=target_col)
 
         if elemental_info is None:
-            self._elements = preset.elements_completed
+            self.elements = preset.elements_completed.copy()
         else:
-            self._elements = elemental_info.copy()
+            self.elements = elemental_info
         self.__authors__ = ['TsumiNa']
 
-
-    @property
-    def elemental_info(self):
-        return self._elements.copy()
-    
-    @elemental_info.setter
-    def elemental_info(self, elemental_info: pd.DataFrame):
-        self._elements = elemental_info.copy()
 
     def featurize(self, comp):
         elems_, nums_ = [], []

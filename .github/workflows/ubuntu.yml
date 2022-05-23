@@ -61,6 +61,8 @@ jobs:
           auto-update-conda: true
           auto-activate-base: false
           activate-environment: test
+          mamba-version: "*"
+          channels: pytorch,conda-forge,defaults
           environment-file: .github/config/linux_win_env.yml
           python-version: ${{ matrix.python-version }}
 

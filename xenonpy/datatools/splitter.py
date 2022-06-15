@@ -2,7 +2,7 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from typing import Union, Tuple, Iterable, List
+from typing import Union, Tuple, Iterable, List, Sequence
 
 import numpy as np
 import pandas as pd
@@ -23,7 +23,7 @@ class Splitter(BaseEstimator):
                  size: int,
                  *,
                  test_size: Union[float, int] = 0.2,
-                 k_fold: Union[int, Iterable, None] = None,
+                 k_fold: Union[None, int, Tuple[int, Sequence]] = None,
                  random_state: Union[int, None] = None,
                  shuffle: bool = True):
         """
@@ -41,7 +41,7 @@ class Splitter(BaseEstimator):
         k_fold
             Number of k-folds.
             If ``int``, Must be at least 2.
-            If ``Iterable``, it should provide label for each element which will be used for group cv.
+            If ``Tuple[int, Sequence]``, it should provide label for each element which will be used for group cv.
             In this case, the input of :meth:`~Splitter.cv` must be a :class:`pandas.DataFrame` object.
             Default value is None to specify no cv.
         random_state
@@ -84,29 +84,68 @@ class Splitter(BaseEstimator):
         return self._random_state
 
     def roll(self, random_state: int = None):
-
-        if self._test_size == 0:
-            if self._shuffle:
-                self._train = utils.shuffle(self._sample_size)
+        if self._shuffle:
+            np.random.seed(self._random_state)
+            np.random.shuffle(self._sample_size)
+            
+        # no cv
+        if self._k_fold is None:
+            if self._test_size == 0:
+                    self._train = self._sample_size
             else:
-                self._train = self._sample_size
-        else:
-            self._train, self._test = train_test_split(self._sample_size,
-                                                       test_size=self._test_size,
-                                                       random_state=random_state,
-                                                       shuffle=self._shuffle)
+                self._train, self._test = train_test_split(
+                    self._sample_size,
+                    test_size=self._test_size,
+                    random_state=self._random_state,
+                    shuffle=self._shuffle,
+                )
+            return
 
+        # tranditional k-fold
         if isinstance(self._k_fold, int):
-            cv = KFold(n_splits=self._k_fold, shuffle=self._shuffle, random_state=random_state)
+            if self._test_size == 0:
+                    self._train = self._sample_size
+            else:
+                self._train, self._test = train_test_split(
+                    self._sample_size,
+                    test_size=self._test_size,
+                    random_state=self._random_state,
+                    shuffle=self._shuffle,
+                )
+
+            cv = KFold(n_splits=self._k_fold, shuffle=self._shuffle, random_state=self._random_state)
             for train, val in cv.split(self._train):
                 self._cv_indices.append((self._train[train], self._train[val]))
-        elif isinstance(self._k_fold, Iterable):
-            tmp: pd.Series = pd.Series(self._k_fold).reset_index(drop=True).iloc[self._train]
-            for g in set(tmp):
-                val = tmp[tmp == g].index.values
-                train = tmp[tmp != g].index.values
-                self._cv_indices.append((train, val))
+            return
+        
+        # grouped k-fold
+        if isinstance(self._k_fold, tuple):
+            k_fold, labels = self._k_fold
+            tmp = pd.Series(labels).reset_index(drop=True).iloc[self._sample_size]
+            indices = tmp.unique()
+            
+            if self._test_size == 0:
+                    self._train = self._sample_size
+                    self._test = np.array([])
+            else:
+                tr_labels, te_labels = train_test_split(
+                    indices,
+                    test_size=self._test_size,
+                    random_state=self._random_state,
+                    shuffle=self._shuffle,
+                )
+                indices = tr_labels
+                self._train, self._test = tmp[tmp.isin(tr_labels)].index.values, tmp[tmp.isin(te_labels)].index.values
 
+            cv = KFold(n_splits=k_fold, shuffle=self._shuffle, random_state=self._random_state)
+            for tr_labels, val_labels in cv.split(indices):
+                train = tmp[tmp.isin(indices[tr_labels])].index.values
+                val = tmp[tmp.isin(indices[val_labels])].index.values
+                self._cv_indices.append((train, val))
+            return
+        
+        raise ValueError('illegal parameter of `k_fold`')
+        
     def _check_input(self, array):
         if isinstance(array, (list, tuple)):
             array = np.asarray(array)
@@ -177,7 +216,6 @@ class Splitter(BaseEstimator):
                     else:
                         ret.extend(self._split(array, train, val))
                 yield tuple(ret)
-        return
 
     def split(self, *arrays: Union[np.ndarray, pd.DataFrame, pd.Series]):
         """

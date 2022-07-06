@@ -517,7 +517,7 @@ class BaseDescriptor(BaseEstimator, TransformerMixin, metaclass=TimedMetaClass):
                     return [x]
                 return x
 
-            raise TypeError('you can not ues a array-like input '
+            raise TypeError('you can not use a array-like input '
                             'because there are multiple feature sets or the dim of input is not 1')
 
         return _reformat(X), _reformat(y)

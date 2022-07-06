@@ -101,7 +101,7 @@ class Splitter(BaseEstimator):
                 )
             return
 
-        # tranditional k-fold
+        # transitional k-fold
         if isinstance(self._k_fold, int):
             if self._test_size == 0:
                     self._train = self._sample_size

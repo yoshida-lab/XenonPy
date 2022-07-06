@@ -162,7 +162,7 @@ class BaseLogLikelihoodSet(BaseEstimator, metaclass=TimedMetaClass):
                 return x
 
             raise TypeError(
-                'you can not ues a array-like input'
+                'you can not use a array-like input'
                 'because there are multiply log-likelihood sets or the dim of input is not 1')
 
         return _reformat(X), _reformat(y)
@@ -453,13 +453,13 @@ class BaseSMC(BaseEstimator, metaclass=TimedMetaClass):
             This variable can also be other data type, consistent with the input samples.
         llh: np.ndarray float
             Estimated values of log-likelihood of each samples.
-            Only yield when ``yield_lpf=Ture``.
+            Only yield when ``yield_lpf=True``.
         p: np.ndarray of float
             Estimated probabilities of each samples.
-            Only yield when ``yield_lpf=Ture``.
+            Only yield when ``yield_lpf=True``.
         freq: np.ndarray of float
             The number of unique samples in original samples.
-            Only yield when ``yield_lpf=Ture``.
+            Only yield when ``yield_lpf=True``.
         """
 
         # sample size will be set to the length of init_samples if None

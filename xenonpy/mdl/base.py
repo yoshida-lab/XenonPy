@@ -98,7 +98,7 @@ class BaseQuery(BaseEstimator, metaclass=TimedMetaClass):
             try:
                 message = ret.json()
             except json.JSONDecodeError:
-                message = "Server did not responce."
+                message = "Server did not response."
 
             raise HTTPError('status_code: %s, %s' % (ret.status_code, message))
         ret = ret.json()

@@ -67,16 +67,16 @@ class IQSPR_V(BaseSMC):
             New samples in each SMC iteration.
         llh: np.ndarray float
             Estimated values of log-likelihood of each samples.
-            Only yield when ``yield_lpf=Ture``.
+            Only yield when ``yield_lpf=True``.
         p: np.ndarray of float
             Estimated probabilities of each samples.
-            Only yield when ``yield_lpf=Ture``.
+            Only yield when ``yield_lpf=True``.
         freq: np.ndarray of float
             The number of unique samples in original samples.
-            Only yield when ``yield_lpf=Ture``.
+            Only yield when ``yield_lpf=True``.
         """
 
-        # initial samples will be randomly picked from resevoir if samples are not provided
+        # initial samples will be randomly picked from reservoir if samples are not provided
         if samples is None:
             samples = np.random.choice(reservoir,size=size).tolist()
         # refill samples if len(samples) not equals given size

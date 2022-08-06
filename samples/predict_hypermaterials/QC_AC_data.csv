@@ -1,0 +1,159 @@
+,composition,elements,label,for_test
+Zn 58 Mg 40 Dy 2,"{'Zn': 58.0, 'Mg': 40.0, 'Dy': 2.0}","('Dy', 'Mg', 'Zn')",QC,False
+Al 88.6 Cu 19.4 Li 50.3,"{'Al': 88.6, 'Cu': 19.4, 'Li': 50.3}","('Al', 'Cu', 'Li')",AC,False
+Ga 43 Co 47 Cu 10,"{'Ga': 43.0, 'Co': 47.0, 'Cu': 10.0}","('Co', 'Cu', 'Ga')",QC,False
+Zn 58 Mg 40 Tm 2,"{'Zn': 58.0, 'Mg': 40.0, 'Tm': 2.0}","('Mg', 'Tm', 'Zn')",QC,False
+Cd 65 Mg 20 Lu 15,"{'Cd': 65.0, 'Mg': 20.0, 'Lu': 15.0}","('Cd', 'Lu', 'Mg')",QC,False
+Al 39 Pd 21 Fe 2,"{'Al': 39.0, 'Pd': 21.0, 'Fe': 2.0}","('Al', 'Fe', 'Pd')",AC,False
+Au 60.7 Sn 25.2 Eu 14.1,"{'Au': 60.7, 'Sn': 25.2, 'Eu': 14.1}","('Au', 'Eu', 'Sn')",AC,False
+Al 70 Pd 21 Tc 9,"{'Al': 70.0, 'Pd': 21.0, 'Tc': 9.0}","('Al', 'Pd', 'Tc')",QC,False
+Al 70.5 Pd 21 Mn 8.5,"{'Al': 70.5, 'Pd': 21.0, 'Mn': 8.5}","('Al', 'Mn', 'Pd')",QC,False
+Zn 76 Yb 14 Mg 10,"{'Zn': 76.0, 'Yb': 14.0, 'Mg': 10.0}","('Mg', 'Yb', 'Zn')",QC,False
+Al 70 Ni 20 Rh 10,"{'Al': 70.0, 'Ni': 20.0, 'Rh': 10.0}","('Al', 'Ni', 'Rh')",QC,False
+Cd 6 Yb 1,"{'Cd': 6.0, 'Yb': 1.0}","('Cd', 'Yb')",AC,False
+Ag 42.5 Ga 42.5 Yb 15,"{'Ag': 42.5, 'Ga': 42.5, 'Yb': 15.0}","('Ag', 'Ga', 'Yb')",AC,False
+Al 68 Pd 20 Ru 12,"{'Al': 68.0, 'Pd': 20.0, 'Ru': 12.0}","('Al', 'Pd', 'Ru')",AC,False
+Al 73 Ir 14.5 Os 12.5,"{'Al': 73.0, 'Ir': 14.5, 'Os': 12.5}","('Al', 'Ir', 'Os')",QC,False
+Au 49.7 In 35.4 Ce 14.9,"{'Au': 49.7, 'In': 35.4, 'Ce': 14.9}","('Au', 'Ce', 'In')",AC,False
+Al 65 Cu 20 Ru 15,"{'Al': 65.0, 'Cu': 20.0, 'Ru': 15.0}","('Al', 'Cu', 'Ru')",QC,False
+Zn 80 Sc 15 Mg 5,"{'Zn': 80.0, 'Sc': 15.0, 'Mg': 5.0}","('Mg', 'Sc', 'Zn')",QC,False
+Ga 35 V 45 Ni 6 Si 14,"{'Ga': 35.0, 'V': 45.0, 'Ni': 6.0, 'Si': 14.0}","('Ga', 'Ni', 'Si', 'V')",QC,False
+Al 71.5 Co 28.5,"{'Al': 71.5, 'Co': 28.5}","('Al', 'Co')",AC,False
+Ta 181 Te 112,"{'Ta': 181.0, 'Te': 112.0}","('Ta', 'Te')",AC,False
+Cd 65 Mg 20 Y 15,"{'Cd': 65.0, 'Mg': 20.0, 'Y': 15.0}","('Cd', 'Mg', 'Y')",QC,False
+Au 61.2 Sn 23.9 Dy 15.2,"{'Au': 61.2, 'Sn': 23.9, 'Dy': 15.2}","('Au', 'Dy', 'Sn')",AC,False
+Ag 42.9 In 43.6 Eu 13.5,"{'Ag': 42.9, 'In': 43.6, 'Eu': 13.5}","('Ag', 'Eu', 'In')",AC,False
+Ga 33 Fe 46 Cu 3 Si 18,"{'Ga': 33.0, 'Fe': 46.0, 'Cu': 3.0, 'Si': 18.0}","('Cu', 'Fe', 'Ga', 'Si')",QC,False
+Al 76 Co 24,"{'Al': 76.0, 'Co': 24.0}","('Al', 'Co')",AC,False
+Ag 47.7 In 38.7 Ce 14.2,"{'Ag': 47.7, 'In': 38.7, 'Ce': 14.2}","('Ag', 'Ce', 'In')",AC,False
+Zn 77 Sc 7 Tm 9 Fe 7,"{'Zn': 77.0, 'Sc': 7.0, 'Tm': 9.0, 'Fe': 7.0}","('Fe', 'Sc', 'Tm', 'Zn')",QC,False
+Ag 42 In 45 Ca 13,"{'Ag': 42.0, 'In': 45.0, 'Ca': 13.0}","('Ag', 'Ca', 'In')",AC,False
+Zn 40 Mg 39.5 Ga 25,"{'Zn': 40.0, 'Mg': 39.5, 'Ga': 25.0}","('Ga', 'Mg', 'Zn')",QC,False
+Al 70.5 Mn 16.5 Pd 13,"{'Al': 70.5, 'Mn': 16.5, 'Pd': 13.0}","('Al', 'Mn', 'Pd')",QC,False
+Mn 82 Si 15 Al 3,"{'Mn': 82.0, 'Si': 15.0, 'Al': 3.0}","('Al', 'Mn', 'Si')",QC,False
+Al 65 Cu 20 Fe 15,"{'Al': 65.0, 'Cu': 20.0, 'Fe': 15.0}","('Al', 'Cu', 'Fe')",QC,False
+Ta 1.6 Te 1,"{'Ta': 1.6, 'Te': 1.0}","('Ta', 'Te')",QC,False
+Cd 65 Mg 20 Tm 15,"{'Cd': 65.0, 'Mg': 20.0, 'Tm': 15.0}","('Cd', 'Mg', 'Tm')",QC,False
+Cd 84 Yb 16,"{'Cd': 84.0, 'Yb': 16.0}","('Cd', 'Yb')",QC,False
+Al 73.2 Co 26.8,"{'Al': 73.2, 'Co': 26.8}","('Al', 'Co')",AC,False
+Cd 65 Mg 20 Dy 15,"{'Cd': 65.0, 'Mg': 20.0, 'Dy': 15.0}","('Cd', 'Dy', 'Mg')",QC,False
+Au 44.2 In 41.7 Ca 14.1,"{'Au': 44.2, 'In': 41.7, 'Ca': 14.1}","('Au', 'Ca', 'In')",QC,False
+Zn 75 Sc 15 Ag 10,"{'Zn': 75.0, 'Sc': 15.0, 'Ag': 10.0}","('Ag', 'Sc', 'Zn')",QC,False
+Cd 25 Eu 4,"{'Cd': 25.0, 'Eu': 4.0}","('Cd', 'Eu')",AC,False
+Zn 58 Mg 40 Er 2,"{'Zn': 58.0, 'Mg': 40.0, 'Er': 2.0}","('Er', 'Mg', 'Zn')",QC,False
+Au 50.5 Ga 35.9 Ca 13.6,"{'Au': 50.5, 'Ga': 35.9, 'Ca': 13.6}","('Au', 'Ca', 'Ga')",AC,False
+Ag 2 In 4 Yb 1,"{'Ag': 2.0, 'In': 4.0, 'Yb': 1.0}","('Ag', 'In', 'Yb')",AC,False
+Zn 58 Mg 40 Y 2,"{'Zn': 58.0, 'Mg': 40.0, 'Y': 2.0}","('Mg', 'Y', 'Zn')",QC,False
+Zn 56.8 Er 8.7 Mg 34.6,"{'Zn': 56.8, 'Er': 8.7, 'Mg': 34.6}","('Er', 'Mg', 'Zn')",QC,False
+Cd 76 Ca 13,"{'Cd': 76.0, 'Ca': 13.0}","('Ca', 'Cd')",AC,False
+Zn 73.6 Mg 2.5 Sc 11.2,"{'Zn': 73.6, 'Mg': 2.5, 'Sc': 11.2}","('Mg', 'Sc', 'Zn')",AC,False
+V 15 Ni 10 Si 1,"{'V': 15.0, 'Ni': 10.0, 'Si': 1.0}","('Ni', 'Si', 'V')",QC,False
+Mn 4 Si 1,"{'Mn': 4.0, 'Si': 1.0}","('Mn', 'Si')",QC,False
+Ga 3.22 Ni 2.78 Zr 1,"{'Ga': 3.22, 'Ni': 2.78, 'Zr': 1.0}","('Ga', 'Ni', 'Zr')",AC,False
+Zn 77 Sc 8 Ho 8 Fe 7,"{'Zn': 77.0, 'Sc': 8.0, 'Ho': 8.0, 'Fe': 7.0}","('Fe', 'Ho', 'Sc', 'Zn')",QC,False
+Zn 84 Ti 8 Mg 8,"{'Zn': 84.0, 'Ti': 8.0, 'Mg': 8.0}","('Mg', 'Ti', 'Zn')",QC,False
+Al 70 Pd 23 Mn 6 Si 1,"{'Al': 70.0, 'Pd': 23.0, 'Mn': 6.0, 'Si': 1.0}","('Al', 'Mn', 'Pd', 'Si')",AC,False
+Au 47.2 In 37.2 Gd 15.6,"{'Au': 47.2, 'In': 37.2, 'Gd': 15.6}","('Au', 'Gd', 'In')",AC,False
+Ga 3.64 Ni 2.36 Sc 1,"{'Ga': 3.64, 'Ni': 2.36, 'Sc': 1.0}","('Ga', 'Ni', 'Sc')",AC,False
+Mg 43 Al 42 Pd 15,"{'Mg': 43.0, 'Al': 42.0, 'Pd': 15.0}","('Al', 'Mg', 'Pd')",QC,False
+Au 62.3 Sn 23.1 Gd 14.6,"{'Au': 62.3, 'Sn': 23.1, 'Gd': 14.6}","('Au', 'Gd', 'Sn')",AC,False
+Cd 65 Mg 20 Ca 15,"{'Cd': 65.0, 'Mg': 20.0, 'Ca': 15.0}","('Ca', 'Cd', 'Mg')",QC,False
+Ag 41 In 44 Yb 15,"{'Ag': 41.0, 'In': 44.0, 'Yb': 15.0}","('Ag', 'In', 'Yb')",AC,False
+Al 74.8 Co 17.0 Ni 8.2,"{'Al': 74.8, 'Co': 17.0, 'Ni': 8.2}","('Al', 'Co', 'Ni')",AC,False
+Al 72 Pd 17 Os 11,"{'Al': 72.0, 'Pd': 17.0, 'Os': 11.0}","('Al', 'Os', 'Pd')",QC,False
+Cd 85 Ca 15,"{'Cd': 85.0, 'Ca': 15.0}","('Ca', 'Cd')",QC,False
+Al 71 Pd 21 Re 8,"{'Al': 71.0, 'Pd': 21.0, 'Re': 8.0}","('Al', 'Pd', 'Re')",QC,False
+V 3 Ni 2,"{'V': 3.0, 'Ni': 2.0}","('Ni', 'V')",QC,False
+Cd 65 Mg 20 Tb 15,"{'Cd': 65.0, 'Mg': 20.0, 'Tb': 15.0}","('Cd', 'Mg', 'Tb')",QC,False
+Ag 2 In 4 Ca 1,"{'Ag': 2.0, 'In': 4.0, 'Ca': 1.0}","('Ag', 'Ca', 'In')",AC,False
+Al 40 Mn 10.1 Si 7.4,"{'Al': 40.0, 'Mn': 10.1, 'Si': 7.4}","('Al', 'Mn', 'Si')",AC,False
+Ag 42.2 In 42.6 Tm 15.2,"{'Ag': 42.2, 'In': 42.6, 'Tm': 15.2}","('Ag', 'In', 'Tm')",AC,False
+Au 61.2 Sn 24.3 Ca 14.5,"{'Au': 61.2, 'Sn': 24.3, 'Ca': 14.5}","('Au', 'Ca', 'Sn')",AC,False
+Zn 65 Mg 26 Ho 9,"{'Zn': 65.0, 'Mg': 26.0, 'Ho': 9.0}","('Ho', 'Mg', 'Zn')",QC,False
+Au 64.2 Sn 21.3 Pr 14.5,"{'Au': 64.2, 'Sn': 21.3, 'Pr': 14.5}","('Au', 'Pr', 'Sn')",AC,False
+Cd 6 Gd 1,"{'Cd': 6.0, 'Gd': 1.0}","('Cd', 'Gd')",AC,False
+Ag 43.4 In 42.8 Eu 13.8,"{'Ag': 43.4, 'In': 42.8, 'Eu': 13.8}","('Ag', 'Eu', 'In')",AC,False
+Al 66.6 Rh 26.1 Si 7.3,"{'Al': 66.6, 'Rh': 26.1, 'Si': 7.3}","('Al', 'Rh', 'Si')",AC,False
+Al 67 Pd 11 Mn 14 Si 7,"{'Al': 67.0, 'Pd': 11.0, 'Mn': 14.0, 'Si': 7.0}","('Al', 'Mn', 'Pd', 'Si')",AC,False
+Zn 61.4 Mg 24.5 Er 14.1,"{'Zn': 61.4, 'Mg': 24.5, 'Er': 14.1}","('Er', 'Mg', 'Zn')",AC,False
+Ga 3.85 Ni 2.15 Hf 1,"{'Ga': 3.85, 'Ni': 2.15, 'Hf': 1.0}","('Ga', 'Hf', 'Ni')",AC,False
+Al 75 Os 10 Pd 15,"{'Al': 75.0, 'Os': 10.0, 'Pd': 15.0}","('Al', 'Os', 'Pd')",QC,False
+Ag 42 In 42 Yb 16,"{'Ag': 42.0, 'In': 42.0, 'Yb': 16.0}","('Ag', 'In', 'Yb')",QC,False
+Zn 77 Mg 18 Hf 5,"{'Zn': 77.0, 'Mg': 18.0, 'Hf': 5.0}","('Hf', 'Mg', 'Zn')",AC,False
+Au 61.1 Ga 25.0 Ca 13.9,"{'Au': 61.1, 'Ga': 25.0, 'Ca': 13.9}","('Au', 'Ca', 'Ga')",AC,False
+Zn 55 Mg 40 Nd 5,"{'Zn': 55.0, 'Mg': 40.0, 'Nd': 5.0}","('Mg', 'Nd', 'Zn')",QC,False
+Al 57.3 Cu 31.4 Ru 11.3,"{'Al': 57.3, 'Cu': 31.4, 'Ru': 11.3}","('Al', 'Cu', 'Ru')",AC,False
+Cd 65 Mg 20 Er 15,"{'Cd': 65.0, 'Mg': 20.0, 'Er': 15.0}","('Cd', 'Er', 'Mg')",QC,False
+Al 71.8 Co 21.1 Ni 7.1,"{'Al': 71.8, 'Co': 21.1, 'Ni': 7.1}","('Al', 'Co', 'Ni')",AC,False
+Zn 75 Sc 15 Co 10,"{'Zn': 75.0, 'Sc': 15.0, 'Co': 10.0}","('Co', 'Sc', 'Zn')",QC,False
+Al 65 Cu 20 Ir 15,"{'Al': 65.0, 'Cu': 20.0, 'Ir': 15.0}","('Al', 'Cu', 'Ir')",QC,False
+Au 37 In 39.6 Ca 12.6,"{'Au': 37.0, 'In': 39.6, 'Ca': 12.6}","('Au', 'Ca', 'In')",AC,False
+Zn 77 Sc 8 Er 8 Fe 7,"{'Zn': 77.0, 'Sc': 8.0, 'Er': 8.0, 'Fe': 7.0}","('Er', 'Fe', 'Sc', 'Zn')",QC,False
+Zn 58 Mg 40 Lu 2,"{'Zn': 58.0, 'Mg': 40.0, 'Lu': 2.0}","('Lu', 'Mg', 'Zn')",QC,False
+Cu 48 Sc 15 Ga 34 Mg 3,"{'Cu': 48.0, 'Sc': 15.0, 'Ga': 34.0, 'Mg': 3.0}","('Cu', 'Ga', 'Mg', 'Sc')",QC,False
+Zn 74 Mg 15 Ho 11,"{'Zn': 74.0, 'Mg': 15.0, 'Ho': 11.0}","('Ho', 'Mg', 'Zn')",QC,False
+Al 6 Cu 1 Li 3,"{'Al': 6.0, 'Cu': 1.0, 'Li': 3.0}","('Al', 'Cu', 'Li')",QC,False
+Al 72 Pd 17 Ru 11,"{'Al': 72.0, 'Pd': 17.0, 'Ru': 11.0}","('Al', 'Pd', 'Ru')",QC,False
+Zn 47.3 Mg 27 Al 10.7,"{'Zn': 47.3, 'Mg': 27.0, 'Al': 10.7}","('Al', 'Mg', 'Zn')",AC,False
+Zn 17 Yb 3,"{'Zn': 17.0, 'Yb': 3.0}","('Yb', 'Zn')",AC,False
+Ag 41.7 In 43.2 Yb 15.1,"{'Ag': 41.7, 'In': 43.2, 'Yb': 15.1}","('Ag', 'In', 'Yb')",AC,False
+Cd 65 Mg 20 Yb 15,"{'Cd': 65.0, 'Mg': 20.0, 'Yb': 15.0}","('Cd', 'Mg', 'Yb')",QC,False
+Zn 64 Mg 25 Y 11,"{'Zn': 64.0, 'Mg': 25.0, 'Y': 11.0}","('Mg', 'Y', 'Zn')",QC,False
+Zn 77 Mg 17.5 Ti 5.5,"{'Zn': 77.0, 'Mg': 17.5, 'Ti': 5.5}","('Mg', 'Ti', 'Zn')",AC,False
+Cd 6 Ca 1,"{'Cd': 6.0, 'Ca': 1.0}","('Ca', 'Cd')",AC,False
+Al 65 Cu 15 Rh 20,"{'Al': 65.0, 'Cu': 15.0, 'Rh': 20.0}","('Al', 'Cu', 'Rh')",QC,False
+Zn 58 Mg 40 Ho 2,"{'Zn': 58.0, 'Mg': 40.0, 'Ho': 2.0}","('Ho', 'Mg', 'Zn')",QC,False
+Cd 6 Dy 1,"{'Cd': 6.0, 'Dy': 1.0}","('Cd', 'Dy')",AC,False
+Cd 6 Sr 1,"{'Cd': 6.0, 'Sr': 1.0}","('Cd', 'Sr')",AC,False
+Cr 5 Ni 3 Si 2,"{'Cr': 5.0, 'Ni': 3.0, 'Si': 2.0}","('Cr', 'Ni', 'Si')",QC,False
+Cd 6 Sm 1,"{'Cd': 6.0, 'Sm': 1.0}","('Cd', 'Sm')",AC,False
+Al 70 Pd 20 Re 10,"{'Al': 70.0, 'Pd': 20.0, 'Re': 10.0}","('Al', 'Pd', 'Re')",QC,False
+Al 72.5 Pd 27.5,"{'Al': 72.5, 'Pd': 27.5}","('Al', 'Pd')",AC,False
+Au 42 In 42 Yb 16,"{'Au': 42.0, 'In': 42.0, 'Yb': 16.0}","('Au', 'In', 'Yb')",AC,False
+Zn 75 Sc 15 Fe 10,"{'Zn': 75.0, 'Sc': 15.0, 'Fe': 10.0}","('Fe', 'Sc', 'Zn')",QC,False
+Ag 46.4 In 39.7 Gd 13.9,"{'Ag': 46.4, 'In': 39.7, 'Gd': 13.9}","('Ag', 'Gd', 'In')",AC,False
+Be 17 Ru 3,"{'Be': 17.0, 'Ru': 3.0}","('Be', 'Ru')",AC,False
+Al 65 Cu 20 Co 15,"{'Al': 65.0, 'Cu': 20.0, 'Co': 15.0}","('Al', 'Co', 'Cu')",QC,False
+Zn 56.8 Mg 34.6 Tb 8.7,"{'Zn': 56.8, 'Mg': 34.6, 'Tb': 8.7}","('Mg', 'Tb', 'Zn')",QC,False
+Al 71.5 Co 23.6 Cu 4.9,"{'Al': 71.5, 'Co': 23.6, 'Cu': 4.9}","('Al', 'Co', 'Cu')",AC,False
+Cd 65 Mg 20 Gd 15,"{'Cd': 65.0, 'Mg': 20.0, 'Gd': 15.0}","('Cd', 'Gd', 'Mg')",QC,False
+Al 55 Cu 25.5 Fe 12.5 Si 7,"{'Al': 55.0, 'Cu': 25.5, 'Fe': 12.5, 'Si': 7.0}","('Al', 'Cu', 'Fe', 'Si')",AC,False
+Zn 75 Sc 15 Mn 10,"{'Zn': 75.0, 'Sc': 15.0, 'Mn': 10.0}","('Mn', 'Sc', 'Zn')",QC,False
+Zn 76 Mg 17 Hf 7,"{'Zn': 76.0, 'Mg': 17.0, 'Hf': 7.0}","('Hf', 'Mg', 'Zn')",QC,False
+Al 75 Ru 10 Pd 15,"{'Al': 75.0, 'Ru': 10.0, 'Pd': 15.0}","('Al', 'Pd', 'Ru')",QC,False
+Au 12.2 In 6.3 Ca 3,"{'Au': 12.2, 'In': 6.3, 'Ca': 3.0}","('Au', 'Ca', 'In')",AC,False
+Al 55.1 Cu 14.6 Ru 20.2 Si 10.1,"{'Al': 55.1, 'Cu': 14.6, 'Ru': 20.2, 'Si': 10.1}","('Al', 'Cu', 'Ru', 'Si')",AC,False
+Zn 75 Sc 15 Au 10,"{'Zn': 75.0, 'Sc': 15.0, 'Au': 10.0}","('Au', 'Sc', 'Zn')",QC,False
+Cd 19 Pr 3,"{'Cd': 19.0, 'Pr': 3.0}","('Cd', 'Pr')",AC,False
+Zn 72 Sc 16 Cu 12,"{'Zn': 72.0, 'Sc': 16.0, 'Cu': 12.0}","('Cu', 'Sc', 'Zn')",QC,True
+Au 42.9 In 41.9 Yb 15.2,"{'Au': 42.9, 'In': 41.9, 'Yb': 15.2}","('Au', 'In', 'Yb')",AC,True
+Zn 75 Sc 15 Ni 10,"{'Zn': 75.0, 'Sc': 15.0, 'Ni': 10.0}","('Ni', 'Sc', 'Zn')",QC,True
+Ga 2.6 Cu 3.4 Lu 1,"{'Ga': 2.6, 'Cu': 3.4, 'Lu': 1.0}","('Cu', 'Ga', 'Lu')",AC,True
+Al 70 Ni 20 Ru 10,"{'Al': 70.0, 'Ni': 20.0, 'Ru': 10.0}","('Al', 'Ni', 'Ru')",QC,True
+Zn 75 Sc 15 Pd 10,"{'Zn': 75.0, 'Sc': 15.0, 'Pd': 10.0}","('Pd', 'Sc', 'Zn')",QC,True
+Al 65 Cu 20 Os 15,"{'Al': 65.0, 'Cu': 20.0, 'Os': 15.0}","('Al', 'Cu', 'Os')",QC,True
+Ga 2.3 Cu 3.7 Sc 1,"{'Ga': 2.3, 'Cu': 3.7, 'Sc': 1.0}","('Cu', 'Ga', 'Sc')",AC,True
+Ag 46.9 In 38.7 Pr 14.4,"{'Ag': 46.9, 'In': 38.7, 'Pr': 14.4}","('Ag', 'In', 'Pr')",AC,True
+Zn 34.6 Mg 40 Al 25.4,"{'Zn': 34.6, 'Mg': 40.0, 'Al': 25.4}","('Al', 'Mg', 'Zn')",AC,True
+Au 65 Sn 20 Ce 15,"{'Au': 65.0, 'Sn': 20.0, 'Ce': 15.0}","('Au', 'Ce', 'Sn')",AC,True
+Cd 6 Nd 1,"{'Cd': 6.0, 'Nd': 1.0}","('Cd', 'Nd')",AC,True
+Zn 75 Sc 15 Pt 10,"{'Zn': 75.0, 'Sc': 15.0, 'Pt': 10.0}","('Pt', 'Sc', 'Zn')",QC,True
+Zn 40 Mg 39.5 Ga 16.4 Al 4.1,"{'Zn': 40.0, 'Mg': 39.5, 'Ga': 16.4, 'Al': 4.1}","('Al', 'Ga', 'Mg', 'Zn')",AC,True
+Zn 37 Mg 46 Al 17,"{'Zn': 37.0, 'Mg': 46.0, 'Al': 17.0}","('Al', 'Mg', 'Zn')",AC,True
+Zn 17 Sc 3,"{'Zn': 17.0, 'Sc': 3.0}","('Sc', 'Zn')",AC,True
+Ag 42 In 42 Ca 16,"{'Ag': 42.0, 'In': 42.0, 'Ca': 16.0}","('Ag', 'Ca', 'In')",QC,True
+Au 61.2 Sn 24.5 Eu 14.3,"{'Au': 61.2, 'Sn': 24.5, 'Eu': 14.3}","('Au', 'Eu', 'Sn')",AC,True
+Cd 6 Y 1,"{'Cd': 6.0, 'Y': 1.0}","('Cd', 'Y')",AC,True
+Zn 84 Mg 7 Zr 9,"{'Zn': 84.0, 'Mg': 7.0, 'Zr': 9.0}","('Mg', 'Zn', 'Zr')",QC,True
+Cd 65 Mg 20 Ho 15,"{'Cd': 65.0, 'Mg': 20.0, 'Ho': 15.0}","('Cd', 'Ho', 'Mg')",QC,True
+Zn 56.8 Mg 34.6 Dy 8.7,"{'Zn': 56.8, 'Mg': 34.6, 'Dy': 8.7}","('Dy', 'Mg', 'Zn')",QC,True
+Al 71.5 Cu 8.5 Ru 20,"{'Al': 71.5, 'Cu': 8.5, 'Ru': 20.0}","('Al', 'Cu', 'Ru')",AC,True
+Al 75 Mn 20 Pd 5,"{'Al': 75.0, 'Mn': 20.0, 'Pd': 5.0}","('Al', 'Mn', 'Pd')",AC,True
+Ta 97 Te 60,"{'Ta': 97.0, 'Te': 60.0}","('Ta', 'Te')",AC,True
+Zn 77 Mg 18 Zr 5,"{'Zn': 77.0, 'Mg': 18.0, 'Zr': 5.0}","('Mg', 'Zn', 'Zr')",AC,True
+Ni 70.6 Cr 29.4,"{'Ni': 70.6, 'Cr': 29.4}","('Cr', 'Ni')",QC,True
+Al 40 Mn 25 Fe 15 Ge 20,"{'Al': 40.0, 'Mn': 25.0, 'Fe': 15.0, 'Ge': 20.0}","('Al', 'Fe', 'Ge', 'Mn')",QC,True
+Al 75 Pd 13 Ru 12,"{'Al': 75.0, 'Pd': 13.0, 'Ru': 12.0}","('Al', 'Pd', 'Ru')",AC,True
+Au 60.3 Sn 24.6 Yb 15.1,"{'Au': 60.3, 'Sn': 24.6, 'Yb': 15.1}","('Au', 'Sn', 'Yb')",AC,True
+Cu 46 Sc 16 Al 38,"{'Cu': 46.0, 'Sc': 16.0, 'Al': 38.0}","('Al', 'Cu', 'Sc')",QC,True
+Al 70 Ni 15 Fe 15,"{'Al': 70.0, 'Ni': 15.0, 'Fe': 15.0}","('Al', 'Fe', 'Ni')",QC,True

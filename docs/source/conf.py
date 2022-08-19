@@ -29,6 +29,7 @@ sys.path.insert(0, os.path.abspath('../../'))
 
 import xenonpy as package
 
+language = 'en'
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -77,7 +78,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = package.__name__
-copyright = '2019, yoshida-lab'
+copyright = '2022, yoshida-lab'
 author = 'TsumiNa'
 
 # The version info for the project you're documenting, acts as replacement for

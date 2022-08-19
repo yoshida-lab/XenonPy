@@ -36,9 +36,9 @@ This package is still under development. The current released version provides s
 .. image:: _static/xenonpy.png
 
 
-------
+--------
 Citation
-------
+--------
 XenonPy is an on-going research project that covers multiple important topics in materials informatics.
 We recommend users to cite the papers that are relevant to their specific use of XenonPy.
 Please refer to :doc:`features` for details of each feature in XenonPy with its corresponding citation.

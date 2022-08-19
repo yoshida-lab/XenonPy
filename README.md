@@ -4,10 +4,7 @@
 
 # NOTES
 
-> **To all those who have purchased the book [マテリアルズインフォマティクス](https://www.kyoritsu-pub.co.jp/book/b10013510.html)  published by [KYORITSU SHUPPAN](https://www.kyoritsu-pub.co.jp/):
-<br>
-<br>
-The link of exercises was changed to https://github.com/yoshida-lab/XenonPy/tree/master/mi_book.Please follow the new link to access all these exercises.**
+> **To all those who have purchased the book [マテリアルズインフォマティクス](https://www.kyoritsu-pub.co.jp/book/b10013510.html)  published by [KYORITSU SHUPPAN](https://www.kyoritsu-pub.co.jp/): The link of exercises was changed to https://github.com/yoshida-lab/XenonPy/tree/master/mi_book.Please follow the new link to access all these exercises.**
 
 
 

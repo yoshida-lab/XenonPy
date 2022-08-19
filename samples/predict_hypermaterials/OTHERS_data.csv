@@ -1,5 +1,4 @@
 ,composition,elements,label,for_test
-Ag 52.0 Al 33.0 Ce 15.0,"{'Ag': 52.0, 'Al': 33.0, 'Ce': 15.0}","('Ag', 'Al', 'Ce')",OTHERS,False
 mp-1077980,"{'Sr': 1.0, 'Ag': 4.0, 'Sb': 2.0}","('Ag', 'Sb', 'Sr')",OTHERS,False
 mp-30079,"{'Li': 1.0, 'Mg': 2.0, 'Ge': 1.0}","('Ge', 'Li', 'Mg')",OTHERS,False
 mvc-2967,"{'Ba': 2.0, 'Tl': 1.0, 'Fe': 2.0, 'O': 7.0}","('Ba', 'Fe', 'O', 'Tl')",OTHERS,False
@@ -257,7 +256,6 @@ mp-1205555,"{'U': 2.0, 'Si': 2.0, 'Os': 4.0, 'C': 2.0}","('C', 'Os', 'Si', 'U')"
 mp-1178538,"{'Ba': 4.0, 'Ca': 4.0, 'I': 16.0}","('Ba', 'Ca', 'I')",OTHERS,False
 mp-754942,"{'Sr': 2.0, 'Sm': 4.0, 'O': 8.0}","('O', 'Sm', 'Sr')",OTHERS,False
 mp-652101,"{'Zn': 20.0, 'Fe': 2.0, 'B': 16.0, 'Rh': 36.0}","('B', 'Fe', 'Rh', 'Zn')",OTHERS,False
-Al 50.0 Pt 36.0 Sm 14.0,"{'Al': 50.0, 'Pt': 36.0, 'Sm': 14.0}","('Al', 'Pt', 'Sm')",OTHERS,False
 mp-972472,"{'Sn': 1.0, 'As': 3.0}","('As', 'Sn')",OTHERS,False
 mp-769626,"{'Li': 4.0, 'Mn': 2.0, 'Nb': 3.0, 'Fe': 3.0, 'O': 16.0}","('Fe', 'Li', 'Mn', 'Nb', 'O')",OTHERS,False
 mp-573051,"{'Re': 6.0, 'O': 18.0, 'F': 6.0}","('F', 'O', 'Re')",OTHERS,False
@@ -357,7 +355,6 @@ mp-1210341,"{'Na': 8.0, 'Al': 6.0, 'Si': 6.0, 'N': 2.0, 'O': 24.0}","('Al', 'N',
 mp-30843,"{'Sr': 28.0, 'Pt': 12.0}","('Pt', 'Sr')",OTHERS,False
 mp-556201,"{'Ag': 2.0, 'Sb': 2.0, 'C': 4.0, 'N': 4.0, 'Cl': 4.0, 'F': 12.0}","('Ag', 'C', 'Cl', 'F', 'N', 'Sb')",OTHERS,False
 mvc-15475,"{'Al': 1.0, 'Ag': 1.0, 'O': 3.0}","('Ag', 'Al', 'O')",OTHERS,False
-Ag 49.0 Ga 34.0 Gd 17.0,"{'Ag': 49.0, 'Ga': 34.0, 'Gd': 17.0}","('Ag', 'Ga', 'Gd')",OTHERS,False
 mp-1208552,"{'Tb': 4.0, 'Al': 18.0, 'Ir': 6.0}","('Al', 'Ir', 'Tb')",OTHERS,False
 mp-665747,"{'Eu': 4.0, 'Ag': 4.0}","('Ag', 'Eu')",OTHERS,False
 mp-6425,"{'Li': 6.0, 'O': 24.0, 'P': 6.0, 'In': 4.0}","('In', 'Li', 'O', 'P')",OTHERS,False
@@ -368,7 +365,6 @@ mp-28645,"{'N': 2.0, 'Ca': 2.0, 'Ni': 2.0}","('Ca', 'N', 'Ni')",OTHERS,False
 mp-753239,"{'Li': 2.0, 'Sn': 2.0, 'P': 2.0, 'H': 2.0, 'O': 10.0}","('H', 'Li', 'O', 'P', 'Sn')",OTHERS,False
 mp-755944,"{'Li': 3.0, 'Fe': 2.0, 'Co': 2.0, 'O': 8.0}","('Co', 'Fe', 'Li', 'O')",OTHERS,False
 mp-646609,"{'U': 4.0, 'In': 2.0, 'Rh': 4.0}","('In', 'Rh', 'U')",OTHERS,False
-Fe 46.0 Al 38.0 Sc 16.0,"{'Fe': 46.0, 'Al': 38.0, 'Sc': 16.0}","('Al', 'Fe', 'Sc')",OTHERS,False
 mp-973738,"{'Ge': 1.0, 'B': 1.0, 'O': 3.0}","('B', 'Ge', 'O')",OTHERS,False
 mp-1209298,"{'Rb': 2.0, 'P': 30.0}","('P', 'Rb')",OTHERS,False
 mp-684642,"{'S': 18.0, 'N': 18.0}","('N', 'S')",OTHERS,False
@@ -709,7 +705,6 @@ mp-1188906,"{'Sm': 2.0, 'Ga': 2.0, 'Co': 15.0}","('Co', 'Ga', 'Sm')",OTHERS,Fals
 mp-10247,"{'N': 3.0, 'Cr': 1.0, 'U': 2.0}","('Cr', 'N', 'U')",OTHERS,False
 mp-865902,"{'Yb': 4.0, 'B': 16.0, 'Os': 4.0}","('B', 'Os', 'Yb')",OTHERS,False
 mp-1206794,"{'Li': 1.0, 'Au': 1.0}","('Au', 'Li')",OTHERS,False
-Ga 31.0 Co 53.0 Yb 16.0,"{'Ga': 31.0, 'Co': 53.0, 'Yb': 16.0}","('Co', 'Ga', 'Yb')",OTHERS,False
 mp-1037802,"{'Ca': 1.0, 'Mg': 30.0, 'Mn': 1.0, 'O': 32.0}","('Ca', 'Mg', 'Mn', 'O')",OTHERS,False
 mp-570414,"{'Tm': 8.0, 'Fe': 56.0, 'C': 4.0}","('C', 'Fe', 'Tm')",OTHERS,False
 mp-21792,"{'O': 32.0, 'Na': 40.0, 'Co': 8.0}","('Co', 'Na', 'O')",OTHERS,False
@@ -986,7 +981,6 @@ mp-1222544,"{'Li': 4.0, 'Co': 1.0, 'Ru': 1.0, 'O': 6.0}","('Co', 'Li', 'O', 'Ru'
 mp-1029975,"{'Al': 4.0, 'C': 6.0, 'N': 12.0}","('Al', 'C', 'N')",OTHERS,False
 mp-1199077,"{'Ba': 4.0, 'B': 12.0, 'H': 8.0, 'O': 26.0}","('B', 'Ba', 'H', 'O')",OTHERS,False
 mp-770175,"{'Li': 4.0, 'Mn': 6.0, 'Fe': 2.0, 'O': 16.0}","('Fe', 'Li', 'Mn', 'O')",OTHERS,False
-Ga 45.0 Ir 41.0 Gd 14.0,"{'Ga': 45.0, 'Ir': 41.0, 'Gd': 14.0}","('Ga', 'Gd', 'Ir')",OTHERS,False
 mp-865402,"{'Tm': 3.0, 'Al': 3.0, 'Cu': 3.0}","('Al', 'Cu', 'Tm')",OTHERS,False
 mp-505802,"{'Sn': 2.0, 'Mo': 8.0, 'O': 12.0}","('Mo', 'O', 'Sn')",OTHERS,False
 mp-1209222,"{'Rb': 2.0, 'Lu': 2.0, 'Be': 2.0, 'F': 12.0}","('Be', 'F', 'Lu', 'Rb')",OTHERS,False
@@ -1058,7 +1052,6 @@ mp-706622,"{'P': 4.0, 'H': 24.0, 'N': 8.0, 'O': 8.0}","('H', 'N', 'O', 'P')",OTH
 mp-1171010,"{'Ca': 1.0, 'Fe': 2.0, 'Si': 4.0, 'O': 12.0}","('Ca', 'Fe', 'O', 'Si')",OTHERS,False
 mp-1176721,"{'Li': 1.0, 'Fe': 5.0, 'O': 5.0, 'F': 1.0}","('F', 'Fe', 'Li', 'O')",OTHERS,False
 mp-1186598,"{'Pm': 1.0, 'Ho': 1.0, 'Ir': 2.0}","('Ho', 'Ir', 'Pm')",OTHERS,False
-Ag 60.0 Ti 24.0 Gd 16.0,"{'Ag': 60.0, 'Ti': 24.0, 'Gd': 16.0}","('Ag', 'Gd', 'Ti')",OTHERS,False
 mp-1207138,"{'Sm': 1.0, 'Eu': 2.0, 'Ta': 1.0, 'O': 6.0}","('Eu', 'O', 'Sm', 'Ta')",OTHERS,False
 mp-605406,"{'Rb': 2.0, 'U': 4.0, 'H': 10.0, 'C': 8.0, 'O': 30.0}","('C', 'H', 'O', 'Rb', 'U')",OTHERS,False
 mp-1229046,"{'Al': 1.0, 'In': 1.0, 'Cu': 2.0, 'Se': 4.0}","('Al', 'Cu', 'In', 'Se')",OTHERS,False
@@ -1269,7 +1262,6 @@ mp-22017,"{'In': 4.0, 'La': 2.0, 'Ir': 2.0}","('In', 'Ir', 'La')",OTHERS,False
 mp-1223441,"{'K': 1.0, 'Ba': 1.0, 'Li': 1.0, 'Zn': 1.0, 'F': 6.0}","('Ba', 'F', 'K', 'Li', 'Zn')",OTHERS,False
 mp-1178389,"{'Fe': 2.0, 'Co': 3.0, 'Sb': 3.0, 'O': 16.0}","('Co', 'Fe', 'O', 'Sb')",OTHERS,False
 mp-31169,"{'Al': 1.0, 'Sc': 1.0, 'Ag': 2.0}","('Ag', 'Al', 'Sc')",OTHERS,False
-In 53.0 Pd 33.0 Sc 14.0,"{'In': 53.0, 'Pd': 33.0, 'Sc': 14.0}","('In', 'Pd', 'Sc')",OTHERS,False
 mp-570463,"{'Ta': 8.0, 'Co': 16.0}","('Co', 'Ta')",OTHERS,False
 mp-14718,"{'Na': 12.0, 'Mn': 6.0, 'Cr': 6.0, 'F': 42.0}","('Cr', 'F', 'Mn', 'Na')",OTHERS,False
 mp-1225248,"{'Fe': 36.0, 'B': 4.0, 'P': 8.0}","('B', 'Fe', 'P')",OTHERS,False
@@ -1344,7 +1336,6 @@ mp-557035,"{'K': 6.0, 'S': 2.0, 'O': 8.0, 'F': 2.0}","('F', 'K', 'O', 'S')",OTHE
 mp-771232,"{'Li': 5.0, 'Mn': 2.0, 'Ni': 5.0, 'O': 12.0}","('Li', 'Mn', 'Ni', 'O')",OTHERS,False
 mp-606102,"{'Ce': 3.0, 'In': 3.0, 'Ru': 2.0}","('Ce', 'In', 'Ru')",OTHERS,False
 mp-1218851,"{'Sr': 2.0, 'Ca': 1.0, 'Ti': 3.0, 'O': 9.0}","('Ca', 'O', 'Sr', 'Ti')",OTHERS,False
-Ga 56.0 Ni 28.0 Gd 16.0,"{'Ga': 56.0, 'Ni': 28.0, 'Gd': 16.0}","('Ga', 'Gd', 'Ni')",OTHERS,False
 mp-755552,"{'Li': 1.0, 'Y': 1.0, 'S': 2.0}","('Li', 'S', 'Y')",OTHERS,False
 mp-19453,"{'O': 28.0, 'Mo': 4.0, 'Te': 8.0}","('Mo', 'O', 'Te')",OTHERS,False
 mp-605735,"{'Sr': 6.0, 'In': 8.0, 'Pb': 2.0}","('In', 'Pb', 'Sr')",OTHERS,False
@@ -1444,7 +1435,6 @@ mp-1102036,"{'Ni': 6.0, 'P': 6.0}","('Ni', 'P')",OTHERS,False
 mp-1201500,"{'Ca': 2.0, 'Fe': 10.0, 'P': 10.0, 'O': 44.0}","('Ca', 'Fe', 'O', 'P')",OTHERS,False
 mp-11595,"{'Ge': 6.0, 'Yb': 10.0}","('Ge', 'Yb')",OTHERS,False
 mp-1080202,"{'Fe': 4.0, 'N': 8.0}","('Fe', 'N')",OTHERS,False
-Au 67.0 Sb 17.0 Sc 16.0,"{'Au': 67.0, 'Sb': 17.0, 'Sc': 16.0}","('Au', 'Sb', 'Sc')",OTHERS,False
 mp-1191502,"{'V': 2.0, 'In': 2.0, 'Se': 4.0, 'O': 16.0}","('In', 'O', 'Se', 'V')",OTHERS,False
 mp-1025223,"{'Hf': 4.0, 'Al': 3.0}","('Al', 'Hf')",OTHERS,False
 mp-631436,"{'V': 1.0, 'Os': 1.0, 'Cl': 1.0}","('Cl', 'Os', 'V')",OTHERS,False
@@ -1478,7 +1468,6 @@ mp-510569,"{'Cs': 2.0, 'Ce': 2.0, 'Cu': 2.0, 'S': 6.0}","('Ce', 'Cs', 'Cu', 'S')
 mp-11563,"{'Ti': 1.0, 'Rh': 1.0}","('Rh', 'Ti')",OTHERS,False
 mp-554115,"{'Zn': 24.0, 'S': 24.0}","('S', 'Zn')",OTHERS,False
 mp-10200,"{'Be': 2.0, 'Si': 2.0, 'Zr': 2.0}","('Be', 'Si', 'Zr')",OTHERS,False
-Ge 50.0 Pt 36.0 Gd 14.0,"{'Ge': 50.0, 'Pt': 36.0, 'Gd': 14.0}","('Gd', 'Ge', 'Pt')",OTHERS,False
 mp-554142,"{'Ge': 2.0, 'Te': 4.0, 'O': 12.0}","('Ge', 'O', 'Te')",OTHERS,False
 mp-1216888,"{'U': 3.0, 'Al': 3.0, 'Co': 1.0, 'Rh': 2.0}","('Al', 'Co', 'Rh', 'U')",OTHERS,False
 mp-755936,"{'Lu': 2.0, 'W': 2.0, 'O': 8.0}","('Lu', 'O', 'W')",OTHERS,False
@@ -1645,7 +1634,6 @@ mp-1094493,"{'Mg': 6.0, 'Zn': 6.0}","('Mg', 'Zn')",OTHERS,False
 mp-975738,"{'Pr': 2.0, 'B': 4.0, 'Os': 4.0}","('B', 'Os', 'Pr')",OTHERS,False
 mp-1186483,"{'Pm': 4.0, 'Mg': 2.0}","('Mg', 'Pm')",OTHERS,False
 mp-1176410,"{'Na': 8.0, 'Ni': 4.0, 'P': 4.0, 'C': 4.0, 'O': 28.0}","('C', 'Na', 'Ni', 'O', 'P')",OTHERS,False
-Ti 64.0 Al 21.0 Gd 15.0,"{'Ti': 64.0, 'Al': 21.0, 'Gd': 15.0}","('Al', 'Gd', 'Ti')",OTHERS,False
 mp-690644,"{'Tl': 1.0, 'In': 1.0, 'S': 2.0}","('In', 'S', 'Tl')",OTHERS,False
 mp-752502,"{'Li': 7.0, 'Cr': 3.0, 'Si': 2.0, 'O': 12.0}","('Cr', 'Li', 'O', 'Si')",OTHERS,False
 mp-30170,"{'Ge': 40.0, 'Pd': 6.0, 'Ba': 8.0}","('Ba', 'Ge', 'Pd')",OTHERS,False
@@ -1660,7 +1648,6 @@ mp-19981,{'Gd': 4.0},"('Gd',)",OTHERS,False
 mp-9835,"{'Co': 2.0, 'Sb': 4.0}","('Co', 'Sb')",OTHERS,False
 mp-1209369,"{'Rb': 5.0, 'Dy': 3.0, 'I': 12.0}","('Dy', 'I', 'Rb')",OTHERS,False
 mp-16690,"{'P': 8.0, 'S': 28.0, 'K': 8.0, 'Nd': 4.0}","('K', 'Nd', 'P', 'S')",OTHERS,False
-Ga 55.0 Ir 31.0 Gd 14.0,"{'Ga': 55.0, 'Ir': 31.0, 'Gd': 14.0}","('Ga', 'Gd', 'Ir')",OTHERS,False
 mp-1096411,"{'Zr': 2.0, 'In': 1.0, 'Tc': 1.0}","('In', 'Tc', 'Zr')",OTHERS,False
 mp-570883,"{'Ca': 42.0, 'Zn': 72.0, 'Ni': 4.0}","('Ca', 'Ni', 'Zn')",OTHERS,False
 mp-16496,"{'Al': 2.0, 'Cu': 4.0, 'Re': 4.0}","('Al', 'Cu', 'Re')",OTHERS,False
@@ -1764,7 +1751,6 @@ mp-1187603,"{'Tm': 1.0, 'Sb': 1.0, 'Rh': 2.0}","('Rh', 'Sb', 'Tm')",OTHERS,False
 mp-1190160,"{'K': 4.0, 'Se': 4.0, 'O': 14.0}","('K', 'O', 'Se')",OTHERS,False
 mp-1219871,"{'Pd': 4.0, 'Se': 4.0, 'S': 4.0}","('Pd', 'S', 'Se')",OTHERS,False
 mp-1078780,"{'Zn': 1.0, 'Cd': 3.0, 'S': 4.0}","('Cd', 'S', 'Zn')",OTHERS,False
-Au 64.0 Co 22.0 Gd 14.0,"{'Au': 64.0, 'Co': 22.0, 'Gd': 14.0}","('Au', 'Co', 'Gd')",OTHERS,False
 mp-984454,"{'K': 1.0, 'Tl': 1.0, 'O': 3.0}","('K', 'O', 'Tl')",OTHERS,False
 mp-1201660,"{'Ho': 10.0, 'Ge': 20.0, 'Os': 8.0}","('Ge', 'Ho', 'Os')",OTHERS,False
 mp-15963,"{'P': 3.0, 'Ru': 3.0, 'Hf': 3.0}","('Hf', 'P', 'Ru')",OTHERS,False
@@ -1917,7 +1903,6 @@ mp-1079845,"{'Mn': 3.0, 'Ni': 3.0, 'As': 3.0}","('As', 'Mn', 'Ni')",OTHERS,False
 mp-1209115,"{'Sb': 2.0, 'H': 1.0, 'F': 13.0}","('F', 'H', 'Sb')",OTHERS,False
 mp-780393,"{'Ho': 12.0, 'B': 12.0, 'O': 36.0}","('B', 'Ho', 'O')",OTHERS,False
 mp-8769,"{'Co': 2.0, 'Se': 4.0, 'Rb': 4.0}","('Co', 'Rb', 'Se')",OTHERS,False
-Ag 61.0 Zr 22.0 Gd 17.0,"{'Ag': 61.0, 'Zr': 22.0, 'Gd': 17.0}","('Ag', 'Gd', 'Zr')",OTHERS,False
 mp-754502,"{'Sm': 1.0, 'Y': 1.0, 'O': 2.0}","('O', 'Sm', 'Y')",OTHERS,False
 mp-779727,"{'Ti': 34.0, 'N': 12.0, 'O': 48.0}","('N', 'O', 'Ti')",OTHERS,False
 mp-570113,"{'Bi': 2.0, 'Au': 4.0}","('Au', 'Bi')",OTHERS,False
@@ -1936,7 +1921,6 @@ mp-531340,"{'Al': 28.0, 'Mg': 14.0, 'O': 56.0}","('Al', 'Mg', 'O')",OTHERS,False
 mp-642625,"{'Hg': 36.0, 'Sb': 3.0, 'Br': 3.0, 'Cl': 6.0, 'O': 18.0}","('Br', 'Cl', 'Hg', 'O', 'Sb')",OTHERS,False
 mp-773084,"{'Ba': 6.0, 'Li': 2.0, 'Ti': 7.0, 'Nb': 9.0, 'O': 42.0}","('Ba', 'Li', 'Nb', 'O', 'Ti')",OTHERS,False
 mp-557180,"{'Ca': 2.0, 'As': 4.0, 'Xe': 8.0, 'F': 40.0}","('As', 'Ca', 'F', 'Xe')",OTHERS,False
-Ag 68.0 Zr 16.0 Gd 16.0,"{'Ag': 68.0, 'Zr': 16.0, 'Gd': 16.0}","('Ag', 'Gd', 'Zr')",OTHERS,False
 mp-1202141,"{'Tm': 24.0, 'Ga': 16.0}","('Ga', 'Tm')",OTHERS,False
 mp-1195366,"{'Cu': 8.0, 'Pb': 16.0, 'Cl': 24.0, 'O': 16.0}","('Cl', 'Cu', 'O', 'Pb')",OTHERS,False
 mp-754279,"{'Li': 4.0, 'Cr': 3.0, 'Ni': 1.0, 'O': 8.0}","('Cr', 'Li', 'Ni', 'O')",OTHERS,False
@@ -2018,7 +2002,6 @@ mp-1211637,"{'K': 2.0, 'Ca': 2.0, 'P': 2.0, 'H': 2.0, 'O': 8.0}","('Ca', 'H', 'K
 mp-542709,"{'Eu': 2.0, 'Si': 12.0}","('Eu', 'Si')",OTHERS,False
 mp-638,"{'Zn': 5.0, 'Sr': 1.0}","('Sr', 'Zn')",OTHERS,False
 mp-1183254,"{'Ag': 6.0, 'S': 2.0}","('Ag', 'S')",OTHERS,False
-Ag 59.0 Ti 27.0 Gd 14.0,"{'Ag': 59.0, 'Ti': 27.0, 'Gd': 14.0}","('Ag', 'Gd', 'Ti')",OTHERS,False
 mp-571333,"{'Ca': 10.0, 'Si': 4.0, 'N': 12.0}","('Ca', 'N', 'Si')",OTHERS,False
 mp-1064861,"{'Ga': 1.0, 'C': 3.0}","('C', 'Ga')",OTHERS,False
 mp-866187,"{'Ti': 2.0, 'Zn': 1.0, 'Tc': 1.0}","('Tc', 'Ti', 'Zn')",OTHERS,False
@@ -2167,7 +2150,6 @@ mp-1216804,"{'Tl': 2.0, 'V': 6.0, 'Cd': 8.0, 'O': 24.0}","('Cd', 'O', 'Tl', 'V')
 mp-1184464,"{'Eu': 2.0, 'Zn': 1.0, 'In': 1.0}","('Eu', 'In', 'Zn')",OTHERS,False
 mp-20726,"{'Ca': 4.0, 'Sr': 4.0, 'Sn': 4.0}","('Ca', 'Sn', 'Sr')",OTHERS,False
 mp-560710,"{'Cs': 2.0, 'Tl': 1.0, 'Mo': 1.0, 'F': 6.0}","('Cs', 'F', 'Mo', 'Tl')",OTHERS,False
-Au 68.0 Ti 15.0 Gd 17.0,"{'Au': 68.0, 'Ti': 15.0, 'Gd': 17.0}","('Au', 'Gd', 'Ti')",OTHERS,False
 mp-5893,"{'O': 3.0, 'Si': 1.0, 'Ca': 1.0}","('Ca', 'O', 'Si')",OTHERS,False
 mp-759285,"{'Li': 4.0, 'Fe': 7.0, 'O': 2.0, 'F': 14.0}","('F', 'Fe', 'Li', 'O')",OTHERS,False
 mp-755738,"{'Rb': 8.0, 'O': 4.0}","('O', 'Rb')",OTHERS,False
@@ -2355,7 +2337,6 @@ mp-769567,"{'Li': 10.0, 'Ti': 11.0, 'Cr': 9.0, 'O': 40.0}","('Cr', 'Li', 'O', 'T
 mp-3312,"{'Se': 8.0, 'Sb': 4.0, 'Cs': 2.0}","('Cs', 'Sb', 'Se')",OTHERS,False
 mp-554736,"{'Ca': 2.0, 'B': 4.0, 'H': 24.0, 'O': 20.0}","('B', 'Ca', 'H', 'O')",OTHERS,False
 mp-1099277,"{'Li': 1.0, 'Mg': 6.0, 'Fe': 1.0}","('Fe', 'Li', 'Mg')",OTHERS,False
-Ga 60.0 Ir 26.0 Gd 14.0,"{'Ga': 60.0, 'Ir': 26.0, 'Gd': 14.0}","('Ga', 'Gd', 'Ir')",OTHERS,False
 mp-850900,"{'Li': 6.0, 'V': 4.0, 'P': 6.0, 'O': 24.0}","('Li', 'O', 'P', 'V')",OTHERS,False
 mp-1796,"{'Te': 6.0, 'Tl': 10.0}","('Te', 'Tl')",OTHERS,False
 mp-568709,"{'Dy': 8.0, 'Ni': 28.0, 'Sn': 12.0}","('Dy', 'Ni', 'Sn')",OTHERS,False
@@ -2483,7 +2464,6 @@ mp-1019796,"{'K': 8.0, 'P': 4.0, 'O': 14.0}","('K', 'O', 'P')",OTHERS,False
 mp-1069771,"{'Rb': 2.0, 'Pd': 1.0, 'Se': 2.0}","('Pd', 'Rb', 'Se')",OTHERS,False
 mp-2568,"{'Si': 2.0, 'Y': 1.0}","('Si', 'Y')",OTHERS,False
 mp-568801,"{'Pr': 6.0, 'Cu': 2.0, 'Si': 2.0, 'Se': 14.0}","('Cu', 'Pr', 'Se', 'Si')",OTHERS,False
-Ag 58.0 Ti 28.0 Gd 14.0,"{'Ag': 58.0, 'Ti': 28.0, 'Gd': 14.0}","('Ag', 'Gd', 'Ti')",OTHERS,False
 mp-755361,"{'Na': 6.0, 'V': 2.0, 'B': 2.0, 'As': 2.0, 'O': 14.0}","('As', 'B', 'Na', 'O', 'V')",OTHERS,False
 mp-36329,"{'O': 4.0, 'U': 1.0, 'Sr': 1.0}","('O', 'Sr', 'U')",OTHERS,False
 mp-974358,"{'Ir': 3.0, 'Ru': 1.0}","('Ir', 'Ru')",OTHERS,False
@@ -2493,7 +2473,6 @@ mp-1030390,"{'Te': 2.0, 'Mo': 2.0, 'W': 2.0, 'Se': 2.0, 'S': 4.0}","('Mo', 'S', 
 mp-1193254,"{'Sr': 4.0, 'C': 8.0, 'O': 16.0}","('C', 'O', 'Sr')",OTHERS,False
 mp-556213,"{'K': 16.0, 'Mn': 16.0, 'V': 16.0, 'O': 64.0}","('K', 'Mn', 'O', 'V')",OTHERS,False
 mp-559,"{'Y': 1.0, 'Pd': 3.0}","('Pd', 'Y')",OTHERS,False
-Ga 26.0 Co 60.0 Yb 16.0,"{'Ga': 26.0, 'Co': 60.0, 'Yb': 16.0}","('Co', 'Ga', 'Yb')",OTHERS,False
 mp-867195,"{'Sr': 1.0, 'Os': 1.0, 'O': 3.0}","('O', 'Os', 'Sr')",OTHERS,False
 mp-780722,"{'Y': 6.0, 'N': 2.0, 'O': 5.0}","('N', 'O', 'Y')",OTHERS,False
 mvc-1326,"{'Ba': 2.0, 'Y': 2.0, 'W': 8.0, 'O': 14.0}","('Ba', 'O', 'W', 'Y')",OTHERS,False
@@ -2603,7 +2582,6 @@ mp-1198817,"{'Gd': 8.0, 'Si': 6.0, 'S': 24.0}","('Gd', 'S', 'Si')",OTHERS,False
 mp-1189433,"{'La': 10.0, 'Sn': 6.0, 'C': 2.0}","('C', 'La', 'Sn')",OTHERS,False
 mp-1223414,"{'La': 4.0, 'Te': 12.0, 'W': 2.0, 'O': 36.0}","('La', 'O', 'Te', 'W')",OTHERS,False
 mp-1080709,"{'Nd': 4.0, 'Au': 4.0}","('Au', 'Nd')",OTHERS,False
-Al 28.5 Pt 57.5 Gd 14.0,"{'Al': 28.5, 'Pt': 57.5, 'Gd': 14.0}","('Al', 'Gd', 'Pt')",OTHERS,False
 mp-762322,"{'Li': 2.0, 'Ti': 4.0, 'P': 6.0, 'O': 24.0}","('Li', 'O', 'P', 'Ti')",OTHERS,False
 mp-775202,"{'Cr': 1.0, 'Sb': 3.0, 'P': 6.0, 'O': 24.0}","('Cr', 'O', 'P', 'Sb')",OTHERS,False
 mp-1038009,"{'Sr': 1.0, 'Ca': 1.0, 'Mg': 30.0, 'O': 32.0}","('Ca', 'Mg', 'O', 'Sr')",OTHERS,False
@@ -2842,7 +2820,6 @@ mp-1103596,"{'Ce': 1.0, 'Ge': 4.0, 'Rh': 6.0}","('Ce', 'Ge', 'Rh')",OTHERS,False
 mp-1186751,"{'Pr': 1.0, 'Ho': 1.0, 'Tl': 2.0}","('Ho', 'Pr', 'Tl')",OTHERS,False
 mvc-12394,"{'Mg': 4.0, 'Ti': 8.0, 'O': 16.0}","('Mg', 'O', 'Ti')",OTHERS,False
 mp-1198811,"{'Ca': 4.0, 'Hg': 4.0, 'C': 16.0, 'S': 16.0, 'N': 16.0, 'O': 12.0}","('C', 'Ca', 'Hg', 'N', 'O', 'S')",OTHERS,False
-Au 65.0 Ga 20.0 Pr 15.0,"{'Au': 65.0, 'Ga': 20.0, 'Pr': 15.0}","('Au', 'Ga', 'Pr')",OTHERS,False
 mp-1185886,"{'Mg': 2.0, 'Hg': 4.0}","('Hg', 'Mg')",OTHERS,False
 mp-1247072,"{'Ba': 12.0, 'Ru': 8.0, 'N': 16.0}","('Ba', 'N', 'Ru')",OTHERS,False
 mp-1147572,"{'La': 2.0, 'Pd': 1.0, 'O': 2.0, 'F': 2.0}","('F', 'La', 'O', 'Pd')",OTHERS,False
@@ -2983,7 +2960,6 @@ mp-1226663,"{'Er': 18.0, 'B': 10.0, 'S': 42.0}","('B', 'Er', 'S')",OTHERS,False
 mp-765686,"{'Li': 4.0, 'Co': 8.0, 'O': 2.0, 'F': 16.0}","('Co', 'F', 'Li', 'O')",OTHERS,False
 mp-753532,"{'Nb': 4.0, 'O': 6.0, 'F': 4.0}","('F', 'Nb', 'O')",OTHERS,False
 mp-572,"{'Cd': 1.0, 'Sm': 1.0}","('Cd', 'Sm')",OTHERS,False
-Ag 50.0 Al 35.0 Gd 15.0,"{'Ag': 50.0, 'Al': 35.0, 'Gd': 15.0}","('Ag', 'Al', 'Gd')",OTHERS,False
 mp-1211442,"{'Rb': 4.0, 'Pr': 4.0, 'Se': 8.0, 'O': 52.0}","('O', 'Pr', 'Rb', 'Se')",OTHERS,False
 mp-1228150,"{'Ba': 3.0, 'La': 1.0, 'Nb': 3.0, 'O': 12.0}","('Ba', 'La', 'Nb', 'O')",OTHERS,False
 mp-754647,"{'Li': 3.0, 'Al': 3.0, 'V': 3.0, 'O': 12.0}","('Al', 'Li', 'O', 'V')",OTHERS,False
@@ -3030,7 +3006,6 @@ mp-865797,"{'Lu': 1.0, 'Co': 2.0, 'Sn': 1.0}","('Co', 'Lu', 'Sn')",OTHERS,False
 mp-756834,"{'Ho': 4.0, 'Cr': 4.0, 'O': 12.0}","('Cr', 'Ho', 'O')",OTHERS,False
 mp-1216633,"{'U': 1.0, 'Ru': 2.0, 'Rh': 1.0}","('Rh', 'Ru', 'U')",OTHERS,False
 mp-1227870,"{'Ce': 4.0, 'Zr': 2.0, 'Co': 32.0}","('Ce', 'Co', 'Zr')",OTHERS,False
-Au 64.0 Fe 22.0 Gd 14.0,"{'Au': 64.0, 'Fe': 22.0, 'Gd': 14.0}","('Au', 'Fe', 'Gd')",OTHERS,False
 mp-1101492,"{'Li': 2.0, 'V': 4.0, 'P': 6.0, 'O': 24.0}","('Li', 'O', 'P', 'V')",OTHERS,False
 mp-977552,"{'Be': 3.0, 'Tc': 1.0}","('Be', 'Tc')",OTHERS,False
 mp-1200581,"{'Bi': 16.0, 'B': 24.0, 'H': 8.0, 'O': 64.0}","('B', 'Bi', 'H', 'O')",OTHERS,False
@@ -3345,7 +3320,6 @@ mp-1095833,"{'Tl': 2.0, 'Hg': 1.0, 'Te': 1.0}","('Hg', 'Te', 'Tl')",OTHERS,False
 mp-1027058,"{'Te': 4.0, 'Mo': 2.0, 'W': 2.0, 'S': 4.0}","('Mo', 'S', 'Te', 'W')",OTHERS,False
 mp-1029665,"{'Sr': 6.0, 'B': 2.0, 'N': 6.0}","('B', 'N', 'Sr')",OTHERS,False
 mp-1188711,"{'U': 4.0, 'V': 4.0, 'S': 12.0}","('S', 'U', 'V')",OTHERS,False
-Ga 40.0 Ir 46.0 Gd 14.0,"{'Ga': 40.0, 'Ir': 46.0, 'Gd': 14.0}","('Ga', 'Gd', 'Ir')",OTHERS,False
 mp-753374,"{'Li': 4.0, 'V': 4.0, 'Si': 4.0, 'O': 16.0}","('Li', 'O', 'Si', 'V')",OTHERS,False
 mp-607450,"{'In': 12.0, 'Ru': 4.0}","('In', 'Ru')",OTHERS,False
 mp-1199496,"{'Cd': 48.0, 'As': 32.0}","('As', 'Cd')",OTHERS,False
@@ -3487,7 +3461,6 @@ mp-6872,"{'N': 2.0, 'O': 6.0, 'F': 12.0, 'Si': 2.0, 'K': 6.0}","('F', 'K', 'N', 
 mp-774354,"{'Li': 4.0, 'Mn': 8.0, 'F': 20.0}","('F', 'Li', 'Mn')",OTHERS,False
 mp-1226833,"{'Ce': 2.0, 'Zn': 3.0, 'Cu': 7.0}","('Ce', 'Cu', 'Zn')",OTHERS,False
 mp-1203228,"{'La': 6.0, 'Rh': 8.0, 'Pb': 26.0}","('La', 'Pb', 'Rh')",OTHERS,False
-Ga 62.0 Co 22.0 Yb 16.0,"{'Ga': 62.0, 'Co': 22.0, 'Yb': 16.0}","('Co', 'Ga', 'Yb')",OTHERS,False
 mp-1038195,"{'Mg': 30.0, 'Al': 1.0, 'C': 1.0, 'O': 32.0}","('Al', 'C', 'Mg', 'O')",OTHERS,False
 mp-778583,"{'Li': 3.0, 'Mn': 2.0, 'Co': 2.0, 'O': 8.0}","('Co', 'Li', 'Mn', 'O')",OTHERS,False
 mp-667447,"{'Te': 8.0, 'As': 8.0, 'Se': 16.0, 'F': 48.0}","('As', 'F', 'Se', 'Te')",OTHERS,False
@@ -3635,7 +3608,6 @@ mp-776574,"{'V': 6.0, 'O': 9.0, 'F': 9.0}","('F', 'O', 'V')",OTHERS,False
 mp-17712,"{'O': 22.0, 'Si': 4.0, 'V': 5.0, 'Pr': 4.0}","('O', 'Pr', 'Si', 'V')",OTHERS,False
 mp-1183407,"{'Be': 3.0, 'Si': 1.0}","('Be', 'Si')",OTHERS,False
 mp-1105280,"{'Li': 4.0, 'Ta': 4.0, 'O': 12.0}","('Li', 'O', 'Ta')",OTHERS,False
-Au 60.0 Ti 23.0 Gd 17.0,"{'Au': 60.0, 'Ti': 23.0, 'Gd': 17.0}","('Au', 'Gd', 'Ti')",OTHERS,False
 mp-1202587,"{'K': 4.0, 'Ho': 8.0, 'F': 28.0}","('F', 'Ho', 'K')",OTHERS,False
 mp-1185267,"{'Li': 1.0, 'Np': 1.0, 'Ru': 2.0}","('Li', 'Np', 'Ru')",OTHERS,False
 mp-1217134,"{'Ti': 3.0, 'V': 1.0, 'S': 4.0}","('S', 'Ti', 'V')",OTHERS,False
@@ -3661,7 +3633,6 @@ mp-1217894,"{'Ta': 1.0, 'Re': 1.0}","('Re', 'Ta')",OTHERS,False
 mp-1208931,"{'Sr': 2.0, 'Er': 1.0, 'Cu': 2.0, 'Bi': 2.0, 'O': 8.0}","('Bi', 'Cu', 'Er', 'O', 'Sr')",OTHERS,False
 mp-1185751,"{'Mg': 17.0, 'Al': 11.0, 'Si': 1.0}","('Al', 'Mg', 'Si')",OTHERS,False
 mp-775168,"{'Mn': 1.0, 'Cu': 3.0, 'P': 4.0, 'O': 16.0}","('Cu', 'Mn', 'O', 'P')",OTHERS,False
-Al 50.0 Pt 36.0 Tm 14.0,"{'Al': 50.0, 'Pt': 36.0, 'Tm': 14.0}","('Al', 'Pt', 'Tm')",OTHERS,False
 mp-1038690,"{'Ba': 1.0, 'Mg': 30.0, 'Cr': 1.0, 'O': 32.0}","('Ba', 'Cr', 'Mg', 'O')",OTHERS,False
 mp-1196002,"{'Mg': 16.0, 'Si': 16.0, 'O': 48.0}","('Mg', 'O', 'Si')",OTHERS,False
 mp-684265,"{'Mg': 4.0, 'Al': 8.0, 'Si': 10.0, 'O': 36.0}","('Al', 'Mg', 'O', 'Si')",OTHERS,False
@@ -3721,7 +3692,6 @@ mp-697818,"{'Sr': 4.0, 'Pr': 4.0, 'Mn': 2.0, 'Cu': 2.0, 'O': 16.0}","('Cu', 'Mn'
 mp-1198628,"{'Na': 12.0, 'Ru': 4.0, 'O': 16.0}","('Na', 'O', 'Ru')",OTHERS,False
 mp-762239,"{'Mn': 2.0, 'C': 4.0, 'O': 12.0}","('C', 'Mn', 'O')",OTHERS,False
 mp-1105173,"{'Li': 4.0, 'Fe': 2.0, 'Sn': 2.0, 'S': 8.0}","('Fe', 'Li', 'S', 'Sn')",OTHERS,False
-Ga 50.0 Ni 10.0 Gd 14.0 Pt 26.0,"{'Ga': 50.0, 'Ni': 10.0, 'Gd': 14.0, 'Pt': 26.0}","('Ga', 'Gd', 'Ni', 'Pt')",OTHERS,False
 mp-1143551,"{'Si': 12.0, 'W': 8.0, 'O': 48.0}","('O', 'Si', 'W')",OTHERS,False
 mp-27181,"{'Cl': 16.0, 'K': 4.0, 'Au': 4.0}","('Au', 'Cl', 'K')",OTHERS,False
 mp-568646,"{'Ta': 24.0, 'Si': 8.0}","('Si', 'Ta')",OTHERS,False
@@ -3923,7 +3893,6 @@ mp-1183505,"{'Bi': 6.0, 'As': 2.0}","('As', 'Bi')",OTHERS,False
 mp-1186550,"{'Pm': 1.0, 'Cd': 1.0, 'Cu': 2.0}","('Cd', 'Cu', 'Pm')",OTHERS,False
 mp-1204045,"{'U': 4.0, 'Fe': 30.0, 'Ge': 4.0}","('Fe', 'Ge', 'U')",OTHERS,False
 mp-640286,"{'Ce': 4.0, 'Cu': 16.0, 'Sn': 4.0}","('Ce', 'Cu', 'Sn')",OTHERS,False
-Ag 52.0 Al 33.0 Gd 15.0,"{'Ag': 52.0, 'Al': 33.0, 'Gd': 15.0}","('Ag', 'Al', 'Gd')",OTHERS,False
 mp-1097589,"{'Ta': 1.0, 'V': 1.0, 'Mo': 2.0}","('Mo', 'Ta', 'V')",OTHERS,False
 mp-1100379,"{'Ca': 12.0, 'Sn': 12.0, 'S': 36.0}","('Ca', 'S', 'Sn')",OTHERS,False
 mp-30820,"{'Li': 2.0, 'Al': 1.0, 'Rh': 1.0}","('Al', 'Li', 'Rh')",OTHERS,False
@@ -3948,7 +3917,6 @@ mp-4991,"{'O': 14.0, 'Sn': 4.0, 'Tb': 4.0}","('O', 'Sn', 'Tb')",OTHERS,False
 mp-505824,"{'Cs': 2.0, 'Pd': 1.0, 'C': 2.0}","('C', 'Cs', 'Pd')",OTHERS,False
 mp-662527,"{'Ce': 8.0, 'Si': 8.0, 'O': 28.0}","('Ce', 'O', 'Si')",OTHERS,False
 mp-542566,"{'Pr': 6.0, 'Pd': 12.0, 'Sb': 10.0}","('Pd', 'Pr', 'Sb')",OTHERS,False
-Ag 71.0 Ti 15.0 Gd 14.0,"{'Ag': 71.0, 'Ti': 15.0, 'Gd': 14.0}","('Ag', 'Gd', 'Ti')",OTHERS,False
 mp-1228668,"{'Ba': 2.0, 'Cu': 3.0, 'O': 6.0}","('Ba', 'Cu', 'O')",OTHERS,False
 mp-1187370,"{'Tb': 1.0, 'Pm': 1.0, 'Ir': 2.0}","('Ir', 'Pm', 'Tb')",OTHERS,False
 mp-754919,"{'V': 2.0, 'O': 2.0, 'F': 6.0}","('F', 'O', 'V')",OTHERS,False
@@ -4071,7 +4039,6 @@ mp-542132,"{'Yb': 2.0, 'As': 4.0, 'Cu': 2.0}","('As', 'Cu', 'Yb')",OTHERS,False
 mp-849955,"{'Li': 9.0, 'Mn': 15.0, 'Fe': 6.0, 'O': 36.0}","('Fe', 'Li', 'Mn', 'O')",OTHERS,False
 mp-7151,"{'Cu': 2.0, 'Se': 6.0, 'Cs': 2.0, 'U': 2.0}","('Cs', 'Cu', 'Se', 'U')",OTHERS,False
 mp-20269,"{'Mn': 1.0, 'Ga': 1.0, 'Pt': 1.0}","('Ga', 'Mn', 'Pt')",OTHERS,False
-Ti 50.0 Al 35.0 Gd 15.0,"{'Ti': 50.0, 'Al': 35.0, 'Gd': 15.0}","('Al', 'Gd', 'Ti')",OTHERS,False
 mp-1095694,"{'Ag': 8.0, 'S': 4.0}","('Ag', 'S')",OTHERS,False
 mp-1177438,"{'Li': 4.0, 'Mn': 2.0, 'Cr': 3.0, 'Co': 3.0, 'O': 16.0}","('Co', 'Cr', 'Li', 'Mn', 'O')",OTHERS,False
 mvc-671,"{'W': 3.0, 'O': 8.0}","('O', 'W')",OTHERS,False
@@ -4377,7 +4344,6 @@ mp-20082,"{'As': 4.0, 'Rh': 6.0, 'Yb': 1.0}","('As', 'Rh', 'Yb')",OTHERS,False
 mp-1183340,"{'Ba': 3.0, 'Ho': 1.0}","('Ba', 'Ho')",OTHERS,False
 mp-1214186,"{'C': 12.0, 'I': 4.0, 'F': 8.0}","('C', 'F', 'I')",OTHERS,False
 mp-543094,"{'Li': 4.0, 'Fe': 8.0, 'P': 12.0, 'O': 48.0}","('Fe', 'Li', 'O', 'P')",OTHERS,False
-Ag 53.0 Al 34.0 Gd 13.0,"{'Ag': 53.0, 'Al': 34.0, 'Gd': 13.0}","('Ag', 'Al', 'Gd')",OTHERS,False
 mp-1190199,"{'Cu': 1.0, 'Sb': 6.0, 'S': 2.0, 'O': 16.0}","('Cu', 'O', 'S', 'Sb')",OTHERS,False
 mp-19467,"{'O': 32.0, 'P': 6.0, 'Mo': 6.0, 'Ag': 2.0}","('Ag', 'Mo', 'O', 'P')",OTHERS,False
 mp-504353,"{'Li': 2.0, 'O': 24.0, 'P': 8.0, 'Sb': 2.0}","('Li', 'O', 'P', 'Sb')",OTHERS,False
@@ -4392,7 +4358,6 @@ mp-29922,"{'O': 40.0, 'P': 4.0, 'Sb': 20.0}","('O', 'P', 'Sb')",OTHERS,False
 mp-1216294,"{'U': 2.0, 'Al': 2.0, 'Co': 2.0}","('Al', 'Co', 'U')",OTHERS,False
 mp-1106389,"{'K': 2.0, 'Bi': 2.0, 'F': 12.0}","('Bi', 'F', 'K')",OTHERS,False
 mp-1175781,"{'Li': 9.0, 'Mn': 2.0, 'Co': 5.0, 'O': 16.0}","('Co', 'Li', 'Mn', 'O')",OTHERS,False
-Ge 36.0 Pt 50.0 Tb 14.0,"{'Ge': 36.0, 'Pt': 50.0, 'Tb': 14.0}","('Ge', 'Pt', 'Tb')",OTHERS,False
 mp-753920,"{'Tm': 2.0, 'Se': 1.0, 'O': 2.0}","('O', 'Se', 'Tm')",OTHERS,False
 mp-8341,"{'O': 40.0, 'Na': 8.0, 'Ge': 8.0, 'Sb': 8.0}","('Ge', 'Na', 'O', 'Sb')",OTHERS,False
 mp-757511,"{'Li': 8.0, 'Ni': 4.0, 'P': 16.0, 'O': 48.0}","('Li', 'Ni', 'O', 'P')",OTHERS,False
@@ -4451,7 +4416,6 @@ mp-1246819,"{'In': 1.0, 'C': 1.0, 'N': 2.0}","('C', 'In', 'N')",OTHERS,False
 mp-1040297,"{'K': 1.0, 'Mg': 30.0, 'B': 1.0, 'O': 31.0}","('B', 'K', 'Mg', 'O')",OTHERS,False
 mp-12602,"{'Zn': 5.0, 'Pr': 1.0}","('Pr', 'Zn')",OTHERS,False
 mp-1208877,"{'Sr': 2.0, 'Eu': 1.0, 'Ta': 1.0, 'Cu': 2.0, 'O': 8.0}","('Cu', 'Eu', 'O', 'Sr', 'Ta')",OTHERS,False
-Ga 30.0 Co 54.0 Yb 16.0,"{'Ga': 30.0, 'Co': 54.0, 'Yb': 16.0}","('Co', 'Ga', 'Yb')",OTHERS,False
 mp-1188001,"{'Zr': 2.0, 'Tc': 1.0, 'Ir': 1.0}","('Ir', 'Tc', 'Zr')",OTHERS,False
 mp-27628,"{'Cl': 8.0, 'Te': 12.0}","('Cl', 'Te')",OTHERS,False
 mp-1111912,"{'K': 2.0, 'Rb': 1.0, 'Ir': 1.0, 'F': 6.0}","('F', 'Ir', 'K', 'Rb')",OTHERS,False
@@ -4699,7 +4663,6 @@ mp-567768,"{'Yb': 2.0, 'Cu': 2.0, 'Ge': 2.0}","('Cu', 'Ge', 'Yb')",OTHERS,False
 mp-1245612,"{'Mn': 28.0, 'Si': 4.0, 'N': 24.0}","('Mn', 'N', 'Si')",OTHERS,False
 mvc-684,"{'Al': 2.0, 'Cr': 2.0, 'W': 4.0, 'O': 16.0}","('Al', 'Cr', 'O', 'W')",OTHERS,False
 mp-1211961,"{'K': 2.0, 'Si': 4.0, 'O': 8.0}","('K', 'O', 'Si')",OTHERS,False
-Au 70.0 Fe 16.0 Gd 14.0,"{'Au': 70.0, 'Fe': 16.0, 'Gd': 14.0}","('Au', 'Fe', 'Gd')",OTHERS,False
 mp-28691,"{'Te': 8.0, 'I': 2.0, 'Ta': 2.0}","('I', 'Ta', 'Te')",OTHERS,False
 mp-3433,"{'Mg': 1.0, 'Ni': 4.0, 'Y': 1.0}","('Mg', 'Ni', 'Y')",OTHERS,False
 mp-30223,"{'Fe': 4.0, 'I': 2.0, 'La': 4.0}","('Fe', 'I', 'La')",OTHERS,False
@@ -4758,7 +4721,6 @@ mp-676110,"{'Tb': 14.0, 'Pb': 3.0, 'Se': 24.0}","('Pb', 'Se', 'Tb')",OTHERS,Fals
 mp-1247846,"{'Al': 16.0, 'O': 24.0}","('Al', 'O')",OTHERS,False
 mp-754649,"{'Mn': 2.0, 'C': 2.0, 'S': 2.0, 'O': 14.0}","('C', 'Mn', 'O', 'S')",OTHERS,False
 mp-1099669,"{'K': 4.0, 'Na': 28.0, 'V': 28.0, 'Mo': 4.0, 'O': 80.0}","('K', 'Mo', 'Na', 'O', 'V')",OTHERS,False
-Al 50.0 Pt 36.0 La 14.0,"{'Al': 50.0, 'Pt': 36.0, 'La': 14.0}","('Al', 'La', 'Pt')",OTHERS,False
 mp-1219595,"{'Rb': 2.0, 'Hg': 2.0, 'Sb': 2.0, 'Te': 6.0}","('Hg', 'Rb', 'Sb', 'Te')",OTHERS,False
 mp-10179,"{'Li': 1.0, 'Mg': 1.0, 'Pd': 1.0, 'Sb': 1.0}","('Li', 'Mg', 'Pd', 'Sb')",OTHERS,False
 mp-1247446,"{'Sr': 6.0, 'Zr': 6.0, 'N': 10.0}","('N', 'Sr', 'Zr')",OTHERS,False
@@ -4852,7 +4814,6 @@ mp-1212458,"{'Ho': 12.0, 'Mn': 8.0, 'Al': 86.0}","('Al', 'Ho', 'Mn')",OTHERS,Fal
 mp-639876,"{'U': 4.0, 'Sn': 2.0, 'Rh': 4.0}","('Rh', 'Sn', 'U')",OTHERS,False
 mp-1079393,"{'Co': 6.0, 'Si': 2.0}","('Co', 'Si')",OTHERS,False
 mp-569505,"{'Tb': 2.0, 'Re': 4.0, 'Si': 2.0, 'C': 2.0}","('C', 'Re', 'Si', 'Tb')",OTHERS,False
-Ga 25.0 Pt 36.0 Gd 14.0 Al 25.0,"{'Ga': 25.0, 'Pt': 36.0, 'Gd': 14.0, 'Al': 25.0}","('Al', 'Ga', 'Gd', 'Pt')",OTHERS,False
 mp-11621,"{'Ni': 1.0, 'Zn': 1.0, 'Sb': 1.0}","('Ni', 'Sb', 'Zn')",OTHERS,False
 mp-1204729,"{'Yb': 12.0, 'Al': 86.0, 'W': 8.0}","('Al', 'W', 'Yb')",OTHERS,False
 mp-18041,"{'O': 16.0, 'Sm': 2.0, 'W': 4.0, 'Tl': 2.0}","('O', 'Sm', 'Tl', 'W')",OTHERS,False
@@ -4936,7 +4897,6 @@ mp-8885,"{'S': 8.0, 'Cd': 4.0, 'Ba': 4.0}","('Ba', 'Cd', 'S')",OTHERS,False
 mp-1097227,"{'Sr': 2.0, 'Hg': 1.0, 'Sb': 1.0}","('Hg', 'Sb', 'Sr')",OTHERS,False
 mp-1220301,"{'Nb': 2.0, 'Tl': 2.0, 'W': 2.0, 'O': 12.0}","('Nb', 'O', 'Tl', 'W')",OTHERS,False
 mp-757780,"{'Li': 24.0, 'Co': 24.0, 'P': 24.0, 'O': 96.0}","('Co', 'Li', 'O', 'P')",OTHERS,False
-Al 36.0 Pt 50.0 Gd 14.0,"{'Al': 36.0, 'Pt': 50.0, 'Gd': 14.0}","('Al', 'Gd', 'Pt')",OTHERS,False
 mp-1188749,"{'Tb': 4.0, 'Ga': 4.0, 'Pd': 8.0}","('Ga', 'Pd', 'Tb')",OTHERS,False
 mp-1218281,"{'Sr': 1.0, 'Eu': 1.0, 'Ni': 1.0, 'O': 4.0}","('Eu', 'Ni', 'O', 'Sr')",OTHERS,False
 mp-1076317,"{'Mg': 1.0, 'Cu': 1.0, 'O': 3.0}","('Cu', 'Mg', 'O')",OTHERS,False
@@ -5147,7 +5107,6 @@ mp-752542,"{'Li': 2.0, 'Ti': 2.0, 'Mn': 3.0, 'O': 10.0}","('Li', 'Mn', 'O', 'Ti'
 mp-758792,"{'Li': 18.0, 'Cr': 6.0, 'Si': 12.0, 'O': 42.0}","('Cr', 'Li', 'O', 'Si')",OTHERS,False
 mp-7280,"{'P': 8.0, 'S': 8.0, 'Pd': 8.0}","('P', 'Pd', 'S')",OTHERS,False
 mp-614572,"{'Ca': 12.0, 'In': 4.0, 'P': 12.0}","('Ca', 'In', 'P')",OTHERS,False
-Ag 50.0 Al 35.0 Ce 15.0,"{'Ag': 50.0, 'Al': 35.0, 'Ce': 15.0}","('Ag', 'Al', 'Ce')",OTHERS,False
 mp-1218689,"{'Sr': 2.0, 'V': 11.0, 'Ni': 1.0, 'O': 22.0}","('Ni', 'O', 'Sr', 'V')",OTHERS,False
 mp-978285,"{'Mg': 3.0, 'Mn': 1.0}","('Mg', 'Mn')",OTHERS,False
 mp-1346,"{'B': 12.0, 'O': 2.0}","('B', 'O')",OTHERS,False
@@ -5206,7 +5165,6 @@ mp-865615,"{'Ga': 1.0, 'Si': 1.0, 'Ru': 2.0}","('Ga', 'Ru', 'Si')",OTHERS,False
 mp-971975,"{'Sr': 1.0, 'Hg': 1.0, 'O': 3.0}","('Hg', 'O', 'Sr')",OTHERS,False
 mp-762514,"{'Li': 4.0, 'Mn': 12.0, 'O': 24.0}","('Li', 'Mn', 'O')",OTHERS,False
 mp-1246222,"{'Mn': 6.0, 'Si': 12.0, 'N': 22.0}","('Mn', 'N', 'Si')",OTHERS,False
-Ag 65.0 Ti 20.0 Gd 15.0,"{'Ag': 65.0, 'Ti': 20.0, 'Gd': 15.0}","('Ag', 'Gd', 'Ti')",OTHERS,False
 mp-504450,"{'Tl': 4.0, 'F': 20.0, 'Be': 8.0}","('Be', 'F', 'Tl')",OTHERS,False
 mp-1183144,{'Al': 4.0},"('Al',)",OTHERS,False
 mp-1073115,"{'Mg': 8.0, 'Si': 12.0}","('Mg', 'Si')",OTHERS,False
@@ -5216,7 +5174,6 @@ mp-672695,"{'K': 4.0, 'Ag': 4.0, 'C': 4.0, 'O': 12.0}","('Ag', 'C', 'K', 'O')",O
 mp-1195181,"{'Co': 16.0, 'Se': 12.0, 'Cl': 8.0, 'O': 36.0}","('Cl', 'Co', 'O', 'Se')",OTHERS,False
 mp-1225645,"{'Er': 4.0, 'Fe': 1.0, 'S': 7.0}","('Er', 'Fe', 'S')",OTHERS,False
 mp-1199833,"{'Cs': 40.0, 'Tl': 24.0, 'Si': 4.0, 'O': 16.0}","('Cs', 'O', 'Si', 'Tl')",OTHERS,False
-Ga 58.0 Co 26.0 Yb 16.0,"{'Ga': 58.0, 'Co': 26.0, 'Yb': 16.0}","('Co', 'Ga', 'Yb')",OTHERS,False
 mp-571634,"{'Yb': 10.0, 'Pb': 6.0}","('Pb', 'Yb')",OTHERS,False
 mp-1079538,"{'V': 2.0, 'H': 2.0, 'O': 5.0}","('H', 'O', 'V')",OTHERS,False
 mp-1200466,"{'Rb': 8.0, 'Sb': 8.0, 'S': 4.0, 'O': 20.0, 'F': 24.0}","('F', 'O', 'Rb', 'S', 'Sb')",OTHERS,False
@@ -5286,7 +5243,6 @@ mp-976804,"{'Ni': 1.0, 'Ag': 1.0, 'Te': 2.0}","('Ag', 'Ni', 'Te')",OTHERS,False
 mp-1183266,"{'Ac': 2.0, 'Pr': 6.0}","('Ac', 'Pr')",OTHERS,False
 mp-556938,"{'Pr': 30.0, 'Ti': 24.0, 'Se': 58.0, 'I': 8.0, 'O': 25.0}","('I', 'O', 'Pr', 'Se', 'Ti')",OTHERS,False
 mp-1184616,"{'Ho': 2.0, 'Mg': 1.0, 'Os': 1.0}","('Ho', 'Mg', 'Os')",OTHERS,False
-Ag 65.0 Al 10.0 Gd 25.0,"{'Ag': 65.0, 'Al': 10.0, 'Gd': 25.0}","('Ag', 'Al', 'Gd')",OTHERS,False
 mp-1210013,"{'Nb': 4.0, 'Fe': 8.0, 'O': 18.0}","('Fe', 'Nb', 'O')",OTHERS,False
 mp-647218,"{'Re': 8.0, 'P': 8.0, 'O': 44.0}","('O', 'P', 'Re')",OTHERS,False
 mp-1036617,"{'Mg': 14.0, 'Al': 1.0, 'V': 1.0, 'O': 16.0}","('Al', 'Mg', 'O', 'V')",OTHERS,False
@@ -5303,7 +5259,6 @@ mp-28558,"{'Ge': 4.0, 'Br': 12.0, 'Rb': 4.0}","('Br', 'Ge', 'Rb')",OTHERS,False
 mp-1237663,"{'Tl': 8.0, 'P': 4.0, 'O': 16.0}","('O', 'P', 'Tl')",OTHERS,False
 mp-555869,"{'Li': 2.0, 'V': 4.0, 'O': 10.0}","('Li', 'O', 'V')",OTHERS,False
 mp-1221599,"{'Mn': 1.0, 'V': 1.0, 'Co': 4.0, 'Si': 2.0}","('Co', 'Mn', 'Si', 'V')",OTHERS,False
-Al 27.0 Pt 59.0 Gd 14.0,"{'Al': 27.0, 'Pt': 59.0, 'Gd': 14.0}","('Al', 'Gd', 'Pt')",OTHERS,False
 mp-12628,{'Rb': 8.0},"('Rb',)",OTHERS,False
 mp-559019,"{'Nd': 24.0, 'S': 16.0, 'Br': 4.0, 'N': 12.0}","('Br', 'N', 'Nd', 'S')",OTHERS,False
 mp-22707,"{'Ag': 2.0, 'Sb': 2.0, 'Eu': 2.0}","('Ag', 'Eu', 'Sb')",OTHERS,False
@@ -5397,7 +5352,6 @@ mp-1183973,"{'Ga': 3.0, 'Si': 1.0}","('Ga', 'Si')",OTHERS,False
 mp-1208086,"{'Tm': 3.0, 'P': 6.0, 'Pd': 20.0}","('P', 'Pd', 'Tm')",OTHERS,False
 mp-561224,"{'Te': 4.0, 'O': 8.0}","('O', 'Te')",OTHERS,False
 mp-3346,"{'Zr': 2.0, 'Sb': 2.0, 'Ho': 2.0}","('Ho', 'Sb', 'Zr')",OTHERS,False
-Ag 54.0 Al 32.0 Gd 14.0,"{'Ag': 54.0, 'Al': 32.0, 'Gd': 14.0}","('Ag', 'Al', 'Gd')",OTHERS,False
 mp-23918,"{'H': 8.0, 'Na': 2.0, 'Ga': 2.0}","('Ga', 'H', 'Na')",OTHERS,False
 mp-1093912,"{'Ca': 1.0, 'Hg': 2.0, 'Bi': 1.0}","('Bi', 'Ca', 'Hg')",OTHERS,False
 mp-763659,"{'Li': 3.0, 'V': 2.0, 'Fe': 2.0, 'O': 8.0}","('Fe', 'Li', 'O', 'V')",OTHERS,False
@@ -5465,7 +5419,6 @@ mp-756318,"{'Al': 4.0, 'Co': 2.0, 'Cl': 16.0}","('Al', 'Cl', 'Co')",OTHERS,False
 mp-767521,"{'Na': 4.0, 'In': 2.0, 'P': 2.0, 'C': 2.0, 'O': 14.0}","('C', 'In', 'Na', 'O', 'P')",OTHERS,False
 mp-861884,"{'Ac': 1.0, 'Ga': 1.0, 'Te': 2.0}","('Ac', 'Ga', 'Te')",OTHERS,False
 mp-1077942,"{'Rb': 2.0, 'Te': 1.0, 'Se': 4.0}","('Rb', 'Se', 'Te')",OTHERS,False
-Ga 38.0 Co 46.0 Yb 16.0,"{'Ga': 38.0, 'Co': 46.0, 'Yb': 16.0}","('Co', 'Ga', 'Yb')",OTHERS,False
 mp-759877,"{'Li': 4.0, 'Cu': 1.0, 'F': 7.0}","('Cu', 'F', 'Li')",OTHERS,False
 mp-1214815,"{'Co': 2.0, 'N': 8.0, 'F': 24.0}","('Co', 'F', 'N')",OTHERS,False
 mp-1211272,"{'La': 6.0, 'Nb': 2.0, 'Cl': 6.0, 'O': 12.0}","('Cl', 'La', 'Nb', 'O')",OTHERS,False
@@ -5483,7 +5436,6 @@ mp-1038570,"{'Mg': 30.0, 'Cr': 1.0, 'Cd': 1.0, 'O': 32.0}","('Cd', 'Cr', 'Mg', '
 mp-567787,"{'Li': 1.0, 'In': 1.0, 'Ag': 2.0}","('Ag', 'In', 'Li')",OTHERS,False
 mp-15919,"{'Be': 12.0, 'O': 48.0, 'P': 12.0, 'Ag': 12.0}","('Ag', 'Be', 'O', 'P')",OTHERS,False
 mp-1208371,"{'Tl': 4.0, 'N': 8.0, 'Cl': 20.0, 'O': 4.0}","('Cl', 'N', 'O', 'Tl')",OTHERS,False
-Ga 50.0 Co 34.0 Yb 16.0,"{'Ga': 50.0, 'Co': 34.0, 'Yb': 16.0}","('Co', 'Ga', 'Yb')",OTHERS,False
 mp-631449,"{'Li': 1.0, 'Ta': 1.0, 'Be': 1.0}","('Be', 'Li', 'Ta')",OTHERS,False
 mp-561848,"{'C': 24.0, 'O': 16.0}","('C', 'O')",OTHERS,False
 mp-21278,"{'In': 4.0, 'Ce': 2.0, 'Ir': 2.0}","('Ce', 'In', 'Ir')",OTHERS,False
@@ -5618,7 +5570,6 @@ mp-1105724,"{'Ba': 4.0, 'Er': 2.0, 'Ga': 2.0, 'Te': 10.0}","('Ba', 'Er', 'Ga', '
 mp-1207967,"{'Y': 12.0, 'Cr': 8.0, 'Ga': 12.0, 'O': 48.0}","('Cr', 'Ga', 'O', 'Y')",OTHERS,False
 mp-14500,"{'As': 12.0, 'Sr': 2.0, 'Pt': 8.0}","('As', 'Pt', 'Sr')",OTHERS,False
 mp-1215907,"{'Y': 1.0, 'Ag': 1.0, 'Te': 2.0}","('Ag', 'Te', 'Y')",OTHERS,False
-Ag 51.0 Al 34.0 Gd 15.0,"{'Ag': 51.0, 'Al': 34.0, 'Gd': 15.0}","('Ag', 'Al', 'Gd')",OTHERS,False
 mp-1209388,"{'Sc': 8.0, 'In': 4.0, 'Au': 8.0}","('Au', 'In', 'Sc')",OTHERS,False
 mp-761102,"{'Na': 3.0, 'Mn': 20.0, 'O': 40.0}","('Mn', 'Na', 'O')",OTHERS,False
 mp-760078,"{'Ba': 4.0, 'Ti': 11.0, 'O': 26.0}","('Ba', 'O', 'Ti')",OTHERS,False
@@ -5712,7 +5663,6 @@ mp-733877,"{'Ca': 4.0, 'B': 12.0, 'H': 52.0, 'O': 48.0}","('B', 'Ca', 'H', 'O')"
 mp-1211998,"{'La': 2.0, 'In': 4.0, 'Cu': 18.0}","('Cu', 'In', 'La')",OTHERS,False
 mp-1188828,"{'Ba': 4.0, 'Br': 8.0, 'O': 4.0}","('Ba', 'Br', 'O')",OTHERS,False
 mp-1200777,"{'Er': 10.0, 'Ge': 20.0, 'Rh': 8.0}","('Er', 'Ge', 'Rh')",OTHERS,False
-Al 36.0 Pt 50.0 Dy 14.0,"{'Al': 36.0, 'Pt': 50.0, 'Dy': 14.0}","('Al', 'Dy', 'Pt')",OTHERS,False
 mp-1195619,"{'Pb': 16.0, 'N': 8.0, 'O': 40.0}","('N', 'O', 'Pb')",OTHERS,False
 mp-784631,"{'Cr': 1.0, 'Ni': 2.0}","('Cr', 'Ni')",OTHERS,False
 mp-849556,"{'Li': 6.0, 'Mn': 9.0, 'Si': 6.0, 'O': 24.0}","('Li', 'Mn', 'O', 'Si')",OTHERS,False
@@ -5759,7 +5709,6 @@ mp-778867,"{'Li': 9.0, 'Mn': 12.0, 'B': 12.0, 'O': 36.0}","('B', 'Li', 'Mn', 'O'
 mp-557961,"{'Sb': 6.0, 'C': 6.0, 'N': 6.0, 'Cl': 24.0, 'O': 6.0}","('C', 'Cl', 'N', 'O', 'Sb')",OTHERS,False
 mp-1079874,"{'Er': 3.0, 'Sn': 3.0, 'Pd': 3.0}","('Er', 'Pd', 'Sn')",OTHERS,False
 mp-1199988,"{'Al': 2.0, 'Pb': 6.0, 'S': 2.0, 'O': 22.0}","('Al', 'O', 'Pb', 'S')",OTHERS,False
-Au 65.0 Ga 20.0 Nd 15.0,"{'Au': 65.0, 'Ga': 20.0, 'Nd': 15.0}","('Au', 'Ga', 'Nd')",OTHERS,False
 mp-1097485,"{'Ca': 1.0, 'La': 1.0, 'Au': 2.0}","('Au', 'Ca', 'La')",OTHERS,False
 mp-27642,"{'Br': 20.0, 'Pa': 4.0}","('Br', 'Pa')",OTHERS,False
 mvc-3734,"{'Zn': 4.0, 'Cr': 4.0, 'F': 20.0}","('Cr', 'F', 'Zn')",OTHERS,False
@@ -5903,7 +5852,6 @@ mp-851093,"{'Ni': 6.0, 'P': 8.0, 'O': 28.0}","('Ni', 'O', 'P')",OTHERS,False
 mp-1114365,"{'Rb': 2.0, 'Na': 1.0, 'Ir': 1.0, 'F': 6.0}","('F', 'Ir', 'Na', 'Rb')",OTHERS,False
 mp-755892,"{'Sr': 2.0, 'La': 4.0, 'Cl': 16.0}","('Cl', 'La', 'Sr')",OTHERS,False
 mp-1225227,"{'Fe': 3.0, 'Co': 3.0, 'Si': 2.0}","('Co', 'Fe', 'Si')",OTHERS,False
-Zr 45.0 Pt 31.0 Gd 14.0,"{'Zr': 45.0, 'Pt': 31.0, 'Gd': 14.0}","('Gd', 'Pt', 'Zr')",OTHERS,False
 mvc-14364,"{'Mg': 4.0, 'Sb': 4.0, 'F': 20.0}","('F', 'Mg', 'Sb')",OTHERS,False
 mp-1245791,"{'K': 4.0, 'Ni': 4.0, 'N': 4.0}","('K', 'N', 'Ni')",OTHERS,False
 mp-2819,"{'In': 1.0, 'Te': 1.0}","('In', 'Te')",OTHERS,False
@@ -5942,7 +5890,6 @@ mp-29564,"{'Mg': 6.0, 'Si': 8.0, 'Ba': 4.0}","('Ba', 'Mg', 'Si')",OTHERS,False
 mp-760432,"{'Cu': 4.0, 'O': 6.0}","('Cu', 'O')",OTHERS,False
 mp-558954,"{'Na': 8.0, 'Sr': 8.0, 'Al': 8.0, 'P': 4.0, 'O': 16.0, 'F': 36.0}","('Al', 'F', 'Na', 'O', 'P', 'Sr')",OTHERS,False
 mvc-10142,"{'Mg': 6.0, 'Fe': 12.0, 'O': 24.0}","('Fe', 'Mg', 'O')",OTHERS,False
-Si 36.0 Pt 50.0 Gd 14.0,"{'Si': 36.0, 'Pt': 50.0, 'Gd': 14.0}","('Gd', 'Pt', 'Si')",OTHERS,False
 mp-1097204,"{'Al': 1.0, 'Ga': 1.0, 'Ir': 2.0}","('Al', 'Ga', 'Ir')",OTHERS,False
 mp-849457,"{'Li': 3.0, 'Ni': 1.0, 'Sb': 4.0, 'O': 12.0}","('Li', 'Ni', 'O', 'Sb')",OTHERS,False
 mp-779007,"{'Li': 10.0, 'Fe': 2.0, 'Co': 3.0, 'Ni': 3.0, 'O': 16.0}","('Co', 'Fe', 'Li', 'Ni', 'O')",OTHERS,False
@@ -5992,7 +5939,6 @@ mp-557693,"{'Cs': 8.0, 'Zn': 8.0, 'P': 8.0, 'O': 32.0}","('Cs', 'O', 'P', 'Zn')"
 mp-22687,"{'In': 4.0, 'Ba': 1.0}","('Ba', 'In')",OTHERS,False
 mp-28341,"{'Li': 4.0, 'Cl': 16.0, 'Ga': 4.0}","('Cl', 'Ga', 'Li')",OTHERS,False
 mvc-8344,"{'Mg': 2.0, 'Mn': 4.0, 'O': 10.0}","('Mg', 'Mn', 'O')",OTHERS,False
-Ga 40.0 Pt 36.0 Gd 14.0 Al 10.0,"{'Ga': 40.0, 'Pt': 36.0, 'Gd': 14.0, 'Al': 10.0}","('Al', 'Ga', 'Gd', 'Pt')",OTHERS,False
 mp-1186320,"{'Np': 1.0, 'Hg': 1.0, 'O': 3.0}","('Hg', 'Np', 'O')",OTHERS,False
 mp-1214561,"{'Ba': 2.0, 'Tb': 1.0, 'W': 1.0, 'O': 6.0}","('Ba', 'O', 'Tb', 'W')",OTHERS,False
 mp-752663,"{'Li': 8.0, 'Fe': 4.0, 'B': 4.0, 'O': 16.0}","('B', 'Fe', 'Li', 'O')",OTHERS,False
@@ -6156,7 +6102,6 @@ mp-1110992,"{'Na': 2.0, 'Tl': 1.0, 'Cu': 1.0, 'Cl': 6.0}","('Cl', 'Cu', 'Na', 'T
 mp-1200509,"{'Mn': 1.0, 'H': 36.0, 'C': 60.0, 'N': 12.0}","('C', 'H', 'Mn', 'N')",OTHERS,False
 mp-1187007,"{'Si': 1.0, 'Pb': 3.0}","('Pb', 'Si')",OTHERS,False
 mp-1224945,"{'Fe': 1.0, 'Cu': 1.0}","('Cu', 'Fe')",OTHERS,False
-Ga 46.0 Co 38.0 Yb 16.0,"{'Ga': 46.0, 'Co': 38.0, 'Yb': 16.0}","('Co', 'Ga', 'Yb')",OTHERS,False
 mp-1075570,"{'Mg': 10.0, 'Si': 12.0}","('Mg', 'Si')",OTHERS,False
 mp-545512,"{'O': 2.0, 'Ca': 2.0}","('Ca', 'O')",OTHERS,False
 mp-1176011,"{'Li': 9.0, 'Mn': 2.0, 'Co': 5.0, 'O': 16.0}","('Co', 'Li', 'Mn', 'O')",OTHERS,False
@@ -6223,7 +6168,6 @@ mp-975079,"{'Mn': 2.0, 'Zn': 6.0}","('Mn', 'Zn')",OTHERS,False
 mp-1192447,"{'Nd': 6.0, 'Mg': 23.0, 'C': 1.0}","('C', 'Mg', 'Nd')",OTHERS,False
 mp-14091,"{'Al': 2.0, 'Se': 4.0, 'Ag': 2.0}","('Ag', 'Al', 'Se')",OTHERS,False
 mp-1186120,"{'Np': 1.0, 'Co': 3.0}","('Co', 'Np')",OTHERS,False
-In 50.0 Pt 36.0 Gd 14.0,"{'In': 50.0, 'Pt': 36.0, 'Gd': 14.0}","('Gd', 'In', 'Pt')",OTHERS,False
 mp-768399,"{'Ba': 6.0, 'Y': 4.0, 'Br': 24.0}","('Ba', 'Br', 'Y')",OTHERS,False
 mp-759281,"{'Li': 12.0, 'Fe': 12.0, 'Si': 12.0, 'O': 48.0}","('Fe', 'Li', 'O', 'Si')",OTHERS,False
 mp-722369,"{'Na': 12.0, 'B': 20.0, 'H': 8.0, 'O': 40.0}","('B', 'H', 'Na', 'O')",OTHERS,False
@@ -6386,7 +6330,6 @@ mp-779241,"{'Li': 2.0, 'Cu': 10.0, 'P': 4.0, 'O': 16.0}","('Cu', 'Li', 'O', 'P')
 mp-1112629,"{'Cs': 2.0, 'Al': 1.0, 'Hg': 1.0, 'Br': 6.0}","('Al', 'Br', 'Cs', 'Hg')",OTHERS,False
 mp-1183976,"{'Cs': 1.0, 'Te': 1.0, 'O': 3.0}","('Cs', 'O', 'Te')",OTHERS,False
 mp-696275,"{'Sn': 1.0, 'H': 8.0, 'N': 2.0, 'Cl': 6.0}","('Cl', 'H', 'N', 'Sn')",OTHERS,False
-Ga 66.0 Co 18.0 Yb 16.0,"{'Ga': 66.0, 'Co': 18.0, 'Yb': 16.0}","('Co', 'Ga', 'Yb')",OTHERS,False
 mp-771195,"{'Na': 10.0, 'Ni': 4.0, 'As': 2.0, 'C': 8.0, 'O': 32.0}","('As', 'C', 'Na', 'Ni', 'O')",OTHERS,False
 mp-697038,"{'Ba': 2.0, 'H': 6.0, 'Ru': 1.0}","('Ba', 'H', 'Ru')",OTHERS,False
 mp-1221115,"{'Na': 1.0, 'Cr': 12.0, 'Si': 8.0, 'Br': 1.0, 'O': 28.0}","('Br', 'Cr', 'Na', 'O', 'Si')",OTHERS,False
@@ -6470,7 +6413,6 @@ mp-560929,"{'F': 12.0, 'Na': 6.0, 'Cr': 2.0}","('Cr', 'F', 'Na')",OTHERS,False
 mp-16623,"{'Al': 14.0, 'Dy': 2.0, 'Au': 6.0}","('Al', 'Au', 'Dy')",OTHERS,False
 mp-685124,"{'Ni': 19.0, 'Se': 20.0}","('Ni', 'Se')",OTHERS,False
 mvc-5154,"{'Ca': 4.0, 'Al': 2.0, 'Ag': 2.0, 'O': 10.0}","('Ag', 'Al', 'Ca', 'O')",OTHERS,False
-Au 65.0 Ga 20.0 Sm 15.0,"{'Au': 65.0, 'Ga': 20.0, 'Sm': 15.0}","('Au', 'Ga', 'Sm')",OTHERS,False
 mp-1174756,"{'Li': 8.0, 'Mn': 2.0, 'Co': 4.0, 'O': 14.0}","('Co', 'Li', 'Mn', 'O')",OTHERS,False
 mvc-2876,"{'Zn': 1.0, 'Sb': 4.0, 'O': 8.0}","('O', 'Sb', 'Zn')",OTHERS,False
 mp-7359,"{'As': 2.0, 'Ag': 2.0, 'Ba': 2.0}","('Ag', 'As', 'Ba')",OTHERS,False
@@ -6524,7 +6466,6 @@ mp-1172967,"{'Li': 2.0, 'Ni': 4.0, 'O': 8.0}","('Li', 'Ni', 'O')",OTHERS,False
 mp-1222642,"{'Li': 2.0, 'Ti': 3.0, 'Zn': 1.0, 'O': 8.0}","('Li', 'O', 'Ti', 'Zn')",OTHERS,False
 mp-1203386,"{'K': 8.0, 'H': 12.0, 'Ir': 4.0, 'N': 4.0, 'Cl': 20.0}","('Cl', 'H', 'Ir', 'K', 'N')",OTHERS,False
 mp-556059,"{'K': 4.0, 'Ni': 2.0, 'N': 8.0, 'O': 24.0}","('K', 'N', 'Ni', 'O')",OTHERS,False
-Ag 67.0 Zr 17.0 Gd 16.0,"{'Ag': 67.0, 'Zr': 17.0, 'Gd': 16.0}","('Ag', 'Gd', 'Zr')",OTHERS,False
 mp-774245,"{'Li': 5.0, 'Mn': 5.0, 'Ni': 2.0, 'O': 12.0}","('Li', 'Mn', 'Ni', 'O')",OTHERS,False
 mp-10906,"{'Al': 2.0, 'Zr': 2.0, 'Pt': 4.0}","('Al', 'Pt', 'Zr')",OTHERS,False
 mp-685418,"{'Fe': 16.0, 'Cu': 8.0, 'O': 32.0}","('Cu', 'Fe', 'O')",OTHERS,False
@@ -6898,7 +6839,6 @@ mp-866108,"{'Hf': 2.0, 'Zn': 6.0}","('Hf', 'Zn')",OTHERS,False
 mp-1232334,"{'Sr': 3.0, 'Cu': 2.0, 'O': 4.0, 'F': 4.0}","('Cu', 'F', 'O', 'Sr')",OTHERS,False
 mp-21372,"{'O': 2.0, 'P': 2.0, 'Ru': 2.0, 'Ce': 2.0}","('Ce', 'O', 'P', 'Ru')",OTHERS,False
 mp-9518,"{'O': 2.0, 'P': 2.0, 'Zn': 2.0, 'Nd': 2.0}","('Nd', 'O', 'P', 'Zn')",OTHERS,False
-Al 50.0 Pt 36.0 Gd 14.0,"{'Al': 50.0, 'Pt': 36.0, 'Gd': 14.0}","('Al', 'Gd', 'Pt')",OTHERS,False
 mp-1219419,"{'Sc': 5.0, 'P': 12.0, 'Ir': 19.0}","('Ir', 'P', 'Sc')",OTHERS,False
 mp-863697,"{'Pm': 2.0, 'Li': 1.0, 'Si': 1.0}","('Li', 'Pm', 'Si')",OTHERS,False
 mp-755334,"{'Co': 6.0, 'O': 4.0, 'F': 8.0}","('Co', 'F', 'O')",OTHERS,False
@@ -6929,7 +6869,6 @@ mp-21268,"{'Si': 4.0, 'As': 8.0}","('As', 'Si')",OTHERS,False
 mp-1228516,"{'Ba': 2.0, 'Nd': 2.0, 'Fe': 1.0, 'Co': 3.0, 'O': 12.0}","('Ba', 'Co', 'Fe', 'Nd', 'O')",OTHERS,False
 mp-17546,"{'O': 16.0, 'Ru': 4.0, 'Cs': 8.0}","('Cs', 'O', 'Ru')",OTHERS,False
 mp-30978,"{'Al': 8.0, 'K': 4.0, 'Br': 28.0}","('Al', 'Br', 'K')",OTHERS,False
-Zr 31.0 Pt 45.0 Gd 14.0,"{'Zr': 31.0, 'Pt': 45.0, 'Gd': 14.0}","('Gd', 'Pt', 'Zr')",OTHERS,False
 mp-1246166,"{'Zr': 1.0, 'Fe': 2.0, 'N': 2.0}","('Fe', 'N', 'Zr')",OTHERS,False
 mvc-2922,"{'Ca': 4.0, 'Mn': 4.0, 'O': 8.0}","('Ca', 'Mn', 'O')",OTHERS,False
 mp-1194311,"{'Sc': 3.0, 'Ni': 20.0, 'B': 6.0}","('B', 'Ni', 'Sc')",OTHERS,False
@@ -7129,7 +7068,6 @@ mp-567705,"{'Ti': 4.0, 'Al': 8.0}","('Al', 'Ti')",OTHERS,False
 mp-15793,"{'Li': 1.0, 'Se': 2.0, 'Tb': 1.0}","('Li', 'Se', 'Tb')",OTHERS,False
 mvc-7052,"{'Mo': 2.0, 'S': 4.0}","('Mo', 'S')",OTHERS,False
 mp-1206907,"{'Tl': 1.0, 'N': 1.0}","('N', 'Tl')",OTHERS,False
-Ga 34.0 Co 50.0 Yb 16.0,"{'Ga': 34.0, 'Co': 50.0, 'Yb': 16.0}","('Co', 'Ga', 'Yb')",OTHERS,False
 mp-1093731,"{'Ti': 2.0, 'Sn': 1.0, 'Mo': 1.0}","('Mo', 'Sn', 'Ti')",OTHERS,False
 mp-759907,"{'Li': 2.0, 'Fe': 3.0, 'Cu': 1.0, 'O': 8.0}","('Cu', 'Fe', 'Li', 'O')",OTHERS,False
 mp-1039319,"{'Mg': 8.0, 'Cd': 4.0}","('Cd', 'Mg')",OTHERS,False
@@ -7137,7 +7075,6 @@ mp-673633,"{'In': 4.0, 'S': 6.0}","('In', 'S')",OTHERS,False
 mp-763247,"{'Li': 2.0, 'V': 2.0, 'Si': 2.0, 'O': 10.0}","('Li', 'O', 'Si', 'V')",OTHERS,False
 mp-1247354,"{'Re': 2.0, 'C': 12.0, 'N': 18.0}","('C', 'N', 'Re')",OTHERS,False
 mp-1224733,"{'Gd': 2.0, 'Zn': 1.0, 'Ag': 1.0}","('Ag', 'Gd', 'Zn')",OTHERS,False
-Ge 50.0 Ir 36.0 Gd 14.0,"{'Ge': 50.0, 'Ir': 36.0, 'Gd': 14.0}","('Gd', 'Ge', 'Ir')",OTHERS,False
 mp-1177532,"{'Li': 6.0, 'V': 6.0, 'P': 16.0, 'O': 58.0}","('Li', 'O', 'P', 'V')",OTHERS,False
 mp-1226389,"{'Cr': 1.0, 'O': 3.0, 'F': 3.0}","('Cr', 'F', 'O')",OTHERS,False
 mp-1184550,"{'Ge': 2.0, 'C': 2.0}","('C', 'Ge')",OTHERS,False
@@ -7219,7 +7156,6 @@ mp-1246758,"{'Fe': 2.0, 'Cu': 1.0, 'N': 2.0}","('Cu', 'Fe', 'N')",OTHERS,False
 mp-27351,"{'N': 12.0, 'Cl': 16.0, 'Sb': 4.0}","('Cl', 'N', 'Sb')",OTHERS,False
 mp-684013,"{'Ba': 4.0, 'In': 26.0, 'Ir': 8.0}","('Ba', 'In', 'Ir')",OTHERS,False
 mp-780525,"{'Mn': 12.0, 'O': 2.0, 'F': 22.0}","('F', 'Mn', 'O')",OTHERS,False
-Ag 55.0 Ga 31.0 Gd 14.0,"{'Ag': 55.0, 'Ga': 31.0, 'Gd': 14.0}","('Ag', 'Ga', 'Gd')",OTHERS,False
 mvc-5035,"{'Zn': 4.0, 'Te': 2.0, 'W': 2.0, 'O': 12.0}","('O', 'Te', 'W', 'Zn')",OTHERS,False
 mp-752975,"{'Fe': 4.0, 'O': 4.0, 'F': 4.0}","('F', 'Fe', 'O')",OTHERS,False
 mp-1093607,"{'Hf': 2.0, 'Mn': 1.0, 'Co': 1.0}","('Co', 'Hf', 'Mn')",OTHERS,False
@@ -7419,7 +7355,6 @@ mp-759637,"{'Na': 8.0, 'Sr': 4.0, 'Li': 4.0, 'V': 4.0, 'P': 8.0, 'O': 36.0}","('
 mp-1217722,"{'Tb': 4.0, 'Gd': 8.0, 'Ga': 20.0, 'O': 48.0}","('Ga', 'Gd', 'O', 'Tb')",OTHERS,False
 mp-1220518,"{'Nb': 4.0, 'Ni': 1.0, 'C': 2.0, 'S': 4.0}","('C', 'Nb', 'Ni', 'S')",OTHERS,False
 mp-675980,"{'Cr': 4.0, 'P': 12.0, 'S': 36.0}","('Cr', 'P', 'S')",OTHERS,False
-Ga 10.0 Pt 36.0 Gd 14.0 In 40.0,"{'Ga': 10.0, 'Pt': 36.0, 'Gd': 14.0, 'In': 40.0}","('Ga', 'Gd', 'In', 'Pt')",OTHERS,False
 mp-862962,"{'Ca': 1.0, 'La': 1.0, 'Zn': 2.0}","('Ca', 'La', 'Zn')",OTHERS,False
 mp-1211671,"{'La': 6.0, 'Ge': 10.0}","('Ge', 'La')",OTHERS,False
 mp-1104114,"{'Eu': 1.0, 'Mo': 6.0, 'Se': 8.0}","('Eu', 'Mo', 'Se')",OTHERS,False
@@ -7487,12 +7422,10 @@ mp-849366,"{'Li': 2.0, 'Co': 6.0, 'O': 2.0, 'F': 10.0}","('Co', 'F', 'Li', 'O')"
 mp-769001,"{'Li': 12.0, 'Sn': 4.0, 'B': 8.0, 'S': 2.0, 'O': 32.0}","('B', 'Li', 'O', 'S', 'Sn')",OTHERS,False
 mp-774516,"{'Li': 8.0, 'Mg': 3.0, 'Cu': 9.0, 'Si': 16.0, 'O': 48.0}","('Cu', 'Li', 'Mg', 'O', 'Si')",OTHERS,False
 mp-1180667,"{'La': 6.0, 'Fe': 2.0, 'O': 12.0}","('Fe', 'La', 'O')",OTHERS,False
-Ga 50.0 Ir 36.0 Gd 14.0,"{'Ga': 50.0, 'Ir': 36.0, 'Gd': 14.0}","('Ga', 'Gd', 'Ir')",OTHERS,False
 mp-1197627,"{'Pu': 4.0, 'Te': 8.0, 'Cl': 4.0, 'O': 22.0}","('Cl', 'O', 'Pu', 'Te')",OTHERS,False
 mp-1187466,"{'Ti': 3.0, 'Cd': 1.0}","('Cd', 'Ti')",OTHERS,False
 mp-673029,"{'Li': 2.0, 'Sn': 4.0, 'P': 10.0, 'O': 32.0}","('Li', 'O', 'P', 'Sn')",OTHERS,False
 mp-1205209,"{'Fe': 8.0, 'S': 8.0, 'O': 56.0}","('Fe', 'O', 'S')",OTHERS,False
-Al 54.0 Pd 30.0 Ho 16.0,"{'Al': 54.0, 'Pd': 30.0, 'Ho': 16.0}","('Al', 'Ho', 'Pd')",OTHERS,False
 mp-1080029,"{'Ba': 2.0, 'Mn': 2.0, 'Se': 2.0, 'O': 1.0, 'F': 2.0}","('Ba', 'F', 'Mn', 'O', 'Se')",OTHERS,False
 mp-1196548,"{'H': 36.0, 'C': 32.0, 'N': 4.0, 'O': 36.0}","('C', 'H', 'N', 'O')",OTHERS,False
 mp-707443,"{'Na': 7.0, 'Al': 1.0, 'H': 2.0, 'C': 4.0, 'O': 12.0, 'F': 4.0}","('Al', 'C', 'F', 'H', 'Na', 'O')",OTHERS,False
@@ -7502,7 +7435,6 @@ mp-1222518,"{'Li': 4.0, 'Te': 4.0, 'H': 20.0, 'O': 24.0}","('H', 'Li', 'O', 'Te'
 mp-973538,"{'Lu': 2.0, 'Al': 1.0, 'Zn': 1.0}","('Al', 'Lu', 'Zn')",OTHERS,False
 mp-756535,"{'Li': 2.0, 'Fe': 2.0, 'F': 8.0}","('F', 'Fe', 'Li')",OTHERS,False
 mp-768369,"{'Ba': 8.0, 'Y': 4.0, 'F': 28.0}","('Ba', 'F', 'Y')",OTHERS,False
-In 54.0 Pd 30.0 Yb 16.0,"{'In': 54.0, 'Pd': 30.0, 'Yb': 16.0}","('In', 'Pd', 'Yb')",OTHERS,False
 mvc-6817,"{'Zn': 4.0, 'Cr': 8.0, 'O': 16.0}","('Cr', 'O', 'Zn')",OTHERS,False
 mp-1202237,"{'Mg': 4.0, 'B': 8.0, 'H': 52.0, 'N': 12.0}","('B', 'H', 'Mg', 'N')",OTHERS,False
 mp-849419,"{'Fe': 10.0, 'O': 9.0, 'F': 11.0}","('F', 'Fe', 'O')",OTHERS,False
@@ -7531,7 +7463,6 @@ mp-556591,"{'Si': 18.0, 'O': 36.0}","('O', 'Si')",OTHERS,False
 mp-1011376,"{'Ce': 1.0, 'Se': 2.0}","('Ce', 'Se')",OTHERS,False
 mp-23486,"{'Cl': 6.0, 'Ni': 2.0, 'Rb': 2.0}","('Cl', 'Ni', 'Rb')",OTHERS,False
 mp-867583,"{'Ag': 6.0, 'Sb': 6.0, 'O': 18.0}","('Ag', 'O', 'Sb')",OTHERS,False
-Ag 53.0 Al 33.0 Gd 14.0,"{'Ag': 53.0, 'Al': 33.0, 'Gd': 14.0}","('Ag', 'Al', 'Gd')",OTHERS,False
 mp-9205,"{'O': 4.0, 'F': 2.0, 'K': 2.0, 'Se': 2.0}","('F', 'K', 'O', 'Se')",OTHERS,False
 mp-758923,"{'Sb': 4.0, 'As': 4.0, 'Au': 4.0, 'F': 36.0}","('As', 'Au', 'F', 'Sb')",OTHERS,False
 mp-18852,"{'O': 8.0, 'Na': 4.0, 'Mo': 2.0}","('Mo', 'Na', 'O')",OTHERS,False
@@ -7543,7 +7474,6 @@ mp-867161,"{'Li': 1.0, 'In': 3.0}","('In', 'Li')",OTHERS,False
 mp-865533,"{'Ti': 2.0, 'Re': 1.0, 'Os': 1.0}","('Os', 'Re', 'Ti')",OTHERS,False
 mp-1226930,"{'Cr': 19.0, 'S': 30.0}","('Cr', 'S')",OTHERS,False
 mp-966801,"{'Li': 4.0, 'Ca': 4.0, 'B': 4.0, 'O': 12.0}","('B', 'Ca', 'Li', 'O')",OTHERS,False
-Au 72.0 B 14.0 Gd 14.0,"{'Au': 72.0, 'B': 14.0, 'Gd': 14.0}","('Au', 'B', 'Gd')",OTHERS,False
 mp-1184131,"{'Er': 2.0, 'Ag': 1.0, 'Os': 1.0}","('Ag', 'Er', 'Os')",OTHERS,False
 mp-1222558,"{'Li': 3.0, 'Ag': 3.0, 'Ge': 2.0}","('Ag', 'Ge', 'Li')",OTHERS,False
 mp-695325,"{'Ti': 5.0, 'Zn': 1.0, 'Bi': 2.0, 'Pb': 4.0, 'O': 18.0}","('Bi', 'O', 'Pb', 'Ti', 'Zn')",OTHERS,False
@@ -7597,7 +7527,6 @@ mp-559025,"{'Ba': 2.0, 'Er': 2.0, 'Ag': 2.0, 'S': 6.0}","('Ag', 'Ba', 'Er', 'S')
 mp-985,"{'Cu': 1.0, 'Tm': 1.0}","('Cu', 'Tm')",OTHERS,False
 mp-774791,"{'Li': 4.0, 'Mn': 3.0, 'Cr': 3.0, 'Te': 2.0, 'O': 16.0}","('Cr', 'Li', 'Mn', 'O', 'Te')",OTHERS,False
 mp-1076134,"{'Sr': 12.0, 'Ca': 20.0, 'Ti': 12.0, 'Mn': 20.0, 'O': 80.0}","('Ca', 'Mn', 'O', 'Sr', 'Ti')",OTHERS,False
-Au 50.0 Fe 36.0 Gd 14.0,"{'Au': 50.0, 'Fe': 36.0, 'Gd': 14.0}","('Au', 'Fe', 'Gd')",OTHERS,False
 mp-1190342,"{'Lu': 10.0, 'Pt': 6.0}","('Lu', 'Pt')",OTHERS,False
 mp-866101,"{'Ac': 1.0, 'Cr': 1.0, 'O': 3.0}","('Ac', 'Cr', 'O')",OTHERS,False
 mp-1193367,"{'Na': 2.0, 'Ca': 4.0, 'Si': 6.0, 'O': 18.0}","('Ca', 'Na', 'O', 'Si')",OTHERS,False
@@ -7632,7 +7561,6 @@ mp-1245567,"{'Fe': 1.0, 'Co': 2.0, 'N': 2.0}","('Co', 'Fe', 'N')",OTHERS,False
 mp-571265,"{'Rb': 4.0, 'U': 2.0, 'Br': 12.0}","('Br', 'Rb', 'U')",OTHERS,False
 mp-20331,"{'Cu': 4.0, 'Se': 8.0, 'Sb': 4.0}","('Cu', 'Sb', 'Se')",OTHERS,False
 mp-1037241,"{'Y': 1.0, 'Mg': 30.0, 'C': 1.0, 'O': 32.0}","('C', 'Mg', 'O', 'Y')",OTHERS,False
-Ge 36.0 Pt 50.0 Gd 14.0,"{'Ge': 36.0, 'Pt': 50.0, 'Gd': 14.0}","('Gd', 'Ge', 'Pt')",OTHERS,False
 mp-1029153,"{'Te': 2.0, 'Mo': 2.0, 'W': 2.0, 'Se': 4.0, 'S': 2.0}","('Mo', 'S', 'Se', 'Te', 'W')",OTHERS,False
 mp-1219452,"{'Sc': 2.0, 'Tl': 4.0, 'Mo': 30.0, 'S': 38.0}","('Mo', 'S', 'Sc', 'Tl')",OTHERS,False
 mp-694855,"{'Li': 4.0, 'Mo': 2.0, 'O': 6.0}","('Li', 'Mo', 'O')",OTHERS,False
@@ -7645,7 +7573,6 @@ mp-510567,"{'Ce': 6.0, 'Cu': 2.0, 'Sn': 2.0, 'S': 14.0}","('Ce', 'Cu', 'S', 'Sn'
 mp-758596,"{'Li': 4.0, 'Fe': 4.0, 'Si': 4.0, 'O': 16.0}","('Fe', 'Li', 'O', 'Si')",OTHERS,False
 mp-36484,"{'V': 16.0, 'Ni': 4.0, 'O': 30.0}","('Ni', 'O', 'V')",OTHERS,False
 mvc-4401,"{'Ge': 12.0, 'W': 8.0, 'O': 48.0}","('Ge', 'O', 'W')",OTHERS,False
-Ag 52.0 Ga 34.0 Gd 14.0,"{'Ag': 52.0, 'Ga': 34.0, 'Gd': 14.0}","('Ag', 'Ga', 'Gd')",OTHERS,False
 mp-557635,"{'Sb': 16.0, 'Te': 8.0, 'Se': 8.0, 'F': 80.0}","('F', 'Sb', 'Se', 'Te')",OTHERS,False
 mp-1222222,"{'Mn': 4.0, 'Ga': 3.0, 'Co': 8.0, 'Ge': 1.0}","('Co', 'Ga', 'Ge', 'Mn')",OTHERS,False
 mp-1099847,"{'Sr': 4.0, 'Ca': 28.0, 'Fe': 4.0, 'Co': 28.0, 'O': 80.0}","('Ca', 'Co', 'Fe', 'O', 'Sr')",OTHERS,False
@@ -7833,7 +7760,6 @@ mp-1104271,"{'Ag': 6.0, 'Sb': 2.0, 'S': 6.0}","('Ag', 'S', 'Sb')",OTHERS,False
 mp-866192,"{'Yb': 1.0, 'Li': 2.0, 'Sn': 1.0}","('Li', 'Sn', 'Yb')",OTHERS,False
 mp-1105780,"{'Bi': 8.0, 'O': 12.0}","('Bi', 'O')",OTHERS,False
 mp-26944,"{'O': 20.0, 'P': 6.0, 'Sn': 4.0}","('O', 'P', 'Sn')",OTHERS,False
-Ga 25.0 Pt 36.0 Gd 14.0 In 25.0,"{'Ga': 25.0, 'Pt': 36.0, 'Gd': 14.0, 'In': 25.0}","('Ga', 'Gd', 'In', 'Pt')",OTHERS,False
 mp-753438,"{'Li': 8.0, 'V': 4.0, 'O': 8.0, 'F': 4.0}","('F', 'Li', 'O', 'V')",OTHERS,False
 mp-554272,"{'Cu': 24.0, 'Sb': 8.0, 'S': 24.0}","('Cu', 'S', 'Sb')",OTHERS,False
 mp-1103730,"{'Na': 4.0, 'Mg': 1.0, 'Ge': 2.0, 'Se': 6.0}","('Ge', 'Mg', 'Na', 'Se')",OTHERS,False
@@ -8225,7 +8151,6 @@ mp-1099098,"{'Ce': 1.0, 'Mg': 14.0, 'Bi': 1.0}","('Bi', 'Ce', 'Mg')",OTHERS,True
 mp-1100995,"{'Tl': 1.0, 'Cu': 7.0, 'S': 4.0}","('Cu', 'S', 'Tl')",OTHERS,True
 mp-1226373,"{'Cr': 12.0, 'Sb': 4.0, 'As': 8.0}","('As', 'Cr', 'Sb')",OTHERS,True
 mvc-940,"{'Ba': 1.0, 'Ca': 1.0, 'Mn': 4.0, 'O': 8.0}","('Ba', 'Ca', 'Mn', 'O')",OTHERS,True
-Ga 42.0 Co 42.0 Yb 16.0,"{'Ga': 42.0, 'Co': 42.0, 'Yb': 16.0}","('Co', 'Ga', 'Yb')",OTHERS,True
 mp-723406,"{'La': 2.0, 'P': 6.0, 'H': 6.0, 'O': 20.0}","('H', 'La', 'O', 'P')",OTHERS,True
 mp-1190729,"{'Ba': 4.0, 'Ge': 4.0, 'O': 16.0}","('Ba', 'Ge', 'O')",OTHERS,True
 mp-1093633,"{'K': 1.0, 'Na': 2.0, 'As': 1.0}","('As', 'K', 'Na')",OTHERS,True
@@ -8354,7 +8279,6 @@ mp-1245359,"{'In': 20.0, 'Si': 12.0, 'N': 36.0}","('In', 'N', 'Si')",OTHERS,True
 mp-5151,"{'S': 12.0, 'Ge': 2.0, 'Cd': 8.0}","('Cd', 'Ge', 'S')",OTHERS,True
 mp-975337,"{'Rb': 1.0, 'F': 3.0}","('F', 'Rb')",OTHERS,True
 mp-1220161,"{'Nd': 2.0, 'Al': 2.0, 'Si': 2.0}","('Al', 'Nd', 'Si')",OTHERS,True
-Al 36.0 Pt 50.0 Tb 14.0,"{'Al': 36.0, 'Pt': 50.0, 'Tb': 14.0}","('Al', 'Pt', 'Tb')",OTHERS,True
 mp-504549,"{'U': 4.0, 'Fe': 4.0, 'O': 16.0}","('Fe', 'O', 'U')",OTHERS,True
 mp-1099703,"{'Sr': 6.0, 'Ca': 2.0, 'Ti': 6.0, 'Mn': 2.0, 'O': 24.0}","('Ca', 'Mn', 'O', 'Sr', 'Ti')",OTHERS,True
 mp-761011,"{'Li': 6.0, 'V': 6.0, 'P': 16.0, 'O': 58.0}","('Li', 'O', 'P', 'V')",OTHERS,True
@@ -8395,7 +8319,6 @@ mp-1237926,"{'Lu': 4.0, 'Mg': 4.0, 'Se': 12.0}","('Lu', 'Mg', 'Se')",OTHERS,True
 mp-777676,"{'Li': 4.0, 'V': 4.0, 'F': 12.0}","('F', 'Li', 'V')",OTHERS,True
 mp-12221,"{'O': 16.0, 'Ca': 4.0, 'Te': 4.0}","('Ca', 'O', 'Te')",OTHERS,True
 mp-1212003,"{'La': 12.0, 'Fe': 20.0, 'O': 48.0}","('Fe', 'La', 'O')",OTHERS,True
-Ag 51.0 Al 32.0 Gd 17.0,"{'Ag': 51.0, 'Al': 32.0, 'Gd': 17.0}","('Ag', 'Al', 'Gd')",OTHERS,True
 mp-1176989,"{'Li': 12.0, 'Mn': 2.0, 'V': 6.0, 'P': 12.0, 'O': 48.0}","('Li', 'Mn', 'O', 'P', 'V')",OTHERS,True
 mp-22753,"{'C': 4.0, 'Fe': 2.0, 'U': 2.0}","('C', 'Fe', 'U')",OTHERS,True
 mp-756780,"{'Ti': 3.0, 'Mn': 3.0, 'Cr': 2.0, 'O': 16.0}","('Cr', 'Mn', 'O', 'Ti')",OTHERS,True
@@ -8710,7 +8633,6 @@ mp-569015,"{'Mg': 8.0, 'Cu': 8.0, 'As': 8.0}","('As', 'Cu', 'Mg')",OTHERS,True
 mp-1247341,"{'La': 1.0, 'Mg': 2.0, 'V': 3.0, 'S': 8.0}","('La', 'Mg', 'S', 'V')",OTHERS,True
 mp-1187044,"{'Sn': 6.0, 'P': 2.0}","('P', 'Sn')",OTHERS,True
 mvc-13836,"{'Ta': 1.0, 'F': 5.0}","('F', 'Ta')",OTHERS,True
-Ag 47.0 Al 36.0 Gd 17.0,"{'Ag': 47.0, 'Al': 36.0, 'Gd': 17.0}","('Ag', 'Al', 'Gd')",OTHERS,True
 mp-12855,"{'Cu': 2.0, 'Ge': 1.0, 'Se': 4.0, 'Hg': 1.0}","('Cu', 'Ge', 'Hg', 'Se')",OTHERS,True
 mp-1186285,"{'Nd': 6.0, 'Pa': 2.0}","('Nd', 'Pa')",OTHERS,True
 mp-1077377,"{'Yb': 2.0, 'Cu': 2.0, 'Pb': 2.0}","('Cu', 'Pb', 'Yb')",OTHERS,True
@@ -8724,7 +8646,6 @@ mp-1208539,"{'Tb': 4.0, 'Cu': 2.0, 'Ge': 4.0, 'O': 16.0}","('Cu', 'Ge', 'O', 'Tb
 mp-1207144,"{'Sm': 4.0, 'Mg': 2.0, 'Pd': 4.0}","('Mg', 'Pd', 'Sm')",OTHERS,True
 mp-1018055,"{'Hf': 2.0, 'Ir': 2.0}","('Hf', 'Ir')",OTHERS,True
 mp-5124,"{'Mn': 1.0, 'Ni': 2.0, 'Sb': 1.0}","('Mn', 'Ni', 'Sb')",OTHERS,True
-Ag 62.0 Zr 24.0 Gd 14.0,"{'Ag': 62.0, 'Zr': 24.0, 'Gd': 14.0}","('Ag', 'Gd', 'Zr')",OTHERS,True
 mp-12834,"{'Th': 4.0, 'Cu': 24.0}","('Cu', 'Th')",OTHERS,True
 mp-1076253,"{'La': 6.0, 'Sm': 2.0, 'V': 5.0, 'Cr': 3.0, 'O': 24.0}","('Cr', 'La', 'O', 'Sm', 'V')",OTHERS,True
 mp-1222826,"{'Li': 2.0, 'Zr': 6.0, 'Mn': 1.0, 'Cl': 15.0}","('Cl', 'Li', 'Mn', 'Zr')",OTHERS,True
@@ -8834,7 +8755,6 @@ mp-1093630,"{'Li': 1.0, 'Ge': 2.0, 'Rh': 1.0}","('Ge', 'Li', 'Rh')",OTHERS,True
 mp-735556,"{'Na': 4.0, 'Co': 2.0, 'H': 16.0, 'C': 4.0, 'O': 20.0}","('C', 'Co', 'H', 'Na', 'O')",OTHERS,True
 mp-1224984,"{'Fe': 2.0, 'Co': 2.0, 'B': 2.0}","('B', 'Co', 'Fe')",OTHERS,True
 mp-1219453,"{'Sr': 12.0, 'Ti': 4.0, 'Si': 16.0, 'O': 61.0}","('O', 'Si', 'Sr', 'Ti')",OTHERS,True
-Ag 63.0 Zr 22.0 Gd 15.0,"{'Ag': 63.0, 'Zr': 22.0, 'Gd': 15.0}","('Ag', 'Gd', 'Zr')",OTHERS,True
 mp-27989,"{'C': 2.0, 'N': 2.0, 'Br': 2.0}","('Br', 'C', 'N')",OTHERS,True
 mp-1209723,"{'Np': 2.0, 'Tl': 4.0, 'F': 12.0}","('F', 'Np', 'Tl')",OTHERS,True
 mp-30704,"{'Ga': 6.0, 'Nb': 10.0}","('Ga', 'Nb')",OTHERS,True
@@ -8855,7 +8775,6 @@ mp-972032,"{'Tl': 2.0, 'I': 6.0, 'O': 18.0}","('I', 'O', 'Tl')",OTHERS,True
 mp-997032,"{'Mg': 2.0, 'Au': 2.0, 'O': 4.0}","('Au', 'Mg', 'O')",OTHERS,True
 mp-1225357,"{'Dy': 1.0, 'Al': 7.0, 'Fe': 5.0}","('Al', 'Dy', 'Fe')",OTHERS,True
 mp-1014212,{'Si': 1.0},"('Si',)",OTHERS,True
-Ni 46.5 Ge 39.5 Sc 14.0,"{'Ni': 46.5, 'Ge': 39.5, 'Sc': 14.0}","('Ge', 'Ni', 'Sc')",OTHERS,True
 mp-962057,"{'Sr': 1.0, 'Ca': 1.0, 'Si': 1.0}","('Ca', 'Si', 'Sr')",OTHERS,True
 mp-1219143,"{'Sm': 6.0, 'Mn': 1.0, 'Si': 2.0, 'S': 14.0}","('Mn', 'S', 'Si', 'Sm')",OTHERS,True
 mp-1186417,"{'Pa': 1.0, 'Te': 2.0, 'Pd': 1.0}","('Pa', 'Pd', 'Te')",OTHERS,True
@@ -8924,7 +8843,6 @@ mp-3960,"{'O': 4.0, 'Ca': 1.0, 'U': 1.0}","('Ca', 'O', 'U')",OTHERS,True
 mp-1112199,"{'K': 2.0, 'In': 1.0, 'Hg': 1.0, 'F': 6.0}","('F', 'Hg', 'In', 'K')",OTHERS,True
 mp-1246024,"{'Sr': 28.0, 'Hf': 4.0, 'N': 24.0}","('Hf', 'N', 'Sr')",OTHERS,True
 mvc-13995,"{'Y': 2.0, 'Ti': 2.0, 'O': 6.0}","('O', 'Ti', 'Y')",OTHERS,True
-Ag 48.6 Ga 37.1 Er 14.3,"{'Ag': 48.6, 'Ga': 37.1, 'Er': 14.3}","('Ag', 'Er', 'Ga')",OTHERS,True
 mp-1222406,"{'Li': 1.0, 'Zr': 2.0, 'Pb': 1.0}","('Li', 'Pb', 'Zr')",OTHERS,True
 mp-1106139,"{'In': 8.0, 'Bi': 6.0, 'Pb': 2.0}","('Bi', 'In', 'Pb')",OTHERS,True
 mp-1214547,"{'Ba': 4.0, 'Mn': 4.0, 'V': 4.0, 'F': 28.0}","('Ba', 'F', 'Mn', 'V')",OTHERS,True
@@ -9296,7 +9214,6 @@ mp-994,"{'P': 1.0, 'Y': 1.0}","('P', 'Y')",OTHERS,True
 mp-680167,"{'Li': 2.0, 'Mo': 12.0, 'Cl': 26.0}","('Cl', 'Li', 'Mo')",OTHERS,True
 mp-1247016,"{'Si': 12.0, 'Sb': 6.0, 'N': 22.0}","('N', 'Sb', 'Si')",OTHERS,True
 mp-1180215,"{'N': 6.0, 'O': 3.0}","('N', 'O')",OTHERS,True
-Fe 48.0 Ga 34.0 Sc 18.0,"{'Fe': 48.0, 'Ga': 34.0, 'Sc': 18.0}","('Fe', 'Ga', 'Sc')",OTHERS,True
 mp-1228626,"{'Ba': 2.0, 'Si': 3.0, 'Ge': 5.0, 'O': 18.0}","('Ba', 'Ge', 'O', 'Si')",OTHERS,True
 mp-1098076,"{'Ce': 1.0, 'Mg': 6.0, 'B': 1.0}","('B', 'Ce', 'Mg')",OTHERS,True
 mp-757960,"{'Li': 4.0, 'Ni': 4.0, 'P': 4.0, 'O': 16.0}","('Li', 'Ni', 'O', 'P')",OTHERS,True
@@ -9320,7 +9237,6 @@ mp-1223740,"{'K': 4.0, 'H': 16.0, 'Pb': 4.0, 'I': 12.0, 'O': 8.0}","('H', 'I', '
 mp-1075430,"{'Mg': 10.0, 'Si': 12.0}","('Mg', 'Si')",OTHERS,True
 mp-1228981,"{'Ba': 10.0, 'Fe': 8.0, 'Pt': 2.0, 'Cl': 2.0, 'O': 25.0}","('Ba', 'Cl', 'Fe', 'O', 'Pt')",OTHERS,True
 mp-1190043,"{'Tl': 2.0, 'Cr': 6.0, 'Se': 10.0}","('Cr', 'Se', 'Tl')",OTHERS,True
-Al 28.0 Pt 57.0 Gd 14.0,"{'Al': 28.0, 'Pt': 57.0, 'Gd': 14.0}","('Al', 'Gd', 'Pt')",OTHERS,True
 mp-2233,"{'Ag': 2.0, 'Th': 4.0}","('Ag', 'Th')",OTHERS,True
 mp-990086,"{'Mo': 18.0, 'H': 2.0, 'S': 36.0}","('H', 'Mo', 'S')",OTHERS,True
 mp-1012835,"{'Sm': 2.0, 'Cu': 2.0, 'W': 4.0, 'O': 16.0}","('Cu', 'O', 'Sm', 'W')",OTHERS,True
@@ -9375,7 +9291,6 @@ mp-1101091,"{'Dy': 3.0, 'In': 4.0, 'Co': 2.0}","('Co', 'Dy', 'In')",OTHERS,True
 mp-1459,"{'N': 1.0, 'Ta': 1.0}","('N', 'Ta')",OTHERS,True
 mp-342,"{'Te': 1.0, 'Sm': 1.0}","('Sm', 'Te')",OTHERS,True
 mp-1245418,"{'Cd': 4.0, 'Sn': 4.0, 'N': 8.0}","('Cd', 'N', 'Sn')",OTHERS,True
-Ag 50.0 Ga 37.0 Gd 13.0,"{'Ag': 50.0, 'Ga': 37.0, 'Gd': 13.0}","('Ag', 'Ga', 'Gd')",OTHERS,True
 mp-1209320,"{'Rb': 4.0, 'Ag': 4.0, 'Te': 4.0, 'S': 12.0}","('Ag', 'Rb', 'S', 'Te')",OTHERS,True
 mp-865908,"{'Yb': 2.0, 'Hg': 1.0, 'Pb': 1.0}","('Hg', 'Pb', 'Yb')",OTHERS,True
 mp-766123,"{'Ce': 8.0, 'Th': 2.0, 'O': 20.0}","('Ce', 'O', 'Th')",OTHERS,True
@@ -9434,7 +9349,6 @@ mp-1247565,"{'Sb': 16.0, 'Te': 12.0, 'N': 8.0}","('N', 'Sb', 'Te')",OTHERS,True
 mp-773137,"{'K': 2.0, 'Ca': 2.0, 'Bi': 2.0}","('Bi', 'Ca', 'K')",OTHERS,True
 mp-1079270,"{'Tm': 2.0, 'Ni': 1.0, 'Sn': 6.0}","('Ni', 'Sn', 'Tm')",OTHERS,True
 mp-31143,"{'Er': 8.0, 'Sn': 4.0, 'Au': 8.0}","('Au', 'Er', 'Sn')",OTHERS,True
-Al 54.0 Pd 30.0 Dy 16.0,"{'Al': 54.0, 'Pd': 30.0, 'Dy': 16.0}","('Al', 'Dy', 'Pd')",OTHERS,True
 mp-554673,"{'K': 4.0, 'Zn': 4.0, 'B': 4.0, 'P': 8.0, 'O': 32.0}","('B', 'K', 'O', 'P', 'Zn')",OTHERS,True
 mp-1208274,"{'Th': 6.0, 'Si': 24.0, 'Ru': 8.0}","('Ru', 'Si', 'Th')",OTHERS,True
 mp-1193963,"{'Mg': 8.0, 'Si': 4.0, 'S': 16.0}","('Mg', 'S', 'Si')",OTHERS,True
@@ -9738,7 +9652,6 @@ mp-976378,"{'La': 6.0, 'Sn': 8.0}","('La', 'Sn')",OTHERS,True
 mp-14652,"{'P': 6.0, 'Cs': 4.0}","('Cs', 'P')",OTHERS,True
 mp-1019055,"{'Re': 2.0, 'N': 4.0}","('N', 'Re')",OTHERS,True
 mp-1079174,"{'Pu': 4.0, 'Pd': 4.0}","('Pd', 'Pu')",OTHERS,True
-Ag 70.0 Ti 16.0 Gd 14.0,"{'Ag': 70.0, 'Ti': 16.0, 'Gd': 14.0}","('Ag', 'Gd', 'Ti')",OTHERS,True
 mp-764759,"{'Li': 6.0, 'Mn': 5.0, 'O': 12.0}","('Li', 'Mn', 'O')",OTHERS,True
 mp-1208624,"{'Sr': 1.0, 'P': 4.0, 'N': 2.0, 'O': 12.0}","('N', 'O', 'P', 'Sr')",OTHERS,True
 mp-1224902,"{'Gd': 2.0, 'Er': 2.0, 'Al': 12.0}","('Al', 'Er', 'Gd')",OTHERS,True
@@ -9808,7 +9721,6 @@ mp-1220559,"{'Nb': 4.0, 'H': 3.0, 'S': 8.0}","('H', 'Nb', 'S')",OTHERS,True
 mp-681,"{'Zn': 4.0, 'Eu': 2.0}","('Eu', 'Zn')",OTHERS,True
 mp-568036,"{'La': 8.0, 'Ga': 4.0, 'N': 12.0}","('Ga', 'La', 'N')",OTHERS,True
 mp-1209055,"{'Sb': 1.0, 'Br': 6.0, 'N': 2.0}","('Br', 'N', 'Sb')",OTHERS,True
-Ga 54.0 Co 30.0 Yb 16.0,"{'Ga': 54.0, 'Co': 30.0, 'Yb': 16.0}","('Co', 'Ga', 'Yb')",OTHERS,True
 mp-867896,"{'Sc': 1.0, 'Zn': 1.0, 'Cu': 2.0}","('Cu', 'Sc', 'Zn')",OTHERS,True
 mp-1196269,"{'In': 4.0, 'Re': 8.0, 'C': 36.0, 'O': 36.0}","('C', 'In', 'O', 'Re')",OTHERS,True
 mp-1245099,"{'Co': 30.0, 'O': 60.0}","('Co', 'O')",OTHERS,True
@@ -9828,7 +9740,6 @@ mp-626014,"{'H': 20.0, 'I': 4.0, 'O': 24.0}","('H', 'I', 'O')",OTHERS,True
 mp-580354,"{'Ce': 6.0, 'Ni': 18.0}","('Ce', 'Ni')",OTHERS,True
 mp-974395,"{'Pt': 3.0, 'Rh': 1.0}","('Pt', 'Rh')",OTHERS,True
 mp-21320,"{'Ni': 3.0, 'Ga': 3.0, 'U': 3.0}","('Ga', 'Ni', 'U')",OTHERS,True
-Ga 50.0 Ni 18.0 Gd 14.0 Pt 18.0,"{'Ga': 50.0, 'Ni': 18.0, 'Gd': 14.0, 'Pt': 18.0}","('Ga', 'Gd', 'Ni', 'Pt')",OTHERS,True
 mp-941,"{'Ni': 30.0, 'As': 12.0}","('As', 'Ni')",OTHERS,True
 mp-504457,"{'Ba': 2.0, 'Ti': 12.0, 'O': 26.0}","('Ba', 'O', 'Ti')",OTHERS,True
 mp-19479,"{'O': 32.0, 'Na': 10.0, 'Mo': 8.0, 'La': 2.0}","('La', 'Mo', 'Na', 'O')",OTHERS,True
@@ -10050,7 +9961,6 @@ mp-542081,"{'La': 4.0, 'P': 8.0, 'S': 28.0, 'K': 8.0}","('K', 'La', 'P', 'S')",O
 mp-1039999,"{'Na': 1.0, 'La': 1.0, 'Mg': 30.0, 'O': 32.0}","('La', 'Mg', 'Na', 'O')",OTHERS,True
 mp-1185684,"{'Mg': 16.0, 'Al': 12.0, 'O': 1.0}","('Al', 'Mg', 'O')",OTHERS,True
 mp-29088,"{'N': 4.0, 'Ge': 4.0, 'Sr': 6.0}","('Ge', 'N', 'Sr')",OTHERS,True
-Ag 49.0 Al 34.0 Gd 17.0,"{'Ag': 49.0, 'Al': 34.0, 'Gd': 17.0}","('Ag', 'Al', 'Gd')",OTHERS,True
 mp-1201569,"{'Sc': 10.0, 'V': 5.0, 'O': 25.0}","('O', 'Sc', 'V')",OTHERS,True
 mp-778169,"{'Li': 2.0, 'Cu': 4.0, 'S': 6.0, 'O': 24.0}","('Cu', 'Li', 'O', 'S')",OTHERS,True
 mp-1076592,"{'Ba': 1.0, 'Sr': 7.0, 'Mn': 1.0, 'Fe': 7.0, 'O': 24.0}","('Ba', 'Fe', 'Mn', 'O', 'Sr')",OTHERS,True

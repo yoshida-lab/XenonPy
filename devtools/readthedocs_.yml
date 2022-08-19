@@ -1,0 +1,9 @@
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - rdkit=2020.03.3.0
+  - pip
+  - pip:
+      - --find-links https://download.pytorch.org/whl/torch_stable.html
+      - --requirement rtd_requirements.txt

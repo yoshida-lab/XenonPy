@@ -9,9 +9,8 @@ conda:
   environment: devtools/readthedocs.yml
 
 build:
-  image: stable
-
-python:
-  version: "3.7"
+  os: "ubuntu-20.04"
+  tools:
+    python: "mambaforge-4.10"
 
 formats: all

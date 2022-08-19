@@ -6,11 +6,9 @@ sphinx:
   configuration: docs/source/conf.py
 
 conda:
-  environment: devtools/readthedocs.yml
+  environment: conda_env/devtools/rtd_env.yml
 
 build:
   os: "ubuntu-20.04"
   tools:
     python: "mambaforge-4.10"
-
-formats: all

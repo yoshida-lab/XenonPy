@@ -10,6 +10,15 @@ What is XenonPy project
 
 |MacOS| |Windows| |Ubuntu| |readthedocs| |codecov| |version| |python| |total-dl| |per-dl|
 
+.. note::
+
+   To all those who have purchased the book `マテリアルズインフォマティクス`_  published by `KYORITSU SHUPPAN`_:
+
+   The link of exercises was changed to https://github.com/yoshida-lab/XenonPy/tree/master/mi_book.
+   Please follow the new link to access all these exercises.
+
+   We apologize for the inconvenience.
+
 --------
 Overview
 --------
@@ -64,6 +73,7 @@ Sample codes of different features in XenonPy are available here: https://github
     :maxdepth: 2
     :caption: User Documentation
 
+    books
     copyright
     installation
     features
@@ -97,6 +107,8 @@ This project is under continuous development. We would appreciate any feedback f
 Code contributions are also very welcomed. See :doc:`contribution` for more details.
 
 
+.. _マテリアルズインフォマティクス: https://www.kyoritsu-pub.co.jp/book/b10013510.html
+.. _KYORITSU SHUPPAN: https://www.kyoritsu-pub.co.jp/
 .. _pandas: https://pandas.pydata.org
 .. _PyTorch: http://pytorch.org/
 .. _Xenon: https://en.wikipedia.org/wiki/Xenon

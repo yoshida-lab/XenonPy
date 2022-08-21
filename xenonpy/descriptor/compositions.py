@@ -28,15 +28,18 @@ __all__ = [
 
 
 class KernelMean(BaseFeaturizer):
+    """Add kernel mean descriptor."
+
+    """
 
     def __init__(self,
                  kernel_func: Union[None, Callable[[np.ndarray, np.ndarray], np.ndarray]],
                  *,
                  feature_matrix: Union[None, pd.DataFrame] = None,
                  grid: Union[None, int, Sequence[int], Sequence[Sequence[float]]] = None,
-                 on_errors='raise',
-                 return_type='any',
-                 target_col='composition',
+                 on_errors: str = 'raise',
+                 return_type: str = 'any',
+                 target_col: Union[List[str], str, None] = 'composition',
                  n_jobs: int = 1):
         super().__init__(n_jobs=0, on_errors=on_errors, return_type=return_type, target_col=target_col)
 

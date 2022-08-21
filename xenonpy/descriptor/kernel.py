@@ -13,15 +13,86 @@
 # limitations under the License.
 
 import numpy as np
+import pandas as pd
+from typing import Union, Sequence
+from sklearn.preprocessing import MinMaxScaler
+from xenonpy.datatools import preset
 
-__all__ = ['RBFKernel']
+__all__ = ['rbf_kernel']
 
 
-class RBFKernel():
+def rbf_kernel(x_i: np.ndarray, x_j: Union[np.ndarray, int, float], sigmas: Union[float, int, np.ndarray,
+                                                                                  Sequence]) -> np.ndarray:
+    """
+    Radial Basis Function (RBF) kernel function.
+    https://en.wikipedia.org/wiki/Radial_basis_function_kernel
 
-    def __init__(self, sigma):
-        self._sigma = sigma
+    Parameters
+    ----------
+    sigmas:
+        The standard deviations (SD).
+        Can be a single number or a 1d array-like object.
+    x_i:
+        Should be a 1d array.
+    x_j : np.ndarray
+        Should be a 1d array.
 
-    def __call__(self, x_i: np.ndarray, x_j: np.ndarray):
-        # K(x_i, x_j) = exp(-||x_i - x_j||^2 / (2 * sigma^2))
-        return np.exp(-(x_i[:, :, np.newaxis] - x_j).reshape(x_i.shape[0], -1)**2 / (2 * self._sigma**2))
+    Returns
+    -------
+    np.ndarray
+        Distribution under RBF kernel.
+
+    Raises
+    ------
+    ValueError
+        Raise error if sigmas has wrong dimension.
+    """
+    sigmas = np.asarray(sigmas)
+    if sigmas.ndim == 0:
+        sigmas = sigmas[np.newaxis]
+    if sigmas.ndim != 1:
+        raise ValueError('parameter `sigmas` must be a array-like object which has dimension 1')
+
+    # K(x_i, x_j) = exp(-||x_i - x_j||^2 / (2 * sigma^2))
+    p1 = np.power(np.expand_dims(x_i, axis=x_i.ndim) - x_j, 2)
+    p2 = np.power(sigmas, 2) * 2
+    dists = np.exp(-np.expand_dims(p1, axis=p1.ndim) / p2).transpose([2, 0, 1])
+
+    if dists.shape[0] == 1:
+        return dists[0]
+    return dists
+
+
+def calculate_rbf_kernel_matrix(
+    *,
+    element_info: Union[None, pd.DataFrame] = None,
+    quartiles: Sequence[int] = (25, 50, 75),
+    half_interval_by_sigma: float = 2,
+    sort_centers: bool = True,
+    scaled_element_info: bool = False,
+):
+    if element_info is None:
+        elem = preset.elements_completed
+
+    if scaled_element_info:
+        elem = pd.DataFrame(MinMaxScaler().fit_transform(elem), columns=elem.columns, index=elem.index)
+
+    all_dists = []
+    center_labels = []
+    for feature, data in elem.iteritems():
+        if sort_centers:
+            data = data.values
+            centers = np.unique(data)
+        else:
+            centers = data.unique()
+            data = data.values
+        intervals = np.unique([abs(i - j) for i, j in zip(data[:-1], data[1:])])  # get all intervals
+        quartiles = np.percentile(intervals / 2, [25, 50, 75])  # get 25%, 50%, 75% quantile of intervals / 2
+        sigmas = quartiles / half_interval_by_sigma  # use unique quantiles as sigma of RBF kernel
+
+        # RBF kernel
+        dists = rbf_kernel(data, centers, sigmas)
+        all_dists.append(dists)
+        center_labels.append(pd.Series(centers, index=[feature] * centers.size))
+
+    return np.concatenate(all_dists, axis=2), pd.concat(center_labels)

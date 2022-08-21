@@ -7,6 +7,7 @@ from typing import Callable, List, Sequence, Union
 
 import numpy as np
 import pandas as pd
+from joblib import Parallel, delayed
 from pymatgen.core import Composition as PMGComp
 from sklearn.preprocessing import MinMaxScaler
 from xenonpy.datatools import preset
@@ -35,7 +36,8 @@ class KernelMean(BaseFeaturizer):
                  grid: Union[None, int, Sequence[int], Sequence[Sequence[float]]] = None,
                  on_errors='raise',
                  return_type='any',
-                 target_col='composition'):
+                 target_col='composition',
+                 n_jobs: int = 1):
         super().__init__(n_jobs=0, on_errors=on_errors, return_type=return_type, target_col=target_col)
 
         if feature_matrix is None:  # use elemental info
@@ -69,23 +71,34 @@ class KernelMean(BaseFeaturizer):
             *[[f'{n}_k{k+1}' for k in range(g.size)] for n, g in zip(feature_matrix.columns, grid)])
 
         self._kernel_matrix = pd.DataFrame(kernel_matrix, index=feature_matrix.index, columns=labels)
+        self.__n_jobs = n_jobs  # this param should not overwrite the property of parent class
+        self.__authors__ = ['TsumiNa']
 
     def featurize(self, comps):
         # Unified to python list
         if isinstance(comps, (pd.Series, np.ndarray)):
             comps = comps.tolist()
 
-        size = len(comps)
         kernel_matrix = self._kernel_matrix
-        proportion_matrix = np.zeros((size, kernel_matrix.shape[0]))
 
-        for i, comp in enumerate(comps):
+        def inner(comp):
+            # unified to python dict
+            if isinstance(comp, PMGComp):
+                comp = comp.as_dict()
+
+            # calculate proportion vector for the given composition
             t = sum(comp.values())
+            proportion_vec = np.zeros(kernel_matrix.shape[0])
             for (k, v) in comp.items():
                 elem_i = kernel_matrix.index.get_loc(k)
-                proportion_matrix[i, elem_i] = v / t
+                proportion_vec[elem_i] = v / t
 
-        # fast way using matrix calculation
+            return proportion_vec
+
+        proportion_matrix = Parallel(n_jobs=self.__n_jobs)(delayed(inner)(comp) for comp in comps)
+        proportion_matrix = np.stack(proportion_matrix)
+
+        # fast way using dot calculation
         return (proportion_matrix.T[:, :, np.newaxis] @ (kernel_matrix.values)[:, np.newaxis, :]).sum(axis=0)
 
     @property

@@ -2,6 +2,7 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
+from itertools import count
 from typing import Callable, List, Sequence, Union, Tuple
 
 import numpy as np
@@ -34,7 +35,8 @@ class KernelMean(BaseFeaturizer):
 
     def __init__(self,
                  *,
-                 kernel_matrix: Union[None, pd.DataFrame, Callable[[np.ndarray, np.ndarray], Tuple[np.ndarray, str]]],
+                 kernel_matrix: Union[None, pd.DataFrame, Callable[[np.ndarray, np.ndarray], Tuple[np.ndarray,
+                                                                                                   str]]] = None,
                  feature_matrix: Union[None, pd.DataFrame] = None,
                  on_errors: str = 'raise',
                  return_type: str = 'any',
@@ -51,7 +53,9 @@ class KernelMean(BaseFeaturizer):
             all_dists, labels = calculate_rbf_kernel_matrix(element_info=feature_matrix)
             all_dists = [MinMaxScaler().fit_transform(np.sum(m, axis=0).T).T for m in all_dists
                         ]  # MinMaxScale for each element
-            kernel_matrix, labels = np.concatenate(all_dists, axis=1), [f'{l}_{i}' for i, l in enumerate(labels.index)]
+            count_mapper = {k: count() for k in labels.index.unique()}
+            kernel_matrix, labels = np.concatenate(all_dists,
+                                                   axis=1), [f'{l}_{count_mapper[l].__next__()}' for l in labels.index]
         elif callable(kernel_matrix):
             # calculate kernel matrix
             kernel_matrix, labels = kernel_matrix(feature_matrix)

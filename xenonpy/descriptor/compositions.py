@@ -28,13 +28,16 @@ __all__ = [
 
 class KernelMean(BaseFeaturizer):
 
-    def __init__(
-        self,
-        kernel_func: Union[None, Callable[[np.ndarray, np.ndarray], np.ndarray]],
-        *,
-        feature_matrix: Union[None, pd.DataFrame] = None,
-        grid: Union[None, int, Sequence[int], Sequence[Sequence[float]]] = None,
-    ):
+    def __init__(self,
+                 kernel_func: Union[None, Callable[[np.ndarray, np.ndarray], np.ndarray]],
+                 *,
+                 feature_matrix: Union[None, pd.DataFrame] = None,
+                 grid: Union[None, int, Sequence[int], Sequence[Sequence[float]]] = None,
+                 n_jobs=-1,
+                 on_errors='raise',
+                 return_type='any',
+                 target_col='composition'):
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type, target_col=target_col)
 
         if feature_matrix is None:  # use elemental info
             feature_matrix = preset.elements_completed

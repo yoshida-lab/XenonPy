@@ -2,28 +2,86 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-from typing import Union, List
+import itertools
+from typing import Callable, List, Sequence, Union
 
 import numpy as np
 import pandas as pd
-
-from xenonpy.descriptor.base import BaseDescriptor, BaseCompositionFeaturizer
+from pymatgen.core import Composition as PMGComp
+from sklearn.preprocessing import MinMaxScaler
+from xenonpy.datatools import preset
+from xenonpy.descriptor.base import (BaseCompositionFeaturizer, BaseDescriptor, BaseFeaturizer)
 
 __all__ = [
-    'Compositions', 'Counting', 'WeightedAverage', 'WeightedSum', 'WeightedVariance',
-    'HarmonicMean', 'GeometricMean', 'MaxPooling', 'MinPooling'
+    'Compositions',
+    'Counting',
+    'WeightedAverage',
+    'WeightedSum',
+    'WeightedVariance',
+    'HarmonicMean',
+    'GeometricMean',
+    'MaxPooling',
+    'MinPooling',
+    'KernelMean',
 ]
+
+
+class KernelMean(BaseFeaturizer):
+
+    def __init__(
+        self,
+        kernel_func: Union[None, Callable[[np.ndarray, np.ndarray], np.ndarray]],
+        *,
+        feature_matrix: Union[None, pd.DataFrame] = None,
+        grid: Union[None, int, Sequence[int], Sequence[Sequence[float]]] = None,
+    ):
+
+        if feature_matrix is None:  # use elemental info
+            feature_matrix = preset.elements_completed
+
+        # re-scale to [0, 1]
+        scaled_matrix = MinMaxScaler().fit_transform(feature_matrix)
+
+        # calculate centers for each feature
+        if grid is None:
+            grid = scaled_matrix.values.mean(axis=0).reshape(-1, 1)  # use mean of feature as center
+        elif isinstance(grid, int):
+            grid = np.array([np.linspace(0, 1, grid)] * scaled_matrix.shape[1])  # create bins
+        elif isinstance(grid, Sequence):
+            grid = np.asarray(grid)
+            if grid.ndim == 1:
+                if grid.size != scaled_matrix.shape[1]:
+                    raise ValueError(
+                        f'length of grid ({grid.size}) must be equal to feature size ({scaled_matrix.shape[1]})')
+                grid = np.array([np.linspace(0, 1, grid) for i in grid])
+            elif grid.ndim == 2:
+                pass  # direct input
+            else:
+                raise ValueError('dim of grid must be 1 or 2')
+
+        # calculate kernel matrix for featrues
+        kernel_matrix = kernel_func(scaled_matrix, grid)
+
+        # generate column names of output
+        labels = itertools.chain(
+            *[[f'{n}_k{k+1}' for k in range(g.size)] for n, g in zip(feature_matrix.columns, grid)])
+
+        self._kernel_matrix = pd.DataFrame(kernel_matrix, index=feature_matrix.index, columns=labels)
+
+    def featurize(self, comp):
+        if isinstance(comp, PMGComp):
+            comp = comp.as_dict()
+
+        return sum([self._kernel_matrix.loc[e].values for e, n in comp.items()])
+
+    @property
+    def feature_labels(self):
+        return self._labels
 
 
 class Counting(BaseCompositionFeaturizer):
 
-    def __init__(self,
-                 *,
-                 one_hot_vec=False,
-                 n_jobs=-1,
-                 on_errors='raise',
-                 return_type='any',
-                 target_col=None):
+    def __init__(self, *, one_hot_vec=False, n_jobs=-1, on_errors='raise', return_type='any', target_col=None):
         """
 
         Parameters
@@ -53,10 +111,7 @@ class Counting(BaseCompositionFeaturizer):
             Default is None.
         """
 
-        super().__init__(n_jobs=n_jobs,
-                         on_errors=on_errors,
-                         return_type=return_type,
-                         target_col=target_col)
+        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type, target_col=target_col)
         self.one_hot_vec = one_hot_vec
         self._elems = self.elements.index.tolist()
         self.__authors__ = ['TsumiNa']
@@ -410,24 +465,10 @@ class Compositions(BaseDescriptor):
             super().__init__(featurizers=featurizers)
 
         self.composition = Counting(n_jobs=n_jobs, on_errors=on_errors)
-        self.composition = WeightedAverage(n_jobs=n_jobs,
-                                           on_errors=on_errors,
-                                           elemental_info=elemental_info)
-        self.composition = WeightedSum(n_jobs=n_jobs,
-                                       on_errors=on_errors,
-                                       elemental_info=elemental_info)
-        self.composition = WeightedVariance(n_jobs=n_jobs,
-                                            on_errors=on_errors,
-                                            elemental_info=elemental_info)
-        self.composition = GeometricMean(n_jobs=n_jobs,
-                                         on_errors=on_errors,
-                                         elemental_info=elemental_info)
-        self.composition = HarmonicMean(n_jobs=n_jobs,
-                                        on_errors=on_errors,
-                                        elemental_info=elemental_info)
-        self.composition = MaxPooling(n_jobs=n_jobs,
-                                      on_errors=on_errors,
-                                      elemental_info=elemental_info)
-        self.composition = MinPooling(n_jobs=n_jobs,
-                                      on_errors=on_errors,
-                                      elemental_info=elemental_info)
+        self.composition = WeightedAverage(n_jobs=n_jobs, on_errors=on_errors, elemental_info=elemental_info)
+        self.composition = WeightedSum(n_jobs=n_jobs, on_errors=on_errors, elemental_info=elemental_info)
+        self.composition = WeightedVariance(n_jobs=n_jobs, on_errors=on_errors, elemental_info=elemental_info)
+        self.composition = GeometricMean(n_jobs=n_jobs, on_errors=on_errors, elemental_info=elemental_info)
+        self.composition = HarmonicMean(n_jobs=n_jobs, on_errors=on_errors, elemental_info=elemental_info)
+        self.composition = MaxPooling(n_jobs=n_jobs, on_errors=on_errors, elemental_info=elemental_info)
+        self.composition = MinPooling(n_jobs=n_jobs, on_errors=on_errors, elemental_info=elemental_info)

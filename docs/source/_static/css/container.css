@@ -1,0 +1,16 @@
+#container {
+    /* min-height: 100vh; */
+    display: flex;
+}
+.left {
+    width: 30vw;
+    /* flex: 1; */
+    padding: .5rem;
+    overflow: auto;
+}
+.right {
+    width: 70vw;
+    /* flex: 1; */
+    padding: 0.5rem;
+    overflow: auto;
+}

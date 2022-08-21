@@ -10,14 +10,26 @@ What is XenonPy project
 
 |MacOS| |Windows| |Ubuntu| |readthedocs| |codecov| |version| |python| |total-dl| |per-dl|
 
-.. note::
+.. raw:: html
 
-   To all those who have purchased the book `マテリアルズインフォマティクス`_  published by `KYORITSU SHUPPAN`_:
 
-   The link to the exercises has changed to https://github.com/yoshida-lab/XenonPy/tree/master/mi_book.
-   Please follow the new link to access all these exercises.
-
-   We apologize for the inconvenience.
+    <div class="admonition note">
+    <p class="admonition-title">Note</p>
+    <p class="admonition-body">
+        <div id="container">
+            <div class="left">
+                <a href="https://www.kyoritsu-pub.co.jp/book/b10013510.html">
+                    <img src="https://hondana-image.s3.amazonaws.com/book/image/10013510/normal_efd4a971-dec1-47ca-8d29-d448f099d7f6.jpg" alt="マテリアルズインフォマティクス">
+                </a>
+            </div>
+            <div class="right">
+                <p>To all those who have purchased the book <a class="reference external" href="https://www.kyoritsu-pub.co.jp/book/b10013510.html">Materials Informatics</a> published by <a class="reference external" href="https://www.kyoritsu-pub.co.jp/">KYORITSU SHUPPAN</a>:</p>
+                <p>The link to the exercises has changed to <a class="reference external" href="https://github.com/yoshida-lab/XenonPy/tree/master/mi_book">https://github.com/yoshida-lab/XenonPy/tree/master/mi_book</a>.
+                Please follow the new link to access all these exercises.</p>
+                <p>We apologize for the inconvenience.</p>
+            </div>
+        </div>
+    </div>
 
 --------
 Overview
@@ -107,8 +119,6 @@ This project is under continuous development. We would appreciate any feedback f
 Code contributions are also very welcomed. See :doc:`contribution` for more details.
 
 
-.. _マテリアルズインフォマティクス: https://www.kyoritsu-pub.co.jp/book/b10013510.html
-.. _KYORITSU SHUPPAN: https://www.kyoritsu-pub.co.jp/
 .. _pandas: https://pandas.pydata.org
 .. _PyTorch: http://pytorch.org/
 .. _Xenon: https://en.wikipedia.org/wiki/Xenon

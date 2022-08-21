@@ -40,18 +40,9 @@ language = 'en'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'nbsphinx',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.doctest',
-    'sphinx.ext.napoleon',
-    'sphinx_autodoc_typehints',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.githubpages',
-    'sphinx.ext.autosectionlabel'
+    'nbsphinx', 'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.napoleon', 'sphinx_autodoc_typehints',
+    'sphinx.ext.intersphinx', 'sphinx.ext.todo', 'sphinx.ext.coverage', 'sphinx.ext.mathjax', 'sphinx.ext.viewcode',
+    'sphinx.ext.githubpages', 'sphinx.ext.autosectionlabel'
 ]
 
 exclude_patterns = ['_build', '**.ipynb_checkpoints']
@@ -191,8 +182,8 @@ man_pages = [(master_doc, 'XenonPy', 'XenonPy Documentation', [author], 1)]
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'XenonPy', 'XenonPy Documentation', author, 'XenonPy',
-     'One line description of project.', 'Miscellaneous'),
+    (master_doc, 'XenonPy', 'XenonPy Documentation', author, 'XenonPy', 'One line description of project.',
+     'Miscellaneous'),
 ]
 
 # Example configuration for intersphinx: refer to the Python standard library.
@@ -215,4 +206,5 @@ def skip(app, what, name, obj, skip, options):
 
 
 def setup(app):
+    app.add_stylesheet("css/container.css")
     app.connect("autodoc-skip-member", skip)

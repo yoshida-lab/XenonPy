@@ -33,11 +33,10 @@ class KernelMean(BaseFeaturizer):
                  *,
                  feature_matrix: Union[None, pd.DataFrame] = None,
                  grid: Union[None, int, Sequence[int], Sequence[Sequence[float]]] = None,
-                 n_jobs=-1,
                  on_errors='raise',
                  return_type='any',
                  target_col='composition'):
-        super().__init__(n_jobs=n_jobs, on_errors=on_errors, return_type=return_type, target_col=target_col)
+        super().__init__(n_jobs=0, on_errors=on_errors, return_type=return_type, target_col=target_col)
 
         if feature_matrix is None:  # use elemental info
             feature_matrix = preset.elements_completed
@@ -71,12 +70,23 @@ class KernelMean(BaseFeaturizer):
 
         self._kernel_matrix = pd.DataFrame(kernel_matrix, index=feature_matrix.index, columns=labels)
 
-    def featurize(self, comp):
-        if isinstance(comp, PMGComp):
-            comp = comp.as_dict()
+    def featurize(self, comps):
+        # Unified to python list
+        if isinstance(comps, (pd.Series, np.ndarray)):
+            comps = comps.tolist()
 
-        atoms = sum(comp.values())
-        return sum([self._kernel_matrix.loc[e].values * (n / atoms) for e, n in comp.items()])
+        size = len(comps)
+        kernel_matrix = self._kernel_matrix
+        proportion_matrix = np.zeros((size, kernel_matrix.shape[0]))
+
+        for i, comp in enumerate(comps):
+            t = sum(comp.values())
+            for (k, v) in comp.items():
+                elem_i = kernel_matrix.index.get_loc(k)
+                proportion_matrix[i, elem_i] = v / t
+
+        # fast way using matrix calculation
+        return (proportion_matrix.T[:, :, np.newaxis] @ (kernel_matrix.values)[:, np.newaxis, :]).sum(axis=0)
 
     @property
     def feature_labels(self):

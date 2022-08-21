@@ -14,7 +14,7 @@ What is XenonPy project
 
    To all those who have purchased the book `マテリアルズインフォマティクス`_  published by `KYORITSU SHUPPAN`_:
 
-   The link of exercises was changed to https://github.com/yoshida-lab/XenonPy/tree/master/mi_book.
+   The link to the exercises has changed to https://github.com/yoshida-lab/XenonPy/tree/master/mi_book.
    Please follow the new link to access all these exercises.
 
    We apologize for the inconvenience.

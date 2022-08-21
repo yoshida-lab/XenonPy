@@ -12,7 +12,6 @@ What is XenonPy project
 
 .. raw:: html
 
-
     <div class="admonition note">
     <p class="admonition-title">Note</p>
     <p class="admonition-body">

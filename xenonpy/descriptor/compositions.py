@@ -2,8 +2,7 @@
 #  Use of this source code is governed by a BSD-style
 #  license that can be found in the LICENSE file.
 
-import itertools
-from typing import Callable, List, Sequence, Union
+from typing import Callable, List, Sequence, Union, Tuple
 
 import numpy as np
 import pandas as pd
@@ -11,6 +10,7 @@ from joblib import Parallel, delayed
 from pymatgen.core import Composition as PMGComp
 from sklearn.preprocessing import MinMaxScaler
 from xenonpy.datatools import preset
+from xenonpy.descriptor import calculate_rbf_kernel_matrix
 from xenonpy.descriptor.base import (BaseCompositionFeaturizer, BaseDescriptor, BaseFeaturizer)
 
 __all__ = [
@@ -33,45 +33,30 @@ class KernelMean(BaseFeaturizer):
     """
 
     def __init__(self,
-                 kernel_func: Union[None, Callable[[np.ndarray, np.ndarray], np.ndarray]],
                  *,
+                 kernel_matrix: Union[None, pd.DataFrame, Callable[[np.ndarray, np.ndarray], Tuple[np.ndarray, str]]],
                  feature_matrix: Union[None, pd.DataFrame] = None,
-                 grid: Union[None, int, Sequence[int], Sequence[Sequence[float]]] = None,
                  on_errors: str = 'raise',
                  return_type: str = 'any',
-                 target_col: Union[List[str], str, None] = 'composition',
+                 target_col: Union[Sequence[str], str, None] = 'composition',
                  n_jobs: int = 1):
         super().__init__(n_jobs=0, on_errors=on_errors, return_type=return_type, target_col=target_col)
 
-        if feature_matrix is None:  # use elemental info
-            feature_matrix = preset.elements_completed
+        # prepare kernel matrix
+        if kernel_matrix is None:
+            if feature_matrix is None:  # use elemental info
+                feature_matrix = preset.elements_completed
 
-        # re-scale to [0, 1]
-        scaled_matrix = MinMaxScaler().fit_transform(feature_matrix)
-
-        # calculate centers for each feature
-        if grid is None:
-            grid = scaled_matrix.values.mean(axis=0).reshape(-1, 1)  # use mean of feature as center
-        elif isinstance(grid, int):
-            grid = np.array([np.linspace(0, 1, grid)] * scaled_matrix.shape[1])  # create bins
-        elif isinstance(grid, Sequence):
-            grid = np.asarray(grid)
-            if grid.ndim == 1:
-                if grid.size != scaled_matrix.shape[1]:
-                    raise ValueError(
-                        f'length of grid ({grid.size}) must be equal to feature size ({scaled_matrix.shape[1]})')
-                grid = np.array([np.linspace(0, 1, grid) for i in grid])
-            elif grid.ndim == 2:
-                pass  # direct input
-            else:
-                raise ValueError('dim of grid must be 1 or 2')
-
-        # calculate kernel matrix for featrues
-        kernel_matrix = kernel_func(scaled_matrix, grid)
-
-        # generate column names of output
-        labels = itertools.chain(
-            *[[f'{n}_k{k+1}' for k in range(g.size)] for n, g in zip(feature_matrix.columns, grid)])
+            # calculate kernel matrix
+            all_dists, labels = calculate_rbf_kernel_matrix(element_info=feature_matrix)
+            all_dists = [MinMaxScaler().fit_transform(np.sum(m, axis=0).T).T for m in all_dists
+                        ]  # MinMaxScale for each element
+            kernel_matrix, labels = np.concatenate(all_dists, axis=1), [f'{l}_{i}' for i, l in enumerate(labels.index)]
+        elif callable(kernel_matrix):
+            # calculate kernel matrix
+            kernel_matrix, labels = kernel_matrix(feature_matrix)
+        else:
+            kernel_matrix, labels = kernel_matrix.values, kernel_matrix.columns
 
         self._kernel_matrix = pd.DataFrame(kernel_matrix, index=feature_matrix.index, columns=labels)
         self.__n_jobs = n_jobs  # this param should not overwrite the property of parent class

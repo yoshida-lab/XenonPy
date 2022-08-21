@@ -18,7 +18,7 @@ from typing import Union, Sequence
 from sklearn.preprocessing import MinMaxScaler
 from xenonpy.datatools import preset
 
-__all__ = ['rbf_kernel']
+__all__ = ['rbf_kernel' 'calculate_rbf_kernel_matrix']
 
 
 def rbf_kernel(x_i: np.ndarray, x_j: Union[np.ndarray, int, float], sigmas: Union[float, int, np.ndarray,
@@ -64,22 +64,24 @@ def rbf_kernel(x_i: np.ndarray, x_j: Union[np.ndarray, int, float], sigmas: Unio
 
 
 def calculate_rbf_kernel_matrix(
-    *,
-    element_info: Union[None, pd.DataFrame] = None,
-    quartiles: Sequence[int] = (25, 50, 75),
-    half_interval_by_sigma: float = 2,
-    sort_centers: bool = True,
-    scaled_element_info: bool = False,
+        *,
+        element_info: Union[None, pd.DataFrame] = None,
+        scaled_element_info: bool = False,
+        quartiles: Sequence[int] = (25, 50, 75),
+        half_interval_by_sigma: float = 2,
+        sort_centers: bool = True,
 ):
     if element_info is None:
-        elem = preset.elements_completed
+        element_info = preset.elements_completed
 
     if scaled_element_info:
-        elem = pd.DataFrame(MinMaxScaler().fit_transform(elem), columns=elem.columns, index=elem.index)
+        element_info = pd.DataFrame(MinMaxScaler().fit_transform(element_info),
+                                    columns=element_info.columns,
+                                    index=element_info.index)
 
     all_dists = []
     center_labels = []
-    for feature, data in elem.iteritems():
+    for feature, data in element_info.iteritems():
         if sort_centers:
             data = data.values
             centers = np.unique(data)
@@ -95,4 +97,4 @@ def calculate_rbf_kernel_matrix(
         all_dists.append(dists)
         center_labels.append(pd.Series(centers, index=[feature] * centers.size))
 
-    return np.concatenate(all_dists, axis=2), pd.concat(center_labels)
+    return all_dists, pd.concat(center_labels)

@@ -75,11 +75,12 @@ class KernelMean(BaseFeaturizer):
         if isinstance(comp, PMGComp):
             comp = comp.as_dict()
 
-        return sum([self._kernel_matrix.loc[e].values for e, n in comp.items()])
+        atoms = sum(comp.values())
+        return sum([self._kernel_matrix.loc[e].values * (n / atoms) for e, n in comp.items()])
 
     @property
     def feature_labels(self):
-        return self._labels
+        return self._kernel_matrix.columns
 
 
 class Counting(BaseCompositionFeaturizer):

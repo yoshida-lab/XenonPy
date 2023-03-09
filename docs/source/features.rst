@@ -184,6 +184,8 @@ Access https://github.com/yoshida-lab/XenonPy/blob/master/samples/visualization.
 XenonPy.MDL
 -----------
 
+**WARNING: This subsection's information is out-dated and the details are no long true. Currently XenonPy.MDL is undergoing indefinite maintenance. Please refer to the github README page for the latest update.**
+
 XenonPy.MDL is a library of pre-trained models that were obtained by feeding diverse materials data on structure-property relationships into neural networks and some other supervised learning algorithms.
 The current release (version 0.1.0.beta) contains more than 140,000 models (include private models) on physical, chemical, electronic, thermodynamic, or mechanical properties of small organic molecules (15 properties), polymers/polymer composites (18), and inorganic compounds (12).
 Pre-trained neural networks are distributed as either the R (MXNet) or Python (PyTorch) model objects.

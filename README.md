@@ -6,7 +6,7 @@
 
 > **To all those who have purchased the book [マテリアルズインフォマティクス](https://www.kyoritsu-pub.co.jp/book/b10013510.html) published by [KYORITSU SHUPPAN](https://www.kyoritsu-pub.co.jp/): The link to the exercises has changed to https://github.com/yoshida-lab/XenonPy/tree/master/mi_book. Please follow the new link to access all these exercises.**
 
-> **Our XenonPy.MDL is under technical maintenance due to some security issues found during a server upgrade. Our current plan is to recover the access at the release of v0.7 (a conservative estimate of release date would be Sep. 2022). In the mean time, if you would like to get access to the pretrained models, please contact us directly with your purpose of using the models and your affiliation. We will try to provide necessary aid to access part of the model library based on specific needs. Sorry for all the inconvenience. We will make further announcement here when a more concrete recovery schedule is available.**
+> **Our XenonPy.MDL is under indefinite technical maintenance due to some security issues found during a server upgrade. Our current plan is to recover the access at the release of v0.7 (a conservative estimate of release date would be Jan 2024). In the mean time, if you would like to get access to the pretrained models, please contact us directly with your purpose of using the models and your affiliation. We will try to provide necessary aid to access part of the model library based on specific needs. Sorry for all the inconvenience. We will make further announcement here when a more concrete recovery schedule is available.**
 
 
 **We apologize for the inconvenience** 🥺🙏🙇

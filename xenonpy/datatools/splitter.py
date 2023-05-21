@@ -91,10 +91,17 @@ class Splitter(BaseEstimator):
             else:
                 self._train = self._sample_size
         else:
-            self._train, self._test = train_test_split(self._sample_size,
-                                                       test_size=self._test_size,
-                                                       random_state=random_state,
-                                                       shuffle=self._shuffle)
+            if isinstance(self._k_fold, Iterable):
+                k_fold_labels: pd.Series = pd.Series(self._k_fold).reset_index(drop=True)
+                unique_labels = k_fold_labels.unique()
+                test_size = round(unique_labels.size * self._test_size) if isinstance(self._test_size, float) else round(unique_labels.size * (self._test_size / self.size))
+                test_lables: pd.Series = pd.Series(unique_labels).sample(test_size, random_state=random_state)
+                self._train, self._test = k_fold_labels[~k_fold_labels.isin(test_lables)].index.values, k_fold_labels[k_fold_labels.isin(test_lables)].index.values
+            else:
+                self._train, self._test = train_test_split(self._sample_size,
+                                                           test_size=self._test_size,
+                                                           random_state=random_state,
+                                                           shuffle=self._shuffle)
 
         if isinstance(self._k_fold, int):
             cv = KFold(n_splits=self._k_fold, shuffle=self._shuffle, random_state=random_state)

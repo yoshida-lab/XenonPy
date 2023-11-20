@@ -39,6 +39,7 @@ dependencies:
   # Others
   - jupyterlab >=4.0.0,<5.0.0a0
   - jupyterlab-lsp
+  - python-lsp-server
   - ipywidgets
   - shapely
   - requests

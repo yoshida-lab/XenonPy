@@ -1,0 +1,52 @@
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  # Number
+  - numpy
+  - scipy
+  - pandas
+  - "libblas=*=*mkl"
+
+  # Mol/Crystall
+  - pymatgen
+  - ase
+  - rdkit
+  - matminer
+  - mordred
+  - matid
+  - nglview
+
+  # Plotting
+  - seaborn
+  - matplotlib
+  - plotly
+
+  # Machine larning
+  - scikit-learn
+  - imbalanced-learn
+  - optuna
+  - pytorch >=2.0.0,<3.0.0
+  - pytorch-cuda=12.1
+  - torchvision
+  - torchaudio
+  - transformers
+  - diffusers
+
+  # Others
+  - jupyterlab
+  - ipywidgets
+  - shapely
+  - requests
+  - ruamel.yaml
+  - joblib
+  - pybtex
+  - tqdm
+  - Deprecated
+  - fsspec
+  - emmet-core
+  - peewee
+  - pip
+  - pip:
+      - xenonpy

@@ -36,6 +36,7 @@ dependencies:
   - nodejs
   - jupyterlab
   - jupyterlab-lsp
+  - ipywidgets
   - python-lsp-server
   - shapely
   - requests

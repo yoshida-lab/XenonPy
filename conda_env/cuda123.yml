@@ -26,6 +26,8 @@ dependencies:
   # Machine larning
   - scikit-learn
   - imbalanced-learn
+  - fastcluster
+  - umap-learn
   - optuna
   - pytorch >=2.0.0,<3.0.0
   - pytorch-cuda=12.1
@@ -39,6 +41,7 @@ dependencies:
   - ipywidgets
   - shapely
   - requests
+  - numba
   - ruamel.yaml
   - joblib
   - pybtex

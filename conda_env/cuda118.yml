@@ -1,0 +1,51 @@
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  # Number
+  - numpy
+  - scipy
+  - pandas
+
+  # Mol/Crystall
+  - pymatgen
+  - ase
+  - rdkit
+  - matminer
+  - matid
+
+  # Plotting
+  - seaborn
+  - matplotlib
+  - plotly
+
+  # Machine larning
+  - scikit-learn
+  - imbalanced-learn
+  - optuna
+  - umap-learn
+  - pytorch >=2.0.0,<3.0.0
+  - pytorch-cuda=11.8
+  - torchvision
+  - torchaudio
+  - transformers
+  - diffusers
+
+  # Others
+  - nodejs
+  - jupyterlab
+  - jupyterlab-lsp
+  - python-lsp-server
+  - shapely
+  - requests
+  - ruamel.yaml
+  - joblib
+  - tqdm
+  - Deprecated
+  - fsspec
+  - emmet-core
+  - peewee
+  - pip
+  - pip:
+    - xenonpy

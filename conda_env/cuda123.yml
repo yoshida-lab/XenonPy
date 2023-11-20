@@ -37,7 +37,8 @@ dependencies:
   - diffusers
 
   # Others
-  - jupyterlab
+  - jupyterlab >=4.0.0,<5.0.0a0
+  - jupyterlab-lsp
   - ipywidgets
   - shapely
   - requests

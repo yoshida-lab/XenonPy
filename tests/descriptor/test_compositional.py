@@ -6,11 +6,11 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from xenonpy.descriptor import Compositions, Counting
+from xenonpy.descriptor import Compositions, Counting, KernelMean, RBFKernel
 from xenonpy.descriptor.base import BaseCompositionFeaturizer
 
 
-def test_compositional_feature_1():
+def test_base_composition_1():
 
     class FakeFeaturizer(BaseCompositionFeaturizer):
 
@@ -69,6 +69,24 @@ def test_comp_descriptor_1():
     assert isinstance(tmp2, pd.DataFrame)
 
     assert np.all(tmp1.values == tmp2.values)
+
+
+def test_kernel_mean_1():
+    comps = [{'H': 2}, {'Al': 3, 'Pd': 4}, {'C': 1, 'O': 5, 'H': 20}]
+
+    n_bins = 2
+    delta = 1 / (n_bins - 1)
+    kernel_mean = KernelMean(RBFKernel(sigma=delta * 0.4), grid=n_bins, n_jobs=1)
+    desc = kernel_mean.transform(comps)
+    assert desc.shape == (3, 116)
+    assert isinstance(desc, np.ndarray)
+
+    n_bins = 3
+    delta = 1 / (n_bins - 1)
+    kernel_mean = KernelMean(RBFKernel(sigma=delta * 0.4), grid=n_bins, n_jobs=1)
+    desc = kernel_mean.transform(pd.Series(comps))
+    assert desc.shape == (3, 174)
+    assert isinstance(desc, pd.DataFrame)
 
 
 if __name__ == "__main__":

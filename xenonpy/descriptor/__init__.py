@@ -7,3 +7,4 @@ from .compositions import *
 from .fingerprint import *
 from .frozen_featurizer import *
 from .structure import *
+from .kernel import *

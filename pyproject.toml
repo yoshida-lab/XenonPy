@@ -24,7 +24,7 @@ packages = [{ include = "xenonpy" }]
 
 [[tool.poetry.source]]
 name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/nightly/cpu"
+url = "https://download.pytorch.org/whl/cpu"
 priority = "explicit"
 
 [tool.poetry.dependencies]
@@ -51,7 +51,10 @@ outdated = ["mordred"]
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.5.2"
-torch = { version = "^2.0.0+cpu", source = "pytorch-cpu" }
+torch = [
+    { version = "^2.0.0", platform = "darwin", source = "pypi" },
+    { version = "^2.0.0+cpu", platform = "linux", source = "pytorch-cpu" },
+]
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.2.2"

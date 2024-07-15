@@ -17,7 +17,7 @@
         "ghcr.io/akhildevelops/devcontainer-features/apt:0": {
             "PACKAGES": "wget,curl,git,make,ca-certificates,libreadline-dev,libsqlite3-dev,libncurses5-dev,xz-utils,libffi-dev,liblzma-dev,llvm,build-essential"
         },
-        "ghcr.io/nikobockerman/devcontainer-features/poetry-persistent-cache:1": {}
+        // "ghcr.io/nikobockerman/devcontainer-features/poetry-persistent-cache:1": {}
     },
 
     // 👇 Use 'forwardPorts' to make a list of ports inside the container available locally.
@@ -36,7 +36,8 @@
                 "streetsidesoftware.code-spell-checker",
                 "tamasfe.even-better-toml",
                 "charliermarsh.ruff",
-                "ms-vscode.makefile-tools"
+                "ms-vscode.makefile-tools",
+                "ms-azuretools.vscode-docker"
             ],
             "settings": {
                 "terminal.integrated.defaultProfile.linux": "zsh",

@@ -106,7 +106,6 @@ venv.bak/
 # *.csv
 tags
 .idea/
-.vscode/
 pyinstrument
 
 .pytest_cache/

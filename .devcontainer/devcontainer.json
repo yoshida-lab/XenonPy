@@ -1,0 +1,53 @@
+{
+    "name": "Python 3",
+    // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+    "image": "mcr.microsoft.com/devcontainers/python:1-3.12-bookworm",
+
+    // 👇 Features to add to the Dev Container. More info: https://containers.dev/implementors/features.
+    "features": {
+        "ghcr.io/devcontainers-contrib/features/poetry:2": {
+            "version": "latest"
+        },
+        "ghcr.io/nils-geistmann/devcontainers-features/zsh:0": {
+            "setLocale": true,
+            "theme": "robbyrussell",
+            "plugins": "git poetry",
+            "desiredLocale": "en_US.UTF-8 UTF-8"
+        },
+        "ghcr.io/akhildevelops/devcontainer-features/apt:0": {
+            "PACKAGES": "wget,curl,git,make,ca-certificates,libreadline-dev,libsqlite3-dev,libncurses5-dev,xz-utils,libffi-dev,liblzma-dev,llvm,build-essential"
+        },
+        // "ghcr.io/nikobockerman/devcontainer-features/poetry-persistent-cache:1": {}
+    },
+
+    // 👇 Use 'forwardPorts' to make a list of ports inside the container available locally.
+    "forwardPorts": [8888],
+
+    // 👇 Use 'postCreateCommand' to run commands after the container is created.
+    "postCreateCommand": "poetry config virtualenvs.in-project true && poetry install --no-root",
+
+    // 👇 Configure tool-specific properties.
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "njpwerner.autodocstring",
+                "ms-python.vscode-pylance",
+                "streetsidesoftware.code-spell-checker",
+                "tamasfe.even-better-toml",
+                "charliermarsh.ruff",
+                "ms-vscode.makefile-tools",
+                "ms-azuretools.vscode-docker"
+            ],
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "terminal.integrated.profiles.linux": {
+                    "zsh": {
+                        "path": "/bin/zsh",
+                        "args": ["-l"]
+                    }
+                }
+            }
+        }
+    }
+}
